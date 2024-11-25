@@ -215,6 +215,22 @@ module _ (pullbacks : ∀ {X Y Z} f g → Pullback C {X} {Y} {Z} f g) {X Y : Ob}
     module pb' = Pullback (pullbacks (f ∘ pb.p₂) f)
 ```
 
+## Cartesian Functors {defines="cartesian-functor"}
+
+
+```agda
+
+pres-pullback
+  : ∀ {oj ℓj} {J : Precategory oj ℓj} → Functor J C → Type _
+pres-pullback {J = J} F =
+  ∀ {P X Y Z} {p1 : J .Precategory.Hom P X} {p2 : J .Precategory.Hom P Y}
+      {f : J .Precategory.Hom X Z} {g : J .Precategory.Hom Y Z}
+  → is-pullback J p1 f p2 g
+  → is-pullback C (F .F₁ p1) (F .F₁ f) (F .F₁ p2) (F .F₁ g)
+
+
+```
+
 ## Equifibred natural transformations {defines="equifibred cartesian-natural-transformation"}
 
 A [[natural transformation]] $F \To G$ is called **equifibred**, or

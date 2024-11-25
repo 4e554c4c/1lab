@@ -1,5 +1,6 @@
 <!--
 ```agda
+{-# OPTIONS --allow-unsolved-metas #-}
 open import Cat.Instances.Functor
 open import Cat.Instances.Product
 open import Cat.Diagram.Pullback
@@ -102,22 +103,20 @@ module _ (pb : ∀ {a b c} (f : Hom a b) (g : Hom c b) → Pullback C f g) where
       res : T-Span-hom (T-Span-∘ .F₀ (x1 , x2))  (T-Span-∘ .F₀ (y1 , y2))
       res .map = x→y
       --res .left = sym (pullr y.p₂∘universal ∙  pulll (sym (g .left)))
-      res .left = {! !}
+      res .left = {! sym (pullr y.p₂∘universal ∙ ? )  !}
       res .right = sym (pullr y.p₁∘universal ∙ pulll (sym (f .right)))
 
-      {-
-  T-Span-∘ .F-id {x1 , x2} = T-Span-hom-path $ sym $ x.unique id-comm id-comm
-    where module x = Pullback (pb (x1 .left) (x2 .right))
+  T-Span-∘ .F-id {x1 , x2} = T-Span-hom-path $ sym $ x.unique id-comm (idr x.p₂ ∙ (sym $ eliml T.F-id))
+    where module x = Pullback (pb (x1 .left) (T.F₁ (x2 .right)))
 
   T-Span-∘ .F-∘ {x1 , x2} {y1 , y2} {z1 , z2} f g =
     T-Span-hom-path $ sym $ z.unique
       (pulll z.p₁∘universal ∙ pullr y.p₁∘universal ∙ assoc _ _ _)
-      (pulll z.p₂∘universal ∙ pullr y.p₂∘universal ∙ assoc _ _ _)
+      (pulll z.p₂∘universal ∙ pullr y.p₂∘universal ∙ assoc _ _ _ ∙ (sym $ T.F-∘ _ _ ⟩∘⟨refl))
     where
-      module x = Pullback (pb (x1 .left) (x2 .right))
-      module y = Pullback (pb (y1 .left) (y2 .right))
-      module z = Pullback (pb (z1 .left) (z2 .right))
-      -}
+      module x = Pullback (pb (x1 .left) (T.F₁ (x2 .right)))
+      module y = Pullback (pb (y1 .left) (T.F₁ (y2 .right)))
+      module z = Pullback (pb (z1 .left) (T.F₁ (z2 .right)))
 
 
 

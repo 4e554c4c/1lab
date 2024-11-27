@@ -9,9 +9,12 @@ open import 1Lab.Reflection
 
 open import Cat.Instances.StrictCat
 open import Cat.Functor.Properties
+open import Cat.Functor.Equivalence
 open import Cat.Functor.Base
 open import Cat.Prelude
 open import Cat.Strict
+open import Cat.Instances.Shape.Cospan --using (·←·→·)
+open import Cat.Instances.Shape.Parallel --using (·←·→·)
 
 import Cat.Reasoning
 ```
@@ -164,6 +167,29 @@ Graphs o ℓ .Precategory.idl _ = Graph-hom-path (λ _ → refl) (λ _ → refl)
 Graphs o ℓ .Precategory.assoc _ _ _ = Graph-hom-path (λ _ → refl) (λ _ → refl)
 
 module Graphs {o} {ℓ} = Cat.Reasoning (Graphs o ℓ)
+```
+
+the category $\Graphs$ is equivalent to the category of presheaves of
+spans (equivalently: functors from cospans)
+```agda
+
+module _ {o ℓ : Level} where
+  open Functor
+  open Graph
+  span-psh-to-graph : Functor (PSh o {_} {_} ·⇉·) (Graphs o ℓ)
+  span-psh-to-graph .F₀ F .Vertex = ∣ F .F₀ true ∣
+  span-psh-to-graph .F₀ F .Edge x₁ x₂ = {!  F .F₁ true !}
+  span-psh-to-graph .F₀ F .Vertex-is-set = hlevel 2
+  span-psh-to-graph .F₀ F .Edge-is-set x₁ y x₂ y₁ = {! !}
+  span-psh-to-graph .F₁ η = {! !}
+  span-psh-to-graph .F-id = {! !}
+  span-psh-to-graph .F-∘ F G = {! !}
+
+  graph-to-span-psh : Functor (Graphs o ℓ) (PSh o ·⇉·)
+  graph-to-span-psh .F₀ G = {! Fork ? ? !}
+  graph-to-span-psh .F₁ f = {! !}
+  graph-to-span-psh .F-id = {! !}
+  graph-to-span-psh .F-∘ G H = {! !}
 ```
 
 <!--

@@ -17,12 +17,10 @@ open import Cat.Prelude
 
 module Cat.Diagram.Monad.Pullback {o ℓ} where
 
-
-
 module _ {C : Precategory o ℓ} where
   private module C = Precategory C
 
-  record is-cartesian-monad (T : Monad C) : Type (o ⊔ ℓ) where
+  record IsCartesianMonad (T : Monad C) : Type (o ⊔ ℓ) where
     private module T = Monad T
 
     field
@@ -33,11 +31,12 @@ module _ {C : Precategory o ℓ} where
 
 module _ (C : Precategory o ℓ) where
   record CartesianMonad : Type (o ⊔ ℓ) where
+    constructor cartesian-monad
     field
       U : Monad C
-      is-cartesian : is-cartesian-monad U
+      is-cartesian : IsCartesianMonad U
     open Monad U public
-    open is-cartesian-monad is-cartesian public
+    open IsCartesianMonad is-cartesian public
 
 
 ```

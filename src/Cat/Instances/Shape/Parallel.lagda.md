@@ -67,6 +67,43 @@ parallel arrows between them. It is the shape of [[equaliser]] and
   true  false → auto
   false true  → auto
   false false → auto
+
+--  precat .Hom false false = ⊤
+--  precat .Hom false true  = Bool
+--  precat .Hom true  false = ⊥
+--  precat .Hom true  true  = ⊤
+·⇇· = ·⇉· ^op
+
+·⇇·≡·⇉· : ·⇇· ≡ ·⇉·
+·⇇·≡·⇉· = p where
+  open Precategory
+
+  swap : Bool ≡ Bool
+  swap = ua (not , not-is-equiv)
+
+  partial : ∀ i (x y : swap i) → Partial (i ∨ ~ i) _
+  partial i x y (i = i0) = (·⇇· .Hom) , ? , ?
+  partial i x y (i = i1) = (·⇉· .Hom) , (λ x → x) , id-equiv
+
+  hom : PathP (λ i → swap i → swap i → Type lzero) (·⇇· .Hom) (·⇉· .Hom)
+  hom i x y = Glue ((·⇇· .Hom)  (unglue (i ∨ ~ i) x) (unglue (i ∨ ~ i) y)) ({! !} i x y)
+
+  p : ·⇉· ^op ≡ ·⇉·
+  p i .Ob = swap i
+  p i .Hom x y =  hcomp (∂ i) λ where
+        j (i = i0) → ·⇉· .Hom y x
+        j (i = i1) → ·⇉· .Hom x y
+        j (j = i0) → {! !}
+       -- case (unglue (∂ i) x , unglue (∂ i) y ) of (λ where
+       --   true  true → ⊤
+       --   false  false → ⊤
+       --   x  y → if x then ⊥ else Bool)
+  --p i .Hom-set = ·⇉· .Hom-set
+  --p i .id = {! ·⇉· .id !}
+  --p i ._∘_ = ·⇉· ._∘_
+  --p i .idr = ·⇉· .idr
+  --p i .idl = ·⇉· .idl
+  --p i .assoc = ·⇉· .assoc
 ```
 -->
 
@@ -122,5 +159,4 @@ module _ {o ℓ} {C : Precategory o ℓ} where
     nt .is-natural true true tt = elimr (F .F-id) ∙ sym (idl _)
     nt .is-natural false true true = sym coequal ∙ sym (idl _)
     nt .is-natural false true false = sym (idl _)
-    nt .is-natural false false tt = elimr (F .F-id) ∙ sym (idl _)
 ```

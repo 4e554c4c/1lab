@@ -10,6 +10,7 @@ open import Data.Bool
 import Cat.Reasoning
 open import Cat.Functor.Equivalence
 open import Cat.Functor.Equivalence.Path
+open import 1Lab.Reflection.HLevel
 ```
 -->
 
@@ -95,8 +96,7 @@ module ·⇇· = Precategory ·⇇·
 
   F-is-iso : is-precat-iso F
   F-is-iso .has-is-ff {true} {true} .is-eqv _ = hlevel 0
-  F-is-iso .has-is-ff {true} {false} .is-eqv y .centre = y , refl
-  F-is-iso .has-is-ff {true} {false} .is-eqv _ .paths (s , p) = J' (λ s t p → (t , refl) ≡ (s , p)) (λ t → refl) p
+  F-is-iso .has-is-ff {true} {false} = id-equiv
   F-is-iso .has-is-ff {false} {false} .is-eqv y = hlevel 0
   F-is-iso .has-is-iso = not-is-equiv
 ```
@@ -123,6 +123,16 @@ module _ {o ℓ} {C : Precategory o ℓ} where
     funct .F-∘ {false} {false} {true}  f g   = sym (idr _)
     funct .F-∘ {false} {true}  {true}  tt _  = sym (idl _)
     funct .F-∘ {true}  {true}  {true}  tt tt = sym (idl _)
+
+  -- commutative diagrams of parallel shapes are mapped to natural transformations between `Fork`s
+  Fork-nt : ∀ {a a' b b'} → {e f : Hom a b} {g h : Hom a' b'} {t : Hom a a'} {u : Hom b b'}  →
+            (c₁ : u ∘ f ≡ h ∘ t) (c₂ : u ∘ e ≡ g ∘ t) → (Fork e f) => (Fork g h)
+  Fork-nt {u = u} _ _ ._=>_.η true = u
+  Fork-nt {t = t} _ _ ._=>_.η false = t
+  Fork-nt _ _ .is-natural true true _ = id-comm
+  Fork-nt _ _ .is-natural false false _ = id-comm
+  Fork-nt α _ .is-natural false true true = α
+  Fork-nt _ β .is-natural false true false = β
 
   forkl : (F : Functor ·⇉· C) → Hom (F .F₀ false) (F .F₀ true)
   forkl F = F .F₁ {false} {true} false

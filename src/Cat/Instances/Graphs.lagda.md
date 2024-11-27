@@ -176,20 +176,20 @@ spans (equivalently: functors from cospans)
 module _ {o ℓ : Level} where
   open Functor
   open Graph
-  span-psh-to-graph : Functor (PSh o {_} {_} ·⇉·) (Graphs o ℓ)
-  span-psh-to-graph .F₀ F .Vertex = ∣ F .F₀ true ∣
-  span-psh-to-graph .F₀ F .Edge x₁ x₂ = {!  F .F₁ true !}
-  span-psh-to-graph .F₀ F .Vertex-is-set = hlevel 2
-  span-psh-to-graph .F₀ F .Edge-is-set x₁ y x₂ y₁ = {! !}
-  span-psh-to-graph .F₁ η = {! !}
-  span-psh-to-graph .F-id = {! !}
-  span-psh-to-graph .F-∘ F G = {! !}
+  parallel-to-graph : Functor Cat[ ·⇉· , Sets o ] (Graphs o ℓ)
+  parallel-to-graph .F₀ F .Vertex = ∣ F .F₀ false ∣
+  parallel-to-graph .F₀ F .Edge x₁ x₂ = {!  F .F₁ true !}
+  parallel-to-graph .F₀ F .Vertex-is-set = hlevel 2
+  parallel-to-graph .F₀ F .Edge-is-set x₁ y x₂ y₁ = {! !}
+  parallel-to-graph .F₁ η = {! !}
+  parallel-to-graph .F-id = {! !}
+  parallel-to-graph .F-∘ F G = {! !}
 
-  graph-to-span-psh : Functor (Graphs o ℓ) (PSh o ·⇉·)
-  graph-to-span-psh .F₀ G = {! Fork ? ? !}
-  graph-to-span-psh .F₁ f = {! !}
-  graph-to-span-psh .F-id = {! !}
-  graph-to-span-psh .F-∘ G H = {! !}
+  graph-to-parallel : Functor (Graphs ℓ ℓ) Cat[ ·⇉· , Sets ℓ ]
+  graph-to-parallel .F₀ G = Fork {a = el! $ Σ[ s ∈ G .Vertex ] Σ[ d ∈ G .Vertex ] G .Edge s d } {el! $ G .Vertex} fst (fst ⊙ snd)
+  graph-to-parallel .F₁ f = Fork-nt {t = λ (s , d , e) → f .vertex s , f .vertex d , f .edge e} {u = f .vertex } refl refl
+  graph-to-parallel .F-id = Nat-path λ { true → refl ; false → refl }
+  graph-to-parallel .F-∘ G H = Nat-path λ { true → refl ; false → refl }
 ```
 
 <!--

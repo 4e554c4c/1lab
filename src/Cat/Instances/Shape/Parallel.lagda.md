@@ -8,6 +8,8 @@ open import Data.Fin.Finite
 open import Data.Bool
 
 import Cat.Reasoning
+open import Cat.Functor.Equivalence
+open import Cat.Functor.Equivalence.Path
 ```
 -->
 
@@ -68,42 +70,35 @@ parallel arrows between them. It is the shape of [[equaliser]] and
   false true  → auto
   false false → auto
 
---  precat .Hom false false = ⊤
---  precat .Hom false true  = Bool
---  precat .Hom true  false = ⊥
---  precat .Hom true  true  = ⊤
 ·⇇· = ·⇉· ^op
 
+module ·⇉· = Precategory ·⇉·
+module ·⇇· = Precategory ·⇇·
+
 ·⇇·≡·⇉· : ·⇇· ≡ ·⇉·
-·⇇·≡·⇉· = p where
-  open Precategory
+·⇇·≡·⇉· = Precategory-path F F-is-iso where
+  open Functor
+  F : Functor ·⇇· ·⇉·
+  F .F₀ x = not x
+  F .F₁ {true} {true} tt = tt
+  F .F₁ {true} {false} f = f
+  F .F₁ {false} {false} tt = tt
+  F .F-id {true} = refl
+  F .F-id {false} = refl
+  F .F-∘ {true} {true} {true} f g = refl
+  F .F-∘ {true} {true} {false} f g = refl
+  F .F-∘ {true} {false} {false} f g = refl
+  F .F-∘ {false} {false} {false} f g = refl
 
-  swap : Bool ≡ Bool
-  swap = ua (not , not-is-equiv)
+  open is-precat-iso
+  open is-iso
 
-  partial : ∀ i (x y : swap i) → Partial (i ∨ ~ i) _
-  partial i x y (i = i0) = (·⇇· .Hom) , ? , ?
-  partial i x y (i = i1) = (·⇉· .Hom) , (λ x → x) , id-equiv
-
-  hom : PathP (λ i → swap i → swap i → Type lzero) (·⇇· .Hom) (·⇉· .Hom)
-  hom i x y = Glue ((·⇇· .Hom)  (unglue (i ∨ ~ i) x) (unglue (i ∨ ~ i) y)) ({! !} i x y)
-
-  p : ·⇉· ^op ≡ ·⇉·
-  p i .Ob = swap i
-  p i .Hom x y =  hcomp (∂ i) λ where
-        j (i = i0) → ·⇉· .Hom y x
-        j (i = i1) → ·⇉· .Hom x y
-        j (j = i0) → {! !}
-       -- case (unglue (∂ i) x , unglue (∂ i) y ) of (λ where
-       --   true  true → ⊤
-       --   false  false → ⊤
-       --   x  y → if x then ⊥ else Bool)
-  --p i .Hom-set = ·⇉· .Hom-set
-  --p i .id = {! ·⇉· .id !}
-  --p i ._∘_ = ·⇉· ._∘_
-  --p i .idr = ·⇉· .idr
-  --p i .idl = ·⇉· .idl
-  --p i .assoc = ·⇉· .assoc
+  F-is-iso : is-precat-iso F
+  F-is-iso .has-is-ff {true} {true} .is-eqv _ = hlevel 0
+  F-is-iso .has-is-ff {true} {false} .is-eqv y .centre = y , refl
+  F-is-iso .has-is-ff {true} {false} .is-eqv _ .paths (s , p) = J' (λ s t p → (t , refl) ≡ (s , p)) (λ t → refl) p
+  F-is-iso .has-is-ff {false} {false} .is-eqv y = hlevel 0
+  F-is-iso .has-is-iso = not-is-equiv
 ```
 -->
 
@@ -159,4 +154,5 @@ module _ {o ℓ} {C : Precategory o ℓ} where
     nt .is-natural true true tt = elimr (F .F-id) ∙ sym (idl _)
     nt .is-natural false true true = sym coequal ∙ sym (idl _)
     nt .is-natural false true false = sym (idl _)
+    nt .is-natural false false tt = elimr (F .F-id) ∙ sym (idl _)
 ```

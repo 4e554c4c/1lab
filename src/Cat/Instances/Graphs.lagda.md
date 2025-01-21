@@ -11,6 +11,7 @@ open import Cat.Instances.StrictCat
 open import Cat.Functor.Properties
 open import Cat.Functor.Equivalence
 open import Cat.Functor.Base
+open import Cat.Functor.Adjoint
 open import Cat.Prelude
 open import Cat.Strict
 open import Cat.Instances.Shape.Cospan --using (·←·→·)
@@ -176,20 +177,72 @@ spans (equivalently: functors from cospans)
 module _ {o ℓ : Level} where
   open Functor
   open Graph
-  parallel-to-graph : Functor Cat[ ·⇉· , Sets o ] (Graphs o ℓ)
-  parallel-to-graph .F₀ F .Vertex = ∣ F .F₀ false ∣
-  parallel-to-graph .F₀ F .Edge x₁ x₂ = {!  F .F₁ true !}
-  parallel-to-graph .F₀ F .Vertex-is-set = hlevel 2
-  parallel-to-graph .F₀ F .Edge-is-set x₁ y x₂ y₁ = {! !}
-  parallel-to-graph .F₁ η = {! !}
-  parallel-to-graph .F-id = {! !}
-  parallel-to-graph .F-∘ F G = {! !}
+  parallel-to-graph : Functor Cat[ ·⇉· , Sets ℓ ] (Graphs ℓ ℓ)
+  parallel-to-graph .F₀ F = g
+    where module F = Functor F
+          g : Graph ℓ ℓ
+          g .Vertex = ∣ F.₀ true ∣
+          g .Edge s d = Σ[ e ∈ ∣ F.₀ false ∣ ]  F.₁ false e ≡ s × F.₁ true e ≡ d
+          g .Vertex-is-set = hlevel 2
+          g .Edge-is-set = hlevel 2
+  parallel-to-graph .F₁ {F} {G} nt = hom
+    where open _=>_ nt
+          hom : Graph-hom _ _
+          hom .vertex = η true
+          hom .edge {x} {y} (e , pₛ , pₜ) = η false e
+                                          , happly (sym (is-natural _ _ _)) e ∙ ap _ pₛ
+                                          , happly (sym (is-natural _ _ _)) e ∙ ap _ pₜ
+  parallel-to-graph .F-id {F}  = Graph-hom-path (λ _ → refl) (λ _  → Σ-prop-path (λ _ → hlevel 1) refl)
+  parallel-to-graph .F-∘ η ε = Graph-hom-path (λ _ → refl) (λ _ → Σ-prop-path (λ _ → hlevel 1) refl)
 
   graph-to-parallel : Functor (Graphs ℓ ℓ) Cat[ ·⇉· , Sets ℓ ]
   graph-to-parallel .F₀ G = Fork {a = el! $ Σ[ s ∈ G .Vertex ] Σ[ d ∈ G .Vertex ] G .Edge s d } {el! $ G .Vertex} fst (fst ⊙ snd)
   graph-to-parallel .F₁ f = Fork-nt {t = λ (s , d , e) → f .vertex s , f .vertex d , f .edge e} {u = f .vertex } refl refl
   graph-to-parallel .F-id = Nat-path λ { true → refl ; false → refl }
   graph-to-parallel .F-∘ G H = Nat-path λ { true → refl ; false → refl }
+
+
+  graph-to-parallel⊣parallel-to-graph : graph-to-parallel ⊣ parallel-to-graph
+  graph-to-parallel⊣parallel-to-graph = adjoint
+    where open _⊣_
+          open _=>_
+          open Cat.Reasoning
+          adjoint : graph-to-parallel ⊣ parallel-to-graph
+          adjoint .unit .η G = hom
+            where hom : Graph-hom _ _
+                  hom .vertex v = v
+                  hom .edge {u} {v} e = (u , v , e) , refl , refl
+          adjoint .unit .is-natural x y f = Graph-hom-path (λ _ → refl ) (λ _ → Σ-prop-path (λ _ → hlevel 1) refl)
+          adjoint .counit .η F = nt
+            where module F = Functor F
+                  nt : _ => _
+                  nt .η true x = x
+                  nt .η false (_ , _ , x , _ , _) = x
+                  nt .is-natural true true _ = sym F.F-id
+                  nt .is-natural false true true i (_ , _ , _ , _ , p) = p (~ i)
+                  nt .is-natural false true false i (_ , _ , _ , p , _) = p (~ i)
+                  nt .is-natural false false _ i (_ , _ , e , _ , _)= F.F-id (~ i) e
+          adjoint .counit .is-natural = {! !}
+          adjoint .zig = {! !}
+          adjoint .zag = {! !}
+{-
+
+
+  open is-equivalence
+  blah-blah-is-eqv : is-equivalence graph-to-parallel
+  blah-blah-is-eqv .F⁻¹ = parallel-to-graph
+  blah-blah-is-eqv .F⊣F⁻¹ = graph-to-parallel⊣parallel-to-graph
+  blah-blah-is-eqv .unit-iso x = {! !}
+  blah-blah-is-eqv .counit-iso x = {! !}
+
+  open is-precat-iso
+  open is-iso
+
+  blah-blah-is-iso : is-precat-iso parallel-to-graph
+  blah-blah-is-iso .has-is-ff {G} {G'} .is-eqv f = contr ({! !} , {! !}) λ { x → {! !} }
+  --blah-blah-is-iso .has-is-ff {_} {_} = ?
+  blah-blah-is-iso .has-is-iso = {! !}
+-}
 ```
 
 <!--

@@ -14,9 +14,9 @@ open import Cat.Functor.Base
 open import Cat.Functor.Adjoint
 open import Cat.Prelude
 open import Cat.Strict
-open import Cat.Instances.Shape.Cospan --using (·←·→·)
 open import Cat.Instances.Shape.Parallel --using (·←·→·)
 
+import Cat.Morphism
 import Cat.Reasoning
 ```
 -->
@@ -74,6 +74,15 @@ instance
   hlevel-proj-edge .get-argument (_ ∷ _ ∷ c v∷ _) = pure c
   {-# CATCHALL #-}
   hlevel-proj-edge .get-argument _ = typeError []
+
+Graph-path : ∀ {o ℓ} → {G H : Graph o ℓ}
+  → (pᵥ : G .Vertex ≡ H .Vertex)
+  → PathP (λ i → (u v : pᵥ i) → Type ℓ) (G .Edge) (H .Edge)
+  → G ≡ H
+Graph-path p _ i .Vertex = p i
+Graph-path pᵥ pₑ i .Edge u v = pₑ i u v
+Graph-path {G = G} {H = H} pᵥ pₑ i .Vertex-is-set = is-prop→pathp (λ i → is-hlevel-is-prop {A = pᵥ i} 2) (G .Vertex-is-set) (H .Vertex-is-set) i
+Graph-path {G = G} {H = H} pᵥ pₑ i .Edge-is-set {u} {v} = is-prop→pathp {B = λ i → {u v : pᵥ i} → is-set (pₑ i u v)} (λ _ → hlevel 1) (G .Edge-is-set) (H .Edge-is-set) i
 ```
 -->
 
@@ -149,6 +158,11 @@ Graph-hom-path {G = G} {H = H} p0 p1 =
 instance
   Funlike-Graph-hom : Funlike (Graph-hom G H) ⌞ G ⌟ λ _ → ⌞ H ⌟
   Funlike-Graph-hom .Funlike._#_ = vertex
+
+Graph-hom-id : {G : Graph o ℓ} → Graph-hom G G
+Graph-hom-id .vertex v = v
+Graph-hom-id .edge e = e
+
 ```
 -->
 
@@ -159,8 +173,7 @@ Graphs : ∀ o ℓ → Precategory (lsuc (o ⊔ ℓ)) (o ⊔ ℓ)
 Graphs o ℓ .Precategory.Ob = Graph o ℓ
 Graphs o ℓ .Precategory.Hom = Graph-hom
 Graphs o ℓ .Precategory.Hom-set _ _ = hlevel 2
-Graphs o ℓ .Precategory.id .vertex v = v
-Graphs o ℓ .Precategory.id .edge e = e
+Graphs o ℓ .Precategory.id = Graph-hom-id
 Graphs o ℓ .Precategory._∘_ f g .vertex v = f .vertex (g .vertex v)
 Graphs o ℓ .Precategory._∘_ f g .edge e = f .edge (g .edge e)
 Graphs o ℓ .Precategory.idr _ = Graph-hom-path (λ _ → refl) (λ _ → refl)
@@ -171,10 +184,10 @@ module Graphs {o} {ℓ} = Cat.Reasoning (Graphs o ℓ)
 ```
 
 the category $\Graphs$ is equivalent to the category of presheaves of
-spans (equivalently: functors from cospans)
+parallel arrows (equivalently: functors from the parallel arrow category)
 ```agda
-
-module _ {o ℓ : Level} where
+{-
+module _ {ℓ : Level} where
   open Functor
   open Graph
   parallel-to-graph : Functor Cat[ ·⇉· , Sets ℓ ] (Graphs ℓ ℓ)
@@ -192,8 +205,8 @@ module _ {o ℓ : Level} where
           hom .edge {x} {y} (e , pₛ , pₜ) = η false e
                                           , happly (sym (is-natural _ _ _)) e ∙ ap _ pₛ
                                           , happly (sym (is-natural _ _ _)) e ∙ ap _ pₜ
-  parallel-to-graph .F-id {F}  = Graph-hom-path (λ _ → refl) (λ _  → Σ-prop-path (λ _ → hlevel 1) refl)
-  parallel-to-graph .F-∘ η ε = Graph-hom-path (λ _ → refl) (λ _ → Σ-prop-path (λ _ → hlevel 1) refl)
+  parallel-to-graph .F-id {F}  = Graph-hom-path (λ _ → refl) (λ _  → Σ-prop-path! refl)
+  parallel-to-graph .F-∘ η ε = Graph-hom-path (λ _ → refl) (λ _ → Σ-prop-path! refl)
 
   graph-to-parallel : Functor (Graphs ℓ ℓ) Cat[ ·⇉· , Sets ℓ ]
   graph-to-parallel .F₀ G = Fork {a = el! $ Σ[ s ∈ G .Vertex ] Σ[ d ∈ G .Vertex ] G .Edge s d } {el! $ G .Vertex} fst (fst ⊙ snd)
@@ -212,7 +225,7 @@ module _ {o ℓ : Level} where
             where hom : Graph-hom _ _
                   hom .vertex v = v
                   hom .edge {u} {v} e = (u , v , e) , refl , refl
-          adjoint .unit .is-natural x y f = Graph-hom-path (λ _ → refl ) (λ _ → Σ-prop-path (λ _ → hlevel 1) refl)
+          adjoint .unit .is-natural x y f = Graph-hom-path (λ _ → refl ) (λ _ → Σ-prop-path! refl)
           adjoint .counit .η F = nt
             where module F = Functor F
                   nt : _ => _
@@ -222,26 +235,100 @@ module _ {o ℓ : Level} where
                   nt .is-natural false true true i (_ , _ , _ , _ , p) = p (~ i)
                   nt .is-natural false true false i (_ , _ , _ , p , _) = p (~ i)
                   nt .is-natural false false _ i (_ , _ , e , _ , _)= F.F-id (~ i) e
-          adjoint .counit .is-natural = {! !}
-          adjoint .zig = {! !}
-          adjoint .zag = {! !}
-{-
+          adjoint .counit .is-natural F G f = ext λ { true  x → refl
+                                                    ; false x → refl }
+          adjoint .zig = ext λ { true  x → refl
+                               ; false x → refl }
+          adjoint .zag = Graph-hom-path (λ _ → refl ) (λ _ → Σ-prop-path! refl)
 
+  parallel-to-graph-inv : ∀ {G} → parallel-to-graph .F₀ (graph-to-parallel .F₀ G) ≡ G
+  parallel-to-graph-inv {G} = sym (Graph-path refl (λ i u v → Iso→Path (Σ-iso {u} {v}) i))
+    where module G = Graph G
+          open is-iso
+          Σ-iso : ∀ {u v} → Iso (G.Edge u v) (Σ[ e ∈ Σ[ u' ∈ G.Vertex ] Σ[ v' ∈ G.Vertex ] G.Edge u' v' ] (fst e ≡ u) × (fst (snd e) ≡ v))
+          Σ-iso {u} {v} .fst e = ( u , v , e ) , refl , refl
+          Σ-iso {u} {v} .snd .inv (( u' , v' , e ) , pᵤ , pᵥ) = transport (λ i → G .Edge (pᵤ i) (pᵥ i)) e
+          Σ-iso {u} {v} .snd .rinv (( u' , v' , e ) , p₁ , p₂) = Σ-prop-path! (Σ-pathp (sym p₁) (Σ-pathp (sym p₂) (to-pathp⁻ refl)))
+          Σ-iso {u} {v} .snd .linv e = to-pathp⁻ refl
 
   open is-equivalence
   blah-blah-is-eqv : is-equivalence graph-to-parallel
   blah-blah-is-eqv .F⁻¹ = parallel-to-graph
   blah-blah-is-eqv .F⊣F⁻¹ = graph-to-parallel⊣parallel-to-graph
-  blah-blah-is-eqv .unit-iso x = {! !}
+  blah-blah-is-eqv .unit-iso G = record { inv = hom ; inverses = inv }
+    where hom : Graph-hom _ _
+          hom = {! transport parallel-to-graph-inv !}
+          open Cat.Morphism (Graphs _ _)
+          open Inverses
+          inv : Inverses _ _
+          inv .invl = Graph-hom-path (λ _ → refl ) λ e → {! sym (p e) !}
+            where module G = Graph G
+
+{-
+                  p : {u v : G.Vertex} →
+                    (e : Σ[ E ∈ Σ[ u ∈ G.Vertex ] Σ[ v ∈ G.Vertex ] G.Edge u v ] (E .fst ≡ u) × (E .snd .fst) ≡ v) →
+                    e ≡ ((u , v , transp (λ i → G.Edge (e .snd .fst i) (e .snd .snd i)) i0 (e .fst .snd .snd)) , refl , refl )
+                  p {u} {v} ((u' , v' , e) , pₛ , pₑ) i = (pₛ i , pₑ i , transp (λ j → {!G.Edge-is-set {pₛ i} {pₑ i} ? ? ? refl i j !}) i e) , {! !} , {! !}
+                  Σ-iso : ∀ {u v} → Iso (G.Edge u v) (Σ[ e ∈ Σ[ u' ∈ G.Vertex ] Σ[ v' ∈ G.Vertex ] G.Edge u' v' ] (fst e ≡ u) × (fst (snd e) ≡ v))
+                  Σ-iso {u} {v} .fst e = ( u , v , e ) , refl , refl
+                  Σ-iso {u} {v} .snd .inv (( u' , v' , e ) , pᵤ , pᵥ) = transport (λ i → G .Edge (pᵤ i) (pᵥ i)) e
+                  Σ-iso {u} {v} .snd .rinv (( u' , v' , e ) , p₁ , p₂) = Σ-prop-path! (Σ-pathp (sym p₁) (Σ-pathp (sym p₂) (to-pathp⁻ refl)))
+                  Σ-iso {u} {v} .snd .linv e = to-pathp⁻ refl
+-}
+{-
+            where p : PathP (λ i →
+                Edge (₀ (F⁻¹ blah-blah-is-eqv F∘ graph-to-parallel) G) (refl i)
+                    (refl i))
+               ((Graphs ℓ ℓ Precategory.∘
+               _=>_.η (_⊣_.unit (F⊣F⁻¹ blah-blah-is-eqv)) G)
+      hom .edge e)
+     (Precategory.id (Graphs ℓ ℓ) .edge e)
+pp : {x y
+      : ₀ (F⁻¹ blah-blah-is-eqv F∘ graph-to-parallel) G .Vertex}
+     (e : Edge (₀ (F⁻¹ blah-blah-is-eqv F∘ graph-to-parallel) G) x y) →
+          inv .invr = Graph-hom-path (λ _ → refl ) λ _ → transport-refl _
   blah-blah-is-eqv .counit-iso x = {! !}
+-}
 
   open is-precat-iso
   open is-iso
 
-  blah-blah-is-iso : is-precat-iso parallel-to-graph
-  blah-blah-is-iso .has-is-ff {G} {G'} .is-eqv f = contr ({! !} , {! !}) λ { x → {! !} }
-  --blah-blah-is-iso .has-is-ff {_} {_} = ?
+  blah-blah-is-iso : is-precat-iso graph-to-parallel
+  blah-blah-is-iso .has-is-ff = is-equivalence→is-ff _ blah-blah-is-eqv
+{-
+  blah-blah-is-iso .has-is-ff {F} {G} = is-iso→is-equiv F₁-is-iso
+    where F₁-is-iso : is-iso (parallel-to-graph .F₁)
+          F₁-is-iso .inv f  = nt
+            where open _=>_
+                  nt : F => G
+                  nt .η true = f .vertex
+                  nt .η false e = f .edge (e , refl , refl) .fst
+                  nt .is-natural true true tt = {! !}
+                  nt .is-natural false false _ = {! !}
+                  nt .is-natural false true true = λ { i x → {! !} }
+                  nt .is-natural false true false = {! !}
+          F₁-is-iso .rinv _ = {! !}
+          F₁-is-iso .linv _ = {! !}
+          --open is-contr
+          --G[F] = parallel-to-graph .F₀ F
+          --G[F'] = parallel-to-graph .F₀ F'
+          --c : is-contr (Σ[ h ∈ Cat[ ·⇉· , Sets ℓ ] .Precategory.Hom F F' ] parallel-to-graph .F₁ h ≡ f)
+          --c .centre = {!graph-to-parallel .F₁ {G[F]} {G[F']}  !} , {! !}
+          --c .paths = {! !}
+
+          --F[G[F]] = graph-to-parallel .F₀ G[F]
+          --F[G[F']] = graph-to-parallel .F₀ G[F']
+
+
+          --graph-iso : is-iso (parallel-to-graph .F₁)
+          --graph-iso .inv = {!graph-to-parallel .F₁ {G[F]} {G[F']} !}
+          --graph-iso .rinv = {! !}
+          --graph-iso .linv = {! !}
+-}
   blah-blah-is-iso .has-is-iso = {! !}
+{-
+  --blah-blah-is-iso .has-is-ff {_} {_} = ?
+-}
 -}
 ```
 

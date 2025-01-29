@@ -81,29 +81,26 @@ Span-id .right = id
 module _ (pb : ∀ {a b c} (f : Hom a b) (g : Hom c b) → Pullback C f g) where
   open Functor
 
-
   Span-∘ : ∀ {a b c} → Functor (Spans b c ×ᶜ Spans a b) (Spans a c)
-  Span-∘ .F₀ (sp1 , sp2) = t-span pb.apex (T.μ _ ∘ T.M₁ (sp2 .left) ∘ pb.p₂) (sp1 .right ∘ pb.p₁)
-     where module pb = Pullback (pb (sp1 .left) (T.M₁ (sp2 .right)))
+  Span-∘ .F₀ (sp1 , sp2) = t-span pb.apex (T.μ _ ∘ T.₁ (sp2 .left) ∘ pb.p₂) (sp1 .right ∘ pb.p₁)
+     where module pb = Pullback (pb (sp1 .left) (T.₁ (sp2 .right)))
   Span-∘ .F₁ {x1 , x2} {y1 , y2} (f , g) = res
     where
       module x = Pullback (pb (x1 .left) (T.M₁ (x2 .right)))
       module y = Pullback (pb (y1 .left) (T.M₁ (y2 .right)))
-
       x→y : Hom x.apex y.apex
       x→y = y.universal {p₁' = f .map ∘ x.p₁} {p₂' = T.M₁ (g .map) ∘ x.p₂} comm
         where abstract
           open Pullback
           comm : y1 .left ∘ f .map ∘ x.p₁ ≡ T.M₁ (y2 .right) ∘ T.M₁ (g .map) ∘ x.p₂
           comm = pulll (sym (f .left)) ∙ x.square ∙ (pushl $ T.expand $ g .right)
-
-      {-
-
-      -}
       res : Span-hom (Span-∘ .F₀ (x1 , x2))  (Span-∘ .F₀ (y1 , y2))
       res .map = x→y
-      --res .left = sym (pullr y.p₂∘universal ∙  pulll (sym (g .left)))
-      res .left = {! sym (pullr y.p₂∘universal ∙ ? )  !}
+      res .left = T.μ _ ∘ T.₁ (x2 .left) ∘ x.p₂                     ≡⟨ refl⟩∘⟨ pushl (T.expand (g .left)) ⟩
+                  T.μ _ ∘ T.₁ (y2 .left) ∘ T.M₁ (g .map) ∘ x.p₂     ≡˘⟨ refl⟩∘⟨ pullr y.p₂∘universal  ⟩
+                  T.μ _ ∘ (T.₁ (y2 .left) ∘ pb.p₂) ∘ pb.universal _ ≡⟨ assoc _ _ _  ⟩
+                  (T.μ _ ∘ T.₁ (y2 .left) ∘ pb.p₂) ∘ pb.universal _ ∎
+        where module pb = Pullback (pb (y1 .left) (T.F₁ (y2 .right)))
       res .right = sym (pullr y.p₁∘universal ∙ pulll (sym (f .right)))
 
   Span-∘ .F-id {x1 , x2} = Span-hom-path $ sym $ x.unique id-comm (idr x.p₂ ∙ (sym $ eliml T.F-id))

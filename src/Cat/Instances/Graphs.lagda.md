@@ -7,6 +7,7 @@ description: |
 open import 1Lab.Path.Cartesian
 open import 1Lab.Reflection
 
+open import Cat.Functor.Equivalence.Path
 open import Cat.Instances.StrictCat
 open import Cat.Functor.Properties
 open import Cat.Functor.Equivalence
@@ -184,7 +185,7 @@ module Graphs {o} {ℓ} = Cat.Reasoning (Graphs o ℓ)
 ```
 
 the category $\Graphs$ is equivalent to the category of presheaves of
-parallel arrows (equivalently: functors from the parallel arrow category)
+parallel arrows (equivalently: functors from the parallel arrow category).
 ```agda
 module _ {ℓ : Level} where
   open Functor
@@ -274,17 +275,18 @@ module _ {ℓ : Level} where
           p₀ true = n-path refl
           p₀ false = n-path (Iso→Path Σ-iso)
 
-          p₁ : ∀ {x y} (f : ·⇉·.Hom x y) → PathP (λ i → Precategory.Hom (Sets ℓ) (p₀ x i) (p₀ y i)) ((graph-to-parallel.F₀ (parallel-to-graph.F₀ F)) .F₁ f) (F.₁ f)
+          p₁ : ∀ {x y} (f : ·⇉·.Hom x y) → PathP (λ i → Precategory.Hom (Sets ℓ) (p₀ x i) (p₀ y i)) ((graph-to-parallel.F₀ (parallel-to-graph.F₀ F)) .F₁ {x} {y} f) (F.₁ f)
           p₁ {true} {true} _ = sym F.F-id
           p₁ {false} {true} true = ua→ λ { (_ , _ , _ , pᵤ , pᵥ) → sym pᵥ }
           p₁ {false} {true} false = ua→ λ { (_ , _ , _ , pᵤ , pᵥ) → sym pᵤ }
           p₁ {false} {false} _ = ua→ λ _ → path→ua-pathp _ (happly (sym F.F-id) _)
 
+{-
   open is-equivalence
-  blah-blah-is-eqv : is-equivalence graph-to-parallel
-  blah-blah-is-eqv .F⁻¹ = parallel-to-graph
-  blah-blah-is-eqv .F⊣F⁻¹ = graph-to-parallel⊣parallel-to-graph
-  blah-blah-is-eqv .unit-iso G = record { inv = hom ; inverses = inv }
+  g2p-is-eqv : is-equivalence graph-to-parallel
+  g2p-is-eqv .F⁻¹ = parallel-to-graph
+  g2p-is-eqv .F⊣F⁻¹ = graph-to-parallel⊣parallel-to-graph
+  g2p-is-eqv .unit-iso G = record { inv = hom ; inverses = inv }
     where hom : Graph-hom _ _
           hom = {! parallel-to-graph-inv !}
           open Cat.Morphism (Graphs _ _)
@@ -293,17 +295,35 @@ module _ {ℓ : Level} where
           inv .invl = Graph-hom-path (λ _ → refl ) λ e → {! sym (p e) !}
             where module G = Graph G
           inv .invr = {! !}
+  g2p-is-eqv .counit-iso F = {! !}
+-}
+
 
   open is-precat-iso
-  open is-iso
+  g2p-is-iso : is-precat-iso graph-to-parallel
+  --g2p-is-iso .has-is-ff = is-equivalence→is-ff _ g2p-is-eqv
+  g2p-is-iso .has-is-ff = is-iso→is-equiv $ iso inv invr invl where
+    open Precategory using (Hom)
+    inv : ∀ {G H} → Cat[ ·⇉· , Sets ℓ ] .Hom (graph-to-parallel.F₀ G) (graph-to-parallel.F₀ H) → (Graphs ℓ ℓ) .Hom G H
+    inv {G} {H} nt = transport (λ i → Graph-hom (parallel-to-graph-inv G i) (parallel-to-graph-inv H i)) (parallel-to-graph.F₁ nt)
+    --invr : ∀ {G H} (f : Graph-hom G H) → graph-to-parallel.F₁ (inv f) ≡ f
+    invr = {! !}
+    invl : ∀ f → inv (graph-to-parallel.F₁ f) ≡ f
+    invl f = Graph-hom-path (λ x → transport-refl _ ∙ ap (f .vertex) (transport-refl _)) λ e → {! !}
+  g2p-is-iso .has-is-iso = is-iso→is-equiv F₀-iso where
+    open is-iso
+    F₀-iso : is-iso (graph-to-parallel .F₀)
+    F₀-iso .inv = parallel-to-graph .F₀
+    F₀-iso .rinv F = graph-to-parallel-inv F
+    F₀-iso .linv G = parallel-to-graph-inv G
 
-  blah-blah-is-iso : is-precat-iso graph-to-parallel
-  blah-blah-is-iso .has-is-ff = is-equivalence→is-ff _ blah-blah-is-eqv
-  blah-blah-is-iso .has-is-iso = is-iso→is-equiv F₀-iso
-    where F₀-iso : is-iso (graph-to-parallel .F₀)
-          F₀-iso .inv = parallel-to-graph .F₀
-          F₀-iso .rinv F = graph-to-parallel-inv F
-          F₀-iso .linv G = parallel-to-graph-inv G
+  graphs-are-functors : (Graphs ℓ ℓ) ≡ Cat[ ·⇉· , Sets ℓ ]
+  graphs-are-functors = Precategory-path _ g2p-is-iso
+
+  graphs-are-presheaves : (Graphs ℓ ℓ) ≡ PSh ℓ ·⇉·
+  graphs-are-presheaves = graphs-are-functors ∙ p
+    where p : Cat[ ·⇉· , Sets ℓ ] ≡ PSh ℓ ·⇉·
+          p i = Cat[ ·⇇·≡·⇉· (~ i) , Sets ℓ ]
 ```
 
 <!--

@@ -9,10 +9,11 @@ open import 1Lab.Reflection
 
 open import Cat.Functor.Equivalence.Path
 open import Cat.Instances.StrictCat
-open import Cat.Functor.Properties
 open import Cat.Functor.Equivalence
-open import Cat.Functor.Base
+open import Cat.Functor.Properties
 open import Cat.Functor.Adjoint
+open import Cat.Functor.Base
+open import Cat.Univalent
 open import Cat.Prelude
 open import Cat.Strict
 open import Cat.Instances.Shape.Parallel --using (·←·→·)
@@ -182,6 +183,23 @@ Graphs o ℓ .Precategory.idl _ = Graph-hom-path (λ _ → refl) (λ _ → refl)
 Graphs o ℓ .Precategory.assoc _ _ _ = Graph-hom-path (λ _ → refl) (λ _ → refl)
 
 module Graphs {o} {ℓ} = Cat.Reasoning (Graphs o ℓ)
+
+module _ {o ℓ : Level} where
+  open Cat.Morphism (Graphs o ℓ)
+  Graphs-is-category : is-category (Graphs o ℓ)
+  Graphs-is-category .to-path {G} {H} G≅H = p where
+    module G≅H = _≅_ G≅H
+    module G→H = Graph-hom G≅H.to
+    module G←H = Graph-hom G≅H.from
+    module G = Graph G
+    module H = Graph H
+    vert≃ : G.Vertex ≃ H.Vertex
+    vert≃ = Iso→Equiv $ G→H.vertex , iso G←H.vertex (λ v i → G≅H.invl i .vertex v) λ v i → G≅H.invr i .vertex v
+    edge≃ : ∀ {u v} → G.Edge u v ≃ H.Edge (G→H.vertex u) (G→H.vertex v)
+    edge≃ = Iso→Equiv $ G→H.edge , iso {! !} {! !} {! !}
+    p : G ≡ H
+    p = Graph-path (ua vert≃) (ua→2 λ u v → ua $ edge≃)
+  Graphs-is-category .to-path-over p = {! !}
 ```
 
 the category $\Graphs$ is equivalent to the category of presheaves of
@@ -218,34 +236,7 @@ module _ {ℓ : Level} where
     module parallel-to-graph = Functor parallel-to-graph
     module graph-to-parallel = Functor graph-to-parallel
 
-
-  graph-to-parallel⊣parallel-to-graph : graph-to-parallel ⊣ parallel-to-graph
-  graph-to-parallel⊣parallel-to-graph = adjoint
-    where open _⊣_
-          open _=>_
-          open Cat.Reasoning
-          adjoint : graph-to-parallel ⊣ parallel-to-graph
-          adjoint .unit .η G = hom
-            where hom : Graph-hom _ _
-                  hom .vertex v = v
-                  hom .edge {u} {v} e = (u , v , e) , refl , refl
-          adjoint .unit .is-natural x y f = Graph-hom-path (λ _ → refl ) (λ _ → Σ-prop-path! refl)
-          adjoint .counit .η F = nt
-            where module F = Functor F
-                  nt : _ => _
-                  nt .η true x = x
-                  nt .η false (_ , _ , x , _ , _) = x
-                  nt .is-natural true true _ = sym F.F-id
-                  nt .is-natural false true true i (_ , _ , _ , _ , p) = p (~ i)
-                  nt .is-natural false true false i (_ , _ , _ , p , _) = p (~ i)
-                  nt .is-natural false false _ i (_ , _ , e , _ , _)= F.F-id (~ i) e
-          adjoint .counit .is-natural F G f = ext λ { true  x → refl
-                                                    ; false x → refl }
-          adjoint .zig = ext λ { true  x → refl
-                               ; false x → refl }
-          adjoint .zag = Graph-hom-path (λ _ → refl ) (λ _ → Σ-prop-path! refl)
-
-  parallel-to-graph-inv : ∀ G → parallel-to-graph .F₀ (graph-to-parallel .F₀ G) ≡ G
+  parallel-to-graph-inv : ∀ G → parallel-to-graph.F₀ (graph-to-parallel.F₀ G) ≡ G
   parallel-to-graph-inv G = sym (Graph-path refl (λ i u v → Iso→Path (Σ-iso {u} {v}) i))
     where module G = Graph G
           open is-iso
@@ -255,7 +246,7 @@ module _ {ℓ : Level} where
           Σ-iso {u} {v} .snd .rinv (( u' , v' , e ) , p₁ , p₂) = Σ-prop-path! (Σ-pathp (sym p₁) (Σ-pathp (sym p₂) (to-pathp⁻ refl)))
           Σ-iso {u} {v} .snd .linv e = to-pathp⁻ refl
 
-  graph-to-parallel-inv : ∀ F → graph-to-parallel .F₀ (parallel-to-graph .F₀ F) ≡ F
+  graph-to-parallel-inv : ∀ F → graph-to-parallel.F₀ (parallel-to-graph.F₀ F) ≡ F
   graph-to-parallel-inv F = Functor-path p₀ p₁
     where module F = Functor F
           V = ∣ F.F₀ true ∣
@@ -281,42 +272,100 @@ module _ {ℓ : Level} where
           p₁ {false} {true} false = ua→ λ { (_ , _ , _ , pᵤ , pᵥ) → sym pᵤ }
           p₁ {false} {false} _ = ua→ λ _ → path→ua-pathp _ (happly (sym F.F-id) _)
 
+  private module _ where
+    open Cat.Morphism using (Isomorphism)
+    parallel-to-graph-iso : ∀ G → Isomorphism (Graphs ℓ ℓ) (parallel-to-graph.F₀ (graph-to-parallel.F₀ G)) G
+    parallel-to-graph-iso G = path→iso $ parallel-to-graph-inv G
+
+    graph-to-parallel-iso : ∀ F →  Isomorphism Cat[ ·⇉· , Sets ℓ ] (graph-to-parallel.F₀ (parallel-to-graph.F₀ F))  F
+    graph-to-parallel-iso F = path→iso $ graph-to-parallel-inv F
+
+
+{-
+  graph-to-parallel⊣parallel-to-graph : graph-to-parallel ⊣ parallel-to-graph
+  graph-to-parallel⊣parallel-to-graph = adjoint where
+    open _⊣_
+    open _=>_
+    open Cat.Reasoning
+    adjoint : graph-to-parallel ⊣ parallel-to-graph
+    adjoint .unit .η G = parallel-to-graph-iso G .from
+    adjoint .unit .is-natural G H f = Graph-hom-path (λ v → transport-refl _ ∙ transport-refl _ ∙ {! !}) (λ e → {! Σ-prop-path! ? !})
+    adjoint .counit .η F = graph-to-parallel-iso F .to
+    adjoint .counit .is-natural = ?
+      where hom : Graph-hom _ _
+            hom .vertex v = v
+            hom .edge {u} {v} e = (u , v , e) , refl , refl
+    adjoint .unit .is-natural x y f = Graph-hom-path (λ _ → refl ) (λ _ → Σ-prop-path! refl)
+    adjoint .counit .η F = nt
+      where module F = Functor F
+            nt : _ => _
+            nt .η true x = x
+            nt .η false (_ , _ , x , _ , _) = x
+            nt .is-natural true true _ = sym F.F-id
+            nt .is-natural false true true i (_ , _ , _ , _ , p) = p (~ i)
+            nt .is-natural false true false i (_ , _ , _ , p , _) = p (~ i)
+            nt .is-natural false false _ i (_ , _ , e , _ , _)= F.F-id (~ i) e
+    adjoint .counit .is-natural F G f = ext λ { true  x → refl
+                                              ; false x → refl }
+    adjoint .zig = ext λ { true  x → refl
+                         ; false x → refl }
+    adjoint .zag = Graph-hom-path (λ _ → refl ) (λ _ → Σ-prop-path! refl)
+-}
+
 {-
   open is-equivalence
   g2p-is-eqv : is-equivalence graph-to-parallel
   g2p-is-eqv .F⁻¹ = parallel-to-graph
   g2p-is-eqv .F⊣F⁻¹ = graph-to-parallel⊣parallel-to-graph
-  g2p-is-eqv .unit-iso G = record { inv = hom ; inverses = inv }
-    where hom : Graph-hom _ _
-          hom = {! parallel-to-graph-inv !}
+  g2p-is-eqv .unit-iso G = {! transport (λ i → {! !}) id-invertible !}
+    where open Cat.Morphism (Graphs ℓ ℓ)
+{-
+          hom : Graph-hom _ _
+          hom = transport (λ i → Graph-hom (parallel-to-graph-inv G (~ i)) G) Graph-hom-id
           open Cat.Morphism (Graphs _ _)
           open Inverses
           inv : Inverses _ _
-          inv .invl = Graph-hom-path (λ _ → refl ) λ e → {! sym (p e) !}
+          inv .invl = Graph-hom-path
+            (λ v → transport-refl _ ∙ transport-refl _ )
+            λ { ((u , v , e) , pᵤ , pᵥ) i → ( transp (λ _ → G.Vertex) i (transp (λ _ → G.Vertex) i (pᵤ (~ i)))
+                                            , transp (λ _ → G.Vertex) i (transp (λ _ → G.Vertex) i (pᵥ (~ i)))
+                                            , {! !}) , {! !} , {! !} }
+         (λ i₁ →
+            G.Edge
+            (transp (λ i₂ → G.Vertex) (~ i₁)
+             (transp (λ j → G.Vertex) (~ i₁) (transp (λ j → G.Vertex) i₁ x)))
+            (transp (λ i₂ → G.Vertex) (~ i₁)
+             (transp (λ j → G.Vertex) (~ i₁) (transp (λ j → G.Vertex) i₁ y))))
             where module G = Graph G
-          inv .invr = {! !}
+          inv .invr = Graph-hom-path (λ v → transport-refl _ ∙ transport-refl _ )
+                                     λ e i → {! !}
+-}
   g2p-is-eqv .counit-iso F = {! !}
 -}
+{-
 
 
   open is-precat-iso
+  open is-iso
   g2p-is-iso : is-precat-iso graph-to-parallel
   --g2p-is-iso .has-is-ff = is-equivalence→is-ff _ g2p-is-eqv
-  g2p-is-iso .has-is-ff = is-iso→is-equiv $ iso inv invr invl where
+  g2p-is-iso .has-is-ff {G} {H} = is-iso→is-equiv $ F₁-iso where
     open Precategory using (Hom)
-    inv : ∀ {G H} → Cat[ ·⇉· , Sets ℓ ] .Hom (graph-to-parallel.F₀ G) (graph-to-parallel.F₀ H) → (Graphs ℓ ℓ) .Hom G H
-    inv {G} {H} nt = transport (λ i → Graph-hom (parallel-to-graph-inv G i) (parallel-to-graph-inv H i)) (parallel-to-graph.F₁ nt)
-    --invr : ∀ {G H} (f : Graph-hom G H) → graph-to-parallel.F₁ (inv f) ≡ f
-    invr = {! !}
-    invl : ∀ f → inv (graph-to-parallel.F₁ f) ≡ f
-    invl f = Graph-hom-path (λ x → transport-refl _ ∙ ap (f .vertex) (transport-refl _)) λ e → {! !}
+    F₁-iso : is-iso (graph-to-parallel .F₁ {G} {H})
+    F₁-iso .inv nt = transport (λ i → Graph-hom (parallel-to-graph-inv G i) (parallel-to-graph-inv H i)) (parallel-to-graph.F₁ nt)
+    F₁-iso .rinv nt = ext λ { true _ → transport-refl _ ∙ ap (η true) (transport-refl _)
+                            ; false x i → transport-refl {! !} i , transport-refl {! !} i , {! !} } where
+      open _=>_ nt
+    F₁-iso .linv f = Graph-hom-path (λ x → transport-refl _ ∙ ap (f .vertex) (transport-refl _))
+                                    λ { {x} {y} e → {! !} }
   g2p-is-iso .has-is-iso = is-iso→is-equiv F₀-iso where
-    open is-iso
     F₀-iso : is-iso (graph-to-parallel .F₀)
     F₀-iso .inv = parallel-to-graph .F₀
     F₀-iso .rinv F = graph-to-parallel-inv F
     F₀-iso .linv G = parallel-to-graph-inv G
+-}
 
+{-
   graphs-are-functors : (Graphs ℓ ℓ) ≡ Cat[ ·⇉· , Sets ℓ ]
   graphs-are-functors = Precategory-path _ g2p-is-iso
 
@@ -324,6 +373,7 @@ module _ {ℓ : Level} where
   graphs-are-presheaves = graphs-are-functors ∙ p
     where p : Cat[ ·⇉· , Sets ℓ ] ≡ PSh ℓ ·⇉·
           p i = Cat[ ·⇇·≡·⇉· (~ i) , Sets ℓ ]
+-}
 ```
 
 <!--

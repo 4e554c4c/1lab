@@ -76,15 +76,6 @@ instance
   hlevel-proj-edge .get-argument (_ ∷ _ ∷ c v∷ _) = pure c
   {-# CATCHALL #-}
   hlevel-proj-edge .get-argument _ = typeError []
-
-Graph-path : ∀ {o ℓ} → {G H : Graph o ℓ}
-  → (pᵥ : G .Vertex ≡ H .Vertex)
-  → PathP (λ i → (u v : pᵥ i) → Type ℓ) (G .Edge) (H .Edge)
-  → G ≡ H
-Graph-path p _ i .Vertex = p i
-Graph-path pᵥ pₑ i .Edge u v = pₑ i u v
-Graph-path {G = G} {H = H} pᵥ pₑ i .Vertex-is-set = is-prop→pathp (λ i → is-hlevel-is-prop {A = pᵥ i} 2) (G .Vertex-is-set) (H .Vertex-is-set) i
-Graph-path {G = G} {H = H} pᵥ pₑ i .Edge-is-set {u} {v} = is-prop→pathp {B = λ i → {u v : pᵥ i} → is-set (pₑ i u v)} (λ _ → hlevel 1) (G .Edge-is-set) (H .Edge-is-set) i
 ```
 -->
 
@@ -184,6 +175,16 @@ Graphs o ℓ .Precategory.assoc _ _ _ = Graph-hom-path (λ _ → refl) (λ _ →
 
 module Graphs {o} {ℓ} = Cat.Reasoning (Graphs o ℓ)
 
+
+Graph-path : ∀ {o ℓ} → {G H : Graph o ℓ}
+  → (pᵥ : G .Vertex ≡ H .Vertex)
+  → PathP (λ i → (u v : pᵥ i) → Type ℓ) (G .Edge) (H .Edge)
+  → G ≡ H
+Graph-path p _ i .Vertex = p i
+Graph-path pᵥ pₑ i .Edge u v = pₑ i u v
+Graph-path {G = G} {H = H} pᵥ pₑ i .Vertex-is-set = is-prop→pathp (λ i → is-hlevel-is-prop {A = pᵥ i} 2) (G .Vertex-is-set) (H .Vertex-is-set) i
+Graph-path {G = G} {H = H} pᵥ pₑ i .Edge-is-set {u} {v} = is-prop→pathp {B = λ i → {u v : pᵥ i} → is-set (pₑ i u v)} (λ _ → hlevel 1) (G .Edge-is-set) (H .Edge-is-set) i
+
 module _ {o ℓ : Level} where
   open Cat.Morphism (Graphs o ℓ)
   Graphs-is-category : is-category (Graphs o ℓ)
@@ -196,16 +197,31 @@ module _ {o ℓ : Level} where
     vert≃ : G.Vertex ≃ H.Vertex
     vert≃ = Iso→Equiv $ G→H.vertex , iso G←H.vertex (λ v i → G≅H.invl i .vertex v) λ v i → G≅H.invr i .vertex v
     edge≃ : ∀ u v → G.Edge u v ≃ H.Edge (G→H.vertex u) (G→H.vertex v)
+    edge≃ u v .fst = G→H.edge
+    edge≃ u v .snd .is-eqv e .centre .fst = transport (λ i → G.Edge (G≅H.invr i .vertex u) (G≅H.invr i .vertex v)) $ G←H.edge e
+    edge≃ u v .snd .is-eqv e .centre .snd i =
+      {! G→H.edge (transp (λ i₁ → G.Edge (vertex (G≅H.invr i₁) u) (vertex (G≅H.invr i₁) v)) i0 (G←H.edge e)) !}
+    edge≃ u v .snd .is-eqv e .paths (e' , p) = {! !}
+{-
     edge≃ u v = Iso→Equiv $ G→H.edge , iso
         edge←
-        (λ e i → hcomp (∂ i) λ where
-          j (i = i0) → {! !}
-          j (i = i1) → {! G≅H.invl (~ i) .edge e !}
+        (λ e i → comp (λ k → H.Edge (G≅H.invl k .vertex (G→H.vertex u)) (G≅H.invl k .vertex (G→H.vertex v))) (∂ i) λ where
+          j (i = i0) → {!G→H.edge $ transp (λ k → G.Edge (G≅H.invr (j ∧ k) .vertex u) (G≅H.invr (j ∧ k) .vertex v)) (~ j) (G←H.edge e) !}
           j (j = i0) → {! !}
+          j (i = i1) → {! !}
+{-
+          j (i = i0) → {! G→H.edge $ transp (λ k → G.Edge (G≅H.invr (j ∧ k) .vertex u) (G≅H.invr (j ∧ k) .vertex v)) (~ j) (G←H.edge e)
+          j (j = i0) → transp (λ k → H.Edge (G→H.vertex (vertex (G≅H.invr (i ∧ ~ k)) u)) (G→H.vertex (vertex (G≅H.invr (i ∧ ~ k)) v))) (~ i) {! G≅H.invl i .edge e !}
+-- Goal: H.Edge (G→H.vertex (G≅H.invr i .vertex u)) (G→H.vertex (G≅H.invr i .vertex v))
+-- ————————————————————————————————————————————————————————————
+-- Have: H.Edge (G≅H.invl i .vertex (G→H.vertex u)) (G≅H.invl i .vertex (G→H.vertex v))
+          j (i = i1) → transp (λ k → H.Edge (G→H.vertex (G≅H.invr (j ∨ ~ k) .vertex u)) (G→H.vertex (G≅H.invr (j ∨ ~ k) .vertex v))) j e
+-}
         )
         λ x → {! !}
      where edge← : H.Edge (G→H.vertex u) (G→H.vertex v) → G.Edge u v
            edge← e = transport (λ i → G.Edge (G≅H.invr i .vertex u) (G≅H.invr i .vertex v)) $ G←H.edge e
+-}
     p : G ≡ H
     p = Graph-path (ua vert≃) (ua→2 λ u v → ua $ edge≃ u v)
   Graphs-is-category .to-path-over p = {! !}

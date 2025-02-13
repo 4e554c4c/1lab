@@ -195,10 +195,19 @@ module _ {o ℓ : Level} where
     module H = Graph H
     vert≃ : G.Vertex ≃ H.Vertex
     vert≃ = Iso→Equiv $ G→H.vertex , iso G←H.vertex (λ v i → G≅H.invl i .vertex v) λ v i → G≅H.invr i .vertex v
-    edge≃ : ∀ {u v} → G.Edge u v ≃ H.Edge (G→H.vertex u) (G→H.vertex v)
-    edge≃ = Iso→Equiv $ G→H.edge , iso {! !} {! !} {! !}
+    edge≃ : ∀ u v → G.Edge u v ≃ H.Edge (G→H.vertex u) (G→H.vertex v)
+    edge≃ u v = Iso→Equiv $ G→H.edge , iso
+        edge←
+        (λ e i → hcomp (∂ i) λ where
+          j (i = i0) → {! !}
+          j (i = i1) → {! G≅H.invl (~ i) .edge e !}
+          j (j = i0) → {! !}
+        )
+        λ x → {! !}
+     where edge← : H.Edge (G→H.vertex u) (G→H.vertex v) → G.Edge u v
+           edge← e = transport (λ i → G.Edge (G≅H.invr i .vertex u) (G≅H.invr i .vertex v)) $ G←H.edge e
     p : G ≡ H
-    p = Graph-path (ua vert≃) (ua→2 λ u v → ua $ edge≃)
+    p = Graph-path (ua vert≃) (ua→2 λ u v → ua $ edge≃ u v)
   Graphs-is-category .to-path-over p = {! !}
 ```
 

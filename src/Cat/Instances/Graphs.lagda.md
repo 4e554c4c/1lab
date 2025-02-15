@@ -197,31 +197,21 @@ module _ {o ℓ : Level} where
     vert≃ : G.Vertex ≃ H.Vertex
     vert≃ = Iso→Equiv $ G→H.vertex , iso G←H.vertex (λ v i → G≅H.invl i .vertex v) λ v i → G≅H.invr i .vertex v
     edge≃ : ∀ u v → G.Edge u v ≃ H.Edge (G→H.vertex u) (G→H.vertex v)
-    edge≃ u v .fst = G→H.edge
-    edge≃ u v .snd .is-eqv e .centre .fst = transport (λ i → G.Edge (G≅H.invr i .vertex u) (G≅H.invr i .vertex v)) $ G←H.edge e
-    edge≃ u v .snd .is-eqv e .centre .snd i =
-      {! G→H.edge (transp (λ i₁ → G.Edge (vertex (G≅H.invr i₁) u) (vertex (G≅H.invr i₁) v)) i0 (G←H.edge e)) !}
-    edge≃ u v .snd .is-eqv e .paths (e' , p) = {! !}
-{-
     edge≃ u v = Iso→Equiv $ G→H.edge , iso
         edge←
-        (λ e i → comp (λ k → H.Edge (G≅H.invl k .vertex (G→H.vertex u)) (G≅H.invl k .vertex (G→H.vertex v))) (∂ i) λ where
-          j (i = i0) → {!G→H.edge $ transp (λ k → G.Edge (G≅H.invr (j ∧ k) .vertex u) (G≅H.invr (j ∧ k) .vertex v)) (~ j) (G←H.edge e) !}
-          j (j = i0) → {! !}
-          j (i = i1) → {! !}
-{-
-          j (i = i0) → {! G→H.edge $ transp (λ k → G.Edge (G≅H.invr (j ∧ k) .vertex u) (G≅H.invr (j ∧ k) .vertex v)) (~ j) (G←H.edge e)
-          j (j = i0) → transp (λ k → H.Edge (G→H.vertex (vertex (G≅H.invr (i ∧ ~ k)) u)) (G→H.vertex (vertex (G≅H.invr (i ∧ ~ k)) v))) (~ i) {! G≅H.invl i .edge e !}
--- Goal: H.Edge (G→H.vertex (G≅H.invr i .vertex u)) (G→H.vertex (G≅H.invr i .vertex v))
--- ————————————————————————————————————————————————————————————
--- Have: H.Edge (G≅H.invl i .vertex (G→H.vertex u)) (G≅H.invl i .vertex (G→H.vertex v))
-          j (i = i1) → transp (λ k → H.Edge (G→H.vertex (G≅H.invr (j ∨ ~ k) .vertex u)) (G→H.vertex (G≅H.invr (j ∨ ~ k) .vertex v))) j e
--}
-        )
-        λ x → {! !}
-     where edge← : H.Edge (G→H.vertex u) (G→H.vertex v) → G.Edge u v
-           edge← e = transport (λ i → G.Edge (G≅H.invr i .vertex u) (G≅H.invr i .vertex v)) $ G←H.edge e
--}
+        (λ e i → comp (λ j → H.Edge (G→H.vertex (G≅H.invr (~ i ∨ j) .vertex u)) (G→H.vertex (G≅H.invr (~ i ∨ j) .vertex v))) (∂ i) λ where
+          j (j = i0) → G→H.edge (transp (λ k → G.Edge (G≅H.invr (k ∧ ~ i) .vertex u) (G≅H.invr (k ∧ ~ i) .vertex v)) i (G←H.edge e))
+          j (i = i0) → G→H.edge (edge← e)
+          j (i = i1) → is-set→cast-pathp²
+            {q = λ i → G→H.vertex (G≅H.invr i .vertex u)}
+            {q' = λ i → G→H.vertex (G≅H.invr i .vertex v)}
+            H.Edge H.Vertex-is-set H.Vertex-is-set (λ j → G≅H.invl j .edge e) j)
+        λ e i → comp (λ j → G.Edge (G≅H.invr (i ∨ j) .vertex u) (G≅H.invr (i ∨ j) .vertex v)) (∂ i) λ where
+          j (j = i0) → transp (λ k → G.Edge (G≅H.invr (i ∨ ~ k) .vertex u) (G≅H.invr (i ∨ ~ k) .vertex v)) i e
+          j (i = i1) → e
+          j (i = i0) → transp (λ k → G.Edge (G≅H.invr (I-eq k j) .vertex u) (G≅H.invr (I-eq k j) .vertex v)) i0 (G≅H.invr (~ j) .edge e)
+      where edge← : H.Edge (G→H.vertex u) (G→H.vertex v) → G.Edge u v
+            edge← e = transport (λ i → G.Edge (G≅H.invr i .vertex u) (G≅H.invr i .vertex v)) $ G←H.edge e
     p : G ≡ H
     p = Graph-path (ua vert≃) (ua→2 λ u v → ua $ edge≃ u v)
   Graphs-is-category .to-path-over p = {! !}

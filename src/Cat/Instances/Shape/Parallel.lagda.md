@@ -71,6 +71,12 @@ parallel arrows between them. It is the shape of [[equaliser]] and
   false true  → auto
   false false → auto
 
+·⇉·-is-category : is-category ·⇉·
+·⇉·-is-category .to-path {true} {true} _ = refl
+·⇉·-is-category .to-path {false} {false} _ = refl
+·⇉·-is-category .to-path-over {true} {true} _ = refl
+·⇉·-is-category .to-path-over {false} {false} _ = refl
+
 ·⇇· = ·⇉· ^op
 
 module ·⇉· = Precategory ·⇉·

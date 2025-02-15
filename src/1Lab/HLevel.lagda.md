@@ -742,6 +742,15 @@ is-set→cast-pathp
 is-set→cast-pathp {p = p} {q = q} P {px} {py} set  r =
   coe0→1 (λ i → PathP (λ j → P (set _ _ p q i j)) px py) r
 
+is-set→cast-pathp²
+  : ∀ {ℓa ℓb ℓ'} {A : Type ℓa} {B : Type ℓb} {a a' : A} {b b' : B} {p q : a ≡ a'} {p' q' : b ≡ b'} (P : A → B → Type ℓ') {pab : P a b} {pab' : P a' b'}
+  → is-set A
+  → is-set B
+  → PathP (λ i → P (p i) (p' i)) pab pab'
+  → PathP (λ i → P (q i) (q' i)) pab pab'
+is-set→cast-pathp² {p = p} {q = q} {p'} {q'} P {pab} {pab'} A-set B-set r =
+  coe0→1 (λ i → PathP (λ j → P (A-set _ _ p q i j) (B-set _ _ p' q' i j)) pab pab') r
+
 is-set→subst-refl
   : ∀ {ℓ ℓ'} {A : Type ℓ} {x : A}
   → (P : A → Type ℓ')

@@ -171,7 +171,6 @@ then have a map $x \to a$, as we wanted.
       → is-pullback C (b→c ∘ a→b) c→f a→d (e→f ∘ d→e)
     pasting-left→outer-is-pullback left = pb where
       module left = is-pullback left
-
       pb : is-pullback C (b→c ∘ a→b) c→f a→d (e→f ∘ d→e)
       pb .is-pullback.square =
         c→f ∘ b→c ∘ a→b   ≡⟨ extendl right.square ⟩
@@ -323,6 +322,18 @@ A similar result holds for isomorphisms.
   pullback-unique pb pb' =
     Equiv.from (invertible≃pullback pb (pb' .square)) pb'
 
+  module pullback-unique {p p' x y z : Ob} {f : Hom x z} {g : Hom y z} {p1 : Hom p x} {p2 : Hom p y}
+        {p1' : Hom p' x} {p2' : Hom p' y} (pb : is-pullback C p1 f p2 g) (pb' : is-pullback C p1' f p2' g)
+    = is-invertible (pullback-unique pb pb')
+
+  --pullback-unique'
+  --  : ∀ {p p' x y z} {f : Hom x z} {g : Hom y z} {p1 : Hom p x} {p2 : Hom p y}
+  --      {p1' : Hom p' x} {p2' : Hom p' y}
+  --  → (pb  : is-pullback C p1 f p2 g)
+  --  → (pb' : is-pullback C p1' f p2' g)
+  --  → is-invertible (pb .universal (pb' .square))
+  --pullback-unique' pb pb' = pullback-unique.inv pb (pb' .square) pb'
+
   is-pullback-iso
     : ∀ {p p' x y z} {f : Hom x z} {g : Hom y z} {p1 : Hom p x} {p2 : Hom p y}
     → (i : p ≅ p')
@@ -343,6 +354,14 @@ A similar result holds for isomorphisms.
   is-pullback-iso' i pb com₁ com₂ = subst-is-pullback
     com₁ refl com₂ refl
     (is-pullback-iso (i Iso⁻¹) pb)
+
+  open Pullback
+  Pullback-iso
+    : ∀ {x y z} {f : Hom x z} {g : Hom y z}
+    → (p p' : Pullback C f g)
+    → (p .apex ≅ p' .apex)
+  Pullback-iso p p' = invertible→iso _ $ pullback-unique (p' .has-is-pb) (p .has-is-pb)
+
 
   Pullback-unique
     : ∀ {x y z} {f : Hom x z} {g : Hom y z}

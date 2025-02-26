@@ -191,22 +191,22 @@ module NbE {o h} {C : Precategory o h} {M : Functor C C} (monad : Monad-on M) wh
     M₁ ⟦ k1 ⟧ ∘ M₁ (⟦ k2 ⟧ ∘ id) ∘ ⟦ v ⟧      ≡⟨ refl⟩∘⟨ (M.⟨ idr ⟦ k2 ⟧ ⟩ ⟩∘⟨refl) ⟩
     M₁ ⟦ k1 ⟧ ∘ M₁ ⟦ k2 ⟧ ∘ ⟦ v ⟧             ∎
   enact-laws-sound (kmap {Y = Y} k1) (kunit X) v =
-    unit.η ⟦ Y ⟧ ∘ ⟦ push-frm k1 v ⟧   ≡⟨ refl⟩∘⟨ push-frm-sound k1 v ⟩
-    unit.η ⟦ Y ⟧ ∘ ⟦ k1 ⟧ ∘ ⟦ v ⟧      ≡⟨ extendl (unit.is-natural ⟦ X ⟧ ⟦ Y ⟧ ⟦ k1 ⟧) ⟩
-    M.F₁ ⟦ k1 ⟧ ∘ unit.η ⟦ X ⟧ ∘ ⟦ v ⟧ ∎
+    η ⟦ Y ⟧ ∘ ⟦ push-frm k1 v ⟧   ≡⟨ refl⟩∘⟨ push-frm-sound k1 v ⟩
+    η ⟦ Y ⟧ ∘ ⟦ k1 ⟧ ∘ ⟦ v ⟧      ≡⟨ extendl (unit.is-natural ⟦ X ⟧ ⟦ Y ⟧ ⟦ k1 ⟧) ⟩
+    M.F₁ ⟦ k1 ⟧ ∘ η ⟦ X ⟧ ∘ ⟦ v ⟧ ∎
   enact-laws-sound (kmap {Y = Y} k1) (kmult X) v =
-    mult.η ⟦ Y ⟧ ∘ ⟦ push-frm (kmap (kmap k1)) v ⟧ ≡⟨ refl⟩∘⟨ push-frm-sound (kmap (kmap k1)) v ⟩
-    mult.η ⟦ Y ⟧ ∘ M₁ (M₁ ⟦ k1 ⟧) ∘ ⟦ v ⟧          ≡⟨ extendl (mult.is-natural ⟦ X ⟧ ⟦ Y ⟧ ⟦ k1 ⟧) ⟩
-    M.F₁ ⟦ k1 ⟧ ∘ mult.η ⟦ X ⟧ ∘ ⟦ v ⟧             ∎
+    μ ⟦ Y ⟧ ∘ ⟦ push-frm (kmap (kmap k1)) v ⟧ ≡⟨ refl⟩∘⟨ push-frm-sound (kmap (kmap k1)) v ⟩
+    μ ⟦ Y ⟧ ∘ M₁ (M₁ ⟦ k1 ⟧) ∘ ⟦ v ⟧          ≡⟨ extendl (mult.is-natural ⟦ X ⟧ ⟦ Y ⟧ ⟦ k1 ⟧) ⟩
+    M.F₁ ⟦ k1 ⟧ ∘ μ ⟦ X ⟧ ∘ ⟦ v ⟧             ∎
   enact-laws-sound (kunit X) k2 v = refl
   enact-laws-sound (kmult X) (khom g) v = refl
   enact-laws-sound (kmult X) (kmap (khom g)) v = refl
   enact-laws-sound (kmult X) (kmap (kmap k2)) v = refl
   enact-laws-sound (kmult X) (kmap (kunit .X)) v = insertl μ-unitr
   enact-laws-sound (kmult X) (kmap (kmult .X)) v =
-    mult.η ⟦ X ⟧ ∘ ⟦ push-frm (kmult (“M₀” X)) v ⟧ ≡⟨ refl⟩∘⟨ push-frm-sound (kmult (“M₀” X)) v ⟩
-    mult.η ⟦ X ⟧ ∘ mult.η (M₀ ⟦ X ⟧) ∘ ⟦ v ⟧       ≡⟨ extendl (sym μ-assoc) ⟩
-    mult.η ⟦ X ⟧ ∘ M₁ (mult.η ⟦ X ⟧) ∘ ⟦ v ⟧       ∎
+    μ ⟦ X ⟧ ∘ ⟦ push-frm (kmult (“M₀” X)) v ⟧ ≡⟨ refl⟩∘⟨ push-frm-sound (kmult (“M₀” X)) v ⟩
+    μ ⟦ X ⟧ ∘ μ (M₀ ⟦ X ⟧) ∘ ⟦ v ⟧       ≡⟨ extendl (sym μ-assoc) ⟩
+    μ ⟦ X ⟧ ∘ M₁ (μ ⟦ X ⟧) ∘ ⟦ v ⟧       ∎
   enact-laws-sound (kmult X) (kunit _) v = insertl μ-unitl
   enact-laws-sound (kmult X) (kmult _) v = refl
 
@@ -228,8 +228,8 @@ module NbE {o h} {C : Precategory o h} {M : Functor C C} (monad : Monad-on M) wh
     ⟦ do-vmap (eval e) ⟧ ≡⟨ vmap-sound (eval e) ⟩
     M₁ ⟦ eval e ⟧        ≡⟨ ap M₁ (eval-sound e) ⟩
     M₁ ⟦ e ⟧             ∎
-  eval-sound (“η” X) = idr (unit.η ⟦ X ⟧)
-  eval-sound (“μ” X) = idr (mult.η ⟦ X ⟧)
+  eval-sound (“η” X) = idr (η ⟦ X ⟧)
+  eval-sound (“μ” X) = idr (μ ⟦ X ⟧)
   eval-sound (e1 “∘” e2) =
     ⟦ do-vcomp (eval e1) (eval e2) ⟧ ≡⟨ vcomp-sound (eval e1) (eval e2) ⟩
     ⟦ eval e1 ⟧ ∘ ⟦ eval e2 ⟧        ≡⟨ ap₂ _∘_ (eval-sound e1) (eval-sound e2) ⟩
@@ -351,14 +351,14 @@ private module Test {o h} {𝒞 : Precategory o h} {M : Functor 𝒞 𝒞} (mona
     A B C : Ob
 
   test : ∀ {f : Hom B C} {g : Hom A B}
-         → mult.η C ∘ M₁ (M₁ (f ∘ g)) ∘ unit.η (M₀ A) ≡ M₁ f ∘ M₁ (id ∘ g)
+         → μ C ∘ M₁ (M₁ (f ∘ g)) ∘ η (M₀ A) ≡ M₁ f ∘ M₁ (id ∘ g)
   test = monad! monad
 
-  test-assoc : ∀ X → mult.η X ∘ M₁ (mult.η X) ≡ mult.η X ∘ mult.η (M₀ X)
+  test-assoc : ∀ X → μ X ∘ M₁ (μ X) ≡ μ X ∘ μ (M₀ X)
   test-assoc X = monad! monad
 
-  test-nested : ∀ X → M₁ (mult.η X ∘ unit.η (M₀ X)) ≡ id
+  test-nested : ∀ X → M₁ (μ X ∘ η (M₀ X)) ≡ id
   test-nested _ = monad! monad
 
-  test-separate : ∀ X → M₁ (mult.η X) ∘ M₁ (unit.η (M₀ X)) ≡ id
+  test-separate : ∀ X → M₁ (μ X) ∘ M₁ (η (M₀ X)) ≡ id
   test-separate _ = monad! monad

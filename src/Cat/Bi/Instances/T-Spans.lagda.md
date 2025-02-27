@@ -18,9 +18,7 @@ module Cat.Bi.Instances.T-Spans {o ℓ} {C : Precategory o ℓ} (T : CartesianMo
 
 private
   open module C = Cat.Reasoning C
-  module T where
-    open CartesianMonad T public
-    open Cat.Functor.Reasoning M public
+  module T = CartesianMonad T
 
 
 record Span (a b : Ob) : Type (o ⊔ ℓ) where
@@ -100,21 +98,55 @@ module _ (pb : ∀ {a b c} (f : Hom a b) (g : Hom c b) → Pullback C f g) where
                   T.μ _ ∘ T.₁ (y2 .left) ∘ T.M₁ (g .map) ∘ x.p₂     ≡˘⟨ refl⟩∘⟨ pullr y.p₂∘universal  ⟩
                   T.μ _ ∘ (T.₁ (y2 .left) ∘ pb.p₂) ∘ pb.universal _ ≡⟨ assoc _ _ _  ⟩
                   (T.μ _ ∘ T.₁ (y2 .left) ∘ pb.p₂) ∘ pb.universal _ ∎
-        where module pb = Pullback (pb (y1 .left) (T.F₁ (y2 .right)))
+        where module pb = Pullback (pb (y1 .left) (T.₁ (y2 .right)))
       res .right = sym (pullr y.p₁∘universal ∙ pulll (sym (f .right)))
 
-  Span-∘ .F-id {x1 , x2} = Span-hom-path $ sym $ x.unique id-comm (idr x.p₂ ∙ (sym $ eliml T.F-id))
-    where module x = Pullback (pb (x1 .left) (T.F₁ (x2 .right)))
+  Span-∘ .F-id {x1 , x2} = Span-hom-path $ sym $ x.unique id-comm (idr x.p₂ ∙ (sym $ eliml T.M-id))
+    where module x = Pullback (pb (x1 .left) (T.₁ (x2 .right)))
 
   Span-∘ .F-∘ {x1 , x2} {y1 , y2} {z1 , z2} f g =
     Span-hom-path $ sym $ z.unique
       (pulll z.p₁∘universal ∙ pullr y.p₁∘universal ∙ assoc _ _ _)
-      (pulll z.p₂∘universal ∙ pullr y.p₂∘universal ∙ assoc _ _ _ ∙ (sym $ T.F-∘ _ _ ⟩∘⟨refl))
+      (pulll z.p₂∘universal ∙ pullr y.p₂∘universal ∙ assoc _ _ _ ∙ (sym $ T.M-∘ _ _ ⟩∘⟨refl))
     where
-      module x = Pullback (pb (x1 .left) (T.F₁ (x2 .right)))
-      module y = Pullback (pb (y1 .left) (T.F₁ (y2 .right)))
-      module z = Pullback (pb (z1 .left) (T.F₁ (z2 .right)))
+      module x = Pullback (pb (x1 .left) (T.₁ (x2 .right)))
+      module y = Pullback (pb (y1 .left) (T.₁ (y2 .right)))
+      module z = Pullback (pb (z1 .left) (T.₁ (z2 .right)))
 
+  --open Prebicategory
+  open Pullback
+
+  private
+    _¤_ : ∀ {a b c} (x : Span b c) (y : Span a b) → Span a c
+    f ¤ g = Span-∘ .F₀ (f , g)
+
+    sλ← : ∀ {A B} (x : Span A B) → Span-hom x (Span-id ¤ x)
+    sλ← {A} {B} x = hom where
+      module pb = Pullback (pb (T.η B) (T.₁ (x .right)))
+      hom : Span-hom x (Span-id ¤ x)
+      hom .map = pb.universal {p₂' = T.η (x .apex)} $ T.unit.is-natural (x .apex) _ (x .right)
+      hom .right = sym $ pullr pb.p₁∘universal ∙ idl _
+      hom .left =
+        x .left ≡⟨ {! !} ⟩
+        T.μ _ ∘ T.₁ (x .left) ∘ T.η (x .apex)  ≡⟨ {! !} ⟩
+        T.μ _ ∘ T.₁ (x .left) ∘ pb.p₂ ∘ pb.universal _ ≡⟨ {! !} ⟩
+        (T.μ _ ∘ T.₁ (x .left) ∘ pb.p₂) ∘ pb.universal _ ∎
+{-
+    sλ← {A} {B} x .map   = pb (T.η B) (T.₁ (x .right)) .universal
+    sλ← x .left  =  {! sym $ pullr (pb _ _ .p₂∘universal) ∙ idr _ !}
+      --x .left ≡⟨ ? ⟩
+      --(T.η _ ∘ T.₁ (x .left) ∘ (pb.p₂ (T.η _) (T.₁ (x .right)))) ∘ pb.universal _ ∎
+      --where module pb = Pullback ? ?
+    sλ← x .right = sym $ pullr (pb _ _ .p₁∘universal) ∙ idl _
+-}
+
+    sρ← : ∀ {A B} (x : Span A B) → Span-hom x (x ¤ Span-id)
+    sρ← {A} {B} x = hom where
+      module pb = Pullback (pb (x .left) (T.₁ id))
+      hom : Span-hom x (x ¤ Span-id)
+      hom .map   = pb.universal $ id-comm ∙ ap (_∘ x .left) (sym T.M-id)
+      hom .left  = {! sym $ pullr (pb _ _ .p₂∘universal) ∙ idl _ !}
+      hom .right = sym $ pullr pb.p₁∘universal ∙ idr _
 
 
   open Prebicategory
@@ -123,11 +155,11 @@ module _ (pb : ∀ {a b c} (f : Hom a b) (g : Hom c b) → Pullback C f g) where
   Spanᵇ .Hom = Spans
   Spanᵇ .id = Span-id
   Spanᵇ .compose = Span-∘
-  Spanᵇ .unitor-l = ?
-  Spanᵇ .unitor-r = ?
-  Spanᵇ .associator = ?
-  Spanᵇ .triangle f g = ?
-  Spanᵇ .pentagon f g h i = ?
+  Spanᵇ .unitor-l = {! !}
+  Spanᵇ .unitor-r = {! !}
+  Spanᵇ .associator = {! !}
+  Spanᵇ .triangle f g = {! !}
+  Spanᵇ .pentagon f g h i = {! !}
 
 
 

@@ -21,7 +21,8 @@ module _ {C : Precategory o ℓ} where
   private module C = Precategory C
 
   record IsCartesianMonad (T : Monad C) : Type (o ⊔ ℓ) where
-    private module T = Monad T
+    private
+      module T = Monad T
 
     field
       pres-pullback : P.pres-pullback T.M
@@ -37,6 +38,5 @@ module _ (C : Precategory o ℓ) where
       is-cartesian : IsCartesianMonad U
     open Monad U public
     open IsCartesianMonad is-cartesian public
-
 
 ```

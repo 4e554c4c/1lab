@@ -313,13 +313,17 @@ A similar result holds for isomorphisms.
         (pulll (pb' .p₂∘universal) ∙ pb .p₂∘universal)
         (idr _) (idr _))
 
+  module pullback-unique {p p' x y z : Ob} {f : Hom x z} {g : Hom y z} {p1 : Hom p x} {p2 : Hom p y}
+        {p1' : Hom p' x} {p2' : Hom p' y} (pb : is-pullback C p1 f p2 g) (sq : f ∘ p1' ≡ g ∘ p2')
+    = Equiv (pullback-unique pb sq)
+
   is-pullback-iso
     : ∀ {p p' x y z} {f : Hom x z} {g : Hom y z} {p1 : Hom p x} {p2 : Hom p y}
     → (i : p ≅ p')
     → is-pullback C p1 f p2 g
     → is-pullback C (p1 ∘ _≅_.from i) f (p2 ∘ _≅_.from i) g
-  is-pullback-iso i pb = Equiv.to
-    (pullback-unique pb (extendl (pb .square)))
+  is-pullback-iso i pb =
+    (pullback-unique.to pb (extendl (pb .square)))
     (subst is-invertible (pb .unique refl refl) (iso→invertible (i Iso⁻¹)))
 
   Pullback-unique
@@ -330,7 +334,7 @@ A similar result holds for isomorphisms.
     open Pullback
     module x = Pullback x
     module y = Pullback y
-    apices = c-cat .to-path (invertible→iso _ (Equiv.from (pullback-unique (y .has-is-pb) (x .square)) (x .has-is-pb)))
+    apices = c-cat .to-path $ invertible→iso _  $ pullback-unique.from (y .has-is-pb) (x .square) (x .has-is-pb)
 
     abstract
       p1s : PathP (λ i → Hom (apices i) X) x.p₁ y.p₁

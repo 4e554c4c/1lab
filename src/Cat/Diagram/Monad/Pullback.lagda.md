@@ -26,17 +26,16 @@ module _ {C : Precategory o ℓ} where
 
     field
       pres-pullback : P.pres-pullback T.M
-      unit-is-equifibered : is-equifibred T.unit
-      mult-is-equifibered : is-equifibred T.mult
+      unit-is-equifibred : is-equifibred T.unit
+      mult-is-equifibred : is-equifibred T.mult
 
 
-module _ (C : Precategory o ℓ) where
-  record CartesianMonad : Type (o ⊔ ℓ) where
-    constructor cartesian-monad
-    field
-      U : Monad C
-      is-cartesian : IsCartesianMonad U
-    open Monad U public
-    open IsCartesianMonad is-cartesian public
+record CartesianMonad (C : Precategory o ℓ) : Type (o ⊔ ℓ) where
+  constructor cartesian-monad
+  field
+    U : Monad C
+    is-cartesian : IsCartesianMonad U
+  open Monad U public
+  open IsCartesianMonad is-cartesian public
 
 ```

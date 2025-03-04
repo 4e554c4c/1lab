@@ -11,6 +11,7 @@ open import Cat.Diagram.Limit.Finite
 open import Cat.Diagram.Monad.Pullback
 open import Cat.Bi.Base
 open import Cat.Prelude hiding (⊤)
+open import Cat.Functor.Bifunctor as Bi
 
 import Cat.Reasoning
 import Cat.Functor.Reasoning
@@ -60,14 +61,17 @@ Span-hom-path {x = x} {y} {f} {g} p i .right j =
   is-set→squarep (λ i j → Hom-set _ _)
     (λ _ → x .right) (λ j → f .right j) (λ j → g .right j) (λ j → y .right ∘ p j) i j
 
+Span-hom-id : ∀ {a b} {s : Span a b} → Span-hom s s
+Span-hom-id .map = id
+Span-hom-id .left = intror refl
+Span-hom-id .right = intror refl
+
 
 Spans : Ob → Ob → Precategory _ _
 Spans x y .Precategory.Ob = Span x y
 Spans x y .Precategory.Hom = Span-hom
 Spans x y .Precategory.Hom-set _ _ = hlevel 2
-Spans x y .Precategory.id .map = id
-Spans x y .Precategory.id .left = intror refl
-Spans x y .Precategory.id .right = intror refl
+Spans x y .Precategory.id = Span-hom-id
 Spans x y .Precategory._∘_ f g .map = f .map ∘ g .map
 Spans x y .Precategory._∘_ f g .left = g .left ∙ pushl (f .left)
 Spans x y .Precategory._∘_ f g .right = g .right ∙ pushl (f .right)
@@ -80,6 +84,8 @@ module Spans x y = Cat.Reasoning (Spans x y)
 
 Span-iso : {A B : Ob} (x y : Span A B) → Type ℓ
 Span-iso {A} {B} x y = Spans.Isomorphism A B x y
+
+--module Span-iso {A B : Ob} (x y : Span A B) = Spans._≅_  public
 
 mk-span-iso : ∀ {A B} {x y : Span A B}
             → (h : Span-hom x y) → is-invertible (h .map)
@@ -147,10 +153,18 @@ module _ (pb : has-pullbacks C) where
 
   --open Prebicategory
   open Pullback
+  open is-pullback
+
+  module Span-∘ {a b c} = Bi (Span-∘ {a} {b} {c})
+
+  infixr 25 _⊗_ _◆_
 
   private
-    _¤_ : ∀ {a b c} (x : Span b c) (y : Span a b) → Span a c
-    f ¤ g = Span-∘ .F₀ (f , g)
+    _⊗_ : ∀ {a b c} (x : Span b c) (y : Span a b) → Span a c
+    f ⊗ g = Span-∘.F₀ (f , g)
+    _◆_ : ∀ {a b c} {s s' : Span b c} (β : Span-hom s s') {r r' : Span a b} (α : Span-hom r r')
+        → Span-hom (s ⊗ r) (s' ⊗  r')
+    _◆_ β α = Span-∘.F₁ (β , α)
 ```
 
 There is no immediate way to draw the left unitor. We need a map from
@@ -180,11 +194,14 @@ is isomorphic
 ~~~
 
 ```agda
-    sλ≅ : ∀ {A B} (x : Span A B) → Span-iso x (Span-id ¤ x)
-    sλ≅ {A} {B} x = mk-span-iso hom (pullback-unique.from {! !} {! !} {! !}) where
+    sλ≅ : ∀ {A B} (x : Span A B) → Span-iso x (Span-id ⊗ x)
+    sλ≅ {A} {B} x = mk-span-iso hom (pullback-unique' pb.has-is-pb x-is-pb) where
       module pb = Pullback (pb (T.η B) (T.₁ (x .right)))
-      hom : Span-hom x (Span-id ¤ x)
-      hom .map = pb.universal {p₂' = T.η (x .apex)} $ T.unit.is-natural (x .apex) _ (x .right)
+      abstract
+        x-is-pb : is-pullback C (x .right) (T.η B) (T.η (x .apex)) (T.₁ (x .right))
+        x-is-pb = T.unit-is-equifibred $ x .right
+      hom : Span-hom x (Span-id ⊗ x)
+      hom .map = pb.universal $ x-is-pb .square
       hom .right = sym $ pullr pb.p₁∘universal ∙ idl _
       hom .left =
         x .left                                         ≡⟨ insertl T.μ-unitl ⟩
@@ -192,12 +209,44 @@ is isomorphic
         T.μ _ ∘ T.₁ (x .left) ∘ T.η (x .apex)          ≡˘⟨ refl⟩∘⟨ refl⟩∘⟨ pb.p₂∘universal ⟩
         T.μ _ ∘ T.₁ (x .left) ∘ pb.p₂ ∘ pb.universal _  ≡⟨ (refl⟩∘⟨ assoc _ _ _) ∙ assoc _ _ _ ⟩
         (T.μ _ ∘ T.₁ (x .left) ∘ pb.p₂) ∘ pb.universal _ ∎
+    module sλ≅ {A B} (x : Span A B) = Spans._≅_ A B (sλ≅ x)
 
-    sρ← : ∀ {A B} (x : Span A B) → Span-hom x (x ¤ Span-id)
-    sρ← {A} {B} x = hom where
+    sλ-natural : ∀ {A B} {x y : Span A B} (f : Span-hom x y)
+              → (Span-hom-id {s = Span-id} ◆ f) .map C.∘ (sλ≅.to x) .map
+              ≡ (sλ≅.to y) .map C.∘ f .map
+    sλ-natural f = {! !}
+{-
+Goal: map
+((Spans A B Precategory.∘
+  F₁ (Cat.Functor.Bifunctor.Right (compose Spanᵇ) (id Spanᵇ)) f)
+ (Cat.Morphism._≅_.to (sλ≅ x)))
+≡ (sλ≅.to y) .map ∘ f .map
+    sλ-natural {A} {B} x = mk-span-iso hom (pullback-unique' pb.has-is-pb x-is-pb) where
+      module pb = Pullback (pb (T.η B) (T.₁ (x .right)))
+      x-is-pb : is-pullback C (x .right) (T.η B) (T.η (x .apex)) (T.₁ (x .right))
+      x-is-pb = T.unit-is-equifibred $ x .right
+
+      hom : Span-hom x (Span-id ⊗ x)
+      hom .map = pb.universal $ x-is-pb .square
+      hom .right = sym $ pullr pb.p₁∘universal ∙ idl _
+      hom .left =
+        x .left                                         ≡⟨ insertl T.μ-unitl ⟩
+        T.μ _ ∘ T.η _ ∘ x .left                         ≡⟨ refl⟩∘⟨ T.unit.is-natural _ _ _ ⟩
+        T.μ _ ∘ T.₁ (x .left) ∘ T.η (x .apex)          ≡˘⟨ refl⟩∘⟨ refl⟩∘⟨ pb.p₂∘universal ⟩
+        T.μ _ ∘ T.₁ (x .left) ∘ pb.p₂ ∘ pb.universal _  ≡⟨ (refl⟩∘⟨ assoc _ _ _) ∙ assoc _ _ _ ⟩
+        (T.μ _ ∘ T.₁ (x .left) ∘ pb.p₂) ∘ pb.universal _ ∎
+-}
+
+    sρ≅ : ∀ {A B} (x : Span A B) → Span-iso x (x ⊗ Span-id)
+    sρ≅ {A} {B} x = mk-span-iso hom (pullback-unique' pb.has-is-pb x-is-pb) where
       module pb = Pullback (pb (x .left) (T.₁ id))
-      hom : Span-hom x (x ¤ Span-id)
-      hom .map   = pb.universal $ id-comm ∙ ap (_∘ x .left) (sym T.M-id)
+      abstract
+        x-is-pb : is-pullback C id (x .left) (x .left) (T.₁ id)
+        x-is-pb = transport (λ i → is-pullback C id (x .left) (x .left) (T.M-id (~ i)))
+                            id-is-pullback
+
+      hom : Span-hom x (x ⊗ Span-id)
+      hom .map = pb.universal $ x-is-pb .square
       hom .left  =
         x .left                                         ≡˘⟨ (T.μ-unitr ⟩∘⟨refl) ∙ (idl _) ⟩
         (T.μ A ∘ T.₁ (T.η A)) ∘ x .left                 ≡⟨ refl⟩∘⟨ sym pb.p₂∘universal ⟩
@@ -205,6 +254,31 @@ is isomorphic
         (T.μ A ∘ T.₁ (T.η A) ∘ pb.p₂ ) ∘ pb.universal _ ∎
       hom .right = sym $ pullr pb.p₁∘universal ∙ idr _
 
+    module sρ≅ {A B} (x : Span A B) = Spans._≅_ A B (sρ≅ x)
+
+    sρ-natural : ∀ {A B} {x y : Span A B} (f : Span-hom x y)
+              → (f ◆  Span-hom-id {s = Span-id}) .map C.∘ (sρ≅.to x) .map
+              ≡ (sρ≅.to y) .map C.∘ f .map
+
+    sα≅ : ∀ {A B C D} (f : Span C D) (g : Span B C) (h : Span A B) → Span-iso  ((f ⊗ g) ⊗ h) (f ⊗ (g ⊗ h))
+    sα≅ {A} {B} {C} {D} f g h = mk-span-iso {!  !} (pullback-unique' pb₁.has-is-pb {! !}) where
+      module pbₗ = Pullback (pb (g .left) (T.₁ $ h .right))
+      module pbₗ' = Pullback (pb (T.₁ $ g .left) (T.₁ $ T.₁ $ h .right))
+      module pb₁ = Pullback (pb (f .left) (T.₁ $ g .right ∘ pbₗ.p₁))
+      _ : pb₁.apex ≡ (f ⊗ (g ⊗ h)) .apex
+      _ = refl
+      module pbᵣ = Pullback (pb (f .left) (T.₁ $ g .right))
+      module pb₂ = Pullback (pb (T.μ B ∘ (T.₁ $ g .left) ∘ pbᵣ.p₂) (T.₁ $ h .right))
+      _ : pb₂.apex ≡ ((f ⊗ g) ⊗ h) .apex
+      _ = refl
+      --??-is-pb : is-pullback C id (x .left) (x .left) (T.₁ id)
+--
+    module sα≅ {A B C D } (f : Span C D) (g : Span B C) (h : Span A B)  = Spans._≅_ A D (sα≅ f g h)
+
+    sα-natural : ∀ {A B C D} {f f' : Span C D}{g g' : Span B C} {h h' : Span A B}
+                (α : Span-hom f f') (β : Span-hom g g') (γ : Span-hom h h')
+              → (α ◆ (β ◆ γ)) .map ∘ (sα≅.to f g h) .map
+              ≡ (sα≅.to f' g' h') .map ∘ ((α ◆ β) ◆ γ) .map
 
   open make-natural-iso
   open Prebicategory
@@ -213,22 +287,11 @@ is isomorphic
   Spanᵇ .Hom = Spans
   Spanᵇ .id = Span-id
   Spanᵇ .compose = Span-∘
-  Spanᵇ .unitor-l = to-natural-iso ni where
-    ni : make-natural-iso (Id {C = Spans _ _}) _
-    ni .eta = {! sλ← !}
-    ni .inv x .map = {! pb _ _ .p₂ !}
-    ni .inv x .left = {! refl !}
-    ni .inv x .right = {! pb _ _ .square !}
-    ni .eta∘inv x = {! !}
-    ni .inv∘eta x = {! !}
-    ni .natural x y f = {! !}
-  Spanᵇ .unitor-r = {! !}
-  Spanᵇ .associator = {! !}
+  Spanᵇ .unitor-l = iso→isoⁿ sλ≅ λ f → Span-hom-path (sλ-natural f)
+  Spanᵇ .unitor-r = iso→isoⁿ sρ≅ λ f → Span-hom-path (sρ-natural f)
+  Spanᵇ .associator = iso→isoⁿ (λ (f , g , h) → sα≅ f g h) λ (f , g , h) → Span-hom-path (sα-natural f g h)
   Spanᵇ .triangle f g = {! !}
   Spanᵇ .pentagon f g h i = {! !}
-
-
-
 
 ```
 

@@ -317,6 +317,14 @@ A similar result holds for isomorphisms.
         {p1' : Hom p' x} {p2' : Hom p' y} (pb : is-pullback C p1 f p2 g) (sq : f ∘ p1' ≡ g ∘ p2')
     = Equiv (pullback-unique pb sq)
 
+  pullback-unique'
+    : ∀ {p p' x y z} {f : Hom x z} {g : Hom y z} {p1 : Hom p x} {p2 : Hom p y}
+        {p1' : Hom p' x} {p2' : Hom p' y}
+    → (pb  : is-pullback C p1 f p2 g)
+    → (pb' : is-pullback C p1' f p2' g)
+    → is-invertible (pb .universal (pb' .square))
+  pullback-unique' pb pb' = pullback-unique.from pb (pb' .square) pb'
+
   is-pullback-iso
     : ∀ {p p' x y z} {f : Hom x z} {g : Hom y z} {p1 : Hom p x} {p2 : Hom p y}
     → (i : p ≅ p')

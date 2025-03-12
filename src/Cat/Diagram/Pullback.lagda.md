@@ -124,7 +124,7 @@ maps:
       has-is-pb : is-pullback p₁ f p₂ g
 
     open is-pullback has-is-pb public
-```
+  ```
 
 <!--
 ```agda

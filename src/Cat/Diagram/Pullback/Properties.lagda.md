@@ -334,6 +334,14 @@ A similar result holds for isomorphisms.
     (pullback-unique.to pb (extendl (pb .square)))
     (subst is-invertible (pb .unique refl refl) (iso→invertible (i Iso⁻¹)))
 
+  open Pullback
+  Pullback-iso
+    : ∀ {x y z} {f : Hom x z} {g : Hom y z}
+    → (p p' : Pullback C f g)
+    → (p .apex ≅ p' .apex)
+  Pullback-iso p p' = invertible→iso _ $ pullback-unique' (p' .has-is-pb) (p .has-is-pb)
+
+
   Pullback-unique
     : ∀ {x y z} {f : Hom x z} {g : Hom y z}
     → is-category C
@@ -342,7 +350,7 @@ A similar result holds for isomorphisms.
     open Pullback
     module x = Pullback x
     module y = Pullback y
-    apices = c-cat .to-path $ invertible→iso _  $ pullback-unique.from (y .has-is-pb) (x .square) (x .has-is-pb)
+    apices = c-cat .to-path $ Pullback-iso x y
 
     abstract
       p1s : PathP (λ i → Hom (apices i) X) x.p₁ y.p₁

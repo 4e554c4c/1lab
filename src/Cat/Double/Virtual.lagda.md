@@ -153,7 +153,6 @@ We bundle all of this information into a helper structure.
       𝔞₁   : ┌   t₁  ┐
               f □⋯□ fᵡ
              └   b₁  ┘
-
       𝔞₂   : ┌   t₂  ┐
               fᵡ □⋯□ g
              └   b₂  ┘
@@ -244,7 +243,6 @@ record VirtualDoubleCategoryLaws {d} (s : VirtualDoubleCategoryStructure d) : Ty
           → PathP (λ i → Cell top (tassoc f'' f' f i) (tassoc g'' g' g i) q)
                   (vcomp (vccomp α₁ α₂) α₃)
                   (vcomp α₁ (vcomp α₂ α₃))
-  level = level-of-vdbl
 
 record VirtualDoubleCategory : Type level-of-vdbl where
   no-eta-equality
@@ -253,4 +251,5 @@ record VirtualDoubleCategory : Type level-of-vdbl where
     Struct : VirtualDoubleCategoryStructure Data
     Laws : VirtualDoubleCategoryLaws Struct
   open VirtualDoubleCategoryLaws Laws public
+  level = level-of-vdbl
 ```

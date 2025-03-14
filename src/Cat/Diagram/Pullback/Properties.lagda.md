@@ -168,14 +168,14 @@ then have a map $x \to a$, as we wanted.
 ```agda
     pasting-left→outer-is-pullback
       : is-pullback C a→b b→e a→d d→e
-      → (square : c→f ∘ b→c ∘ a→b ≡ (e→f ∘ d→e) ∘ a→d)
       → is-pullback C (b→c ∘ a→b) c→f a→d (e→f ∘ d→e)
-    pasting-left→outer-is-pullback left square = pb where
+    pasting-left→outer-is-pullback left = pb where
       module left = is-pullback left
-
       pb : is-pullback C (b→c ∘ a→b) c→f a→d (e→f ∘ d→e)
       pb .is-pullback.square =
-        c→f ∘ b→c ∘ a→b   ≡⟨ square ⟩
+        c→f ∘ b→c ∘ a→b   ≡⟨ extendl right.square ⟩
+        e→f ∘ b→e ∘ a→b   ≡⟨ refl⟩∘⟨ left.square ⟩
+        e→f ∘ d→e ∘ a→d   ≡⟨ assoc e→f d→e a→d ⟩
         (e→f ∘ d→e) ∘ a→d ∎
       pb .universal {p₁' = P→c} {p₂' = P→d} x =
         left.universal {p₁' = right.universal (x ∙ sym (assoc _ _ _))} {p₂' = P→d}

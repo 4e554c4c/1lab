@@ -23,7 +23,9 @@ module Cat.Bi.Instances.T-Spans {o ℓ} {C : Precategory o ℓ} (T : CartesianMo
 
 private
   open module C = Cat.Reasoning C
-  module T = CartesianMonad T
+  open module T = CartesianMonad T using () renaming (M₀ to T₀; M₁ to T₁)
+  T² = T.M F∘ T.M
+  open module T² = Functor T² using () renaming (F₀ to T²₀; F₁ to T²₁)
   open Terminal term renaming (top to ⊤)
 
 
@@ -123,38 +125,38 @@ module _ (pb : has-pullbacks C) where
   open Pullbacks C pb
 
   Span-∘ : ∀ {a b c} → Functor (Spans b c ×ᶜ Spans a b) (Spans a c)
-  Span-∘ .F₀ (sp1 , sp2) = t-span pb.apex (T.μ _ ∘ T.₁ (sp2 .left) ∘ pb.p₂) (sp1 .right ∘ pb.p₁)
-     where module pb = Pullback (pb (sp1 .left) (T.₁ (sp2 .right)))
+  Span-∘ .F₀ (sp1 , sp2) = t-span pb.apex (T.μ _ ∘ T₁ (sp2 .left) ∘ pb.p₂) (sp1 .right ∘ pb.p₁)
+     where module pb = Pullback (pb (sp1 .left) (T₁ (sp2 .right)))
   Span-∘ .F₁ {x1 , x2} {y1 , y2} (f , g) = res
     where
-      module x = Pullback (pb (x1 .left) (T.M₁ (x2 .right)))
-      module y = Pullback (pb (y1 .left) (T.M₁ (y2 .right)))
+      module x = Pullback (pb (x1 .left) (T₁ (x2 .right)))
+      module y = Pullback (pb (y1 .left) (T₁ (y2 .right)))
       x→y : Hom x.apex y.apex
-      x→y = y.universal {p₁' = f .map ∘ x.p₁} {p₂' = T.M₁ (g .map) ∘ x.p₂} comm
+      x→y = y.universal {p₁' = f .map ∘ x.p₁} {p₂' = T₁ (g .map) ∘ x.p₂} comm
         where abstract
           open Pullback
-          comm : y1 .left ∘ f .map ∘ x.p₁ ≡ T.M₁ (y2 .right) ∘ T.M₁ (g .map) ∘ x.p₂
+          comm : y1 .left ∘ f .map ∘ x.p₁ ≡ T₁ (y2 .right) ∘ T₁ (g .map) ∘ x.p₂
           comm = pulll (sym (f .left)) ∙ x.square ∙ (pushl $ T.expand $ g .right)
       res : Span-hom (Span-∘ .F₀ (x1 , x2))  (Span-∘ .F₀ (y1 , y2))
       res .map = x→y
-      res .left = T.μ _ ∘ T.₁ (x2 .left) ∘ x.p₂                     ≡⟨ refl⟩∘⟨ pushl (T.expand (g .left)) ⟩
-                  T.μ _ ∘ T.₁ (y2 .left) ∘ T.M₁ (g .map) ∘ x.p₂     ≡˘⟨ refl⟩∘⟨ pullr y.p₂∘universal  ⟩
-                  T.μ _ ∘ (T.₁ (y2 .left) ∘ pb.p₂) ∘ pb.universal _ ≡⟨ assoc _ _ _  ⟩
-                  (T.μ _ ∘ T.₁ (y2 .left) ∘ pb.p₂) ∘ pb.universal _ ∎
-        where module pb = Pullback (pb (y1 .left) (T.₁ (y2 .right)))
+      res .left = T.μ _ ∘ T₁ (x2 .left) ∘ x.p₂                     ≡⟨ refl⟩∘⟨ pushl (T.expand (g .left)) ⟩
+                  T.μ _ ∘ T₁ (y2 .left) ∘ T₁ (g .map) ∘ x.p₂     ≡˘⟨ refl⟩∘⟨ pullr y.p₂∘universal  ⟩
+                  T.μ _ ∘ (T₁ (y2 .left) ∘ pb.p₂) ∘ pb.universal _ ≡⟨ assoc _ _ _  ⟩
+                  (T.μ _ ∘ T₁ (y2 .left) ∘ pb.p₂) ∘ pb.universal _ ∎
+        where module pb = Pullback (pb (y1 .left) (T₁ (y2 .right)))
       res .right = sym (pullr y.p₁∘universal ∙ pulll (sym (f .right)))
 
   Span-∘ .F-id {x1 , x2} = Span-hom-path $ sym $ x.unique id-comm (idr x.p₂ ∙ (sym $ eliml T.M-id))
-    where module x = Pullback (pb (x1 .left) (T.₁ (x2 .right)))
+    where module x = Pullback (pb (x1 .left) (T₁ (x2 .right)))
 
   Span-∘ .F-∘ {x1 , x2} {y1 , y2} {z1 , z2} f g =
     Span-hom-path $ sym $ z.unique
       (pulll z.p₁∘universal ∙ pullr y.p₁∘universal ∙ assoc _ _ _)
       (pulll z.p₂∘universal ∙ pullr y.p₂∘universal ∙ assoc _ _ _ ∙ (sym $ T.M-∘ _ _ ⟩∘⟨refl))
     where
-      module x = Pullback (pb (x1 .left) (T.₁ (x2 .right)))
-      module y = Pullback (pb (y1 .left) (T.₁ (y2 .right)))
-      module z = Pullback (pb (z1 .left) (T.₁ (z2 .right)))
+      module x = Pullback (pb (x1 .left) (T₁ (x2 .right)))
+      module y = Pullback (pb (y1 .left) (T₁ (y2 .right)))
+      module z = Pullback (pb (z1 .left) (T₁ (z2 .right)))
 
   --open Prebicategory
   open Pullback
@@ -186,33 +188,32 @@ the pullback $B\times_{TB}Tp$ to $p$. However, since $\eta$ is equifibred,
 $p$ too forms pullback with the same cospan as our composition. Thus $p$
 is isomorphic
 
+Both unitors are relatively straightforward by noticing that, as $\eta$
+is Cartesian, both $f$ and $\id_B\circ f$ (defined as $Tf\times_{TB} B$)
+are pullbacks of the same square.
+
 ~~~{.quiver}
 \[\begin{tikzcd}
-	&& p \\
-	&& {B\times_{TB}Tp} \\
-	& B && Tp \\
-	B && TB && {T^2A} & TA
-	\arrow["\ell"', curve={height=18pt}, from=1-3, to=3-2]
-	\arrow["\eta", curve={height=-18pt}, from=1-3, to=3-4]
-	\arrow["\lrcorner"{anchor=center, pos=0.125, rotate=-45}, draw=none, from=1-3, to=4-3]
-	\arrow["r"', curve={height=-30pt}, from=1-3, to=4-6]
-	\arrow["{\pi_1}"', from=2-3, to=3-2]
-	\arrow["{\pi_2}", from=2-3, to=3-4]
-	\arrow["\lrcorner"{anchor=center, pos=0.125, rotate=-45}, draw=none, from=2-3, to=4-3]
-	\arrow[from=3-2, to=4-1]
-	\arrow["\eta", from=3-2, to=4-3]
-	\arrow["{T\ell}"', from=3-4, to=4-3]
-	\arrow["Tr", from=3-4, to=4-5]
-	\arrow["\mu", from=4-5, to=4-6]
+	f \\
+	& {Tf\times_{TB}B} & B \\
+	& Tf & TB
+	\arrow["\ell", curve={height=-18pt}, from=1-1, to=2-3]
+	\arrow["{\eta_f}"', curve={height=18pt}, from=1-1, to=3-2]
+	\arrow["\lrcorner"{anchor=center, pos=0.125}, draw=none, from=1-1, to=3-3]
+	\arrow["{{\pi_2}}", from=2-2, to=2-3]
+	\arrow["{{\pi_1}}"', from=2-2, to=3-2]
+	\arrow["\lrcorner"{anchor=center, pos=0.125}, draw=none, from=2-2, to=3-3]
+	\arrow["{\eta_B}"', from=2-3, to=3-3]
+	\arrow["{T\ell}", from=3-2, to=3-3]
 \end{tikzcd}\]
 ~~~
 
 ```agda
     sλ≅ : ∀ {A B} (x : Span A B) → Span-iso x (Span-id ⊗ x)
     sλ≅ {A} {B} x = mk-span-iso hom (pullback-unique' pb.has-is-pb x-is-pb) where
-      module pb = Pullback (pb (T.η B) (T.₁ (x .right)))
+      module pb = Pullback (pb (T.η B) (T₁ (x .right)))
       abstract
-        x-is-pb : is-pullback C (x .right) (T.η B) (T.η (x .apex)) (T.₁ (x .right))
+        x-is-pb : is-pullback C (x .right) (T.η B) (T.η (x .apex)) (T₁ (x .right))
         x-is-pb = T.unit-is-equifibred $ x .right
       hom : Span-hom x (Span-id ⊗ x)
       hom .map = pb.universal $ x-is-pb .square
@@ -220,9 +221,9 @@ is isomorphic
       hom .left =
         x .left                                         ≡⟨ insertl T.μ-unitl ⟩
         T.μ _ ∘ T.η _ ∘ x .left                         ≡⟨ refl⟩∘⟨ T.unit.is-natural _ _ _ ⟩
-        T.μ _ ∘ T.₁ (x .left) ∘ T.η (x .apex)          ≡˘⟨ refl⟩∘⟨ refl⟩∘⟨ pb.p₂∘universal ⟩
-        T.μ _ ∘ T.₁ (x .left) ∘ pb.p₂ ∘ pb.universal _  ≡⟨ (refl⟩∘⟨ assoc _ _ _) ∙ assoc _ _ _ ⟩
-        (T.μ _ ∘ T.₁ (x .left) ∘ pb.p₂) ∘ pb.universal _ ∎
+        T.μ _ ∘ T₁ (x .left) ∘ T.η (x .apex)          ≡˘⟨ refl⟩∘⟨ refl⟩∘⟨ pb.p₂∘universal ⟩
+        T.μ _ ∘ T₁ (x .left) ∘ pb.p₂ ∘ pb.universal _  ≡⟨ (refl⟩∘⟨ assoc _ _ _) ∙ assoc _ _ _ ⟩
+        (T.μ _ ∘ T₁ (x .left) ∘ pb.p₂) ∘ pb.universal _ ∎
     module sλ≅ {A B} (x : Span A B) = Spans._≅_ A B (sλ≅ x)
 
     sλ-natural : ∀ {A B} {x y : Span A B} (f : Span-hom x y)
@@ -235,14 +236,14 @@ is isomorphic
         (pulll pb.p₂∘universal ∙ pullr pb''.p₂∘universal ∙ (sym $ T.unit.is-natural _ _ _ ))
         (pulll pb.p₁∘universal ∙ (sym $ f .right))
         (pulll pb.p₂∘universal) where
-      module pb = Pullback (pb (T.η B) (T.₁ (y .right)))
-      module pb' = Pullback (pb (left Span-id) (T.M₁ (x .right)))
-      module pb'' = Pullback (pb (T.unit.η B) (T.M₁ (x .right)))
+      module pb = Pullback (pb (T.η B) (T₁ (y .right)))
+      module pb' = Pullback (pb (left Span-id) (T₁ (x .right)))
+      module pb'' = Pullback (pb (T.unit.η B) (T₁ (x .right)))
     sρ≅ : ∀ {A B} (x : Span A B) → Span-iso x (x ⊗ Span-id)
     sρ≅ {A} {B} x = mk-span-iso hom (pullback-unique' pb.has-is-pb x-is-pb) where
-      module pb = Pullback (pb (x .left) (T.₁ id))
+      module pb = Pullback (pb (x .left) (T₁ id))
       abstract
-        x-is-pb : is-pullback C id (x .left) (x .left) (T.₁ id)
+        x-is-pb : is-pullback C id (x .left) (x .left) (T₁ id)
         x-is-pb = transport (λ i → is-pullback C id (x .left) (x .left) (T.M-id (~ i)))
                             id-is-pullback
 
@@ -250,9 +251,9 @@ is isomorphic
       hom .map = pb.universal $ x-is-pb .square
       hom .left  =
         x .left                                         ≡˘⟨ (T.μ-unitr ⟩∘⟨refl) ∙ (idl _) ⟩
-        (T.μ A ∘ T.₁ (T.η A)) ∘ x .left                 ≡⟨ refl⟩∘⟨ sym pb.p₂∘universal ⟩
-        (T.μ A ∘ T.₁ (T.η A)) ∘ pb.p₂ ∘ pb.universal _  ≡⟨ assoc _ _ _ ∙ (sym (assoc _ _ _) ⟩∘⟨refl) ⟩
-        (T.μ A ∘ T.₁ (T.η A) ∘ pb.p₂ ) ∘ pb.universal _ ∎
+        (T.μ A ∘ T₁ (T.η A)) ∘ x .left                 ≡⟨ refl⟩∘⟨ sym pb.p₂∘universal ⟩
+        (T.μ A ∘ T₁ (T.η A)) ∘ pb.p₂ ∘ pb.universal _  ≡⟨ assoc _ _ _ ∙ (sym (assoc _ _ _) ⟩∘⟨refl) ⟩
+        (T.μ A ∘ T₁ (T.η A) ∘ pb.p₂ ) ∘ pb.universal _ ∎
       hom .right = sym $ pullr pb.p₁∘universal ∙ idr _
 
     module sρ≅ {A B} (x : Span A B) = Spans._≅_ A B (sρ≅ x)
@@ -266,22 +267,99 @@ is isomorphic
         (pulll pb.p₂∘universal ∙ (eliml T.M-id ⟩∘⟨refl) ∙ pb'.p₂∘universal)
         (cancell pb.p₁∘universal)
         (pulll pb.p₂∘universal ∙ (sym $ f .left)) where
-      module pb = Pullback (pb (y .left) (T.₁ id))
-      module pb' = Pullback (pb (left x) (T.M₁ id))
+      module pb = Pullback (pb (y .left) (T₁ id))
+      module pb' = Pullback (pb (left x) (T₁ id))
+
+```
+
+Proving associativity is a bit more complicated. We need the [[pasting
+law for pullbacks]], that $\mu$ is a [[Cartesian natural transformation]]
+and that $T$ is a [[Cartesian functor]].
+
+The diagram, after adding a Cartesian square for $\mu$ is
+
+~~~{.quiver}
+\[\begin{tikzcd}
+	& {T(Th\times_{TC}g)\times_{TB}f} \\
+	{Th\times_{TC}(Tg\times_{TB}f)} && {Tg\times_{TB}f} & f \\
+	& {T(Th\times_{TC}g)} & Tg & TB \\
+	& {T^2h} & {T^2C} \\
+	& Th & TC.
+	\arrow[dotted, from=1-2, to=2-4]
+	\arrow[dotted, from=1-2, to=3-2]
+	\arrow["\lrcorner"{anchor=center, pos=0.125}, draw=none, from=1-2, to=3-4]
+	\arrow[dotted, from=2-1, to=2-3]
+	\arrow[dotted, from=2-1, to=5-2]
+	\arrow["\lrcorner"{anchor=center, pos=0.125}, draw=none, from=2-1, to=5-3]
+	\arrow[from=2-3, to=2-4]
+	\arrow[from=2-3, to=3-3]
+	\arrow["\lrcorner"{anchor=center, pos=0.125}, draw=none, from=2-3, to=3-4]
+	\arrow["{\ell_f}", from=2-4, to=3-4]
+	\arrow[from=3-2, to=3-3]
+	\arrow[from=3-2, to=4-2]
+	\arrow["\lrcorner"{anchor=center, pos=0.125}, draw=none, from=3-2, to=4-3]
+	\arrow["{T(\ell_g)}", from=3-3, to=3-4]
+	\arrow["{T(r_g)}", from=3-3, to=4-3]
+	\arrow["{T^2(\ell_h)}", from=4-2, to=4-3]
+	\arrow["\mu", from=4-2, to=5-2]
+	\arrow["\lrcorner"{anchor=center, pos=0.125}, draw=none, from=4-2, to=5-3]
+	\arrow["\mu", from=4-3, to=5-3]
+	\arrow["{T(\ell_h)}", from=5-2, to=5-3]
+\end{tikzcd}\]
+~~~
+
+By uniqueness of pullbacks, we may prove that both
+$f\circ(g\circ h)$ and $(f\circ g)\circ h$ are pullbacks of the central cospan
+~~~{.quiver}
+\[\begin{tikzcd}
+	{} \\
+	{T(Th\times_{TC}g)} & Tg & {Tg\times_{TB}f}
+	\arrow[from=2-1, to=2-2]
+	\arrow[from=2-3, to=2-2]
+\end{tikzcd}\]
+~~~
+witnessing isomorphism.
+
+```agda
 
     sα≅ : ∀ {A B C D} (f : Span C D) (g : Span B C) (h : Span A B) → Span-iso  ((f ⊗ g) ⊗ h) (f ⊗ (g ⊗ h))
-    sα≅ {A} {B} {C} {D} f g h = mk-span-iso {!  !} (pullback-unique' pb₁.has-is-pb {! !}) where
-      module pbₗ = Pullback (pb (g .left) (T.₁ $ h .right))
-      module pbₗ' = Pullback (pb (T.₁ $ g .left) (T.₁ $ T.₁ $ h .right))
-      -- so we know (T pbₗ) ≅ pbₗ'
-      module pb₁ = Pullback (pb (f .left) (T.₁ $ g .right ∘ pbₗ.p₁))
-      _ : pb₁.apex ≡ (f ⊗ (g ⊗ h)) .apex
+    sα≅ {A} {B} {D} f g h = mk-span-iso {!  !} (pullback-unique' c₁-is-pb c₂-is-pb) where
+      module f = Span f
+      module g = Span g
+      module h = Span h
+      module pb₀ = Pullback (pb g.left (T₁  h.right))
+      module pbᵣ = Pullback (pb (f.left) (T₁ g.right))
+      module c₁ = Pullback (pb f.left (T₁ $ g.right ∘ pb₀.p₁))
+      module c₂ = Pullback (pb (T.μ B ∘ T₁ g.left ∘ pbᵣ.p₂) (T₁ h.right))
+      c₁ = c₁.apex
+      c₂ = c₂.apex
+      _ : c₁ ≡ (f ⊗ (g ⊗ h)) .apex
       _ = refl
-      module pbᵣ = Pullback (pb (f .left) (T.₁ $ g .right))
-      module pb₂ = Pullback (pb (T.μ B ∘ (T.₁ $ g .left) ∘ pbᵣ.p₂) (T.₁ $ h .right))
-      _ : pb₂.apex ≡ ((f ⊗ g) ⊗ h) .apex
+      _ : c₂ ≡ ((f ⊗ g) ⊗ h) .apex
       _ = refl
-      --??-is-pb : is-pullback C id (x .left) (x .left) (T.₁ id)
+
+
+
+      T[pb₀]-is-pb : is-pullback C  (T₁ pb₀.p₁) (T₁ g.left) (T₁ pb₀.p₂) (T²₁ h.right)
+      T[pb₀]-is-pb = T.pres-pullback pb₀.has-is-pb
+
+      -- furthermore, we can build a square from T(pb₀) to TC by pasting our cartesian naturality square for μ
+      μ-is-pb : is-pullback C  (T²₁ h.right) (T.μ B) (T.μ h.apex) (T₁ h.right)
+      μ-is-pb = T.mult-is-equifibred h.right
+
+      -- now lets paste these together into a single square
+      T[pb₀]-is-pasted-pb : is-pullback C (T₁ pb₀.p₁) (T.μ B ∘ T₁ g.left) (T.μ h.apex ∘ T₁ pb₀.p₂) (T₁ h.right)
+      -- we need to rotate our squares bc we're currently working top-down instead of left-right
+      T[pb₀]-is-pasted-pb = rotate-pullback $ pasting-left→outer-is-pullback (rotate-pullback μ-is-pb) (rotate-pullback T[pb₀]-is-pb)
+
+      -- so basically what we're aiming for is
+      c₁-is-pb : is-pullback C c₁.p₂  (T₁ pb₀.p₁) {! !} pbᵣ.p₂
+      c₁-is-pb = {! !}
+
+      c₂-is-pb : is-pullback C {! !}  (T₁ pb₀.p₁) c₂.p₁ pbᵣ.p₂
+      c₂-is-pb = {! !}
+
+      --??-is-pb : is-pullback C id (x .left) (x .left) (T₁ id)
 
     module sα≅ {A B C D } (f : Span C D) (g : Span B C) (h : Span A B)  = Spans._≅_ A D (sα≅ f g h)
 
@@ -302,7 +380,10 @@ is isomorphic
   Spanᵇ .Bicat.unitor-r = iso→isoⁿ sρ≅ λ f → Span-hom-path (sρ-natural f)
   Spanᵇ .Bicat.associator = iso→isoⁿ (λ (f , g , h) → sα≅ f g h) λ (f , g , h) → Span-hom-path (sα-natural f g h)
   Spanᵇ .Bicat.triangle f g = Span-hom-path $
-    (sρ≅.from f ◀ g) .map ∘ sα≅.from f Span-id g .map ≡⟨ {! !} ⟩
+    (sρ≅.from f ◀ g) .map ∘ sα≅.from f Span-id g .map ≡⟨
+      Pullback.unique₂ (pb _ _) {p₁' = pb _ _ .p₁} {p₂' = (T.μ _ ∘ T₁ (pb _ _ .p₂)) ∘ pb _ _ .p₂} {p = {! !}}
+        {! !} {! !} {! !} {! !}
+      ⟩
     (f ▶ sλ≅.from g) .map  ∎
   Spanᵇ .Bicat.pentagon f g h i = {! !}
 ```

@@ -323,42 +323,80 @@ witnessing isomorphism.
 ```agda
 
     sα≅ : ∀ {A B C D} (f : Span C D) (g : Span B C) (h : Span A B) → Span-iso  ((f ⊗ g) ⊗ h) (f ⊗ (g ⊗ h))
-    sα≅ {A} {B} {D} f g h = mk-span-iso {!  !} (pullback-unique' c₁-is-pb c₂-is-pb) where
+    sα≅ {A} {B} {D} f g h = mk-span-iso hom (pullback-unique' c₁-is-pb c₂-is-pb) where
       module f = Span f
       module g = Span g
       module h = Span h
       module pb₀ = Pullback (pb g.left (T₁  h.right))
+      pb₀ = pb₀.apex
       module pbᵣ = Pullback (pb (f.left) (T₁ g.right))
+      pbᵣ = pbᵣ.apex
       module c₁ = Pullback (pb f.left (T₁ $ g.right ∘ pb₀.p₁))
       module c₂ = Pullback (pb (T.μ B ∘ T₁ g.left ∘ pbᵣ.p₂) (T₁ h.right))
       c₁ = c₁.apex
       c₂ = c₂.apex
+
       _ : c₁ ≡ (f ⊗ (g ⊗ h)) .apex
       _ = refl
       _ : c₂ ≡ ((f ⊗ g) ⊗ h) .apex
       _ = refl
 
 
+      -- first, the "easy" direction. We need a unique arrow c₁ -> (f ⊗ g)
+      !₀ : Hom c₁ pbᵣ
+      !₀ = pbᵣ.universal {p₁' = c₁.p₁} {p₂' = T₁ pb₀.p₁ ∘ c₁.p₂} (c₁.square ∙ pushl (T.M-∘ _ _))
 
-      T[pb₀]-is-pb : is-pullback C  (T₁ pb₀.p₁) (T₁ g.left) (T₁ pb₀.p₂) (T²₁ h.right)
-      T[pb₀]-is-pb = T.pres-pullback pb₀.has-is-pb
+      -- which makes the outer square into a pullback
+      abstract
+        c₁-is-pb-outer : is-pullback C (pbᵣ.p₁ ∘ !₀) f.left c₁.p₂ (T₁ g.right ∘ T₁ pb₀.p₁)
+        c₁-is-pb-outer = transport (λ i → is-pullback C (p i) f.left c₁.p₂ (T.M-∘ g.right pb₀.p₁ i)) c₁.has-is-pb
+          where p : c₁.p₁ ≡ (pbᵣ.p₁ ∘ !₀)
+                p = sym $ pbᵣ.p₁∘universal {p₁' = c₁.p₁} {p₂' = T₁ pb₀.p₁ ∘ c₁.p₂}
 
-      -- furthermore, we can build a square from T(pb₀) to TC by pasting our cartesian naturality square for μ
-      μ-is-pb : is-pullback C  (T²₁ h.right) (T.μ B) (T.μ h.apex) (T₁ h.right)
-      μ-is-pb = T.mult-is-equifibred h.right
+        -- now we need to make a similar "outer" square for c₂. This is is more complicated, however,
+        -- since we don't have a single pullback square to paste under c₂. Instead, we have two:
+        --  * one formed by the image of pb₀'s square under T, and
+        --  * another formed by the equifibred nature of μ.
 
-      -- now lets paste these together into a single square
-      T[pb₀]-is-pasted-pb : is-pullback C (T₁ pb₀.p₁) (T.μ B ∘ T₁ g.left) (T.μ h.apex ∘ T₁ pb₀.p₂) (T₁ h.right)
-      -- we need to rotate our squares bc we're currently working top-down instead of left-right
-      T[pb₀]-is-pasted-pb = rotate-pullback $ pasting-left→outer-is-pullback (rotate-pullback μ-is-pb) (rotate-pullback T[pb₀]-is-pb)
+        T[pb₀]-is-pb : is-pullback C  (T₁ pb₀.p₁) (T₁ g.left) (T₁ pb₀.p₂) (T²₁ h.right)
+        T[pb₀]-is-pb = T.pres-pullback pb₀.has-is-pb
 
-      -- so basically what we're aiming for is
-      c₁-is-pb : is-pullback C c₁.p₂  (T₁ pb₀.p₁) {! !} pbᵣ.p₂
-      c₁-is-pb = {! !}
+        μ-is-pb : is-pullback C  (T²₁ h.right) (T.μ B) (T.μ h.apex) (T₁ h.right)
+        μ-is-pb = T.mult-is-equifibred h.right
 
-      c₂-is-pb : is-pullback C {! !}  (T₁ pb₀.p₁) c₂.p₁ pbᵣ.p₂
-      c₂-is-pb = {! !}
+        -- now we can paste these together into a single square
+        T[pb₀]-is-pasted-pb : is-pullback C (T₁ pb₀.p₁) (T.μ B ∘ T₁ g.left) (T.μ h.apex ∘ T₁ pb₀.p₂) (T₁ h.right)
+        -- we need to rotate our squares bc we're currently working top-down instead of left-right
+        T[pb₀]-is-pasted-pb = rotate-pullback $ pasting-left→outer-is-pullback (rotate-pullback μ-is-pb) (rotate-pullback T[pb₀]-is-pb)
 
+      -- now we need a unique arrow c₂ -> T[pb₀]
+      !₁ : Hom c₂ (T₀ pb₀)
+      !₁ = T[pb₀]-is-pasted-pb .universal {p₁' = pbᵣ.p₂ ∘ c₂.p₁} {p₂' = c₂.p₂} $
+        (T.μ B ∘ T₁ g.left) ∘ pbᵣ.p₂ ∘ c₂.p₁ ≡⟨ cat! C ⟩
+        (T.μ B ∘ T₁ g.left ∘ pbᵣ.p₂) ∘ c₂.p₁ ≡⟨ c₂.square ⟩
+        T₁ h.right ∘ c₂.p₂                   ∎
+
+      -- which turns c₂ into a pullback of the larger square
+      abstract
+        c₂-is-pb-outer : is-pullback C c₂.p₁ ((T.μ B ∘ T₁ g.left) ∘ pbᵣ.p₂) ((T.μ h.apex ∘ T₁ pb₀.p₂) ∘ !₁) (T₁ h.right)
+        c₂-is-pb-outer = transport (λ i → is-pullback C c₂.p₁ (pₗ i) (pᵣ i) (T₁ h.right)) c₂.has-is-pb
+          where pₗ : T.μ B ∘ T₁ g.left ∘ pbᵣ.p₂ ≡ (T.μ B ∘ T₁ g.left) ∘ pbᵣ.p₂
+                pₗ = cat! C
+                pᵣ : c₂.p₂ ≡ (T.μ h.apex ∘ T₁ pb₀.p₂) ∘ !₁
+                pᵣ = sym $ T[pb₀]-is-pasted-pb .p₂∘universal
+
+        -- so basically what we're aiming for is
+        c₁-is-pb : is-pullback C !₀ pbᵣ.p₂ c₁.p₂  (T₁ pb₀.p₁)
+        c₁-is-pb = pasting-outer→left-is-pullback pbᵣ.has-is-pb c₁-is-pb-outer {! !}
+
+        c₂-is-pb : is-pullback C c₂.p₁ pbᵣ.p₂ !₁ (T₁ pb₀.p₁)
+        c₂-is-pb = rotate-pullback $ pasting-outer→left-is-pullback (rotate-pullback T[pb₀]-is-pasted-pb) (rotate-pullback c₂-is-pb-outer) {! !}
+
+      -- now we may form our universal span morphism
+      hom : Span-hom ((f ⊗ g) ⊗ h) (f ⊗ (g ⊗ h))
+      hom .map = c₁-is-pb .universal $ c₂-is-pb .square
+      hom .right = {! !}
+      hom .left = {! !}
       --??-is-pb : is-pullback C id (x .left) (x .left) (T₁ id)
 
     module sα≅ {A B C D } (f : Span C D) (g : Span B C) (h : Span A B)  = Spans._≅_ A D (sα≅ f g h)

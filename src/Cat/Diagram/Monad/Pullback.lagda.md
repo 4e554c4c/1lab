@@ -5,11 +5,13 @@ open import Cat.Diagram.Pullback
 open import Cat.Functor.Pullback as P hiding (pres-pullback)
 --open import Cat.Diagram.Initial
 --open import Cat.Functor.Adjoint
---open import Cat.Functor.Compose
+open import Cat.Functor.Reasoning
 --open import Cat.Instances.Comma
 --open import Cat.Instances.Slice
 open import Cat.Diagram.Monad
 open import Cat.Prelude
+
+import Cat.Diagram.Monad.Reasoning
 ```
 -->
 ```agda
@@ -35,7 +37,6 @@ record CartesianMonad (C : Precategory o ℓ) : Type (o ⊔ ℓ) where
   field
     U : Monad C
     is-cartesian : IsCartesianMonad U
-  open Monad U public
+  open Cat.Diagram.Monad.Reasoning U public
   open IsCartesianMonad is-cartesian public
-
 ```

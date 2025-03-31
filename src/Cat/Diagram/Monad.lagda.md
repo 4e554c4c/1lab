@@ -62,7 +62,7 @@ obtained by pairing the functor $M$ with the monad structure $\eta,
     module unit = _=>_ unit
     module mult = _=>_ mult renaming (η to μ)
 
-    open Cat.Functor.Reasoning M renaming (F₀ to M₀ ; F₁ to M₁ ; F-id to M-id ; F-∘ to M-∘) public
+    open Functor M renaming (F₀ to M₀ ; F₁ to M₁ ; F-id to M-id ; F-∘ to M-∘) public
     open mult using (μ) public
     open unit using (η) public
 ```

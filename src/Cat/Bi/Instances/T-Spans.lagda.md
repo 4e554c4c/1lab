@@ -9,6 +9,7 @@ open import Cat.Diagram.Product
 open import Cat.Diagram.Terminal
 open import Cat.Diagram.Limit.Finite
 open import Cat.Diagram.Monad.Pullback
+open import Cat.Diagram.Monad.Solver
 open import Cat.Bi.Base
 open import Cat.Prelude hiding (⊤)
 open import Cat.Functor.Bifunctor as Bi
@@ -26,6 +27,8 @@ private
   open module T = CartesianMonad T using () renaming (M₀ to T₀; M₁ to T₁)
   T² = T.M F∘ T.M
   open module T² = Functor T² using () renaming (F₀ to T²₀; F₁ to T²₁)
+
+  underlying-Monad-on = T .CartesianMonad.U .snd
 
 
 record Span (a b : Ob) : Type (o ⊔ ℓ) where
@@ -403,9 +406,7 @@ witnessing isomorphism.
         ((f ⊗ g) ⊗ h) .left              ≡⟨⟩
         T.μ A ∘ T₁ h.left ∘ c₂.p₂        ≡˘⟨ refl⟩∘⟨ refl⟩∘⟨ T[pbₗ]-is-pasted-pb .p₂∘universal ⟩
         T.μ A ∘ T₁ h.left ∘ (T.μ _ ∘ T₁ pbₗ.p₂)  ∘ !₁
-                                         ≡⟨ ? ⟩
-        T.μ A ∘ T.μ _     ∘ T²₁ h.left ∘ T₁ pbₗ.p₂  ∘ !₁
-                                         ≡⟨ ? ⟩
+                                         ≡⟨ monad! underlying-Monad-on ⟩
         T.μ A ∘ T₁ (T.μ A ∘ T₁ h.left  ∘ pbₗ.p₂)    ∘ !₁
                                          ≡˘⟨ refl⟩∘⟨ refl⟩∘⟨ c₁-is-pb-inner .p₂∘universal {p = c₂-is-pb-inner .square} ⟩
         T.μ A ∘ T₁ (T.μ A ∘ T₁ h.left ∘ pbₗ.p₂) ∘ c₁.p₂ ∘ hom .map
@@ -413,16 +414,21 @@ witnessing isomorphism.
         (T.μ A ∘ T₁ (T.μ A ∘ T₁ h.left ∘ pbₗ.p₂) ∘ c₁.p₂) ∘ hom .map
                                          ≡⟨⟩
         (f ⊗ g ⊗ h) .left ∘ hom .map     ∎
-{-
-      --??-is-pb : is-pullback 𝒞 id (x .left) (x .left) (T₁ id)
-
     module sα≅ {A B C D } (f : Span C D) (g : Span B C) (h : Span A B)  = Spans._≅_ A D (sα≅ f g h)
 
     module _ {A B C D} {f f' : Span C D}{g g' : Span B C} {h h' : Span A B}
                 (α : Span-hom f f') (β : Span-hom g g') (γ : Span-hom h h') where
       sα-natural : (α ◆ (β ◆ γ)) .map ∘ (sα≅.to f g h) .map
                  ≡ (sα≅.to f' g' h') .map ∘ ((α ◆ β) ◆ γ) .map
-      sα-natural = {! !}
+      sα-natural = Pullback.unique₂ (pb _ _)
+        {p₁' = α .map ∘ {! !}} {p₂' = T₁ ((β ◆ γ) .map) ∘ {! !}} {p = {! !}}
+        {! !}
+        {! !}
+        {! !}
+        {! !}
+      --module pb = Pullback (pb (y .left) (T₁ id))
+      --module pb' = Pullback (pb (left x) (T₁ id))
+
 
   open make-natural-iso
   module Bicat = Prebicategory
@@ -434,12 +440,6 @@ witnessing isomorphism.
   Spanᵇ .Bicat.unitor-l = iso→isoⁿ sλ≅ λ f → Span-hom-path (sλ-natural f)
   Spanᵇ .Bicat.unitor-r = iso→isoⁿ sρ≅ λ f → Span-hom-path (sρ-natural f)
   Spanᵇ .Bicat.associator = iso→isoⁿ (λ (f , g , h) → sα≅ f g h) λ (f , g , h) → Span-hom-path (sα-natural f g h)
-  Spanᵇ .Bicat.triangle f g = Span-hom-path $
-    (sρ≅.from f ◀ g) .map ∘ sα≅.from f Span-id g .map ≡⟨
-      Pullback.unique₂ (pb _ _) {p₁' = pb _ _ .p₁} {p₂' = (T.μ _ ∘ T₁ (pb _ _ .p₂)) ∘ pb _ _ .p₂} {p = {! !}}
-        {! !} {! !} {! !} {! !}
-      ⟩
-    (f ▶ sλ≅.from g) .map  ∎
+  Spanᵇ .Bicat.triangle f g = Span-hom-path $ ?
   Spanᵇ .Bicat.pentagon f g h i = {! !}
--}
 ```

@@ -324,112 +324,114 @@ witnessing isomorphism.
 ```agda
 
     sα≅ : ∀ {A B C D} (f : Span C D) (g : Span B C) (h : Span A B) → Span-iso  ((f ⊗ g) ⊗ h) (f ⊗ (g ⊗ h))
-    sα≅ {A} {B} {C} {D} f g h = mk-span-iso hom (pullback-unique' c₁-is-pb-inner c₂-is-pb-inner) where
+    sα≅ {A} {B} {C} {D} f g h = mk-span-iso hom (pullback-unique' pb₁-is-pb-inner pb₂-is-pb-inner) module sα≃-data where
       module f = Span f
       module g = Span g
       module h = Span h
-      module pbₗ = Pullback (pb g.left (T₁  h.right))
-      pbₗ = pbₗ.apex
-      module pbᵣ = Pullback (pb (f.left) (T₁ g.right))
-      pbᵣ = pbᵣ.apex
-      module c₁ = Pullback (pb f.left (T₁ $ g.right ∘ pbₗ.p₁))
-      module c₂ = Pullback (pb (T.μ B ∘ T₁ g.left ∘ pbᵣ.p₂) (T₁ h.right))
-      c₁ = c₁.apex
-      c₂ = c₂.apex
+      module g⊗h   = Pullback (pb g.left (T₁  h.right))
+      g⊗h = g⊗h.apex
+      module f⊗g = Pullback (pb (f.left) (T₁ g.right))
+      f⊗g = f⊗g.apex
+      module pb₁ = Pullback (pb f.left (T₁ $ g.right ∘ g⊗h.p₁))
+      module pb₂ = Pullback (pb (T.μ B ∘ T₁ g.left ∘ f⊗g.p₂) (T₁ h.right))
+      pb₁ = pb₁.apex
+      pb₂ = pb₂.apex
 
-      _ : c₁ ≡ (f ⊗ (g ⊗ h)) .apex
+      _ : pb₁ ≡ (f ⊗ (g ⊗ h)) .apex
       _ = refl
-      _ : c₂ ≡ ((f ⊗ g) ⊗ h) .apex
+      _ : pb₂ ≡ ((f ⊗ g) ⊗ h) .apex
       _ = refl
 
-      -- first, the "easy" direction. We need a unique arrow c₁ -> (f ⊗ g)
-      !₀ : Hom c₁ pbᵣ
-      !₀ = pbᵣ.universal {p₁' = c₁.p₁} {p₂' = T₁ pbₗ.p₁ ∘ c₁.p₂} (c₁.square ∙ pushl (T.M-∘ _ _))
+      -- first, the "easy" direction. We need a unique arrow pb₁ -> (f ⊗ g)
+      !₀ : Hom pb₁ f⊗g
+      !₀ = f⊗g.universal {p₁' = pb₁.p₁} {p₂' = T₁ g⊗h.p₁ ∘ pb₁.p₂} (pb₁.square ∙ pushl (T.M-∘ _ _))
 
       -- which makes the outer square into a pullback
       abstract
-        c₁-is-pb-outer : is-pullback 𝒞 (pbᵣ.p₁ ∘ !₀) f.left c₁.p₂ (T₁ g.right ∘ T₁ pbₗ.p₁)
-        c₁-is-pb-outer = transport (λ i → is-pullback 𝒞 (p i) f.left c₁.p₂ (T.M-∘ g.right pbₗ.p₁ i)) c₁.has-is-pb
-          where p : c₁.p₁ ≡ (pbᵣ.p₁ ∘ !₀)
-                p = sym $ pbᵣ.p₁∘universal {p₁' = c₁.p₁} {p₂' = T₁ pbₗ.p₁ ∘ c₁.p₂}
+        pb₁-is-pb-outer : is-pullback 𝒞 (f⊗g.p₁ ∘ !₀) f.left pb₁.p₂ (T₁ g.right ∘ T₁ g⊗h.p₁)
+        pb₁-is-pb-outer = transport (λ i → is-pullback 𝒞 (p i) f.left pb₁.p₂ (T.M-∘ g.right g⊗h.p₁ i)) pb₁.has-is-pb
+          where p : pb₁.p₁ ≡ (f⊗g.p₁ ∘ !₀)
+                p = sym $ f⊗g.p₁∘universal {p₁' = pb₁.p₁} {p₂' = T₁ g⊗h.p₁ ∘ pb₁.p₂}
 
-        -- now we need to make a similar "outer" square for c₂. This is is more complicated, however,
-        -- since we don't have a single pullback square to paste under c₂. Instead, we have two:
-        --  * one formed by the image of pbₗ's square under T, and
+        -- now we need to make a similar "outer" square for pb₂. This is is more complicated, however,
+        -- since we don't have a single pullback square to paste under pb₂. Instead, we have two:
+        --  * one formed by the image of g⊗h's square under T, and
         --  * another formed by the equifibred nature of μ.
 
-        T[pbₗ]-is-pb : is-pullback 𝒞  (T₁ pbₗ.p₁) (T₁ g.left) (T₁ pbₗ.p₂) (T²₁ h.right)
-        T[pbₗ]-is-pb = T.pres-pullback pbₗ.has-is-pb
+        T[g⊗h]-is-pb : is-pullback 𝒞  (T₁ g⊗h.p₁) (T₁ g.left) (T₁ g⊗h.p₂) (T²₁ h.right)
+        T[g⊗h]-is-pb = T.pres-pullback g⊗h.has-is-pb
 
         μ-is-pb : is-pullback 𝒞  (T²₁ h.right) (T.μ B) (T.μ h.apex) (T₁ h.right)
         μ-is-pb = T.mult-is-equifibred h.right
 
         -- now we can paste these together into a single square
-        T[pbₗ]-is-pasted-pb : is-pullback 𝒞 (T₁ pbₗ.p₁) (T.μ B ∘ T₁ g.left) (T.μ h.apex ∘ T₁ pbₗ.p₂) (T₁ h.right)
+        T[g⊗h]-is-pasted-pb : is-pullback 𝒞 (T₁ g⊗h.p₁) (T.μ B ∘ T₁ g.left) (T.μ h.apex ∘ T₁ g⊗h.p₂) (T₁ h.right)
         -- we need to rotate our squares bc we're currently working top-down instead of left-right
-        T[pbₗ]-is-pasted-pb = rotate-pullback $ pasting-left→outer-is-pullback (rotate-pullback μ-is-pb) (rotate-pullback T[pbₗ]-is-pb)
-        module T[pbₗ]-is-pasted-pb = is-pullback T[pbₗ]-is-pasted-pb
+        T[g⊗h]-is-pasted-pb = rotate-pullback $ pasting-left→outer-is-pullback (rotate-pullback μ-is-pb) (rotate-pullback T[g⊗h]-is-pb)
+        module T[g⊗h]-is-pasted-pb = is-pullback T[g⊗h]-is-pasted-pb
 
-      -- now we need a unique arrow c₂ -> T[pbₗ]
-      !₁ : Hom c₂ (T₀ pbₗ)
-      !₁ = T[pbₗ]-is-pasted-pb .universal {p₁' = pbᵣ.p₂ ∘ c₂.p₁} {p₂' = c₂.p₂} $
-        (T.μ B ∘ T₁ g.left) ∘ pbᵣ.p₂ ∘ c₂.p₁ ≡⟨ cat! 𝒞 ⟩
-        (T.μ B ∘ T₁ g.left ∘ pbᵣ.p₂) ∘ c₂.p₁ ≡⟨ c₂.square ⟩
-        T₁ h.right ∘ c₂.p₂                   ∎
+      -- now we need a unique arrow pb₂ -> T[g⊗h]
+      !₁ : Hom pb₂ (T₀ g⊗h)
+      !₁ = T[g⊗h]-is-pasted-pb .universal {p₁' = f⊗g.p₂ ∘ pb₂.p₁} {p₂' = pb₂.p₂} $
+        (T.μ B ∘ T₁ g.left) ∘ f⊗g.p₂ ∘ pb₂.p₁ ≡⟨ cat! 𝒞 ⟩
+        (T.μ B ∘ T₁ g.left ∘ f⊗g.p₂) ∘ pb₂.p₁ ≡⟨ pb₂.square ⟩
+        T₁ h.right ∘ pb₂.p₂                   ∎
 
-      -- which turns c₂ into a pullback of the larger square
+      -- which turns pb₂ into a pullback of the larger square
       abstract
-        c₂-is-pb-outer : is-pullback 𝒞 c₂.p₁ ((T.μ B ∘ T₁ g.left) ∘ pbᵣ.p₂) ((T.μ h.apex ∘ T₁ pbₗ.p₂) ∘ !₁) (T₁ h.right)
-        c₂-is-pb-outer = transport (λ i → is-pullback 𝒞 c₂.p₁ (pₗ i) (pᵣ i) (T₁ h.right)) c₂.has-is-pb
-          where pₗ : T.μ B ∘ T₁ g.left ∘ pbᵣ.p₂ ≡ (T.μ B ∘ T₁ g.left) ∘ pbᵣ.p₂
+        pb₂-is-pb-outer : is-pullback 𝒞 pb₂.p₁ ((T.μ B ∘ T₁ g.left) ∘ f⊗g.p₂) ((T.μ h.apex ∘ T₁ g⊗h.p₂) ∘ !₁) (T₁ h.right)
+        pb₂-is-pb-outer = transport (λ i → is-pullback 𝒞 pb₂.p₁ (pₗ i) (pᵣ i) (T₁ h.right)) pb₂.has-is-pb
+          where pₗ : T.μ B ∘ T₁ g.left ∘ f⊗g.p₂ ≡ (T.μ B ∘ T₁ g.left) ∘ f⊗g.p₂
                 pₗ = cat! 𝒞
-                pᵣ : c₂.p₂ ≡ (T.μ h.apex ∘ T₁ pbₗ.p₂) ∘ !₁
-                pᵣ = sym $ T[pbₗ]-is-pasted-pb .p₂∘universal
+                pᵣ : pb₂.p₂ ≡ (T.μ h.apex ∘ T₁ g⊗h.p₂) ∘ !₁
+                pᵣ = sym $ T[g⊗h]-is-pasted-pb .p₂∘universal
 
         -- so basically what we're aiming for is
-        c₁-is-pb-inner : is-pullback 𝒞 !₀ pbᵣ.p₂ c₁.p₂  (T₁ pbₗ.p₁)
-        c₁-is-pb-inner = pasting-outer→left-is-pullback pbᵣ.has-is-pb c₁-is-pb-outer pbᵣ.p₂∘universal
+        pb₁-is-pb-inner : is-pullback 𝒞 !₀ f⊗g.p₂ pb₁.p₂  (T₁ g⊗h.p₁)
+        pb₁-is-pb-inner = pasting-outer→left-is-pullback f⊗g.has-is-pb pb₁-is-pb-outer f⊗g.p₂∘universal
+        module pb₁-is-pb-inner = is-pullback pb₁-is-pb-inner
 
-        c₂-is-pb-inner : is-pullback 𝒞 c₂.p₁ pbᵣ.p₂ !₁ (T₁ pbₗ.p₁)
-        c₂-is-pb-inner = rotate-pullback $ pasting-outer→left-is-pullback (rotate-pullback T[pbₗ]-is-pasted-pb) (rotate-pullback c₂-is-pb-outer) T[pbₗ]-is-pasted-pb.p₁∘universal
+        pb₂-is-pb-inner : is-pullback 𝒞 pb₂.p₁ f⊗g.p₂ !₁ (T₁ g⊗h.p₁)
+        pb₂-is-pb-inner = rotate-pullback $ pasting-outer→left-is-pullback (rotate-pullback T[g⊗h]-is-pasted-pb) (rotate-pullback pb₂-is-pb-outer) T[g⊗h]-is-pasted-pb.p₁∘universal
+        module pb₂-is-pb-inner = is-pullback pb₂-is-pb-inner
 
       -- now we may form our universal span morphism
       hom : Span-hom ((f ⊗ g) ⊗ h) (f ⊗ (g ⊗ h))
-      hom .map = c₁-is-pb-inner .universal $ c₂-is-pb-inner .square
+      hom .map = pb₁-is-pb-inner .universal $ pb₂-is-pb-inner .square
       hom .right =
         ((f ⊗ g) ⊗ h) .right              ≡˘⟨ assoc _ _ _ ⟩
-        f .right ∘ pbᵣ.p₁ ∘ c₂.p₁         ≡˘⟨ refl⟩∘⟨ refl⟩∘⟨ c₁-is-pb-inner .p₁∘universal {p = c₂-is-pb-inner .square} ⟩
-        f .right ∘ pbᵣ.p₁ ∘ !₀ ∘ hom .map ≡⟨ refl⟩∘⟨ pulll pbᵣ.p₁∘universal ⟩
-        f .right ∘ c₁.p₁ ∘ hom .map       ≡⟨ assoc _ _ _ ⟩
+        f .right ∘ f⊗g.p₁ ∘ pb₂.p₁        ≡˘⟨ refl⟩∘⟨ refl⟩∘⟨ pb₁-is-pb-inner .p₁∘universal {p = pb₂-is-pb-inner .square} ⟩
+        f .right ∘ f⊗g.p₁ ∘ !₀ ∘ hom .map ≡⟨ refl⟩∘⟨ pulll f⊗g.p₁∘universal ⟩
+        f .right ∘ pb₁.p₁ ∘ hom .map      ≡⟨ assoc _ _ _ ⟩
         (f ⊗ g ⊗ h) .right ∘ hom .map     ∎
       hom .left =
         ((f ⊗ g) ⊗ h) .left              ≡⟨⟩
-        T.μ A ∘ T₁ h.left ∘ c₂.p₂        ≡˘⟨ refl⟩∘⟨ refl⟩∘⟨ T[pbₗ]-is-pasted-pb .p₂∘universal ⟩
-        T.μ A ∘ T₁ h.left ∘ (T.μ _ ∘ T₁ pbₗ.p₂)  ∘ !₁
+        T.μ A ∘ T₁ h.left ∘ pb₂.p₂       ≡˘⟨ refl⟩∘⟨ refl⟩∘⟨ T[g⊗h]-is-pasted-pb .p₂∘universal ⟩
+        T.μ A ∘ T₁ h.left ∘ (T.μ _ ∘ T₁ g⊗h.p₂) ∘ !₁
                                          ≡⟨ monad! underlying-Monad-on ⟩
-        T.μ A ∘ T₁ (T.μ A ∘ T₁ h.left  ∘ pbₗ.p₂)    ∘ !₁
-                                         ≡˘⟨ refl⟩∘⟨ refl⟩∘⟨ c₁-is-pb-inner .p₂∘universal {p = c₂-is-pb-inner .square} ⟩
-        T.μ A ∘ T₁ (T.μ A ∘ T₁ h.left ∘ pbₗ.p₂) ∘ c₁.p₂ ∘ hom .map
+        T.μ A ∘ T₁ (T.μ A ∘ T₁ h.left ∘ g⊗h.p₂) ∘ !₁
+                                         ≡˘⟨ refl⟩∘⟨ refl⟩∘⟨ pb₁-is-pb-inner .p₂∘universal {p = pb₂-is-pb-inner .square} ⟩
+        T.μ A ∘ T₁ (T.μ A ∘ T₁ h.left ∘ g⊗h.p₂) ∘ pb₁.p₂ ∘ hom .map
                                          ≡⟨ pulll3 refl ⟩
-        (T.μ A ∘ T₁ (T.μ A ∘ T₁ h.left ∘ pbₗ.p₂) ∘ c₁.p₂) ∘ hom .map
+        (T.μ A ∘ T₁ (T.μ A ∘ T₁ h.left ∘ g⊗h.p₂) ∘ pb₁.p₂) ∘ hom .map
                                          ≡⟨⟩
         (f ⊗ g ⊗ h) .left ∘ hom .map     ∎
     module sα≅ {A B C D } (f : Span C D) (g : Span B C) (h : Span A B)  = Spans._≅_ A D (sα≅ f g h)
 
     module _ {A B C D} {f f' : Span C D}{g g' : Span B C} {h h' : Span A B}
                 (α : Span-hom f f') (β : Span-hom g g') (γ : Span-hom h h') where
+      private
+        module f⊗g⊗h-assoc = sα≃-data f g h
+        module f'⊗g'⊗h'-assoc = sα≃-data f' g' h'
       sα-natural : (α ◆ (β ◆ γ)) .map ∘ (sα≅.to f g h) .map
                  ≡ (sα≅.to f' g' h') .map ∘ ((α ◆ β) ◆ γ) .map
-      sα-natural = Pullback.unique₂ (pb _ _)
-        {p₁' = α .map ∘ {! !}} {p₂' = T₁ ((β ◆ γ) .map) ∘ {! !}} {p = {! !}}
+      sα-natural = f'⊗g'⊗h'-assoc.pb₁-is-pb-inner.unique₂
+        {p₁' = (α ◆ β) .map ∘ f⊗g⊗h-assoc.pb₂.p₁} {p₂' = (T₁ $ (β ◆ γ) .map) ∘ f⊗g⊗h-assoc.!₁} {p = {! !}}
         {! !}
         {! !}
         {! !}
         {! !}
-      --module pb = Pullback (pb (y .left) (T₁ id))
-      --module pb' = Pullback (pb (left x) (T₁ id))
-
-
+{-
   open make-natural-iso
   module Bicat = Prebicategory
   Spanᵇ : Prebicategory _ _ _
@@ -440,6 +442,7 @@ witnessing isomorphism.
   Spanᵇ .Bicat.unitor-l = iso→isoⁿ sλ≅ λ f → Span-hom-path (sλ-natural f)
   Spanᵇ .Bicat.unitor-r = iso→isoⁿ sρ≅ λ f → Span-hom-path (sρ-natural f)
   Spanᵇ .Bicat.associator = iso→isoⁿ (λ (f , g , h) → sα≅ f g h) λ (f , g , h) → Span-hom-path (sα-natural f g h)
-  Spanᵇ .Bicat.triangle f g = Span-hom-path $ ?
+  Spanᵇ .Bicat.triangle f g = Span-hom-path $ {! !}
   Spanᵇ .Bicat.pentagon f g h i = {! !}
+-}
 ```

@@ -347,7 +347,7 @@ witnessing isomorphism.
       !₀ = f⊗g.universal {p₁' = pb₁.p₁} {p₂' = T₁ g⊗h.p₁ ∘ pb₁.p₂} (pb₁.square ∙ pushl (T.M-∘ _ _))
 
       -- which makes the outer square into a pullback
-      abstract
+      opaque
         pb₁-is-pb-outer : is-pullback 𝒞 (f⊗g.p₁ ∘ !₀) f.left pb₁.p₂ (T₁ g.right ∘ T₁ g⊗h.p₁)
         pb₁-is-pb-outer = transport (λ i → is-pullback 𝒞 (p i) f.left pb₁.p₂ (T.M-∘ g.right g⊗h.p₁ i)) pb₁.has-is-pb
           where p : pb₁.p₁ ≡ (f⊗g.p₁ ∘ !₀)
@@ -368,7 +368,8 @@ witnessing isomorphism.
         T[g⊗h]-is-pasted-pb : is-pullback 𝒞 (T₁ g⊗h.p₁) (T.μ B ∘ T₁ g.left) (T.μ h.apex ∘ T₁ g⊗h.p₂) (T₁ h.right)
         -- we need to rotate our squares bc we're currently working top-down instead of left-right
         T[g⊗h]-is-pasted-pb = rotate-pullback $ pasting-left→outer-is-pullback (rotate-pullback μ-is-pb) (rotate-pullback T[g⊗h]-is-pb)
-        module T[g⊗h]-is-pasted-pb = is-pullback T[g⊗h]-is-pasted-pb
+      module T[g⊗h]-is-pasted-pb = is-pullback T[g⊗h]-is-pasted-pb
+      module T[g⊗h]-is-pb = is-pullback T[g⊗h]-is-pb
 
       -- now we need a unique arrow pb₂ -> T[g⊗h]
       !₁ : Hom pb₂ (T₀ g⊗h)
@@ -416,19 +417,56 @@ witnessing isomorphism.
         (T.μ A ∘ T₁ (T.μ A ∘ T₁ h.left ∘ g⊗h.p₂) ∘ pb₁.p₂) ∘ hom .map
                                          ≡⟨⟩
         (f ⊗ g ⊗ h) .left ∘ hom .map     ∎
+
     module sα≅ {A B C D } (f : Span C D) (g : Span B C) (h : Span A B)  = Spans._≅_ A D (sα≅ f g h)
+    module _ {A B C} {f f' : Span B C} {g g' : Span A B} (α : Span-hom f f') (β : Span-hom g g') where
+      private
+          module f = Span f
+          module g = Span g
+          module f⊗g = Pullback (pb (f.left) (T₁ g.right))
+          module f' = Span f'
+          module g' = Span g'
+          module f'⊗g' = Pullback (pb (f'.left) (T₁ g'.right))
+      lemmaaaaa =
+        α .map ∘ f⊗g.p₁ ≡˘⟨ f'⊗g'.p₁∘universal ⟩
+        f'⊗g'.p₁ ∘ (α ◆ β) .map ∎
 
     module _ {A B C D} {f f' : Span C D}{g g' : Span B C} {h h' : Span A B}
                 (α : Span-hom f f') (β : Span-hom g g') (γ : Span-hom h h') where
       private
         module f⊗g⊗h-assoc = sα≃-data f g h
         module f'⊗g'⊗h'-assoc = sα≃-data f' g' h'
+        module f = Span f
+        module g = Span g
+        module h = Span h
+        module f' = Span f'
+        module g' = Span g'
+        module h' = Span h'
+        module f⊗g = Pullback (pb (f.left) (T₁ g.right))
+        module g⊗h   = Pullback (pb g.left (T₁  h.right))
+        module f'⊗g' = Pullback (pb (f'.left) (T₁ g'.right))
+        module g'⊗h'   = Pullback (pb g'.left (T₁  h'.right))
       sα-natural : (α ◆ (β ◆ γ)) .map ∘ (sα≅.to f g h) .map
                  ≡ (sα≅.to f' g' h') .map ∘ ((α ◆ β) ◆ γ) .map
       sα-natural = f'⊗g'⊗h'-assoc.pb₁-is-pb-inner.unique₂
-        {p₁' = (α ◆ β) .map ∘ f⊗g⊗h-assoc.pb₂.p₁} {p₂' = (T₁ $ (β ◆ γ) .map) ∘ f⊗g⊗h-assoc.!₁} {p = {! !}}
-        {! !}
-        {! !}
+        {p₁' = (α ◆ β) .map ∘ f⊗g⊗h-assoc.pb₂.p₁} {p₂' = (T₁ $ (β ◆ γ) .map) ∘ f⊗g⊗h-assoc.!₁}
+        {p = f'⊗g'.p₂  ∘ (α ◆ β) .map ∘ f⊗g⊗h-assoc.pb₂.p₁    ≡⟨ {! !} ⟩
+             T₁ (β .map) ∘ f⊗g.p₂ ∘ f⊗g⊗h-assoc.pb₂.p₁        ≡⟨ {! !} ⟩
+             T₁ (β .map) ∘ T₁ g⊗h.p₁ ∘ f⊗g⊗h-assoc.!₁         ≡⟨ {! !} ⟩
+             T₁ (β .map ∘ g⊗h.p₁) ∘ f⊗g⊗h-assoc.!₁            ≡⟨ {! !} ⟩
+             T₁ (g'⊗h'.p₁ ∘ (β ◆ γ) .map) ∘ f⊗g⊗h-assoc.!₁    ≡⟨ {! !} ⟩
+             T₁ g'⊗h'.p₁ ∘ T₁ ((β ◆ γ) .map) ∘ f⊗g⊗h-assoc.!₁ ≡⟨ {! !} ⟩
+             T₁ g'⊗h'.p₁ ∘ T₁ ((β ◆ γ) .map) ∘ f⊗g⊗h-assoc.!₁ ∎}
+        (
+          f'⊗g'⊗h'-assoc.!₀ ∘ (α ◆ β ◆ γ) .map ∘ sα≅.to f g h .map ≡⟨ {! !} ⟩
+          f'⊗g'⊗h'-assoc.!₀ ∘ (sα≅.to f' g' h') .map ∘ ((α ◆ β) ◆ γ) .map ≡⟨ {! !} ⟩
+          (α ◆ β) .map ∘ f⊗g⊗h-assoc.!₀ ∘ (sα≅.to f g h) .map        ≡⟨ {! !} ⟩
+          (α ◆ β) .map ∘ f⊗g⊗h-assoc.pb₂.p₁                          ∎
+        )
+        (
+          f'⊗g'⊗h'-assoc.pb₁.p₂ ∘ (α ◆ β ◆ γ) .map ∘ sα≅.to f g h .map ≡⟨ ? ⟩
+          T₁ ((β ◆ γ) .map) ∘ f⊗g⊗h-assoc.!₁ ∎
+        )
         {! !}
         {! !}
 {-

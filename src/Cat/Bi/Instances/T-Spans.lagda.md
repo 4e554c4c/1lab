@@ -227,20 +227,6 @@ are pullbacks of the same square.
         T.μ _ ∘ T₁ (x .left) ∘ pb.p₂ ∘ pb.universal _  ≡⟨ (refl⟩∘⟨ assoc _ _ _) ∙ assoc _ _ _ ⟩
         (T.μ _ ∘ T₁ (x .left) ∘ pb.p₂) ∘ pb.universal _ ∎
     module sλ≅ {A B} (x : Span A B) = Spans._≅_ A B (sλ≅ x)
-
-    sλ-natural : ∀ {A B} {x y : Span A B} (f : Span-hom x y)
-              → (Span-hom-id {s = Span-id} ◆ f) .map ∘ (sλ≅.to x) .map
-              ≡ (sλ≅.to y) .map 𝒞.∘ f .map
-    sλ-natural {A} {B} {x} {y} f = Pullback.unique₂ (pb _ _)
-        {p₁' = x .right} {p₂' = T.η _ ∘ f .map }
-        {p = (refl⟩∘⟨ f .right) ∙ extendl (T.unit.is-natural (y .apex) _ (y .right))}
-        (pulll pb.p₁∘universal ∙ (idl _ ⟩∘⟨refl) ∙ pb'.p₁∘universal)
-        (pulll pb.p₂∘universal ∙ pullr pb''.p₂∘universal ∙ (sym $ T.unit.is-natural _ _ _ ))
-        (pulll pb.p₁∘universal ∙ (sym $ f .right))
-        (pulll pb.p₂∘universal) where
-      module pb = Pullback (pb (T.η B) (T₁ (y .right)))
-      module pb' = Pullback (pb (left Span-id) (T₁ (x .right)))
-      module pb'' = Pullback (pb (T.unit.η B) (T₁ (x .right)))
     sρ≅ : ∀ {A B} (x : Span A B) → Span-iso x (x ⊗ Span-id)
     sρ≅ {A} {B} x = mk-span-iso hom (pullback-unique' pb.has-is-pb x-is-pb) where
       module pb = Pullback (pb (x .left) (T₁ id))
@@ -260,17 +246,31 @@ are pullbacks of the same square.
 
     module sρ≅ {A B} (x : Span A B) = Spans._≅_ A B (sρ≅ x)
 
-    sρ-natural : ∀ {A B} {x y : Span A B} (f : Span-hom x y)
-              → (f ◆  Span-hom-id {s = Span-id}) .map 𝒞.∘ (sρ≅.to x) .map
-              ≡ (sρ≅.to y) .map 𝒞.∘ f .map
-    sρ-natural {A} {B} {x} {y} f = Pullback.unique₂ (pb _ _)
-        {p₁' = f .map} {p₂' = x .left} {p = sym (f .left) ∙ introl T.M-id}
-        (pulll pb.p₁∘universal ∙ cancelr pb'.p₁∘universal)
-        (pulll pb.p₂∘universal ∙ (eliml T.M-id ⟩∘⟨refl) ∙ pb'.p₂∘universal)
-        (cancell pb.p₁∘universal)
-        (pulll pb.p₂∘universal ∙ (sym $ f .left)) where
-      module pb = Pullback (pb (y .left) (T₁ id))
-      module pb' = Pullback (pb (left x) (T₁ id))
+    abstract
+      sλ-natural : ∀ {A B} {x y : Span A B} (f : Span-hom x y)
+                → (Span-hom-id {s = Span-id} ◆ f) .map ∘ (sλ≅.to x) .map
+                ≡ (sλ≅.to y) .map 𝒞.∘ f .map
+      sλ-natural {A} {B} {x} {y} f = Pullback.unique₂ (pb _ _)
+          {p₁' = x .right} {p₂' = T.η _ ∘ f .map }
+          {p = (refl⟩∘⟨ f .right) ∙ extendl (T.unit.is-natural (y .apex) _ (y .right))}
+          (pulll pb.p₁∘universal ∙ (idl _ ⟩∘⟨refl) ∙ pb'.p₁∘universal)
+          (pulll pb.p₂∘universal ∙ pullr pb''.p₂∘universal ∙ (sym $ T.unit.is-natural _ _ _ ))
+          (pulll pb.p₁∘universal ∙ (sym $ f .right))
+          (pulll pb.p₂∘universal) where
+        module pb = Pullback (pb (T.η B) (T₁ (y .right)))
+        module pb' = Pullback (pb (left Span-id) (T₁ (x .right)))
+        module pb'' = Pullback (pb (T.unit.η B) (T₁ (x .right)))
+      sρ-natural : ∀ {A B} {x y : Span A B} (f : Span-hom x y)
+                → (f ◆  Span-hom-id {s = Span-id}) .map 𝒞.∘ (sρ≅.to x) .map
+                ≡ (sρ≅.to y) .map 𝒞.∘ f .map
+      sρ-natural {A} {B} {x} {y} f = Pullback.unique₂ (pb _ _)
+          {p₁' = f .map} {p₂' = x .left} {p = sym (f .left) ∙ introl T.M-id}
+          (pulll pb.p₁∘universal ∙ cancelr pb'.p₁∘universal)
+          (pulll pb.p₂∘universal ∙ (eliml T.M-id ⟩∘⟨refl) ∙ pb'.p₂∘universal)
+          (cancell pb.p₁∘universal)
+          (pulll pb.p₂∘universal ∙ (sym $ f .left)) where
+        module pb = Pullback (pb (y .left) (T₁ id))
+        module pb' = Pullback (pb (left x) (T₁ id))
 
 ```
 
@@ -432,7 +432,7 @@ witnessing isomorphism.
         f'⊗g'.p₁ ∘ (α ◆ β) .map ∎
 
     module _ {A B C D} {f f' : Span C D}{g g' : Span B C} {h h' : Span A B}
-                (α : Span-hom f f') (β : Span-hom g g') (γ : Span-hom h h') where
+                (α : Span-hom f f') (β : Span-hom g g') (γ : Span-hom h h') where abstract
       private
         module f⊗g⊗h-assoc = sα≃-data f g h
         module f'⊗g'⊗h'-assoc = sα≃-data f' g' h'
@@ -469,7 +469,7 @@ witnessing isomorphism.
         )
         {! !}
         {! !}
-{-
+
   open make-natural-iso
   module Bicat = Prebicategory
   Spanᵇ : Prebicategory _ _ _
@@ -482,5 +482,4 @@ witnessing isomorphism.
   Spanᵇ .Bicat.associator = iso→isoⁿ (λ (f , g , h) → sα≅ f g h) λ (f , g , h) → Span-hom-path (sα-natural f g h)
   Spanᵇ .Bicat.triangle f g = Span-hom-path $ {! !}
   Spanᵇ .Bicat.pentagon f g h i = {! !}
--}
 ```

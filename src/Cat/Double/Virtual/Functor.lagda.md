@@ -58,27 +58,27 @@ record VDFStructure (d : VDFData) : Type (ℂ.level ⊔ 𝔻.level)where
                           F-idᵥ i □ F-idᵥ i
                          └       Fₕ p      ┘)
                 (F□ (ℂ.id□ p)) (𝔻.id□ $ Fₕ p)
-  F□⋯□ : ∀ {X X' Y Y'} {f : X ℂ.↓ X'} {m : X ℂ.⇸⋯⇸ Y} {q : X' ℂ.⇸⋯⇸ Y'} {g : Y ℂ.↓ Y'}
+  F▥ : ∀ {X X' Y Y'} {f : X ℂ.↓ X'} {m : X ℂ.⇸⋯⇸ Y} {q : X' ℂ.⇸⋯⇸ Y'} {g : Y ℂ.↓ Y'}
      → ℂ.┌  m  ┐
-         f □⋯□ g
+          f ▥ g
          └  q  ┘
      → 𝔻.┌    Fₕ…ₕ m    ┐
-          Fᵥ f □⋯□ Fᵥ g
+           Fᵥ f ▥ Fᵥ g
          └    Fₕ…ₕ q    ┘
-  F□⋯□ ℂ.□[] = 𝔻.□[]
-  F□⋯□ {f = f} {_} {q} {g} (ℂ.□cons {top = m} {top' = n} a 𝔞) =
+  F▥ ℂ.□[] = 𝔻.□[]
+  F▥ {f = f} {_} {q} {g} (ℂ.□cons {top = m} {top' = n} a 𝔞) =
     transport (λ i → 𝔻.┌ F-resp-⊛ m n (~ i) ┐
-                           Fᵥ f □⋯□ Fᵥ g
+                           Fᵥ f ▥ Fᵥ g
                        └      Fₕ…ₕ q        ┘) $
-              𝔻.□cons (F□ a) (F□⋯□ 𝔞)
+              𝔻.□cons (F□ a) (F▥ 𝔞)
 
 record VDFLaws {d} (s : VDFStructure d) : Type (ℂ.level ⊔ 𝔻.level)where
   open VDFStructure s public
   field
     vcomp : ∀ {X X' X'' f Y Y' Y'' g q} {f' : X' ℂ.↓ X''} {g' : Y' ℂ.↓ Y''} {top : X ℂ.⇸⋯⇸ Y} {mid : X' ℂ.⇸⋯⇸ Y'}
-          → (𝔞 : ℂ.┌  top  ┐
-                    f □⋯□ g
-                   └  mid  ┘)
+          → (𝔞 : ℂ.┌ top  ┐
+                    f ▥ g
+                   └ mid  ┘)
           → (b : ℂ.┌  mid  ┐
                     f' □  g'
                    └   q   ┘)
@@ -86,7 +86,7 @@ record VDFLaws {d} (s : VDFStructure d) : Type (ℂ.level ⊔ 𝔻.level)where
                             F-∘ f' f i □ F-∘ g' g i
                            └          Fₕ q         ┘)
                    (F□ $ ℂ.vcomp 𝔞 b)
-                   (𝔻.vcomp (F□⋯□ 𝔞) (F□ b))
+                   (𝔻.vcomp (F▥ 𝔞) (F□ b))
 
 
 record VDFunctor : Type (ℂ.level ⊔ 𝔻.level) where

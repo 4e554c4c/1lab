@@ -1,5 +1,6 @@
 <!--
 ```agda
+{-# OPTIONS --allow-unsolved-metas #-}
 open import Cat.Diagram.Colimit.Cocone
 open import Cat.Diagram.Colimit.Base
 open import Cat.Diagram.Coequaliser
@@ -13,6 +14,7 @@ open import Cat.Diagram.Initial
 open import Cat.Diagram.Product
 open import Cat.Diagram.Pushout
 open import Cat.Prelude
+open import Cat.Base
 ```
 -->
 
@@ -22,8 +24,12 @@ module Cat.Diagram.Duals where
 
 <!--
 ```agda
+private
+  variable
+    o' ℓ' : Level
 module _ {o ℓ} {C : Precategory o ℓ} where
-  private module C = Precategory C
+  private
+    module C = Precategory C
 ```
 -->
 
@@ -233,4 +239,15 @@ We could work around this, but it's easier to just do the proofs by hand.
       mc .universal eta p = lim.universal eta p
       mc .factors eta p = lim.factors eta p
       mc .unique eta p other q = lim.unique eta p other q
+    is-cocontinuous→co-is-continuous
+      : is-cocontinuous o' ℓ' F → is-continuous o' ℓ' F^op
+    is-cocontinuous→co-is-continuous = ?
+
+module _ {o ℓ} {C : Precategory o ℓ} where
+  co-is-cocomplete→is-cocomplete : is-complete o' ℓ' (C ^op) → is-cocomplete o' ℓ' C
+  co-is-cocomplete→is-cocomplete co-complete F = Co-limit→Colimit $ co-complete $ Functor.op F
+
+  is-cocomplete→co-is-complete : is-cocomplete o' ℓ' (C ^op) → is-complete o' ℓ' C
+  is-cocomplete→co-is-complete cocomplete F = Colimit→Co-limit $ cocomplete $ Functor.op  F
+
 ```

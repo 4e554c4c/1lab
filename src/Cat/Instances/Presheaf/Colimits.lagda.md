@@ -1,7 +1,11 @@
 <!--
 ```agda
-open import Cat.Diagram.Coequaliser
+open import Cat.Diagram.Colimit.Base
 open import Cat.Diagram.Coproduct
+open import Cat.Diagram.Coequaliser
+open import Cat.Instances.Functor.Limits
+open import Cat.Instances.Sets.Complete
+open import Cat.Instances.Sets.Cocomplete
 open import Cat.Instances.Functor
 open import Cat.Diagram.Initial
 open import Cat.Prelude
@@ -118,3 +122,9 @@ PSh-coequaliser {X = X} {Y = Y} f g = coequ where
   coequ .has-is-coeq .factors = trivial!
   coequ .has-is-coeq .unique {F = F} p = reext! p
 ```
+<!--
+```agda
+Psh-cocomplete : is-cocomplete κ κ (PSh κ C)
+Psh-cocomplete = Functor-cat-is-cocomplete $ Sets-is-cocomplete {ι = κ} {κ} {κ}
+```
+-->

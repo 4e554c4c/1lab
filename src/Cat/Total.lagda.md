@@ -1,17 +1,23 @@
 <!--
 ```agda
-open import Cat.Prelude
-open import Cat.Functor.Base
-open import Cat.Functor.Compose
+open import Cat.Functor.Adjoint.Continuous
+open import Cat.Functor.Adjoint.Reflective
+open import Cat.Diagram.Initial
+open import Cat.Instances.Comma
+open import Cat.Diagram.Colimit.Base
+open import Cat.Functor.Adjoint.AFT
+open import Cat.Diagram.Limit.Base
 open import Cat.Functor.Naturality
 open import Cat.Instances.Functor
 open import Cat.Functor.Adjoint
-open import Cat.Diagram.Limit.Base
-open import Cat.Diagram.Colimit.Base
+open import Cat.Functor.Compose
 open import Cat.Diagram.Duals
-open import Cat.Functor.Adjoint.AFT
-open import Cat.Functor.Adjoint.Continuous
-open import Cat.Functor.Adjoint.Reflective
+open import Cat.Functor.Base
+open import Cat.Functor.Hom.Representable
+open import Cat.Functor.Hom.Yoneda
+open import Cat.Functor.Hom.Duality
+open import Cat.Prelude
+open import Cat.Functor.Kan.Nerve
 ```
 -->
 
@@ -38,11 +44,40 @@ record is-total : Type (o ⊔ lsuc ℓ) where
   field
     {れ} : Functor Cat[ C ^op , Sets ℓ ] C
     has-よ-adj : れ ⊣ よ
+
 ```
+
+## Free objects relative to よ
+
+Before we investigate the properties of a total category, it's worth
+considering the action of such a functor on objects, if it exists. Given
+some presheaf $$F\in\psh(\cC)$$, an object could be $れ(F)$ if it is [[free|universal morphism]]
+with respect to $\yo$.
+
+```agda
+module _ (F : Functor (C ^op) (Sets ℓ)) (c : Free-object よ F) where
+```
+<!--
+```agda
+  open Free-object c
+  private
+```
+-->
+
+Such an object is initial in the [[comma category]] $F \swarrow よ$*
+```
+    initial-comma : Initial (F ↙ よ)
+    initial-comma = free-object→universal-map c
+
+```
+
 <!--
 ```agda
 module _ (C-total : is-total) where
   open module C-total = is-total C-total
+
+  れ∘よ≅ⁿid : れ F∘ よ ≅ⁿ Id
+  れ∘よ≅ⁿid = is-reflective→counit-iso has-よ-adj よ-is-fully-faithful
 ```
 -->
 
@@ -65,31 +100,24 @@ Total precategories satisfy a particularly nice [[adjoint functor theorem]]. In
 particular, every [[continuous functor]] $F$ has a [[left adjoint]].
 
 
-
 ```agda
   cocontinuous→right-adjoint : ∀ {D : Precategory ℓ ℓ}
     (F : Functor C D) → is-cocontinuous ℓ ℓ F → Σ[ G ∈ Functor D C ] F ⊣ G
-  cocontinuous→right-adjoint {D = D} F F-is-cocont = G , opposite-adjunction Gᵒᵖ⊣Fᵒᵖ
-    where module F = Functor F
-          module D = Precategory D
-          open import Cat.Functor.Hom D using () renaming (Hom-into to Hom-intoᴰ; よ to よᴰ )
+  cocontinuous→right-adjoint {D = D} F F-is-cocont = G , F⊣G where
+    module F = Functor F
+    module D = Precategory D
+    open import Cat.Functor.Hom D using () renaming (Hom-into to Hom-intoᴰ; よ to よᴰ )
 
-          my-silly-presheaf : D.Ob → ⌞ PSh ℓ C ⌟
-          my-silly-presheaf y = Hom-intoᴰ y F∘ F.op
+    G : Functor D C
+    G = れ F∘ Nerve F
+    module G = Functor G
 
-          my-silly-functor : Functor D C
-          my-silly-functor = れ F∘ precompose F.op  F∘ よᴰ
-          module my-silly-functor = Functor my-silly-functor
-
-          op-adj : Σ[ G ∈ Functor (D ^op) (C ^op) ] G ⊣ F.op
-          op-adj = solution-set→left-adjoint F.op (is-cocomplete→co-is-complete total→cocomplete) (is-cocontinuous→co-is-continuous F-is-cocont) λ y →
-            record { index = Lift _ ⊤
-                   ; has-is-set = hlevel 2
-                   ; dom = λ _ → my-silly-functor.₀ y
-                   ; map = λ _ → {! !}
-                   ; factor = λ h → do
-                      pure $ {! !} , {! !} , {! !}
-                   }
-          G = Functor.op $ op-adj .fst
-          Gᵒᵖ⊣Fᵒᵖ = op-adj .snd
+    open _⊣_
+    F⊣G : F ⊣ G
+    F⊣G .unit = ni-assoc .Isoⁿ.to ∘nt (れ ▸ coapprox F) ∘nt れ∘よ≅ⁿid .Isoⁿ.from
+    --F⊣G .counit = {! !}
+    F⊣G .counit ._=>_.η d = {! !}
+    F⊣G .counit ._=>_.is-natural x y f = {! !}
+    F⊣G .zig = {! !}
+    F⊣G .zag = {! !}
 ```

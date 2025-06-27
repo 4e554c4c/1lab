@@ -2,10 +2,13 @@
 ```agda
 open import Cat.Instances.Sets.Complete
 open import Cat.Diagram.Pullback.Properties
+open import Cat.Instances.Functor.Limits
+open import Cat.Instances.Sets.Complete
 open import Cat.Diagram.Limit.Finite
 open import Cat.Diagram.Subterminal
 open import Cat.Diagram.Limit.Base
 open import Cat.Functor.Adjoint.Hom
+open import Cat.Diagram.Limit.Base
 open import Cat.Instances.Functor
 open import Cat.Diagram.Pullback
 open import Cat.Diagram.Terminal

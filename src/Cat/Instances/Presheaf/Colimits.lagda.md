@@ -1,6 +1,11 @@
 <!--
 ```agda
 open import Cat.Diagram.Colimit.Base
+open import Cat.Instances.Sets.Cocomplete
+open import Cat.Instances.Functor.Limits
+open import Cat.Instances.Sets.Complete
+open import Cat.Diagram.Colimit.Base
+open import Cat.Diagram.Coequaliser
 open import Cat.Diagram.Coproduct
 open import Cat.Diagram.Coequaliser
 open import Cat.Instances.Functor.Limits

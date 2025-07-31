@@ -407,8 +407,6 @@ Id^op≡Id  i .Functor.F₀ z = z
 Id^op≡Id  i .Functor.F₁ f = f
 Id^op≡Id  i .Functor.F-id = refl
 Id^op≡Id  i .Functor.F-∘ f g = refl
-
-{-# REWRITE Id^op≡Id #-}
 ```
 -->
 

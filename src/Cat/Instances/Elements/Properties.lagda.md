@@ -44,3 +44,10 @@ elements-terminal-is-iso .has-is-ff = is-iso→is-equiv i where
   i .rinv _ = refl
   i .linv _ = Element-hom-path _ _ refl
 ```
+<!--
+```agda
+elements-terminal-is-equivalence : is-equivalence (πₚ C $ Const ★)
+elements-terminal-is-equivalence = is-precat-iso→is-equivalence elements-terminal-is-iso
+module elements-terminal-is-equivalence = is-equivalence elements-terminal-is-equivalence 
+```
+-->

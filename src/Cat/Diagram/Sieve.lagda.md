@@ -39,7 +39,7 @@ given an arrow $f : a \to c$ (and its domain), yields a proposition
 representing inclusion in the subset.
 
 ```agda
-  record Sieve : Type (o ⊔ κ) where
+  record Sieve : Type (κ) where
     no-eta-equality
     field
       arrows : ∀ {y} → ℙ (C.Hom y c)
@@ -186,7 +186,7 @@ category $\psh(\cC)$; for more details see [[subobject classifier
 presheaf]].
 
 ```agda
-  Sieves : Functor (C ^op) (Sets (o ⊔ ℓ))
+  Sieves : Functor (C ^op) (Sets (ℓ))
   Sieves .F₀ U .∣_∣ = Sieve C U
   Sieves .F₀ U .is-tr = hlevel 2
   Sieves .F₁ = pullback

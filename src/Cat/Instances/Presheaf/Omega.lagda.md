@@ -26,7 +26,7 @@ open is-pullback
 -->
 
 ```agda
-module Cat.Instances.Presheaf.Omega {ℓ} (C : Precategory ℓ ℓ) where
+module Cat.Instances.Presheaf.Omega {o ℓ} (C : Precategory (o ⊔ ℓ) ℓ) where
 ```
 
 # The subobject classifier presheaf {defines="subobject-classifier-presheaf"}
@@ -38,8 +38,8 @@ $\top$ sends each $U : \cC$ to the maximal sieve on $U$.
 
 <!--
 ```agda
-open Lim ℓ C
-open Sub {C = PSh ℓ C} PSh-pullbacks
+open Lim (ℓ) C
+open Sub {C = PSh (ℓ) C} PSh-pullbacks
 open Functor
 open Cat C
 open _=>_
@@ -66,7 +66,7 @@ and naturality, while the proof of naturality for the overall
 construction is just functoriality of $P$.
 
 ```agda
-psh-name : {A : ⌞ PSh ℓ C ⌟} → Subobject A → A => Sieves {C = C}
+psh-name : {A : ⌞ PSh (o ⊔ ℓ) C ⌟} → Subobject A → A => Sieves {C = C}
 psh-name {A} P .η x e .arrows {y} h = elΩ (fibre (P .map .η y) (A ⟪ h ⟫ e))
 psh-name {A} P .η x e .closed {f = f} = elim! λ x p g →
   let
@@ -83,12 +83,13 @@ psh-name {P} so .is-natural x y f = ext λ x {V} f → Ω-ua
 
 <!--
 ```agda
-PSh-omega : Subobject-classifier (PSh ℓ C)
+PSh-omega : Subobject-classifier (PSh (o ⊔ ℓ) C)
 PSh-omega .Subobject-classifier.Ω = Sieves {C = C}
 
 PSh-omega .Subobject-classifier.true .Sub.domain      = _
 PSh-omega .Subobject-classifier.true .Sub.map         = tru
 PSh-omega .Subobject-classifier.true .Sub.monic _ _ _ = ext λ _ _ → refl
+
 
 PSh-omega .generic .name = psh-name
 ```
@@ -154,7 +155,7 @@ means that, by construction, it satisfies the universal property of a
 pullback.</summary>
 
 ```agda
-  pb : is-pullback (PSh ℓ C) _ _ (NT (λ _ _ → _) (λ x y f → refl)) _
+  pb : is-pullback (PSh (o ⊔ ℓ) C) _ _ (NT (λ _ _ → _) (λ x y f → refl)) _
   pb .square = ext λ i x {V} f → to-is-true (inc (_ , P .map .is-natural _ _ _ $ₚ _))
 
   pb .universal path .η i e = square→pt path e .fst

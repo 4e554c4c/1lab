@@ -11,6 +11,7 @@ open import Cat.Functor.Naturality
 open import Cat.Diagram.Initial
 open import Cat.Functor.Compose
 open import Cat.Instances.Comma
+open import Cat.Instances.Functor
 open import Cat.Functor.Base
 open import Cat.Prelude
 
@@ -27,7 +28,7 @@ module Cat.Functor.Adjoint where
 <!--
 ```agda
 private variable
-  o h : Level
+  o h o' ℓ' : Level
   C D E : Precategory o h
 
 open Functor hiding (op)
@@ -716,6 +717,7 @@ $\cD$, regardless of how many free objects there are. Put syntactically,
 a notion of "syntax without generators" does not imply that there is an
 object of 0 generators!
 
+
 ## Induced adjunctions
 
 Any adjunction $L \dashv R$ induces, in a very boring way, an *opposite* adjunction
@@ -769,6 +771,37 @@ between [postcomposition and precomposition functors], respectively:
   precomposite-adjunction .zag {F} = ext λ _ → Func.annihilate F adj.zig
 ```
 
+<!--
+```agda
+module _ {L : Functor C D} {R : Functor D C} (adj : ∀ {o h} (E : Precategory o h) → precompose R {D = E} ⊣ precompose L) where
+  private
+    module L = Func L
+    module R = Func R
+    module adj {o h} E = _⊣_ (adj {o} {h} E)
+    module C = Cat.Reasoning C
+    module D = Cat.Reasoning D
+
+  open import Cat.Functor.Coherence
+  open _⊣_
+  open _=>_
+```
+-->
+Likewise, a family of precomposed adjunctions is sufficient for an adjunction
+
+```agda
+{-
+  ap-adjunction : L ⊣ R
+  ap-adjunction .unit = (nat-unidl-from idnt ◂ L) ∘nt adj.unit C .η Id
+  ap-adjunction .counit = adj.counit D .η Id ∘nt (nat-unidl-to idnt ◂ R)
+  ap-adjunction .zig {x} =
+      -- {! adj.zag D {B = Id} ηᵈ x  !}
+      (_ ∘ id) ∘ L.₁ (C.id C.∘ _) ≡⟨ idr _ ⟩∘⟨ L.⟨ C.idl _ ⟩ ∙ {! adj D .unit .is-natural (Id F∘ L) L !} ⟩
+      _ ∘ _  ≡⟨ adj.zag D {B = Id} ηᵈ x  ⟩
+      id ∎
+    where open D
+  ap-adjunction .zag {x} = {! !}
+-}
+```
 <!--
 ```agda
 adjoint-natural-iso

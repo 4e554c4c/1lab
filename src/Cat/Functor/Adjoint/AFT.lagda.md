@@ -2,13 +2,21 @@
 ```agda
 open import Cat.Instances.Comma.Limits
 open import Cat.Diagram.Initial.Weak
+open import Cat.Displayed.Instances.Subobjects
 open import Cat.Diagram.Limit.Base
+open import Cat.Diagram.Product.Power
+open import Cat.Diagram.Product.Indexed
+open import Cat.Diagram.Coseparator
 open import Cat.Diagram.Initial
 open import Cat.Functor.Adjoint
 open import Cat.Instances.Comma
+open import Cat.Diagram.Limit.Product
+open import Cat.Diagram.Limit.Initial
+
 open import Cat.Prelude
 
 import Cat.Reasoning as Cat
+import Cat.Morphism as Morb
 ```
 -->
 
@@ -122,4 +130,122 @@ the sea has risen above it:
       (solution-set→family (ss x))
       (comma-is-complete F c-compl F-cont)
       (solution-set→family-is-weak-initial (ss x))
+```
+
+# The Swedish word for "juice" {defines="special-adjoint-functor-theorem"}
+<!--
+```agda
+module _ {o ℓ o'} {C : Precategory o ℓ} {D : Precategory o' ℓ} (F : Functor C D) where
+  open ↓Obj
+
+  private
+    module C = Cat C
+    module D = Cat D
+    module F = Functor F
+  open Morb C
+```
+-->
+
+```agda
+  coseparated+well-powered→left-adjoint
+    : ∀ {idx : Set ℓ} {S : ⌞ idx ⌟ → C.Ob}
+    → is-complete ℓ ℓ C
+    → is-continuous ℓ ℓ F
+    → is-coseparating-family C S
+    -- already have this dummy
+    → ((S : Set ℓ) → has-products-indexed-by C ∣ S ∣)
+    -- + well-powered??
+    → (∀ {y} {S : Set (o ⊔ ℓ)} → has-products-indexed-by (Sub C y) ⌞ S ⌟)
+    → Σ[ G ∈ Functor D C ] G ⊣ F
+  coseparated+well-powered→left-adjoint {idx = idx} {S} comp cont cosep powers has-mono-intersections = solution-set→left-adjoint F comp cont λ y → sol y  where
+    module _ (y : D.Ob) where
+      open Powers powers
+      open Solution-set
+
+      d : ⌞ idx ⌟ → ⌞ C ⌟
+      d i = D.Hom y (F.₀ (S i)) ⋔! S i
+
+      ∏ᵢD[y,F[Si]] = ∏!.ΠF (Σ[ i ∈ ⌞ idx ⌟ ] D.Hom y (F.₀ (S i))) (S ⊙ fst)
+
+      F-indexed-product : Indexed-product D {Idx = ⌞ idx ⌟} (λ i → F.₀ $ S i)
+      F-indexed-product = record
+        { ΠF = F.₀ $ {! ∏!.ΠF (Σ[ i ∈ ⌞ idx ⌟ ] Hom y (F.₀ (S i)) (S ⊙ fst) !}
+        ; π = ? -- λ j → F.₁ $ ⋔!.π _ (S i) j
+        ; has-is-ip = ? -- is-continuous→pres-indexed-product (λ _ → S i) cont $ ⋔!.has-is-ip ⌞ D.Hom y (F.₀ (S i)) ⌟ (S i)
+        }
+      module F-indexed-product (i : ⌞ idx ⌟) = Indexed-product F-indexed-product
+      sol : Solution-set F y
+      sol .index = {! ⌞ Sub C ∏ᵢD[y,F[Si]] ⌟ !}
+      sol .has-is-set =   {! !}
+      sol .dom = ?
+      sol .map = ?
+      sol .factor = {! factors.goal !}
+
+{-
+      m : (i : ⌞ idx ⌟) → D.Hom y (F-indexed-product.ΠF i)
+      m i = F-indexed-product.tuple i λ j → j
+      module factors {x} (f : D.Hom y (F.₀ x)) where
+        ∏ᵢC[x,Si] = ∏!.ΠF (Σ[ i ∈ ⌞ idx ⌟ ] Hom x (S i)) (S ⊙ fst)
+        ∏ᵢD[y,F[Si]] = ∏!.ΠF (Σ[ i ∈ ⌞ idx ⌟ ] D.Hom y (F.₀ (S i))) (S ⊙ fst)
+
+        mono :  x ↪ ∏ᵢC[x,Si]
+        mono = coseparating-family→make-mono _ powers idx _ cosep {x}
+
+        -- we have ∏ᵢD[y,F[Si]] → ∏ᵢC[x,Si] by universal property
+        ooeeoo : Hom ∏ᵢD[y,F[Si]] ∏ᵢC[x,Si]
+        ooeeoo = ∏!.tuple _ (S ⊙ fst) λ { (i , h) → ∏!.π _ _ $ i , F.₁ h D.∘ f }
+
+
+        -- now we construct a pullback
+
+        goal : ∃[ i ∈ ⌞ idx ⌟ ] (Σ[ t ∈ C.Hom (d i) x ] (f ≡ F.₁ t D.∘ m i))
+        goal = {! !}
+
+      open Solution-set
+      sol : Solution-set F y
+      sol .index = ⌞ idx ⌟
+      sol .has-is-set =  hlevel 2
+      sol .dom = d
+      sol .map = m
+      sol .factor = {! factors.goal !}
+-}
+```
+
+
+# The "Kan" adjoint functor theorem
+
+<!--
+```agda
+module _ {o ℓ o'} {C : Precategory o ℓ} {D : Precategory o' ℓ} (F : Functor C D) (F-cont : is-continuous (o ⊔ ℓ) ℓ F) where
+  formal-aft : (a-pres-comma-limits : ∀ {x} (Q : Functor (x ↙ F) C) → Limit Q) → Σ[ G ∈ Functor D C ] G ⊣ F
+  formal-aft a-pres .fst = _
+  formal-aft a-pres .snd = universal-maps→left-adjoint λ x → Id-limit→Initial $ Cod-lift-limit F F-cont $ a-pres _
+```
+-->
+
+# pounce's super cool super special adjoint functor theorem
+
+Let D be a complete locally small category with a cogenerating set and
+let there exist pullbacks of classes of subobjects of objects in D. Let
+C be locally small. A functor G:D→C has a left adjoint iff it preserves
+small limits and pullbacks of classes of monics.
+
+```agda
+
+{-
+module _ {o ℓ o'} {idx : Set ℓ} {C : Precategory o ℓ} {D : Precategory o' ℓ} where
+  private
+    module C = Cat C
+    module D = Cat D
+  open Morb C
+  module _ {S : ⌞ idx ⌟ → C.Ob} {F : Functor C D}
+      (comp : is-complete ℓ ℓ C) (cosep : is-coseparating-family C S) (F-cont : is-continuous (o ⊔ ℓ) ℓ F)(F-cont' : is-continuous ℓ ℓ F)
+      (has-mono-intersections : ∀ {y} {S : Set (o ⊔ ℓ)} → has-products-indexed-by (Sub C y) ⌞ S ⌟) where
+    private module _ {x} (Q : Functor (x ↙ F) C) where
+      -- by kaft it suffices to generate limits for Q
+      Q-lim : Limit Q
+      Q-lim = {! !}
+    saft : Σ[ G ∈ Functor D C ] G ⊣ F
+    saft = formal-aft _ F-cont Q-lim
+-}
 ```

@@ -60,6 +60,7 @@ module _ {o ℓ o' ℓ'} {C : Precategory o ℓ} {J : Precategory o' ℓ'} where
   ConstD .F₁ f = constⁿ f
   ConstD .F-id = ext λ _ → refl
   ConstD .F-∘ f g = ext λ _ → refl
+
 ```
 
 

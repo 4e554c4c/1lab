@@ -5,6 +5,7 @@ open import Cat.Instances.Shape.Interval
 open import Cat.Diagram.Colimit.Base
 open import Cat.Diagram.Coequaliser
 open import Cat.Diagram.Pullback
+
 open import Cat.Prelude
 
 import Cat.Functor.Reasoning

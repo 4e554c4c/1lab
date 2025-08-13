@@ -48,4 +48,54 @@ private variable
 *-negater {x} {y} = monoid-inverse-unique a.has-is-monoid (x * y) (x * (- y)) (- (x * y))
   (sym *-distribl ∙∙ ap (x *_) a.inversel ∙∙ *-zeror)
   a.inverser
+
+module _ (p : y ≡ 0r) where
+  *absorbr : x * y ≡ 0r
+  *absorbr = ap (_ *_) p ∙ *-zeror
+
+  *absorbl : y * x ≡ 0r
+  *absorbl = ap (_* _) p ∙ *-zerol
+
+  +insertl : x ≡ x + y
+  +insertl = sym $ ap (_ +_) p ∙ +-idr
+
+  +insertr : x ≡ y + x
+  +insertr = sym $ ap (_+ _) p ∙ +-idl
+
+  +eliml : x + y ≡ x
+  +eliml = ap (_ +_) p ∙ +-idr
+
+  +elimr : y + x ≡ x
+  +elimr = ap (_+ _) p ∙ +-idl
+
+module _ (a+b≡c : a + b ≡ c) where abstract
+  +pulll : a + (b + x) ≡ c + x
+  +pulll {x = x} =
+    a + (b + x) ≡⟨ +-associative ⟩
+   (a + b) + x  ≡⟨ ap (_+ x) a+b≡c ⟩
+    c + x       ∎
+
+  +pullr : (x + a) + b ≡ x + c
+  +pullr {x = x} =
+    x + a + b   ≡⟨ sym +-associative ⟩
+    x + (a + b) ≡⟨ ap (x +_) a+b≡c ⟩
+    x + c       ∎
+
+_⟩+⟨_ : a ≡ b → x ≡ y → a + x ≡ b + y
+_⟩+⟨_ = ap₂ _+_
+
+infixl 20 _⟩+⟨_
+
+refl⟩+⟨_ : a ≡ b → x + a ≡ x + b
+refl⟩+⟨_ p = refl ⟩+⟨ p
+
+_⟩+⟨refl : a ≡ b → a + x ≡ b + x
+_⟩+⟨refl p = p ⟩+⟨ refl
+
+infix 22 refl⟩+⟨_
+infix 21 _⟩+⟨refl
+
+
+  --*insertl : x ≡ x * y
+  --*insertl = sym *absorbr
 ```

@@ -6,8 +6,10 @@ open import Algebra.Ring.Commutative
 open import Algebra.Ring.Solver
 open import Algebra.Ring
 
+
 open import Data.Set.Coequaliser hiding (_/_)
 open import Data.Nat.Base using (_≤_)
+open import Data.Power
 ```
 -->
 
@@ -34,7 +36,7 @@ these proofs do not matter for identity of fractions, we will generally
 omit them in the prose.
 
 ```agda
-record Fraction {ℓ ℓ'} {R : Type ℓ} (S : R → Type ℓ') : Type (ℓ ⊔ ℓ') where
+record Fraction {ℓ} {R : Type ℓ} (S : ℙ R) : Type ℓ where
   no-eta-equality ; pattern
   constructor _/_[_]
   field
@@ -51,30 +53,30 @@ pattern _/_ x y = x / y [ _ ]
 
 instance
   H-Level-Fraction
-    : ∀ {n ℓ ℓ'} {R : Type ℓ} {S : R → Type ℓ'} ⦃ _ : H-Level R n ⦄ ⦃ _ : ∀ {x} → H-Level (S x) n ⦄
-    → H-Level (Fraction S) n
+    : ∀ {n ℓ} {R : Type ℓ} {S : ℙ R} ⦃ _ : H-Level R (suc n) ⦄
+    → H-Level (Fraction S) (suc n)
   H-Level-Fraction {n = n} {k} {R = R} {S} = hlevel-instance
-    (retract→is-hlevel {A = R × ∫ₚ S} n
+    (retract→is-hlevel {A = R × ∫ₚ S} (suc n)
       (λ (x , y , p) → x / y [ p ])
       (λ (x / y [ p ]) → x , y , p)
       (λ { (x / y [ p ]) i → x / y [ p ] })
-        (hlevel n))
+        (hlevel (suc n)))
 
   Inductive-Fraction
-    : ∀ {ℓ ℓ' ℓ'' ℓm} {R : Type ℓ} {S : R → Type ℓ'} {P : Fraction S → Type ℓ''}
+    : ∀ {ℓ ℓ'' ℓm} {R : Type ℓ} {S : ℙ R} {P : Fraction S → Type ℓ''}
     → ⦃ _ : Inductive ((num : ⌞ R ⌟) (denom : ⌞ R ⌟) (has : denom ∈ S) → P (num / denom [ has ])) ℓm ⦄
     → Inductive ((x : Fraction S) → P x) ℓm
   Inductive-Fraction ⦃ r ⦄ .Inductive.methods        = r .Inductive.methods
   Inductive-Fraction ⦃ r ⦄ .Inductive.from f (x / s [ p ]) = r .Inductive.from f x s p
 
 Fraction-path
-  : ∀ {ℓ ℓ'} {R : Type ℓ} {S : ⌞ R ⌟ → Type ℓ'}
-  → ⦃ _ : ∀ {x} → H-Level (S x) 1 ⦄ {x y : Fraction S}
+  : ∀ {ℓ} {R : Type ℓ} {S : ℙ ⌞ R ⌟}
+  → {x y : Fraction S}
   → ↑ x ≡ ↑ y → ↓ x ≡ ↓ y → x ≡ y
 Fraction-path {S = S} {x = x / s [ p ]} {y / t [ q ] } α β i = record
   { num = α i
   ; denom = β i
-  ; has-denom = is-prop→pathp (λ i → hlevel {T = S (β i)} 1) p q i
+  ; has-denom = is-prop→pathp (λ i → hlevel {T = β i ∈ S} 1) p q i
   }
 ```
 -->
@@ -96,7 +98,7 @@ This will be important to define both multiplication *and identity* of
 fractions.
 
 ```agda
-  record is-multiplicative {ℓ'} (S : ⌞ R ⌟ → Type ℓ') : Type (ℓ ⊔ ℓ') where
+  record is-multiplicative (S : ℙ ⌞ R ⌟ ) : Type ℓ where
     field
       has-1 : 1r ∈ S
       has-* : ∀ {x y} → x ∈ S → y ∈ S → (x * y) ∈ S
@@ -123,7 +125,7 @@ fractions identifies $x/s \approx y/t$ whenever there exists $u \in S$
 with $uxt = uys$.
 
 ```agda
-  data _≈_ {ℓ'} {S : ⌞ R ⌟ → Type ℓ'} (x y : Fraction S) : Type (ℓ ⊔ ℓ') where
+  data _≈_ {S : ℙ ⌞ R ⌟} (x y : Fraction S) : Type ℓ where
     inc : (u : ⌞ R ⌟) (u∈S : u ∈ S) → u * ↑ x * ↓ y ≡ u * ↑ y * ↓ x → x ≈ y
     squash : is-prop (x ≈ y)
 ```
@@ -137,7 +139,7 @@ with $uxt = uys$.
 
   instance
     Inductive-≈
-      : ∀ {ℓ' ℓ'' ℓm} {S : ⌞ R ⌟ → Type ℓ'} {x y : Fraction S} {P : x ≈ y → Type ℓ''}
+      : ∀ {ℓ' ℓm} {S : ℙ ⌞ R ⌟} {x y : Fraction S} {P : x ≈ y → Type ℓ'}
       → ⦃ h : ∀ {x} → H-Level (P x) 1 ⦄
       → ⦃ r : Inductive ((u : ⌞ R ⌟) (u∈S : u ∈ S) (p : u * ↑ x * ↓ y ≡ u * ↑ y * ↓ x) → P (inc u u∈S p)) ℓm ⦄
       → Inductive ((p : x ≈ y) → P p) ℓm
@@ -149,7 +151,7 @@ with $uxt = uys$.
       go m (inc u u∈S x) = m u u∈S x
       go m (squash x y i) = is-prop→pathp (λ i → hlevel {T = P (squash x y i)} 1) (go m x) (go m y) i
 
-    H-Level-≈ : ∀ {ℓ'} {S : ⌞ R ⌟ → Type ℓ'} {x y : Fraction S} {n} → H-Level (x ≈ y) (suc n)
+    H-Level-≈ : ∀ {S : ℙ ⌞ R ⌟} {x y : Fraction S} {n} → H-Level (x ≈ y) (suc n)
     H-Level-≈ = prop-instance squash
 ```
 -->
@@ -158,7 +160,7 @@ In the literature, this is more commonly phrased as $u(xt - ys) = 0$,
 but the equivalence between that and our definition is routine.
 
 ```agda
-  _≈'_ : ∀ {ℓ'} {S : ⌞ R ⌟ → Type ℓ'} → Fraction S → Fraction S → Type _
+  _≈'_ : ∀ {S : ℙ ⌞ R ⌟} → Fraction S → Fraction S → Type _
   _≈'_ {S = S} (x / s) (y / t) = ∃[ u ∈ R ] (u ∈ S × u * (x * t - y * s) ≡ 0r)
 ```
 
@@ -166,7 +168,7 @@ but the equivalence between that and our definition is routine.
 <summary>The calculation can be found in this `<details>`{.html} block.</summary>
 
 ```agda
-  ≈→≈' : ∀ {ℓ'} {S : ⌞ R ⌟ → Type ℓ'} {x y : Fraction S} → x ≈ y → x ≈' y
+  ≈→≈' : {S : ℙ ⌞ R ⌟} {x y : Fraction S} → x ≈ y → x ≈' y
   ≈→≈' {x = x / s} {y = y / t} = elim! λ u u∈S p →
     let
       prf =
@@ -176,7 +178,7 @@ but the equivalence between that and our definition is routine.
         0r                    ∎
     in inc (u , u∈S , prf)
 
-  ≈'→≈ : ∀ {ℓ'} {S : ⌞ R ⌟ → Type ℓ'} {x y : Fraction S} → x ≈' y → x ≈ y
+  ≈'→≈ : ∀ {S : ℙ ⌞ R ⌟} {x y : Fraction S} → x ≈' y → x ≈ y
   ≈'→≈ {x = x / s} {y = y / t} = elim! λ u u∈S p →
     let
       prf =
@@ -190,7 +192,7 @@ but the equivalence between that and our definition is routine.
 
 <!--
 ```agda
-module Loc {ℓ} (R : CRing ℓ) (S : ⌞ R ⌟ → Ω) (mult : Frac.is-multiplicative R (_∈ S)) where
+module Loc {ℓ} (R : CRing ℓ) (S : ℙ ⌞ R ⌟) (mult : Frac.is-multiplicative R S) where
   open Frac.is-multiplicative mult
   open Explicit R
   open CRing R
@@ -208,7 +210,7 @@ must consider the denominator of the middle fraction $y/t$ to relate the
 two endpoints $x/s$ and $z/u$.
 
 ```agda
-  Fraction-congruence : Congruence (Fraction (_∈ S)) _
+  Fraction-congruence : Congruence (Fraction S) _
   Fraction-congruence ._∼_ = _≈_
   Fraction-congruence .has-is-prop (_ / _) (_ / _) = hlevel 1
   Fraction-congruence .reflᶜ {x / s} = inc 1r has-1 refl
@@ -233,7 +235,7 @@ two endpoints $x/s$ and $z/u$.
   open Fraction
 
   private
-    /-ap : ∀ {x y : Fraction (_∈ S)} → x .num ≡ y .num → x .denom ≡ y .denom → Path Fr.quotient (inc x) (inc y)
+    /-ap : ∀ {x y : Fraction S} → x .num ≡ y .num → x .denom ≡ y .denom → Path Fr.quotient (inc x) (inc y)
     /-ap p q = ap Coeq.inc (Fraction-path p q)
 ```
 -->
@@ -272,13 +274,13 @@ quotient we've taken, and then prove that they satisfy the ring laws *on
 the quotient*.
 
 ```agda
-  +f : Fraction (_∈ S) → Fraction (_∈ S) → Fraction (_∈ S)
+  +f : Fraction S → Fraction S → Fraction S
   +f (x / s [ p ]) (y / t [ q ]) = (x * t + y * s) / (s * t) [ has-* p q ]
 
-  -f : Fraction (_∈ S) → Fraction (_∈ S)
+  -f : Fraction S → Fraction S
   -f (x / s [ p ]) = (- x) / s [ p ]
 
-  *f : Fraction (_∈ S) → Fraction (_∈ S) → Fraction (_∈ S)
+  *f : Fraction S → Fraction S → Fraction S
   *f (x / s [ p ]) (y / t [ q ]) = (x * y) / (s * t) [ has-* p q ]
 ```
 

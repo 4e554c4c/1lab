@@ -16,15 +16,8 @@ import Algebra.Ring.Reasoning as Kit
 -->
 
 ```agda
-module Algebra.Ring.Quotient {ℓ} (R : Ring ℓ) where
+module Algebra.Ring.Quotient where
 ```
-
-<!--
-```agda
-open Ring-on (R .snd)
-private module R = Kit R
-```
--->
 
 # Quotient rings
 
@@ -41,10 +34,13 @@ way! In that case, we refer to $R/I$ as a **quotient ring**.
 
 <!--
 ```agda
-module _ {I : ℙ ⌞ R ⌟} (idl : is-ideal R I) where
-  private module I = is-ideal idl
+module _ {ℓ} (R : Ring ℓ) (I : Ideal R)  where
+  private module I = Ideal I
+  open Ring-on (R .snd)
+  private module R = Kit R
 ```
 -->
+
 
 Really, the bulk of the construction has already been done (in the
 section about quotient groups), so all that remains is the following
@@ -115,8 +111,17 @@ quotients into propositions, then applying $R$'s laws.</summary>
 </details>
 
 ```agda
-  R/I : Ring ℓ
-  R/I = to-ring make-R/I
+  _/ᴿ_ : Ring ℓ
+  _/ᴿ_ = to-ring make-R/I
+```
+
+```agda
+  open is-ring-hom
+  inclᴿ : Rings.Hom R _/ᴿ_
+  inclᴿ .fst = inc
+  inclᴿ .snd .pres-id = refl
+  inclᴿ .snd .pres-+ _ _ = refl
+  inclᴿ .snd .pres-* _ _ = refl
 ```
 
 As a quick aside, if $I$ is a complemented ideal (equivalently: a
@@ -125,8 +130,12 @@ also discrete. This is a specialisation of a general result about
 decidable quotient sets, but we mention it here regardless:
 
 ```agda
-  Discrete-ring-quotient : (∀ x → Dec (x ∈ I)) → Discrete ⌞ R/I ⌟
+  Discrete-ring-quotient : (∀ x → Dec (x ∈ I)) → Discrete ⌞ _/ᴿ_  ⌟
   Discrete-ring-quotient dec∈I = Discrete-quotient
     (normal-subgroup→congruence R.additive-group I.ideal→normal)
     (λ x y → dec∈I (x R.- y))
+
+instance
+  Funlike-Ring : ∀ {ℓ} {R : Ring ℓ} → Funlike ⌞ R ⌟ (Ideal R) (λ I → ⌞ R /ᴿ I  ⌟)
+  Funlike-Ring {R = R} = record { _·_ = λ x I → inclᴿ R I · x  }
 ```

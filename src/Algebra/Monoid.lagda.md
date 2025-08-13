@@ -45,6 +45,10 @@ record is-monoid (id : A) (_⋆_ : A → A → A) : Type (level-of A) where
   field
     idl : {x : A} → id ⋆ x ≡ x
     idr : {x : A} → x ⋆ id ≡ x
+  infixl 35 _^ᴹ_
+  _^ᴹ_ : A → Nat → A
+  _ ^ᴹ 0 = id
+  r ^ᴹ (suc n) = r ⋆ id
 
 open is-monoid
 ```

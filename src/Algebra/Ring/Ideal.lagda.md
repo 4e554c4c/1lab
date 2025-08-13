@@ -19,6 +19,8 @@ import Algebra.Ring.Reasoning as Ringr
 
 ```agda
 module Algebra.Ring.Ideal where
+
+module _ {ℓ} (R : Ring ℓ) where
 ```
 
 # Ideals in rings
@@ -46,7 +48,6 @@ multiplication and addition.
 
 
 ```agda
-module _ {ℓ} (R : Ring ℓ) where
   private module R = Ringr R
 
   record is-ideal (𝔞 : ℙ ⌞ R ⌟) : Type (lsuc ℓ) where
@@ -79,6 +80,18 @@ and any element $x : R$, $xy \in \mathfrak{a}$ and $yx \in
       subst (_∈ 𝔞) (sym (ap (y R.+_) R.+-commutes ∙ R.cancell R.+-invr)) x∈𝔞
 
     open normal-subgroup ideal→normal hiding (has-rep) public
+```
+-->
+```agda
+  record Ideal : Type (lsuc ℓ) where
+    no-eta-equality
+    field
+      {𝔞} : ℙ ⌞ R ⌟
+      has-is-ideal : is-ideal 𝔞
+```
+<!--
+```agda
+    open is-ideal has-is-ideal public
 ```
 -->
 
@@ -163,4 +176,7 @@ it must commute with every element of the ring.
         pure ( yi R.* x
             , ap (R._* x) q ∙ R.m.extendr (comm x))
     }
+instance
+  Membership-Ideal : ∀ {ℓ} {R : Ring ℓ} → Membership ⌞ R ⌟ (Ideal R) _
+  Membership-Ideal = record { _∈_ = λ x I → x ∈ I .Ideal.𝔞 }
 ```

@@ -28,6 +28,9 @@ id-comm = idr ∙ sym idl
 id-comm-sym : 1m * a ≡ a * 1m
 id-comm-sym = idl ∙ sym idr
 
+pow-1-eq : a ^ᴹ 1 ≡ a
+pow-1-eq = idr
+
 module _ (p : x ≡ 1m) where
   eliml : x * a ≡ a
   eliml = ap₂ _*_ p refl ∙ idl

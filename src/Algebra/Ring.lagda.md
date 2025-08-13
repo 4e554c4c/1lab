@@ -6,6 +6,7 @@ open import Algebra.Semigroup
 open import Algebra.Group.Ab
 open import Algebra.Monoid
 open import Algebra.Group
+open import Algebra.Group.Cat.Base
 
 open import Cat.Displayed.Univalence.Thin
 open import Cat.Base
@@ -57,6 +58,7 @@ record is-ring {ℓ} {R : Type ℓ} (1r : R) (_*_ _+_ : R → R → R) : Type �
     renaming ( idl to *-idl
              ; idr to *-idr
              ; associative to *-associative
+             ; _^ᴹ_ to _^ᴿ_
              )
     hiding (has-is-set ; magma-hlevel ; underlying-set)
     public
@@ -101,8 +103,8 @@ record Ring-on {ℓ} (R : Type ℓ) : Type ℓ where
     has-is-ring : is-ring 1r _*_ _+_
 
   open is-ring has-is-ring public
-  infixl 25 _*_
-  infixl 20 _+_
+  infixl 40 _*_
+  infixl 35 _+_
 
 instance
   H-Level-is-ring
@@ -191,6 +193,20 @@ module Rings {ℓ} = Cat.Reasoning (Rings ℓ)
 Ring : ∀ ℓ → Type (lsuc ℓ)
 Ring ℓ = Rings.Ob
 ```
+
+
+<!--
+```agda
+module RingHom {ℓ} {Q R : Ring ℓ} (h : Rings.Hom Q R) where
+  private
+    module Q = Ring-on (Q .snd)
+    module R = Ring-on (R .snd)
+  RingHom→GroupHom : Groups.Hom (Q.additive-group) (R.additive-group)
+  RingHom→GroupHom .fst = h .fst
+  RingHom→GroupHom .snd = ring-hom→group-hom (h .snd)
+  open is-ring-hom (h .snd) public
+```
+-->
 
 ## In components
 

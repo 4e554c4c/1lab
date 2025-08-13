@@ -13,6 +13,7 @@ open import Cat.Prelude
 open import Data.Power
 
 import Cat.Displayed.Instances.Subobjects
+import Algebra.Group.Reasoning as GR
 ```
 -->
 
@@ -24,7 +25,7 @@ module Algebra.Group.Subgroup where
 ```agda
 private variable
   ℓ ℓ' : Level
-  G : Group ℓ
+  H G : Group ℓ
 private module _ {ℓ} where open Cat.Displayed.Instances.Subobjects (Groups ℓ) public
 ```
 -->
@@ -83,6 +84,16 @@ predicate→subgroup {G = G} H p = record { map = it ; monic = ism } where
 
   ism : Groups.is-monic it
   ism = Homomorphism-monic it λ p → Σ-prop-path! p
+
+module _ {S : ℙ ⌞ G ⌟} (sG : represents-subgroup G S) {e : ⌞ H ⌟ → ⌞ G ⌟} (h : is-group-hom (H .snd) (G .snd)  e) where
+  private
+    module h = is-group-hom h
+    module S = represents-subgroup sG
+  open represents-subgroup
+  inverse-represents-subgroup : represents-subgroup H (S ⊙ e)
+  inverse-represents-subgroup .has-unit = subst (_∈ S) (sym h.pres-id) S.has-unit
+  inverse-represents-subgroup .has-⋆ x y = subst (_∈ S) (sym $ h.pres-⋆ _ _) (S.has-⋆ x y)
+  inverse-represents-subgroup .has-inv x = subst (_∈ S) (sym h.pres-inv) (S.has-inv x)
 ```
 
 # Kernels and images
@@ -95,20 +106,64 @@ which $f$ sends to the unit.
 
 [**kernel**]: Cat.Diagram.Equaliser.Kernel.html
 
+### TODO: DELETE
+
 The kernel can be cheapily described as a [[limit]]: It is the [[equaliser]]
 of $f$ and the [zero morphism] --- which, recall, is the unique map $A
 \to B$ which breaks down as $A \to 0 \to B$.
 
 ```agda
-module _ {ℓ} where
-  open Canonical-kernels (Groups ℓ) ∅ᴳ Groups-equalisers public
+module _ {ℓ} {H G : Group ℓ} (h : Groups.Hom H G) where
+  private
+    module h = is-group-hom (h .snd)
+    module G = GR G
+    module H = GR H
 
-  Ker-subgroup : ∀ {A B : Group ℓ} → Groups.Hom A B → Subgroup A
-  Ker-subgroup f =
-    record { map   = kernel
-           ; monic = is-equaliser→is-monic _ has-is-kernel }
-    where
-      open Kernel (Ker f)
+  kernel-subset : ℙ ⌞ H ⌟
+  kernel-subset x = elΩ (h · x ≡ G.1g)
+
+  open represents-subgroup
+  kernel-represents-subgroup : represents-subgroup H kernel-subset
+  kernel-represents-subgroup .has-unit = inc h.pres-id
+  kernel-represents-subgroup .has-⋆ {x} {y} = elim! λ p q → inc (
+      h · (x H.* y)   ≡⟨ h.pres-⋆ _ _ ⟩
+      h · x G.* h · y ≡⟨ ap₂ G._*_ p q ⟩
+      G.1g G.* G.1g   ≡⟨ G.*-idl ⟩
+      G.1g            ∎)
+  kernel-represents-subgroup .has-inv {x} = elim! λ p → inc (
+      h · (x H.⁻¹) ≡⟨ h.pres-inv ⟩
+      (h · x) G.⁻¹ ≡⟨ G.inv-elim p ⟩
+      G.1g         ∎)
+
+  Ker-subgroup : Subgroup H
+  Ker-subgroup = predicate→subgroup kernel-subset kernel-represents-subgroup
+  module Ker-subgroup = Subobject Ker-subgroup
+
+module _ {ℓ} {H G : Group ℓ} (h : Groups.Hom H G) where
+  open is-equaliser
+  Ker-is-kernel : is-kernel (Groups ℓ) ∅ᴳ h (Ker-subgroup.map h)
+  Ker-is-kernel .equal = ext λ x → elim! λ p → p
+  Ker-is-kernel .universal {_} {e} p = ∫hom (λ x → e .fst x , inc (unext p x))
+                                            record { pres-⋆ = λ x y → Σ-prop-path! (e.pres-⋆ x y) }
+    where module e = is-group-hom (e .snd)
+  Ker-is-kernel .factors = ext λ x → refl
+  Ker-is-kernel .unique p = ext λ x → unext p x
+
+  open Kernel
+  Ker : Kernel (Groups ℓ) ∅ᴳ h
+  Ker .ker = _
+  Ker .kernel = _
+  Ker .has-is-kernel = Ker-is-kernel
+
+--module _ {ℓ} where
+--  --open Canonical-kernels (Groups ℓ) ∅ᴳ Groups-equalisers public
+--
+--  Ker-subgroup : ∀ {A B : Group ℓ} → Groups.Hom A B → Subgroup A
+--  Ker-subgroup f = predicate→subgroup (kernel-subset f) (kernel-represents-subgroup f)
+
+--  Ker
+
+
 ```
 
 [zero morphism]: Cat.Diagram.Zero.html
@@ -282,7 +337,7 @@ homomorphisms + the assumed identity $0 = e' \circ \ker f$;
              → e' · x .fst F.— e' · y .fst ≡ F.unit
       const' (y , q) (z , r) =
         (e' · y) F.— (e' · z)  ≡˘⟨ e'.pres-diff ⟩
-        e' · (y A.— z)         ≡⟨ happly (sym (ap fst p)) (y A.— z , aux) ⟩
+        e' · (y A.— z)         ≡⟨ happly (sym (ap fst p)) ((y A.— z) , inc aux) ⟩
         e' · A.unit            ≡⟨ e'.pres-id ⟩
         F.unit                 ∎
         where
@@ -313,7 +368,7 @@ will compute.
 
 ```agda
     coeq : is-coequaliser (Groups ℓ) (Zero.zero→ ∅ᴳ) Kerf.kernel A→im
-    coeq .coequal = ext λ x p → f.pres-id ∙ sym p
+    coeq .coequal = ext λ x → elim! λ p → f.pres-id ∙ sym p
 
     coeq .universal {F = F} {e' = e'} p = gh where
       module F = Group-on (F .snd)
@@ -360,11 +415,11 @@ module _ {ℓ} {A B : Group ℓ} (f : Groups.Hom A B) where private
   kerf = Ker[f].kernel .fst
 
   has-zero : fibre kerf A.unit
-  has-zero = (A.unit , f.pres-id) , refl
+  has-zero = (A.unit , inc f.pres-id) , refl
 
   has-⋆ : ∀ {x y} → fibre kerf x → fibre kerf y → fibre kerf (x A.⋆ y)
   has-⋆ ((a , p) , q) ((b , r) , s) =
-    (a A.⋆ b , f.pres-⋆ _ _ ∙∙ ap₂ B._⋆_ p r ∙∙ B.idl) ,
+    (a A.⋆ b , inc (f.pres-⋆ _ _ ∙∙ ap₂ B._⋆_ (□-out! p) (□-out! r) ∙∙ B.idl)) ,
     ap₂ A._⋆_ q s
 ```
 
@@ -376,12 +431,12 @@ f(yy\inv) = f(1) = 1$$.
 
 ```agda
   has-conjugate : ∀ {x y} → fibre kerf x → fibre kerf (y A.⋆ x A.⋆ y A.⁻¹)
-  has-conjugate {x} {y} ((a , p) , q) = (_ , path) , refl where
+  has-conjugate {x} {y} ((a , p) , q) = (_ , inc path) , refl where
     path =
       f · (y A.⋆ (x A.— y))         ≡⟨ ap· f A.associative ⟩
       f · ((y A.⋆ x) A.— y)         ≡⟨ f.pres-diff ⟩
       ⌜ f · (y A.⋆ x) ⌝ B.— f · y   ≡⟨ ap₂ B._—_ (f.pres-⋆ y x) refl ⟩
-      ⌜ f · y B.⋆ f · x ⌝ B.— f · y ≡⟨ ap₂ B._—_ (ap (_ B.⋆_) (ap· f (sym q) ∙ p) ∙ B.idr) refl ⟩
+      ⌜ f · y B.⋆ f · x ⌝ B.— f · y ≡⟨ ap₂ B._—_ (ap (_ B.⋆_) (ap· f (sym q) ∙ □-out! p) ∙ B.idr) refl ⟩
       f · y B.— f · y               ≡˘⟨ f.pres-diff ⟩
       f · (y A.— y)                 ≡⟨ ap· f A.inverser ∙ f.pres-id ⟩
       B.unit                        ∎
@@ -466,7 +521,7 @@ a tedious but straightforward calculation:
         rem₂ = subst (_∈ H) (associative ∙ ap (_⋆ y) (sym associative)) rem₁
 
         rem₃ : ((y ⋆ w) — (z ⋆ x)) ∈ H
-        rem₃ = subst (_∈ H) (associative ∙ ap₂ _⋆_ refl (sym inv-comm))
+        rem₃ = subst (_∈ H) (associative ∙ ap (_ ⋆_) (sym inv-comm))
           (has-comm rem₂)
 ```
 
@@ -561,15 +616,15 @@ predicate $\rm{inc}(x) = \rm{inc}(0)$ recovers the subgroup $H$; And
   Ker[incl]≅H-group = Groups.make-iso to from il ir where
     to : Groups.Hom _ _
     to .fst (x , p) = x , subst (_∈ H) (ap (_ ⋆_) inv-unit ∙ idr) x-0∈H where
-      x-0∈H = /ᴳ-effective p
+      x-0∈H = /ᴳ-effective (□-out! p)
     to .snd .is-group-hom.pres-⋆ _ _ = Σ-prop-path! refl
 
     from : Groups.Hom _ _
-    from .fst (x , p) = x , quot (subst (_∈ H) (sym idr ∙ ap (_ ⋆_) (sym inv-unit)) p)
+    from .fst (x , p) = x , inc (quot (subst (_∈ H) (sym idr ∙ ap (_ ⋆_) (sym inv-unit)) p))
     from .snd .is-group-hom.pres-⋆ _ _ = Σ-prop-path! refl
 
     il = ext λ x x∈H → Σ-prop-path! refl
-    ir = ext λ x x∈H → Σ-prop-path! refl
+    ir = ext λ x x∈H → refl
 ```
 
 To show that these are equal as subgroups of $G$, we must show that the

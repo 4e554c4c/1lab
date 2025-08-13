@@ -67,16 +67,20 @@ record Bilinear (A : Abelian-group ℓ) (B : Abelian-group ℓ') (C : Abelian-gr
   module fixr {a} = is-group-hom (fixr-is-group-hom a)
 
   open fixl
-    renaming ( pres-id   to pres-idr
-             ; pres-inv  to pres-invr
-             ; pres-diff to pres-diffr
+    renaming ( pres-id        to pres-idr
+             ; pres-inv       to pres-invr
+             ; pres-diff      to pres-diffr
+             ; to-zero-diff   to to-zero-diffr
+             ; from-zero-diff to from-zero-diffr
              )
     hiding ( pres-⋆ )
     public
   open fixr
-    renaming ( pres-id   to pres-idl
-             ; pres-inv  to pres-invl
-             ; pres-diff to pres-diffl
+    renaming ( pres-id        to pres-idl
+             ; pres-inv       to pres-invl
+             ; pres-diff      to pres-diffl
+             ; to-zero-diff   to to-zero-diffl
+             ; from-zero-diff to from-zero-diffl
              )
     hiding ( pres-⋆ )
     public

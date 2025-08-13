@@ -219,6 +219,12 @@ identity and inverses:
     e (x A.— y)                 ≡⟨ pres-⋆ _ _ ⟩
     e x B.⋆ ⌜ e (A.inverse y) ⌝ ≡⟨ ap! pres-inv ⟩
     e x B.— e y                 ∎
+
+  to-zero-diff : ∀ {x y} → e x ≡ e y → e (x A.— y) ≡ 1B
+  to-zero-diff p = pres-diff ∙∙ ap₂ B._—_ refl (sym p) ∙∙ B.inverser
+
+  from-zero-diff : ∀ {x y} → e (x A.— y) ≡ 1B → e x ≡ e y
+  from-zero-diff p = B.zero-diff (sym pres-diff ∙ p)
 ```
 
 <!--

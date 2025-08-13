@@ -6,7 +6,7 @@ open import Algebra.Ring.Ideal
 open import Algebra.Group
 open import Algebra.Ring
 
-open import Cat.Prelude hiding (_*_ ; _+_)
+open import Cat.Prelude hiding (_*_ ; _+_ ; _-_)
 
 open import Data.Power
 open import Data.Dec
@@ -112,7 +112,8 @@ quotients into propositions, then applying $R$'s laws.</summary>
 
 ```agda
   _/ᴿ_ : Ring ℓ
-  _/ᴿ_ = to-ring make-R/I
+  _/ᴿ_ .fst = el! _
+  _/ᴿ_ .snd = to-ring-on make-R/I
 ```
 
 ```agda
@@ -122,6 +123,24 @@ quotients into propositions, then applying $R$'s laws.</summary>
   inclᴿ .snd .pres-id = refl
   inclᴿ .snd .pres-+ _ _ = refl
   inclᴿ .snd .pres-* _ _ = refl
+
+  /ᴿ-rec
+    : ∀ {ℓ'} (B : Ring ℓ') (f : ⌞ R ⌟ → ⌞ B ⌟)
+    → ({x y : ⌞ R ⌟} → (x R.- y) ∈ I → f x ≡ f y)
+    → ⌞ _/ᴿ_ ⌟ → ⌞ B ⌟
+  /ᴿ-rec B f h (inc x) = f x
+  /ᴿ-rec B f h (glue (a , b , m) i) = h m i
+  /ᴿ-rec B f h (squash x y p q i j) = hlevel {T = ⌞ B ⌟} 2 (go x) (go y) (λ i → go (p i)) (λ i → go (q i)) i j -- Quot-elim (λ _ → hlevel 2) f λ x y → h {x} {y}
+    where go = /ᴿ-rec B f h
+
+  abstract
+    /ᴿ-rec-is-hom
+      : ∀ {ℓ'} {B : Ring ℓ'} {f : ⌞ R ⌟ → ⌞ B ⌟} {h : {x y : ⌞ R ⌟} → (x R.- y) ∈ I → f x ≡ f y}
+      → is-ring-hom (R .snd) (B .snd) f
+      → is-ring-hom (_/ᴿ_ .snd) (B .snd) (/ᴿ-rec B f h)
+    /ᴿ-rec-is-hom {f = f} {h = h} rh .pres-id = rh .pres-id
+    /ᴿ-rec-is-hom {f = f} {h = h} rh .pres-+ = elim! (rh .pres-+)
+    /ᴿ-rec-is-hom {f = f} {h = h} rh .pres-* = elim! (rh .pres-*)
 ```
 
 As a quick aside, if $I$ is a complemented ideal (equivalently: a
@@ -138,4 +157,11 @@ decidable quotient sets, but we mention it here regardless:
 instance
   Funlike-Ring : ∀ {ℓ} {R : Ring ℓ} → Funlike ⌞ R ⌟ (Ideal R) (λ I → ⌞ R /ᴿ I  ⌟)
   Funlike-Ring {R = R} = record { _·_ = λ x I → inclᴿ R I · x  }
+
+/ᴿ-universal
+  : ∀ {ℓ} {R B : Ring ℓ} {I : Ideal R} (f : Rings.Hom R B) (let open Ring-on (R .snd))
+  → ({x y : ⌞ R ⌟} → (x - y) ∈ I → f · x ≡ f · y)
+  → Rings.Hom (R /ᴿ I) B
+/ᴿ-universal {R = R} {B} {I} f h .fst = /ᴿ-rec R I B (apply f) h
+/ᴿ-universal {R = R} {B} {I} f h .snd = /ᴿ-rec-is-hom R I (f .snd)
 ```

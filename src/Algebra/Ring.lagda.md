@@ -106,6 +106,9 @@ record Ring-on {ℓ} (R : Type ℓ) : Type ℓ where
   infixl 40 _*_
   infixl 35 _+_
 
+{-# INLINE Ring-on.constructor #-}
+{-# INLINE is-ring.constructor #-}
+
 instance
   H-Level-is-ring
     : ∀ {ℓ} {R : Type ℓ} {1r : R} {_*_ _+_ : R → R → R} {n}
@@ -132,6 +135,8 @@ record is-ring-hom
   {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (R : Ring-on A) (S : Ring-on B)
   (f : A → B)
   : Type (ℓ ⊔ ℓ') where
+  no-eta-equality
+
   private
     module A = Ring-on R
     module B = Ring-on S
@@ -148,8 +153,9 @@ record is-ring-hom
   ring-hom→group-hom = record { pres-⋆ = pres-+ }
 
   module gh = is-group-hom ring-hom→group-hom renaming (pres-id to pres-0 ; pres-inv to pres-neg)
-  open gh using (pres-0 ; pres-neg ; pres-diff) public
+  open gh using (pres-0 ; pres-neg ; pres-diff ; to-zero-diff ; from-zero-diff) public
 
+{-# INLINE is-ring-hom.constructor #-}
 private unquoteDecl eqv = declare-record-iso eqv (quote is-ring-hom)
 
 module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {R : Ring-on A} {S : Ring-on B} where
@@ -266,10 +272,8 @@ record make-ring {ℓ} (R : Type ℓ) : Type ℓ where
   to-is-ring .is-ring.*-distribr = *-distribr _ _ _
 
   to-ring-on : Ring-on R
-  to-ring-on .Ring-on.1r = 1R
-  to-ring-on .Ring-on._*_ = _*_
-  to-ring-on .Ring-on._+_ = _+_
-  to-ring-on .Ring-on.has-is-ring = to-is-ring
+  {-# INLINE to-ring-on #-}
+  to-ring-on = record { has-is-ring = to-is-ring }
 
   to-ring : Ring ℓ
   to-ring .fst = el R ring-is-set

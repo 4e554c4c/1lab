@@ -119,8 +119,8 @@ Representation-is-prop {F = F} c-cat x y = path where
         {A = F .F₀ a} {q = λ i → el! (C.Hom a (objs i))}
         (funext λ x →
            ap (λ e → e .Sets.to) (ap-F₀-iso (Hom-from C a) c-cat _) $ₚ _
-        ∙∙ sym (Y.rep.to .is-natural _ _ _) $ₚ _
-        ∙∙ ap Y.Rep.from (sym (X.rep.from .is-natural _ _ _ $ₚ _)
+        ∙∙ sym (Y.rep.to .com _ _ _) $ₚ _
+        ∙∙ ap Y.Rep.from (sym (X.rep.from .com _ _ _ $ₚ _)
                        ∙∙ ap X.Rep.to (C.idl _)
                        ∙∙ X.Rep.ε _)))
      i
@@ -153,13 +153,13 @@ constitutes a natural isomorphism.
 
 ```agda
   nat : F => よ₀ C (top .ob)
-  nat .η ob section = has⊤ (elem ob section) .centre .hom
-  nat .is-natural x y f = funext λ sect → ap hom $ has⊤ _ .paths $ elem-hom _ $
+  nat .map ob section = has⊤ (elem ob section) .centre .hom
+  nat .com x y f = funext λ sect → ap hom $ has⊤ _ .paths $ elem-hom _ $
     F.₁ (has⊤ _ .centre .hom C.∘ f) (top .section)   ≡⟨ happly (F.F-∘ _ _) _ ⟩
     F.₁ f (F.₁ (has⊤ _ .centre .hom) (top .section)) ≡⟨ ap (F.₁ f) (has⊤ _ .centre .commute) ⟩
     F.₁ f sect                                       ∎
 
-  inv : ∀ x → Sets.is-invertible (nat .η x)
+  inv : ∀ x → Sets.is-invertible (nat .map x)
   inv x = Sets.make-invertible
     (λ f → F.₁ f (top .section))
     (funext λ x → ap hom $ has⊤ _ .paths (elem-hom x refl))
@@ -185,22 +185,22 @@ representation→terminal-element {F} F-rep = term where
 
   term : Terminal (∫ C F)
   term .top .ob = F-rep .rep
-  term .top .section = R.from .η _ C.id
-  term .has⊤ (elem o s) .centre .hom = R.to .η _ s
+  term .top .section = R.from .map _ C.id
+  term .has⊤ (elem o s) .centre .hom = R.to .map _ s
   term .has⊤ (elem o s) .centre .commute =
-    F.₁ (R.to .η o s) (R.from .η _ C.id) ≡˘⟨ R.from .is-natural _ _ _ $ₚ _ ⟩
-    R.from .η _ ⌜ C.id C.∘ R.to .η o s ⌝ ≡⟨ ap! (C.idl _) ⟩
-    R.from .η _ (R.to .η o s)            ≡⟨ unext R.invr o s ⟩
+    F.₁ (R.to .map o s) (R.from .map _ C.id) ≡˘⟨ R.from .com _ _ _ $ₚ _ ⟩
+    R.from .map _ ⌜ C.id C.∘ R.to .map o s ⌝ ≡⟨ ap! (C.idl _) ⟩
+    R.from .map _ (R.to .map o s)            ≡⟨ unext R.invr o s ⟩
     s                                    ∎
   term .has⊤ (elem o s) .paths h = ext $
-    R.to .η o ⌜ s ⌝                  ≡˘⟨ ap¡ comm ⟩
-    R.to .η o (R.from .η _ (h .hom)) ≡⟨ unext R.invl o _ ⟩
+    R.to .map o ⌜ s ⌝                  ≡˘⟨ ap¡ comm ⟩
+    R.to .map o (R.from .map _ (h .hom)) ≡⟨ unext R.invl o _ ⟩
     h .hom                           ∎
     where
       comm =
-        R.from .η _ ⌜ h .hom ⌝          ≡˘⟨ ap¡ (C.idl _) ⟩
-        R.from .η _ (C.id C.∘ h .hom)   ≡⟨ R.from .is-natural _ _ _ $ₚ _ ⟩
-        F.₁ (h .hom) (R.from .η _ C.id) ≡⟨ h .commute ⟩
+        R.from .map _ ⌜ h .hom ⌝          ≡˘⟨ ap¡ (C.idl _) ⟩
+        R.from .map _ (C.id C.∘ h .hom)   ≡⟨ R.from .com _ _ _ $ₚ _ ⟩
+        F.₁ (h .hom) (R.from .map _ C.id) ≡⟨ h .commute ⟩
         s                               ∎
 ```
 
@@ -224,7 +224,7 @@ representable-unit→terminal
   : Representation (Const (el (Lift _ ⊤) (hlevel 2))) → Terminal C
 representable-unit→terminal repr .Terminal.top = repr .rep
 representable-unit→terminal repr .Terminal.has⊤ ob = retract→is-contr
-  (Rep.from repr) (λ _ → lift tt) (Rep.η repr) (hlevel 0)
+  (Rep.from repr) (λ _ → lift tt) (Rep.map repr) (hlevel 0)
 ```
 
 This can be seen as a special case of the construction [above](#as-terminal-objects):
@@ -306,8 +306,8 @@ Corepresentation-is-prop {F = F} c-cat X Y = path where
          {A = F .F₀ a} {q = λ i → el! (C.Hom (objs i) a)}
          (funext λ x →
            ap (λ e → e .Sets.to) (ap-F₀-iso (Hom-into C a) (opposite-is-category c-cat) _) $ₚ _
-           ∙∙ sym (corep.to Y .is-natural _ _ _ $ₚ _)
-           ∙∙ ap (Corep.from Y) (sym (corep.from X .is-natural _ _ _ $ₚ _)
+           ∙∙ sym (corep.to Y .com _ _ _ $ₚ _)
+           ∙∙ ap (Corep.from Y) (sym (corep.from X .com _ _ _ $ₚ _)
                                  ∙∙ ap (Corep.to X) (C.idr _)
                                  ∙∙ Corep.ε X _)))
        i
@@ -338,13 +338,13 @@ initial-element→corepresentation {F} init = f-corep where
   open Co.Element
   open Co.Element-hom
   nat : F => Hom-from C (bot .ob)
-  nat .η ob section = has⊥ (Co.elem ob section) .centre .hom
-  nat .is-natural x y f = funext λ sect → ap hom $ has⊥ _ .paths $ Co.elem-hom _ $
+  nat .map ob section = has⊥ (Co.elem ob section) .centre .hom
+  nat .com x y f = funext λ sect → ap hom $ has⊥ _ .paths $ Co.elem-hom _ $
     F.₁ (f C.∘ has⊥ _ .centre .hom) (bot .section)   ≡⟨ happly (F.F-∘ _ _) _ ⟩
     F.₁ f (F.₁ (has⊥ _ .centre .hom) (bot .section)) ≡⟨ ap (F.₁ f) (has⊥ _ .centre .commute) ⟩
     F.₁ f sect                                       ∎
 
-  inv : ∀ x → Sets.is-invertible (nat .η x)
+  inv : ∀ x → Sets.is-invertible (nat .map x)
   inv x = Sets.make-invertible
     (λ f → F.₁ f (bot .section))
     (funext λ x → ap hom $ has⊥ _ .paths (Co.elem-hom x refl))
@@ -364,22 +364,22 @@ corepresentation→initial-element {F} F-corep = init where
 
   init : Initial (Co.∫ F)
   init .bot .ob = F-corep .corep
-  init .bot .section = R.from .η _ C.id
-  init .has⊥ (Co.elem o s) .centre .hom = R.to .η _ s
+  init .bot .section = R.from .map _ C.id
+  init .has⊥ (Co.elem o s) .centre .hom = R.to .map _ s
   init .has⊥ (Co.elem o s) .centre .commute =
-    F.₁ (R.to .η o s) (R.from .η _ C.id) ≡˘⟨ R.from .is-natural _ _ _ $ₚ _ ⟩
-    R.from .η _ ⌜ R.to .η o s C.∘ C.id ⌝ ≡⟨ ap! (C.idr _) ⟩
-    R.from .η _ (R.to .η o s)            ≡⟨ unext R.invr o s ⟩
+    F.₁ (R.to .map o s) (R.from .map _ C.id) ≡˘⟨ R.from .com _ _ _ $ₚ _ ⟩
+    R.from .map _ ⌜ R.to .map o s C.∘ C.id ⌝ ≡⟨ ap! (C.idr _) ⟩
+    R.from .map _ (R.to .map o s)            ≡⟨ unext R.invr o s ⟩
     s                                    ∎
   init .has⊥ (Co.elem o s) .paths h = ext $
-    R.to .η o ⌜ s ⌝                  ≡˘⟨ ap¡ comm ⟩
-    R.to .η o (R.from .η _ (h .hom)) ≡⟨ unext R.invl o _ ⟩
+    R.to .map o ⌜ s ⌝                  ≡˘⟨ ap¡ comm ⟩
+    R.to .map o (R.from .map _ (h .hom)) ≡⟨ unext R.invl o _ ⟩
     h .hom                           ∎
     where
       comm =
-        R.from .η _ ⌜ h .hom ⌝          ≡˘⟨ ap¡ (C.idr _) ⟩
-        R.from .η _ (h .hom C.∘ C.id)   ≡⟨ R.from .is-natural _ _ _ $ₚ _ ⟩
-        F.₁ (h .hom) (R.from .η _ C.id) ≡⟨ h .commute ⟩
+        R.from .map _ ⌜ h .hom ⌝          ≡˘⟨ ap¡ (C.idr _) ⟩
+        R.from .map _ (h .hom C.∘ C.id)   ≡⟨ R.from .com _ _ _ $ₚ _ ⟩
+        F.₁ (h .hom) (R.from .map _ C.id) ≡⟨ h .commute ⟩
         s                               ∎
 ```
 </details>
@@ -411,7 +411,7 @@ Hom-from-preserves-limits c {Diagram = Dia} {K} {eps} lim =
   ml : make-is-limit _ _
   ml .ψ j f = lim.ψ j C.∘ f
   ml .commutes f = funext λ g →
-    C.pulll (sym (eps .is-natural _ _ _))
+    C.pulll (sym (eps .com _ _ _))
     ∙ (C.elimr (K .F-id) C.⟩∘⟨refl)
   ml .universal eps p x =
     lim.universal (λ j → eps j x) (λ f → p f $ₚ x)
@@ -461,7 +461,7 @@ a pair of maps $a \to x$ and $b \to x$.
   mc : make-is-colimit _ _
   mc .ψ j f = f C.∘ colim.ψ j
   mc .commutes f = funext λ g →
-    C.pullr (eta .is-natural _ _ _)
+    C.pullr (eta .com _ _ _)
     ∙ (C.refl⟩∘⟨ C.eliml (K .F-id))
   mc .universal eta p x =
     colim.universal (λ j → eta j x) (λ f → p f $ₚ x)
@@ -478,11 +478,11 @@ representable-reverses-colimits F-rep colim =
   let
     module im = Isoⁿ (F-rep .represents)
     im' = to-natural-iso record where
-      eta = im.to .η
-      inv = im.from .η
-      eta∘inv x = ap (λ e → e .η x) im.invr
-      inv∘eta x = ap (λ e → e .η x) im.invl
-      natural x y f = im.to .is-natural _ _ _
+      eta = im.to .map
+      inv = im.from .map
+      eta∘inv x = ap (λ e → e .map x) im.invr
+      inv∘eta x = ap (λ e → e .map x) im.invl
+      natural x y f = im.to .com _ _ _
   in natural-iso→preserves-colimits
     im'
     (よ-reverses-colimits (F-rep .rep)) colim

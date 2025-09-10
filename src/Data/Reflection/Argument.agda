@@ -121,7 +121,7 @@ instance
     auto
 
   Map-Arg : Map (eff Arg)
-  Map-Arg .Map.map f (arg ai x) = arg ai (f x)
+  Map-Arg .fmap f (arg ai x) = arg ai (f x)
 
   Traversable-Arg : Traversable (eff Arg)
   Traversable-Arg .Traversable.traverse f (arg ai x) = arg ai <$> f x

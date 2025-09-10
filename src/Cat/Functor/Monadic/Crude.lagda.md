@@ -136,7 +136,7 @@ module _
 ```agda
   -- N.B.: In the code we abbreviate "preserves reflexive coequalisers"
   -- by "prcoeq".
-  prcoeq→unit-is-iso : ∀ {o} → C^T.is-invertible (adj.unit.η o)
+  prcoeq→unit-is-iso : ∀ {o} → C^T.is-invertible (adj.unit.map o)
   prcoeq→unit-is-iso {o} = C^T.make-invertible inverse
     (ext η⁻¹η) (ext ηη⁻¹) where
 ```
@@ -152,7 +152,7 @@ triangle identities for $F \dashv U$ and the algebra laws.
         (UF.₁ (o .snd .ν)) (U.₁ (counit.ε (F.₀ (o .fst))))
         (U.₁ (has-coeq o .coeq))
       preserved =
-        U-pres (F.₁ (unit.η _)) (F.annihilate (o .snd .ν-unit)) zig
+        U-pres (F.₁ (unit.map _)) (F.annihilate (o .snd .ν-unit)) zig
           (has-coeq o)
 ```
 
@@ -180,8 +180,8 @@ we're seeking.
 
 ```agda
     η⁻¹ : C.Hom (U.₀ (coapex (has-coeq o))) (o .fst)
-    η⁻¹η : adj.unit.η _ .fst C.∘ η⁻¹ ≡ C.id
-    ηη⁻¹ : η⁻¹ C.∘ adj.unit.η _ .fst ≡ C.id
+    η⁻¹η : adj.unit.map _ .fst C.∘ η⁻¹ ≡ C.id
+    ηη⁻¹ : η⁻¹ C.∘ adj.unit.map _ .fst ≡ C.id
 
     η⁻¹ = preserved .universal {e' = o .snd .ν} (sym (o .snd .ν-mult))
 
@@ -189,7 +189,7 @@ we're seeking.
       {e' = U.₁ (has-coeq o .coeq)}
       (preserved .coequal)
       (C.pullr (preserved .factors)
-       ∙ C.pullr (unit.is-natural _ _ _)
+       ∙ C.pullr (unit.com _ _ _)
        ∙ C.pulll (preserved .coequal)
        ∙ C.cancelr zag)
       (C.idl _)
@@ -206,10 +206,10 @@ is a calculation reusing the established proof that $\eta\inv\eta =
     inverse .fst = η⁻¹
     inverse .snd =
       η⁻¹ C.∘ U.₁ (counit.ε _)                                                              ≡⟨ C.refl⟩∘⟨ ap U.₁ (D.intror (F.annihilate (C.assoc _ _ _ ∙ η⁻¹η))) ⟩
-      η⁻¹ C.∘ U.₁ (counit.ε _ D.∘ F.₁ (U.₁ (has-coeq o .coeq)) D.∘ F.₁ (unit.η _ C.∘ η⁻¹))  ≡⟨ C.refl⟩∘⟨ ap U.₁ (D.extendl (counit.is-natural _ _ _)) ⟩
-      η⁻¹ C.∘ U.₁ (has-coeq o .coeq D.∘ counit.ε _ D.∘ F.₁ (unit.η _ C.∘ η⁻¹))              ≡⟨ C.refl⟩∘⟨ U.F-∘ _ _ ⟩
-      η⁻¹ C.∘ U.₁ (has-coeq o .coeq) C.∘ U.₁ (counit.ε _ D.∘ F.₁ (unit.η _ C.∘ η⁻¹))        ≡⟨ C.pulll (preserved .factors) ⟩
-      o .snd .ν C.∘ U.₁ (counit.ε _ D.∘ F.₁ (unit.η _ C.∘ η⁻¹))                             ≡⟨ C.refl⟩∘⟨ ap U.₁ (ap (counit.ε _ D.∘_) (F.F-∘ _ _) ∙ D.cancell zig) ⟩
+      η⁻¹ C.∘ U.₁ (counit.ε _ D.∘ F.₁ (U.₁ (has-coeq o .coeq)) D.∘ F.₁ (unit.map _ C.∘ η⁻¹))  ≡⟨ C.refl⟩∘⟨ ap U.₁ (D.extendl (counit.com _ _ _)) ⟩
+      η⁻¹ C.∘ U.₁ (has-coeq o .coeq D.∘ counit.ε _ D.∘ F.₁ (unit.map _ C.∘ η⁻¹))              ≡⟨ C.refl⟩∘⟨ U.F-∘ _ _ ⟩
+      η⁻¹ C.∘ U.₁ (has-coeq o .coeq) C.∘ U.₁ (counit.ε _ D.∘ F.₁ (unit.map _ C.∘ η⁻¹))        ≡⟨ C.pulll (preserved .factors) ⟩
+      o .snd .ν C.∘ U.₁ (counit.ε _ D.∘ F.₁ (unit.map _ C.∘ η⁻¹))                             ≡⟨ C.refl⟩∘⟨ ap U.₁ (ap (counit.ε _ D.∘_) (F.F-∘ _ _) ∙ D.cancell zig) ⟩
       o .snd .ν C.∘ UF.₁ η⁻¹                                                                ∎
 ```
 
@@ -249,7 +249,7 @@ $U$ is conservative, so $\eps$ is an isomorphism, as desired.
     : ∀ {o} → is-conservative U → D.is-invertible (adj.counit.ε o)
   conservative-prcoeq→counit-is-iso {o} reflect-iso = reflect-iso $
     C.make-invertible
-      (U.₁ (coequ .coeq) C.∘ unit.η _) (U.pulll (coequ .factors) ∙ zag)
+      (U.₁ (coequ .coeq) C.∘ unit.map _) (U.pulll (coequ .factors) ∙ zag)
       inversel
     where
 
@@ -261,14 +261,14 @@ $U$ is conservative, so $\eps$ is an isomorphism, as desired.
         (UF.₁ (oalg .snd .ν)) (U.₁ (counit.ε (F.₀ (oalg .fst))))
         (U.₁ (coequ .coeq))
       preserved =
-        U-pres (F.₁ (unit.η _)) (F.annihilate (oalg .snd .ν-unit)) zig coequ
+        U-pres (F.₁ (unit.map _)) (F.annihilate (oalg .snd .ν-unit)) zig coequ
 
     inversel =
       is-coequaliser.unique₂ preserved
         {e' = U.₁ (coequ .coeq)}
         (preserved .coequal)
         (C.pullr (U.collapse (coequ .factors))
-            ∙ C.pullr (unit.is-natural _ _ _)
+            ∙ C.pullr (unit.com _ _ _)
             ∙ C.pulll (preserved .coequal)
             ∙ C.cancelr zag)
         (C.idl _)

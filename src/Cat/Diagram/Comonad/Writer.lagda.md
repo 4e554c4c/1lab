@@ -62,8 +62,8 @@ us:
 
 ```agda
   Writer-comonad : Comonad-on Writer
-  Writer-comonad .counit .η x = π₂
-  Writer-comonad .comult .η x = ⟨ π₁ , id ⟩
+  Writer-comonad .counit .map x = π₂
+  Writer-comonad .comult .map x = ⟨ π₁ , id ⟩
 ```
 
 <details>
@@ -72,8 +72,8 @@ structure are routine reasoning about products, and so we will leave
 them in this `<details>`{.html} block for the curious reader.</summary>
 
 ```agda
-  Writer-comonad .counit .is-natural x y f = π₂∘⟨⟩
-  Writer-comonad .comult .is-natural x y f = unique₂
+  Writer-comonad .counit .com x y f = π₂∘⟨⟩
+  Writer-comonad .comult .com x y f = unique₂
     (pulll π₁∘⟨⟩ ∙ π₁∘⟨⟩) (pulll π₂∘⟨⟩ ∙ idl _)
     (pulll π₁∘⟨⟩ ∙ π₁∘⟨⟩) (pulll π₂∘⟨⟩ ∙ cancelr π₂∘⟨⟩)
   Writer-comonad .δ-unitl = unique₂
@@ -113,8 +113,8 @@ by juxtaposition.
     module m = Monoid-on monoid
 
     mk : Monad-on _
-    mk .unit .η x = ⟨ m.η ∘ ! , id ⟩
-    mk .mult .η x = ⟨ m.μ ∘ ⟨ π₁ , π₁ ∘ π₂ ⟩ , π₂ ∘ π₂ ⟩
+    mk .unit .map x = ⟨ m.map ∘ ! , id ⟩
+    mk .mult .map x = ⟨ m.μ ∘ ⟨ π₁ , π₁ ∘ π₂ ⟩ , π₂ ∘ π₂ ⟩
 ```
 
 Above, we have written these structure maps in point-free style. The
@@ -125,23 +125,23 @@ Implementing this is, again, mostly an exercise in dealing with
 products.
 
 ```agda
-    mk .unit .is-natural x y f = ⟨⟩-unique₂ (pulll π₁∘⟨⟩) (pulll π₂∘⟨⟩ ∙ idl f)
+    mk .unit .com x y f = ⟨⟩-unique₂ (pulll π₁∘⟨⟩) (pulll π₂∘⟨⟩ ∙ idl f)
       (pulll π₁∘⟨⟩ ∙ π₁∘⟨⟩ ∙ sym (pullr (sym (!-unique _))))
       (pulll π₂∘⟨⟩ ∙ pullr π₂∘⟨⟩ ∙ idr f)
-    mk .mult .is-natural x y f = products! products
+    mk .mult .com x y f = products! products
     mk .μ-unitr =
       let
         lemma =
-          m.μ ∘ ⟨ π₁ , m.η ∘ ! ∘ π₂ ⟩               ≡˘⟨ ap₂ _∘_ refl (⟨⟩-unique (pulll π₁∘⟨⟩ ∙ pullr π₁∘⟨⟩ ∙ idl π₁) (pulll π₂∘⟨⟩ ∙ pullr π₂∘⟨⟩ ∙ ap₂ _∘_ refl (!-unique _))) ⟩
-          m.μ ∘ ⟨ id ∘ π₁ , m.η ∘ π₂ ⟩ ∘ ⟨ π₁ , ! ⟩ ≡⟨ pulll m.μ-unitr ⟩
+          m.μ ∘ ⟨ π₁ , m.map ∘ ! ∘ π₂ ⟩               ≡˘⟨ ap₂ _∘_ refl (⟨⟩-unique (pulll π₁∘⟨⟩ ∙ pullr π₁∘⟨⟩ ∙ idl π₁) (pulll π₂∘⟨⟩ ∙ pullr π₂∘⟨⟩ ∙ ap₂ _∘_ refl (!-unique _))) ⟩
+          m.μ ∘ ⟨ id ∘ π₁ , m.map ∘ π₂ ⟩ ∘ ⟨ π₁ , ! ⟩ ≡⟨ pulll m.μ-unitr ⟩
           π₁ ∘ ⟨ π₁ , ! ⟩                           ≡⟨ π₁∘⟨⟩ ⟩
           π₁                                        ∎
       in ⟨⟩-unique₂ (products! products ∙ lemma) (products! products) (idr π₁) (idr π₂)
     mk .μ-unitl =
       let
         lemma =
-          m.μ ∘ ⟨ m.η ∘ ! , π₁ ⟩                    ≡˘⟨ ap₂ _∘_ refl (⟨⟩-unique (pulll π₁∘⟨⟩ ∙ pullr π₁∘⟨⟩) (pulll π₂∘⟨⟩ ∙ pullr π₂∘⟨⟩ ∙ idl π₁)) ⟩
-          m.μ ∘ ⟨ m.η ∘ π₁ , id ∘ π₂ ⟩ ∘ ⟨ ! , π₁ ⟩ ≡⟨ pulll m.μ-unitl ⟩
+          m.μ ∘ ⟨ m.map ∘ ! , π₁ ⟩                    ≡˘⟨ ap₂ _∘_ refl (⟨⟩-unique (pulll π₁∘⟨⟩ ∙ pullr π₁∘⟨⟩) (pulll π₂∘⟨⟩ ∙ pullr π₂∘⟨⟩ ∙ idl π₁)) ⟩
+          m.μ ∘ ⟨ m.map ∘ π₁ , id ∘ π₂ ⟩ ∘ ⟨ ! , π₁ ⟩ ≡⟨ pulll m.μ-unitl ⟩
           π₂ ∘ ⟨ ! , π₁ ⟩                           ≡⟨ π₂∘⟨⟩ ⟩
           π₁                                        ∎
       in ⟨⟩-unique₂ (products! products ∙ lemma) (products! products) (idr π₁) (idr π₂)

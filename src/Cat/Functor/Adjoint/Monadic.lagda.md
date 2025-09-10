@@ -75,7 +75,7 @@ Comparison-EM .F₀ x = R.₀ x , alg where
   alg : Algebra-on R∘L (R.₀ x)
   alg .Algebra-on.ν = R.₁ (adj.counit.ε _)
   alg .Algebra-on.ν-unit = adj.zag
-  alg .Algebra-on.ν-mult = R.weave (sym $ adj.counit.is-natural _ _ _)
+  alg .Algebra-on.ν-mult = R.weave (sym $ adj.counit.com _ _ _)
 ```
 
 <details>
@@ -83,7 +83,7 @@ Comparison-EM .F₀ x = R.₀ x , alg where
 
 ```agda
 Comparison-EM .F₁ x .fst = R.₁ x
-Comparison-EM .F₁ x .snd = R.weave (sym (adj.counit.is-natural _ _ _))
+Comparison-EM .F₁ x .snd = R.weave (sym (adj.counit.com _ _ _))
 Comparison-EM .F-id    = ext R.F-id
 Comparison-EM .F-∘ f g = ext (R.F-∘ _ _)
 ```

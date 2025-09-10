@@ -189,12 +189,12 @@ module _ (pullbacks : ∀ {X Y Z} f g → Pullback C {X} {Y} {Z} f g) {X Y : Ob}
   open _=>_
 
   Σf⊣f* : Σf f ⊣ Base-change pullbacks f
-  Σf⊣f* .unit .η obj = dh where
+  Σf⊣f* .unit .map obj = dh where
     module pb = Pullback (pullbacks (f ∘ obj .map) f)
     dh : /-Hom _ _
     dh .map = pb.universal {p₁' = id} {p₂' = obj .map} (idr _)
     dh .com = pb.p₂∘universal
-  Σf⊣f* .unit .is-natural x y g =
+  Σf⊣f* .unit .com x y g =
     ext (pb.unique₂
       {p = (f ∘ y .map) ∘ id ∘ g .map ≡⟨ cat! C ⟩ f ∘ y .map ∘ g .map ∎}
       (pulll pb.p₁∘universal)
@@ -205,12 +205,12 @@ module _ (pullbacks : ∀ {X Y Z} f g → Pullback C {X} {Y} {Z} f g) {X Y : Ob}
       module pb = Pullback (pullbacks (f ∘ y .map) f)
       module pb' = Pullback (pullbacks (f ∘ x .map) f)
 
-  Σf⊣f* .counit .η obj = dh where
+  Σf⊣f* .counit .map obj = dh where
     module pb = Pullback (pullbacks (obj .map) f)
     dh : /-Hom _ _
     dh .map = pb.p₁
     dh .com = pb.square
-  Σf⊣f* .counit .is-natural x y g = ext pb.p₁∘universal
+  Σf⊣f* .counit .com x y g = ext pb.p₁∘universal
     where module pb = Pullback (pullbacks (y .map) f)
 
   Σf⊣f* .zig {A} = ext pb.p₁∘universal
@@ -301,7 +301,7 @@ is-equifibred
   → F => G → Type _
 is-equifibred {J = J} {F} {G} α =
   ∀ {x y} (f : J .Precategory.Hom x y)
-  → is-pullback C (F .F₁ f) (α .η y) (α .η x) (G .F₁ f)
+  → is-pullback C (F .F₁ f) (α .map y) (α .map x) (G .F₁ f)
 ```
 
 An easy property of equifibered transformations is that they are

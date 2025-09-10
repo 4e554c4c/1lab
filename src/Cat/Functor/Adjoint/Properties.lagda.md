@@ -189,7 +189,7 @@ Finally, $\eta \circ s = \id$, as $s$ is a section.
     let module s = C.has-section s
     let in-im : L.₁ (s.section C.∘ L-adjunct L⊣R f) ≡ f
         in-im = L-adjunct.injective L⊣R $
-          R.₁ (L.₁ (s.section C.∘ R.₁ f C.∘ η _)) C.∘ η _ ≡˘⟨ unit.is-natural _ _ _ ⟩
+          R.₁ (L.₁ (s.section C.∘ R.₁ f C.∘ η _)) C.∘ η _ ≡˘⟨ unit.com _ _ _ ⟩
           η _ C.∘ s.section C.∘ R.F₁ f C.∘ η _            ≡⟨ C.cancell s.is-section ⟩
           R.₁ f C.∘ η _                                   ∎
     pure (s.section C.∘ L-adjunct L⊣R f , in-im)
@@ -223,6 +223,6 @@ Dual results hold for full right adjoints and split monos.
     let module r = D.has-retract r
     pure $
       R-adjunct L⊣R f D.∘ r.retract ,
-      R-adjunct.injective L⊣R (counit.is-natural _ _ _ ∙ D.cancelr r.is-retract)
+      R-adjunct.injective L⊣R (counit.com _ _ _ ∙ D.cancelr r.is-retract)
 ```
 -->

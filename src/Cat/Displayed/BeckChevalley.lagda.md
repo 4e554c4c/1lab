@@ -577,7 +577,7 @@ h^{*}f_{!}$ via the calculus of [[mates]].
         comparison b' =
           mate Lᶠ⊣f^* Lᵏ⊣k^*
             (base-change E E-fib g) (base-change E E-fib h)
-            (Isoⁿ.to (base-change-square-ni E E-fib p)) .η b'
+            (Isoⁿ.to (base-change-square-ni E E-fib p)) .map b'
 ```
 
 Moreover, the comparison map we get from the mate of $g^{*}f^{*} \iso

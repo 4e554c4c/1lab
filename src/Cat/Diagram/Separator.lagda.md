@@ -596,8 +596,8 @@ by $S_i$ into $[\cC, \Sets]$
     → is-dense-separating-family sᵢ
   jointly-ff→dense-separating-family joint-ff .universal eta p =
     equiv→inverse joint-ff λ where
-      .η → eta
-      .is-natural _ _ g → ext λ f → p f g
+      .map → eta
+      .com _ _ g → ext λ f → p f g
   jointly-ff→dense-separating-family joint-ff .commute {i = i} {eᵢ = eᵢ} =
     equiv→counit joint-ff _ ηₚ i $ₚ eᵢ
   jointly-ff→dense-separating-family joint-ff .unique h p =
@@ -608,7 +608,7 @@ by $S_i$ into $[\cC, \Sets]$
     → is-jointly-fully-faithful (よcov C F∘ Functor.op (Forget-family sᵢ))
   dense-separating-family→jointly-ff dense =
     is-iso→is-equiv $ iso
-      (λ α → dense .universal (α .η) (λ f g → α .is-natural _ _ g $ₚ f))
+      (λ α → dense .universal (α .map) (λ f g → α .com _ _ g $ₚ f))
       (λ α → ext λ i eᵢ → dense .commute)
       λ h → sym (dense .unique h λ i eᵢ → refl)
 ```

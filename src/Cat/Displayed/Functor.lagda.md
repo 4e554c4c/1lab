@@ -461,10 +461,10 @@ module
     no-eta-equality
 
     field
-      η' : ∀ {x} (x' : ℰ.Ob[ x ]) → ℱ.Hom[ α .η x ] (F' .F₀' x') (G' .F₀' x')
+      η' : ∀ {x} (x' : ℰ.Ob[ x ]) → ℱ.Hom[ α .map x ] (F' .F₀' x') (G' .F₀' x')
       is-natural'
         : ∀ {x y f} (x' : ℰ.Ob[ x ]) (y' : ℰ.Ob[ y ]) (f' : ℰ.Hom[ f ] x' y')
-        → η' y' ℱ.∘' F' .F₁' f' ℱ.≡[ α .is-natural x y f ] G' .F₁' f' ℱ.∘' η' x'
+        → η' y' ℱ.∘' F' .F₁' f' ℱ.≡[ α .com x y f ] G' .F₁' f' ℱ.∘' η' x'
 ```
 
 ::: {.definition #vertical-natural-transformation}
@@ -519,7 +519,7 @@ module _
       : ∀ {ℓr F' G'}
       → ⦃ _ : Extensional (∀ {x} (x' : ℰ.Ob[ x ]) → ℱ.Hom[ id ] (F' .F₀' x') (G' .F₀' x')) ℓr ⦄
       → Extensional (F' =>↓ G') ℓr
-    Extensional-=>↓ {F' = F'} {G' = G'}  ⦃ e ⦄  = injection→extensional! {f = _=>↓_.η'}
+    Extensional-=>↓ {F' = F'} {G' = G'}  ⦃ e ⦄  = injection→extensional! {f = _=>↓_.map'}
       (λ p → Iso.injective eqv (Σ-prop-path! p)) e
 
     H-Level-=>↓ : ∀ {F' G'} {n} → H-Level (F' =>↓ G') (2 + n)
@@ -528,19 +528,19 @@ module _
   open _=>↓_
 
   idnt↓ : ∀ {F} → F =>↓ F
-  idnt↓ .η' x' = ℱ.id'
-  idnt↓ .is-natural' x' y' f' = ℱ.to-pathp[] (DR.id-comm[] ℱ)
+  idnt↓ .map' x' = ℱ.id'
+  idnt↓ .com' x' y' f' = ℱ.to-pathp[] (DR.id-comm[] ℱ)
 
   _∘nt↓_ : ∀ {F G H} → G =>↓ H → F =>↓ G → F =>↓ H
-  (f ∘nt↓ g) .η' x' = f .η' _ ℱ↓.∘ g .η' x'
-  _∘nt↓_ {F = F} {G = G} {H = H} f g .is-natural' {f = b} x' y' f' =
+  (f ∘nt↓ g) .map' x' = f .map' _ ℱ↓.∘ g .map' x'
+  _∘nt↓_ {F = F} {G = G} {H = H} f g .com' {f = b} x' y' f' =
     let open DR ℱ in to-pathp[] (
         ap hom[] (whisker-l (idl id))
     ∙∙ sym (duplicate (ap (_∘ b) (idl id) ∙ id-comm-sym) _ _)
-    ∙∙ ap hom[] (from-pathp[]⁻ (pullr' id-comm-sym (g .is-natural' _ _ _)
+    ∙∙ ap hom[] (from-pathp[]⁻ (pullr' id-comm-sym (g .com' _ _ _)
           {q = ap (_∘ b) (idl id) ∙ id-comm-sym ∙ introl refl}))
     ∙∙ sym (duplicate (eliml refl) _ _)
-    ∙∙ ap hom[] (from-pathp[]⁻ (extendl' id-comm-sym (f .is-natural' x' y' f') {q = extendl id-comm-sym}))
+    ∙∙ ap hom[] (from-pathp[]⁻ (extendl' id-comm-sym (f .com' x' y' f') {q = extendl id-comm-sym}))
     ∙∙ sym (duplicate (ap (b ∘_) (idl id)) (eliml refl) _)
     ∙∙ unwhisker-r _ _)
 
@@ -559,14 +559,14 @@ module _
   private module E {x} = CR (Fibre ℰ x) using (_∘_)
 
   _◆↓_ : (F ∘V H) =>↓ (G ∘V K)
-  _◆↓_ .η' x' = G .F₁' (β .η' _) E.∘ α .η' _
-  _◆↓_ .is-natural' x' y' f' = to-pathp[] (
+  _◆↓_ .map' x' = G .F₁' (β .map' _) E.∘ α .map' _
+  _◆↓_ .com' x' y' f' = to-pathp[] (
       ap hom[] (whisker-l (idl id))
       ∙∙ sym (duplicate (ap (_∘ _) (idl id) ∙ id-comm-sym) _ _)
-      ∙∙ ap hom[] (from-pathp[]⁻ (pullr' _ (α .is-natural' _ _ _) {q = pullr id-comm-sym}))
+      ∙∙ ap hom[] (from-pathp[]⁻ (pullr' _ (α .com' _ _ _) {q = pullr id-comm-sym}))
       ∙∙ sym (duplicate (eliml refl) _ _)
       ∙∙ ap hom[] (from-pathp[]⁻
-        (extendl' _ (symP (G .F-∘') ∙[] (apd (λ i → G .F₁') (β .is-natural' _ _ _) ∙[] G .F-∘'))
+        (extendl' _ (symP (G .F-∘') ∙[] (apd (λ i → G .F₁') (β .com' _ _ _) ∙[] G .F-∘'))
           {q = extendl id-comm-sym}))
       ∙∙ sym (duplicate (ap (_ ∘_) (idl id)) _ _) ∙∙ unwhisker-r _ _)
     where open DR ℰ

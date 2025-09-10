@@ -381,8 +381,8 @@ of is a projection $\Gamma.A \to \Gamma$.
 
 ```agda
   proj : Extend => πᶠ E
-  proj .η (Γ , x) = πᶜ
-  proj .is-natural (Γ , x) (Δ , y) (∫hom σ f) =
+  proj .map (Γ , x) = πᶜ
+  proj .com (Γ , x) (Δ , y) (∫hom σ f) =
     sub-proj f
 ```
 
@@ -462,13 +462,13 @@ is given by duplication.
 
 ```agda
   comonad : Comonad-on comprehend
-  comonad .counit .η (Γ , x) =
+  comonad .counit .map (Γ , x) =
     ∫hom πᶜ πᶜ'
-  comonad .counit .is-natural (Γ , x) (Δ , g) (∫hom σ f) =
+  comonad .counit .com (Γ , x) (Δ , g) (∫hom σ f) =
     ∫Hom-path E (sub-proj f) (sub-proj' f)
-  comonad .comult .η (Γ , x) =
+  comonad .comult .map (Γ , x) =
     ∫hom δᶜ δᶜ'
-  comonad .comult .is-natural (Γ , x) (Δ , g) (∫hom σ f) =
+  comonad .comult .com (Γ , x) (Δ , g) (∫hom σ f) =
     ∫Hom-path E dup-extend dup-extend'
   comonad .δ-unitl =
     ∫Hom-path E extend-proj-dup extend-proj-dup'
@@ -523,7 +523,7 @@ Comonad→comprehension fib comp-comonad = comprehension where
   vert .F₀' {Γ} x = cut (counit.ε (Γ , x) .fst)
   vert .F₁' {f = σ} f = record where
     map = W₁ (∫hom σ f) .fst
-    com = ap fst (counit.is-natural _ _ _)
+    com = ap fst (counit.com _ _ _)
   vert .F-id' = Slice-path (ap fst W-id)
   vert .F-∘'  = Slice-path (ap fst (W-∘ _ _))
 ```

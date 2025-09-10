@@ -96,28 +96,28 @@ $\lambda$) are the **right unitor** (resp. **left unitor**).
   λ≅ = isoⁿ→iso unitor-l _
 
   λ← : ∀ {X} → Hom (Unit ⊗ X) X
-  λ← = unitor-l .Cr._≅_.from .η _
+  λ← = unitor-l .Cr._≅_.from .map _
 
   λ→ : ∀ {X} → Hom X (Unit ⊗ X)
-  λ→ = unitor-l .Cr._≅_.to .η _
+  λ→ = unitor-l .Cr._≅_.to .map _
 
   ρ≅ : ∀ {X} → X ≅ X ⊗ Unit
   ρ≅ = isoⁿ→iso unitor-r _
 
   ρ← : ∀ {X} → Hom (X ⊗ Unit) X
-  ρ← = unitor-r .Cr._≅_.from .η _
+  ρ← = unitor-r .Cr._≅_.from .map _
 
   ρ→ : ∀ {X} → Hom X (X ⊗ Unit)
-  ρ→ = unitor-r .Cr._≅_.to .η _
+  ρ→ = unitor-r .Cr._≅_.to .map _
 
   α≅ : ∀ {A B C} → (A ⊗ B) ⊗ C ≅ A ⊗ (B ⊗ C)
   α≅ = isoⁿ→iso associator _
 
   α→ : ∀ A B C → Hom ((A ⊗ B) ⊗ C) (A ⊗ (B ⊗ C))
-  α→ _ _ _ = associator .Cr._≅_.to .η _
+  α→ _ _ _ = associator .Cr._≅_.to .map _
 
   α← : ∀ A B C → Hom (A ⊗ (B ⊗ C)) ((A ⊗ B) ⊗ C)
-  α← _ _ _ = associator .Cr._≅_.from .η _
+  α← _ _ _ = associator .Cr._≅_.from .map _
 
   module ⊗ = Fr -⊗-
   module ▶ {A} = Fr (-⊗-.Right A)
@@ -243,7 +243,7 @@ Endomorphisms B a = mon where
     ni .inv _ = B.α← _ _ _
     ni .eta∘inv _ = Cr.invl _ B.associator ηₚ _
     ni .inv∘eta _ = Cr.invr _ B.associator ηₚ _
-    ni .natural x y f = sym $ Cr.to B.associator .is-natural _ _ _
+    ni .natural x y f = sym $ Cr.to B.associator .com _ _ _
   mon .triangle = B.triangle _ _
   mon .pentagon = B.pentagon _ _ _ _
 ```
@@ -312,14 +312,14 @@ desired equation since $1 \otimes -$ is an equivalence.
       sq2 : ◀.F-map-iso (◀.F-map-iso (ρ≅ Iso⁻¹)) ∙Iso α≅
           ≡ (α≅ ∙Iso α≅) ∙Iso ▶.F-map-iso (λ≅ Iso⁻¹)
       sq2 = ≅-path $
-        α→ _ _ _ ∘ ((ρ← ⊗₁ id) ⊗₁ id)    ≡⟨ associator .Isoⁿ.to .is-natural _ _ _ ⟩
+        α→ _ _ _ ∘ ((ρ← ⊗₁ id) ⊗₁ id)    ≡⟨ associator .Isoⁿ.to .com _ _ _ ⟩
         (ρ← ⊗₁ ⌜ id ⊗₁ id ⌝) ∘ α→ _ _ _  ≡⟨ ap! ⊗.F-id ⟩
         (ρ← ⊗₁ id) ∘ α→ _ _ _            ≡˘⟨ pulll triangle-α→ ⟩
         (id ⊗₁ λ←) ∘ α→ _ _ _ ∘ α→ _ _ _ ∎
 
       sq3 : ◀.F-map-iso (▶.F-map-iso (λ≅ Iso⁻¹)) ∙Iso α≅
           ≡ α≅ ∙Iso ▶.F-map-iso (◀.F-map-iso (λ≅ Iso⁻¹))
-      sq3 = ≅-path (associator .Isoⁿ.to .is-natural _ _ _)
+      sq3 = ≅-path (associator .Isoⁿ.to .com _ _ _)
 ```
 
 As a consequence, we get that the two unitors $1 \otimes 1 \to 1$ agree:
@@ -328,7 +328,7 @@ As a consequence, we get that the two unitors $1 \otimes 1 \to 1$ agree:
   λ≡ρ : λ← {Unit} ≡ ρ← {Unit}
   λ≡ρ = push-eqⁿ (unitor-r ni⁻¹) $
     (λ← ⊗₁ id)            ≡˘⟨ triangle-λ← ⟩
-    λ← ∘ α→ _ _ _         ≡⟨ (insertl (λ≅ .invl) ∙∙ refl⟩∘⟨ sym (unitor-l .Isoⁿ.from .is-natural _ _ _) ∙∙ cancell (λ≅ .invl)) ⟩∘⟨refl ⟩
+    λ← ∘ α→ _ _ _         ≡⟨ (insertl (λ≅ .invl) ∙∙ refl⟩∘⟨ sym (unitor-l .Isoⁿ.from .com _ _ _) ∙∙ cancell (λ≅ .invl)) ⟩∘⟨refl ⟩
     (id ⊗₁ λ←) ∘ α→ _ _ _ ≡⟨ triangle-α→ ⟩
     (ρ← ⊗₁ id)            ∎
 ```

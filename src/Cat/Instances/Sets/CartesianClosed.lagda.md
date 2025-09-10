@@ -63,17 +63,17 @@ module _ {A B : Set ℓ} (func : ∣ A ∣ → ∣ B ∣) where
 Sets-lcc : Locally-cartesian-closed (Sets ℓ)
 Sets-lcc = dependent-product→lcc (Sets ℓ) Sets-finitely-complete Sets-Π adj where
   adj : ∀ {a b : Set ℓ} (f : ∣ a ∣ → ∣ b ∣) → Base-change _ {X = b} {Y = a} f ⊣ Sets-Π f
-  adj f .unit   .η x .map y = x .map y , λ f → (_ , _ , sym (f .snd)) , refl
-  adj f .counit .η x .map ((a , g) , b , p) = g (b , sym p) .fst
-  adj f .unit .η x .com = refl
-  adj {a} {b} f .unit .is-natural x y g =
+  adj f .unit   .map x .map y = x .map y , λ f → (_ , _ , sym (f .snd)) , refl
+  adj f .counit .map x .map ((a , g) , b , p) = g (b , sym p) .fst
+  adj f .unit .map x .com = refl
+  adj {a} {b} f .unit .com x y g =
     /-Hom-path (funext λ x → Σ-pathp (happly (g .com) _)
       (funext-dep (λ p → Σ-pathp (Σ-pathp refl (Σ-pathp (λ i → p i .fst)
         (is-set→squarep (λ i j → b .is-tr) _ _ _ _)))
         (is-set→squarep (λ i j → a .is-tr) _ _ _ _))))
-  adj f .counit .η x .com = funext λ where
+  adj f .counit .map x .com = funext λ where
     ((a , g) , b , p) → g (b , sym p) .snd
-  adj {a} {b} f .counit .is-natural x y g =
+  adj {a} {b} f .counit .com x y g =
     /-Hom-path (funext λ x → ap (g .map ⊙ fst ⊙ x .fst .snd)
       (Σ-pathp refl (b .is-tr _ _ _ _)))
   adj {a} {b} f .zig {A} =

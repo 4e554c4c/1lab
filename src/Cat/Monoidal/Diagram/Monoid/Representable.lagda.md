@@ -94,7 +94,7 @@ $$.
     hom-mon : make-monoid (Hom x m)
     hom-mon .monoid-is-set = hlevel 2
     hom-mon ._⋆_ f g = mon .μ ∘ ⟨ f , g ⟩
-    hom-mon .1M = mon .η ∘ !
+    hom-mon .1M = mon .map ∘ !
 ```
 
 <details>
@@ -108,13 +108,13 @@ diagram "relativize" to each $\hom$-set.</summary>
       mon .μ ∘ ((mon .μ ⊗₁ id) ∘ ⟨ ⟨ π₁ , π₁ ∘ π₂ ⟩ , π₂ ∘ π₂ ⟩) ∘ ⟨ f , ⟨ g , h ⟩ ⟩ ≡⟨ products! products ⟩
       mon .μ ∘ ⟨ mon .μ ∘ ⟨ f , g ⟩ , h ⟩                                            ∎
     hom-mon .⋆-idl f =
-      mon .μ ∘ ⟨ mon .η ∘ ! , f ⟩         ≡⟨ products! products ⟩
-      mon .μ ∘ (mon .η ⊗₁ id) ∘ ⟨ ! , f ⟩ ≡⟨ pulll (mon .μ-unitl) ⟩
+      mon .μ ∘ ⟨ mon .map ∘ ! , f ⟩         ≡⟨ products! products ⟩
+      mon .μ ∘ (mon .map ⊗₁ id) ∘ ⟨ ! , f ⟩ ≡⟨ pulll (mon .μ-unitl) ⟩
       π₂ ∘ ⟨ ! , f ⟩                      ≡⟨ π₂∘⟨⟩ ⟩
       f                                   ∎
     hom-mon .⋆-idr f =
-      mon .μ ∘ ⟨ f , mon .η ∘ ! ⟩         ≡⟨ products! products ⟩
-      mon .μ ∘ (id ⊗₁ mon .η) ∘ ⟨ f , ! ⟩ ≡⟨ pulll (mon .μ-unitr) ⟩
+      mon .μ ∘ ⟨ f , mon .map ∘ ! ⟩         ≡⟨ products! products ⟩
+      mon .μ ∘ (id ⊗₁ mon .map) ∘ ⟨ f , ! ⟩ ≡⟨ pulll (mon .μ-unitr) ⟩
       π₁ ∘ ⟨ f , ! ⟩                      ≡⟨ π₁∘⟨⟩ ⟩
       f                                   ∎
 ```
@@ -138,8 +138,8 @@ answer is yes!
     → (f : Hom x y)
     → Monoid-hom (Mon→Hom-mon y mon) (Mon→Hom-mon x mon) (_∘ f)
   precompose-hom-mon-hom {mon = mon} f .pres-id =
-    (mon .η ∘ !) ∘ f ≡⟨ pullr (sym (!-unique (! ∘ f))) ⟩
-    mon .η ∘ !       ∎
+    (mon .map ∘ !) ∘ f ≡⟨ pullr (sym (!-unique (! ∘ f))) ⟩
+    mon .map ∘ !       ∎
   precompose-hom-mon-hom {mon = mon} f .pres-⋆ g h =
     (mon .μ ∘ ⟨ g , h ⟩) ∘ f   ≡⟨ pullr (⟨⟩∘ f) ⟩
     mon .μ ∘ ⟨ g ∘ f , h ∘ f ⟩ ∎
@@ -200,8 +200,8 @@ homomorphism.... which it is!
     → C-Monoid-hom f m-mon n-mon
     → Monoid-hom (Mon→Hom-mon x m-mon) (Mon→Hom-mon x n-mon) (f ∘_)
   internal-mon-hom→hom-mon-hom {f = f} {m-mon} {n-mon} hom .pres-id =
-    f ∘ m-mon .η ∘ ! ≡⟨ pulll (hom .pres-η) ⟩
-    n-mon .η ∘ !     ∎
+    f ∘ m-mon .map ∘ ! ≡⟨ pulll (hom .pres-η) ⟩
+    n-mon .map ∘ !     ∎
   internal-mon-hom→hom-mon-hom {f = f} {m-mon} {n-mon} hom .pres-⋆ g h =
     f ∘ m-mon .μ ∘ ⟨ g , h ⟩       ≡⟨ extendl (hom .pres-μ) ⟩
     n-mon .μ ∘ f ⊗₁ f ∘ ⟨ g , h ⟩  ≡⟨ products! products ⟩
@@ -253,10 +253,10 @@ homomorphism $f : M \to N$ is a natural transformation $\hom(-, M) \to
   Mon→RepPShMon .F₀ (m , mon) .fst = Mon→PshMon mon
   Mon→RepPShMon .F₀ (m , mon) .snd = Mon→PshMon-rep mon
 
-  Mon→RepPShMon .F₁ f .η x .fst = f .fst ∘_
-  Mon→RepPShMon .F₁ f .η x .snd =
+  Mon→RepPShMon .F₁ f .map x .fst = f .fst ∘_
+  Mon→RepPShMon .F₁ f .map x .snd =
     internal-mon-hom→hom-mon-hom (f .snd)
-  Mon→RepPShMon .F₁ f .is-natural x y g = ext λ h → assoc (f .fst) h g
+  Mon→RepPShMon .F₁ f .com x y g = ext λ h → assoc (f .fst) h g
 
   Mon→RepPShMon .F-id = ext λ x f → idl f
   Mon→RepPShMon .F-∘ f g = ext λ x h → sym (assoc (f .fst) (g .fst) h)
@@ -273,31 +273,31 @@ functor is also [[fully faithful]].
   Nat→internal-mon-hom
     : ∀ {m n} {m-mon : C-Monoid m} {n-mon : C-Monoid n}
     → (α : Mon→PshMon m-mon => Mon→PshMon n-mon)
-    → C-Monoid-hom (α .η m · id) m-mon n-mon
+    → C-Monoid-hom (α .map m · id) m-mon n-mon
   Nat→internal-mon-hom {m} {n} {m-mon} {n-mon} α .pres-η =
-    (α .η m · id) ∘ (m-mon .η) ≡˘⟨ α .is-natural _ _ _ ·ₚ _ ⟩
-    α .η top · (id ∘ m-mon .η) ≡⟨ ap (α .η _ ·_) (id-comm-sym ∙ ap (m-mon .η ∘_) (sym (!-unique _))) ⟩
-    α .η top · (m-mon .η ∘ !)  ≡⟨ α .η _ .snd .pres-id ⟩
-    n-mon .η ∘ !               ≡⟨ elimr (!-unique _) ⟩
-    n-mon .η                   ∎
+    (α .map m · id) ∘ (m-mon .map) ≡˘⟨ α .com _ _ _ ·ₚ _ ⟩
+    α .map top · (id ∘ m-mon .map) ≡⟨ ap (α .map _ ·_) (id-comm-sym ∙ ap (m-mon .map ∘_) (sym (!-unique _))) ⟩
+    α .map top · (m-mon .map ∘ !)  ≡⟨ α .map _ .snd .pres-id ⟩
+    n-mon .map ∘ !               ≡⟨ elimr (!-unique _) ⟩
+    n-mon .map                   ∎
   Nat→internal-mon-hom {m} {n} {m-mon} {n-mon} α .pres-μ =
-    α .η m · id ∘ (m-mon .μ)                               ≡˘⟨ α .is-natural _ _ _ ·ₚ _ ⟩
-    α .η (m ⊗₀ m) · (id ∘ m-mon .μ)                        ≡⟨ ap (α .η _ ·_) (id-comm-sym ∙ ap (m-mon .μ ∘_) (sym ⟨⟩-η)) ⟩
-    α .η (m ⊗₀ m) · (m-mon .μ ∘ ⟨ π₁ , π₂ ⟩)               ≡⟨ α .η _ .snd .pres-⋆ _ _ ⟩
-    n-mon .μ ∘ ⟨ α .η _ · π₁ , α .η _ · π₂ ⟩               ≡˘⟨ ap (n-mon .μ ∘_) (ap₂ ⟨_,_⟩ (ap (α .η _ ·_) (idl _)) (ap (α .η _ ·_) (idl _))) ⟩
-    n-mon .μ ∘ ⟨ α .η _ · (id ∘ π₁) , α .η _ · (id ∘ π₂) ⟩ ≡⟨ ap (n-mon .μ ∘_) (ap₂ ⟨_,_⟩ (ap fst (α .is-natural _ _ _) $ₚ _) (ap fst (α .is-natural _ _ _) $ₚ _)) ⟩
-    n-mon .μ ∘ (α .η m · id ⊗₁ α .η m · id)                ∎
+    α .map m · id ∘ (m-mon .μ)                               ≡˘⟨ α .com _ _ _ ·ₚ _ ⟩
+    α .map (m ⊗₀ m) · (id ∘ m-mon .μ)                        ≡⟨ ap (α .map _ ·_) (id-comm-sym ∙ ap (m-mon .μ ∘_) (sym ⟨⟩-η)) ⟩
+    α .map (m ⊗₀ m) · (m-mon .μ ∘ ⟨ π₁ , π₂ ⟩)               ≡⟨ α .map _ .snd .pres-⋆ _ _ ⟩
+    n-mon .μ ∘ ⟨ α .map _ · π₁ , α .map _ · π₂ ⟩               ≡˘⟨ ap (n-mon .μ ∘_) (ap₂ ⟨_,_⟩ (ap (α .map _ ·_) (idl _)) (ap (α .map _ ·_) (idl _))) ⟩
+    n-mon .μ ∘ ⟨ α .map _ · (id ∘ π₁) , α .map _ · (id ∘ π₂) ⟩ ≡⟨ ap (n-mon .μ ∘_) (ap₂ ⟨_,_⟩ (ap fst (α .com _ _ _) $ₚ _) (ap fst (α .com _ _ _) $ₚ _)) ⟩
+    n-mon .μ ∘ (α .map m · id ⊗₁ α .map m · id)                ∎
 
   open is-iso
 
   Mon→RepPShMon-is-ff : is-fully-faithful Mon→RepPShMon
   Mon→RepPShMon-is-ff = is-iso→is-equiv λ where
-    .from α .fst → α .η _ · id
+    .from α .fst → α .map _ · id
     .from α .snd → Nat→internal-mon-hom α
     .rinv α → ext λ _ f →
-      α .η _ · id ∘ f   ≡˘⟨ ap fst (α .is-natural _ _ _) $ₚ _ ⟩
-      α .η _ · (id ∘ f) ≡⟨ ap (α .η _ ·_) (idl f) ⟩
-      α .η _ · f        ∎
+      α .map _ · id ∘ f   ≡˘⟨ ap fst (α .com _ _ _) $ₚ _ ⟩
+      α .map _ · (id ∘ f) ≡⟨ ap (α .map _ ·_) (idl f) ⟩
+      α .map _ · f        ∎
     .linv h → ∫Hom-path _ (idr _) prop!
 ```
 
@@ -331,7 +331,7 @@ identity this is the empty context^[The [[terminal object]].], for
 multiplication, this is the context $M \times M$.
 
 ```agda
-    Hom-mon→Mon id-nat ⋆-nat .η = identity {top}
+    Hom-mon→Mon id-nat ⋆-nat .map = identity {top}
     Hom-mon→Mon id-nat ⋆-nat .μ = π₁ ⋆ π₂
 ```
 
@@ -394,10 +394,10 @@ object $M : \cC$.
     open PMon hiding (idl; idr; associative)
 
     gen : ∀ {x} → PMon x → Hom x m
-    gen {x} px = repr.to .η x px
+    gen {x} px = repr.to .map x px
 
     elt : ∀ {x} → Hom x m → PMon x
-    elt {x} f = repr.from .η x f
+    elt {x} f = repr.from .map x f
 ```
 -->
 
@@ -464,7 +464,7 @@ substitution.
       : ∀ {w x} (f : Hom w x)
       → η* x ∘ f ≡ η* w
     η*-nat {w} {x} f =
-      (η* x) ∘ f                  ≡˘⟨ repr.to .is-natural _ _ _ $ₚ _ ⟩
+      (η* x) ∘ f                  ≡˘⟨ repr.to .com _ _ _ $ₚ _ ⟩
       gen (P .F₁ f .fst identity) ≡⟨ ap gen (P .F₁ f .snd .pres-id) ⟩
       η* w ∎
 
@@ -472,9 +472,9 @@ substitution.
       : ∀ {w x} (f g : Hom x m) (h : Hom w x)
       → μ* f g ∘ h ≡ μ* (f ∘ h) (g ∘ h)
     μ*-nat f g h =
-      μ* f g ∘ h                                            ≡˘⟨ repr.to .is-natural _ _ _ $ₚ _ ⟩
+      μ* f g ∘ h                                            ≡˘⟨ repr.to .com _ _ _ $ₚ _ ⟩
       gen (P .F₁ h .fst ((elt f) ⋆ (elt g)))                ≡⟨ ap gen (P .F₁ h .snd .pres-⋆ _ _) ⟩
-      gen ((P .F₁ h .fst (elt f)) ⋆ (P .F₁ h .fst (elt g))) ≡˘⟨ ap gen (ap₂ _⋆_ (repr.from .is-natural _ _ _ $ₚ _) (repr.from .is-natural _ _ _ $ₚ _)) ⟩
+      gen ((P .F₁ h .fst (elt f)) ⋆ (P .F₁ h .fst (elt g))) ≡˘⟨ ap gen (ap₂ _⋆_ (repr.from .com _ _ _ $ₚ _) (repr.from .com _ _ _ $ₚ _)) ⟩
       μ* (f ∘ h) (g ∘ h)                                    ∎
 ```
 
@@ -499,8 +499,8 @@ expand this `<details>` element.</summary>
 
 ```agda
     ni : make-natural-iso (Mon→PshMon (RepPshMon→Mon P pm)) P
-    ni .eta x .fst = repr.from .η x
-    ni .inv x .fst = repr.to .η x
+    ni .eta x .fst = repr.from .map x
+    ni .inv x .fst = repr.to .map x
 
     ni .eta x .snd .pres-id =
       elt (η* top ∘ !)           ≡⟨ ap elt (η*-nat !) ⟩
@@ -521,7 +521,7 @@ expand this `<details>` element.</summary>
 
     ni .eta∘inv x = ext (unext repr.invr x)
     ni .inv∘eta x = ext (unext repr.invl x)
-    ni .natural x y f = ext (sym (repr.from .is-natural _ _ _) $ₚ_)
+    ni .natural x y f = ext (sym (repr.from .com _ _ _) $ₚ_)
 ```
 </details>
 

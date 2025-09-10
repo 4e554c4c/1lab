@@ -277,8 +277,8 @@ a$. This is an intermediate step in what we have to do: construct a map
 $B \to \iota(X)$.
 
 ```agda
-      p : a→x ≡ b C.∘ unit.η _
-      p = sym (C.pullr (sym (unit.is-natural _ _ _)) ∙ C.cancell zag)
+      p : a→x ≡ b C.∘ unit.map _
+      p = sym (C.pullr (sym (unit.com _ _ _)) ∙ C.cancell zag)
 ```
 
 We define _that_ using the map $b$ we just constructed. It's the composite
@@ -292,12 +292,12 @@ $a$ through $f$.
 
 ```agda
       fact : C.Hom B (ι.₀ X)
-      fact = b C.∘ ι.₁ rf.inv C.∘ unit.η _
+      fact = b C.∘ ι.₁ rf.inv C.∘ unit.map _
 
       factors =
-        (b C.∘ ι.₁ rf.inv C.∘ unit.η B) C.∘ f      ≡⟨ C.pullr (C.pullr (unit.is-natural _ _ _)) ⟩
-        b C.∘ ι.₁ rf.inv C.∘ (ιr.₁ f) C.∘ unit.η A ≡⟨ C.refl⟩∘⟨ C.cancell (ι.annihilate rf.invr) ⟩
-        b C.∘ unit.η A                             ≡˘⟨ p ⟩
+        (b C.∘ ι.₁ rf.inv C.∘ unit.map B) C.∘ f      ≡⟨ C.pullr (C.pullr (unit.com _ _ _)) ⟩
+        b C.∘ ι.₁ rf.inv C.∘ (ιr.₁ f) C.∘ unit.map A ≡⟨ C.refl⟩∘⟨ C.cancell (ι.annihilate rf.invr) ⟩
+        b C.∘ unit.map A                             ≡˘⟨ p ⟩
         a→x                                        ∎
 ```
 
@@ -319,10 +319,10 @@ k$.
         rh≡rk = D.invertible→epic rf-inv (r.₁ h) (r.₁ k) (r.weave (p ∙ sym q))
 
         h≡k = C.invertible→monic (is-reflective→unit-right-is-iso r⊣ι ι-ff) _ _ $
-          unit.η (ι.₀ X) C.∘ h ≡⟨ unit.is-natural _ _ _ ⟩
-          ιr.₁ h C.∘ unit.η B  ≡⟨ ap ι.₁ rh≡rk C.⟩∘⟨refl ⟩
-          ιr.₁ k C.∘ unit.η B  ≡˘⟨ unit.is-natural _ _ _ ⟩
-          unit.η (ι.₀ X) C.∘ k ∎
+          unit.map (ι.₀ X) C.∘ h ≡⟨ unit.com _ _ _ ⟩
+          ιr.₁ h C.∘ unit.map B  ≡⟨ ap ι.₁ rh≡rk C.⟩∘⟨refl ⟩
+          ιr.₁ k C.∘ unit.map B  ≡˘⟨ unit.com _ _ _ ⟩
+          unit.map (ι.₀ X) C.∘ k ∎
 ```
 
 As a partial converse, if an object $X$ is orthogonal to every unit map
@@ -331,14 +331,14 @@ the subcategory:
 
 ```agda
   orthogonal-to-ηs→in-subcategory
-    : ∀ {X} → (∀ B → Orthogonal C (unit.η B) X) → C.is-invertible (unit.η X)
+    : ∀ {X} → (∀ B → Orthogonal C (unit.map B) X) → C.is-invertible (unit.map X)
   orthogonal-to-ηs→in-subcategory {X} ortho =
     C.make-invertible x lemma (ortho X C.id .centre .snd) where
       x = ortho X C.id .centre .fst
       lemma =
-        unit.η _ C.∘ x             ≡⟨ unit.is-natural _ _ _ ⟩
-        ιr.₁ x C.∘ unit.η (ιr.₀ X) ≡⟨ C.refl⟩∘⟨ η-comonad-commute r⊣ι ι-ff ⟩
-        ιr.₁ x C.∘ ιr.₁ (unit.η X) ≡⟨ ιr.annihilate (ortho X C.id .centre .snd) ⟩
+        unit.map _ C.∘ x             ≡⟨ unit.com _ _ _ ⟩
+        ιr.₁ x C.∘ unit.map (ιr.₀ X) ≡⟨ C.refl⟩∘⟨ η-comonad-commute r⊣ι ι-ff ⟩
+        ιr.₁ x C.∘ ιr.₁ (unit.map X) ≡⟨ ιr.annihilate (ortho X C.id .centre .snd) ⟩
         C.id                       ∎
 ```
 
@@ -350,9 +350,9 @@ which $\eta$ is an isomorphism.
 
 ```agda
   in-subcategory→orthogonal-to-ηs
-    : ∀ {X B} → C.is-invertible (unit.η X) → Orthogonal C (unit.η B) X
+    : ∀ {X B} → C.is-invertible (unit.map X) → Orthogonal C (unit.map B) X
   in-subcategory→orthogonal-to-ηs inv =
-      obj-orthogonal-iso C (unit.η _)
+      obj-orthogonal-iso C (unit.map _)
         (C.invertible→iso _ (C.is-invertible-inverse inv))
     $ in-subcategory→orthogonal-to-inverted
         (is-reflective→left-unit-is-iso r⊣ι ι-ff)

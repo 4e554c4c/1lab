@@ -44,10 +44,10 @@ record Braided-monoidal : Type (o ⊔ ℓ) where
   module β← = _=>_ (braiding .Isoⁿ.from)
 
   β→ : ∀ {A B} → Hom (A ⊗ B) (B ⊗ A)
-  β→ = braiding .Isoⁿ.to ._=>_.η _
+  β→ = braiding .Isoⁿ.to ._=>_.map _
 
   β← : ∀ {A B} → Hom (A ⊗ B) (B ⊗ A)
-  β← = braiding .Isoⁿ.from ._=>_.η _
+  β← = braiding .Isoⁿ.from ._=>_.map _
 
   β≅ : ∀ {A B} → A ⊗ B ≅ B ⊗ A
   β≅ = isoⁿ→iso braiding _
@@ -135,7 +135,7 @@ is-symmetric-braiding : -⊗- ≅ⁿ Flip -⊗- → Type (o ⊔ ℓ)
 is-symmetric-braiding braiding = ∀ {A B} → β→ ∘ β→ {A} {B} ≡ id
   where
     β→ : ∀ {A B} → Hom (A ⊗ B) (B ⊗ A)
-    β→ = braiding .Isoⁿ.to ._=>_.η _
+    β→ = braiding .Isoⁿ.to ._=>_.map _
 
 record Symmetric-monoidal : Type (o ⊔ ℓ) where
   field
@@ -164,9 +164,9 @@ record make-symmetric-monoidal : Type (o ⊔ ℓ) where
 <!--
 ```agda
   β→ : ∀ {A B} → Hom (A ⊗ B) (B ⊗ A)
-  β→ = has-braiding .Isoⁿ.to ._=>_.η _
+  β→ = has-braiding .Isoⁿ.to ._=>_.map _
   β← : ∀ {A B} → Hom (A ⊗ B) (B ⊗ A)
-  β← = has-braiding .Isoⁿ.from ._=>_.η _
+  β← = has-braiding .Isoⁿ.from ._=>_.map _
 
   β→≡β← : Path (∀ {A B} → Hom (A ⊗ B) (B ⊗ A)) β→ β←
   β→≡β← = ext λ {_} {_} → inverse-unique refl refl
@@ -270,7 +270,7 @@ That is, morally, $(\id \otimes \beta) \circ (\beta \otimes \id) \circ
   yang-baxter =
     (id ⊗₁ β→) ∘ α→ _ _ _ ∘ (β→ ⊗₁ id) ∘ α← _ _ _ ∘ (id ⊗₁ β→) ∘ α→ _ _ _   ≡⟨ pushr (pushr refl) ⟩
     ((id ⊗₁ β→) ∘ α→ _ _ _ ∘ (β→ ⊗₁ id)) ∘ α← _ _ _ ∘ (id ⊗₁ β→) ∘ α→ _ _ _ ≡⟨ extendl (rswizzle (braiding-α→ ∙ assoc _ _ _) (α≅ .invl)) ⟩
-    α→ _ _ _ ∘ β→ ∘ (id ⊗₁ β→) ∘ α→ _ _ _                                   ≡⟨ refl⟩∘⟨ extendl (β→.is-natural _ _ _) ⟩
+    α→ _ _ _ ∘ β→ ∘ (id ⊗₁ β→) ∘ α→ _ _ _                                   ≡⟨ refl⟩∘⟨ extendl (β→.com _ _ _) ⟩
     α→ _ _ _ ∘ (β→ ⊗₁ id) ∘ β→ ∘ α→ _ _ _                                   ≡˘⟨ refl⟩∘⟨ refl⟩∘⟨ lswizzle braiding-α→ (α≅ .invr) ⟩
     α→ _ _ _ ∘ (β→ ⊗₁ id) ∘ α← _ _ _ ∘ (id ⊗₁ β→) ∘ α→ _ _ _ ∘ (β→ ⊗₁ id)   ∎
 ```
@@ -287,7 +287,7 @@ We also derive more equations relating the braiding with the associator.
 
   β→-id⊗β→-α→ : ∀ {A B C} → β→ ∘ (id ⊗₁ β→) ∘ α→ A B C ≡ α← _ _ _ ∘ β→ ∘ (β→ ⊗₁ id)
   β→-id⊗β→-α→ =
-    β→ ∘ (id ⊗₁ β→) ∘ α→ _ _ _   ≡⟨ pulll (β→.is-natural _ _ _) ⟩
+    β→ ∘ (id ⊗₁ β→) ∘ α→ _ _ _   ≡⟨ pulll (β→.com _ _ _) ⟩
     ((β→ ⊗₁ id) ∘ β→) ∘ α→ _ _ _ ≡⟨ swizzle (sym β←-β←⊗id-α← ∙ assoc _ _ _)
       (pullr (cancell (β≅ .invr)) ∙ ◀.annihilate (β≅ .invr))
       (pullr (cancell (β≅ .invl)) ∙ ◀.annihilate (β≅ .invl)) ⟩
@@ -309,10 +309,10 @@ the agda-categories library: see there for an explanation and diagram.
   λ←-β→ = push-eqⁿ (unitor-r ni⁻¹) $
     (λ← ∘ β→) ⊗₁ id                                ≡⟨ insertl (β≅ .invr) ⟩
     β← ∘ β→ ∘ ((λ← ∘ β→) ⊗₁ id)                    ≡⟨ refl⟩∘⟨ refl⟩∘⟨ ◀.F-∘ _ _ ∙ (sym triangle-λ← ⟩∘⟨refl) ⟩
-    β← ∘ β→ ∘ (λ← ∘ α→ _ _ _) ∘ (β→ ⊗₁ id)         ≡⟨ refl⟩∘⟨ extendl (pulll (sym (unitor-l .Isoⁿ.from .is-natural _ _ _))) ⟩
+    β← ∘ β→ ∘ (λ← ∘ α→ _ _ _) ∘ (β→ ⊗₁ id)         ≡⟨ refl⟩∘⟨ extendl (pulll (sym (unitor-l .Isoⁿ.from .com _ _ _))) ⟩
     β← ∘ (λ← ∘ (id ⊗₁ β→)) ∘ α→ _ _ _ ∘ (β→ ⊗₁ id) ≡⟨ refl⟩∘⟨ pullr braiding-α→ ⟩
     β← ∘ λ← ∘ α→ _ _ _ ∘ β→ ∘ α→ _ _ _             ≡⟨ refl⟩∘⟨ pulll triangle-λ← ⟩
-    β← ∘ (λ← ⊗₁ id) ∘ β→ ∘ α→ _ _ _                ≡⟨ refl⟩∘⟨ extendl (sym (β→.is-natural _ _ _)) ⟩
+    β← ∘ (λ← ⊗₁ id) ∘ β→ ∘ α→ _ _ _                ≡⟨ refl⟩∘⟨ extendl (sym (β→.com _ _ _)) ⟩
     β← ∘ β→ ∘ (id ⊗₁ λ←) ∘ α→ _ _ _                ≡⟨ refl⟩∘⟨ refl⟩∘⟨ triangle-α→ ⟩
     β← ∘ β→ ∘ (ρ← ⊗₁ id)                           ≡⟨ cancell (β≅ .invr) ⟩
     ρ← ⊗₁ id                                       ∎
@@ -321,10 +321,10 @@ the agda-categories library: see there for an explanation and diagram.
   λ←-β← = push-eqⁿ (unitor-r ni⁻¹) $
     (λ← ∘ β←) ⊗₁ id                                ≡⟨ insertl (β≅ .invl) ⟩
     β→ ∘ β← ∘ ((λ← ∘ β←) ⊗₁ id)                    ≡⟨ refl⟩∘⟨ refl⟩∘⟨ ◀.F-∘ _ _ ∙ (sym triangle-λ← ⟩∘⟨refl) ⟩
-    β→ ∘ β← ∘ (λ← ∘ α→ _ _ _) ∘ (β← ⊗₁ id)         ≡⟨ refl⟩∘⟨ extendl (pulll (sym (unitor-l .Isoⁿ.from .is-natural _ _ _))) ⟩
+    β→ ∘ β← ∘ (λ← ∘ α→ _ _ _) ∘ (β← ⊗₁ id)         ≡⟨ refl⟩∘⟨ extendl (pulll (sym (unitor-l .Isoⁿ.from .com _ _ _))) ⟩
     β→ ∘ (λ← ∘ (id ⊗₁ β←)) ∘ α→ _ _ _ ∘ (β← ⊗₁ id) ≡⟨ refl⟩∘⟨ pullr unbraiding-α→ ⟩
     β→ ∘ λ← ∘ α→ _ _ _ ∘ β← ∘ α→ _ _ _             ≡⟨ refl⟩∘⟨ pulll triangle-λ← ⟩
-    β→ ∘ (λ← ⊗₁ id) ∘ β← ∘ α→ _ _ _                ≡⟨ refl⟩∘⟨ extendl (sym (β←.is-natural _ _ _)) ⟩
+    β→ ∘ (λ← ⊗₁ id) ∘ β← ∘ α→ _ _ _                ≡⟨ refl⟩∘⟨ extendl (sym (β←.com _ _ _)) ⟩
     β→ ∘ β← ∘ (id ⊗₁ λ←) ∘ α→ _ _ _                ≡⟨ refl⟩∘⟨ refl⟩∘⟨ triangle-α→ ⟩
     β→ ∘ β← ∘ (ρ← ⊗₁ id)                           ≡⟨ cancell (β≅ .invl) ⟩
     ρ← ⊗₁ id                                       ∎

@@ -66,7 +66,7 @@ _ = Coalgebra
 -->
 
 The composition of `L.₁`{.Agda} with the `adjunction unit`{.Agda
-ident="adj.unit.η"} natural transformation gives `L`{.Agda} a
+ident="adj.unit.map"} natural transformation gives `L`{.Agda} a
 `Coalgebra`{.Agda} structure, thus extending `L` to a functor $C \to C^{L
 \circ R}$.
 
@@ -74,9 +74,9 @@ ident="adj.unit.η"} natural transformation gives `L`{.Agda} a
 Comparison-CoEM : Functor C (Coalgebras L∘R)
 Comparison-CoEM .F₀ x = L.₀ x , alg where
   alg : Coalgebra-on L∘R (L.₀ x)
-  alg .Coalgebra-on.ρ = L.₁ (adj.unit.η _)
+  alg .Coalgebra-on.ρ = L.₁ (adj.unit.map _)
   alg .Coalgebra-on.ρ-counit = adj.zig
-  alg .Coalgebra-on.ρ-comult = L.weave (adj.unit.is-natural _ _ _)
+  alg .Coalgebra-on.ρ-comult = L.weave (adj.unit.com _ _ _)
 ```
 
 <details>
@@ -84,7 +84,7 @@ Comparison-CoEM .F₀ x = L.₀ x , alg where
 
 ```agda
 Comparison-CoEM .F₁ x .fst = L.₁ x
-Comparison-CoEM .F₁ x .snd = L.weave (sym (adj.unit.is-natural _ _ _))
+Comparison-CoEM .F₁ x .snd = L.weave (sym (adj.unit.com _ _ _))
 Comparison-CoEM .F-id    = ext L.F-id
 Comparison-CoEM .F-∘ f g = ext (L.F-∘ _ _)
 ```

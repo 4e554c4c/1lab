@@ -332,8 +332,8 @@ easy to define:
 
 ```agda
   unit : A => Sheafify A
-  unit .η _ = inc
-  unit .is-natural x y f = funext inc-natural
+  unit .map _ = inc
+  unit .com x y f = funext inc-natural
 ```
 
 And, if $B$ is a $J$-sheaf, extending a map $\eta : A \to B$ to a map
@@ -347,7 +347,7 @@ the path constructors are all handled by the corresponding laws in $B$.
   univ {A = A} G shf eta = nt where
     module G = Psh G
     go : ∀ U → Sheafify₀ A U → G ʻ U
-    go U (inc x)   = eta .η U x
+    go U (inc x)   = eta .map U x
     go U (map f x) = G ⟪ f ⟫ (go _ x)
     go U (glue c p g) =
       shf .whole c record { patch = λ f hf h hhf i → go _ (g f hf h hhf i) }
@@ -361,14 +361,14 @@ naturality of $\eta'$ is a definitional equality.</summary>
 ```agda
     go U (map-id x i) = G.F-id {x = go _ x} i
     go U (map-∘ {g = g} {f = f} x i) = G.F-∘ f g {x = go _ x} i
-    go U (inc-natural {f = f} x i) = eta .is-natural _ U f i x
+    go U (inc-natural {f = f} x i) = eta .com _ U f i x
     go U (sep {x = x} {y = y} c l i) = shf .separate c {go _ x} {go _ y} (λ f hf i → go _ (l f hf i)) i
     go U (glues c p g f hf i) = shf .is-sheaf.glues c record { patch = λ f hf h hhf i → go _ (g f hf h hhf i) } f hf i
     go U (squash x y p q i j) = G.₀ U .is-tr (go U x) (go U y) (λ i → go U (p i)) (λ i → go U (q i)) i j
 
     nt : Sheafify A => G
-    nt .η = go
-    nt .is-natural x y f = refl
+    nt .map = go
+    nt .com x y f = refl
 ```
 
 </details>
@@ -381,13 +381,13 @@ in $B(U)$ is $J$-local.
 ```agda
   unique
     : (G : Functor (C ^op) (Sets ℓ)) (shf : is-sheaf J G) (eta : A => G) (eps : Sheafify A => G)
-    → (∀ U (x : A ʻ U) → eps .η U (inc x) ≡ eta .η U x)
+    → (∀ U (x : A ʻ U) → eps .map U (inc x) ≡ eta .map U x)
     → univ G shf eta ≡ eps
   unique {A = A} G shf eta eps comm = ext λ i → Sheafify-elim-prop A
-    (λ {v} x → univ G shf eta .η v x ≡ eps .η v x)
+    (λ {v} x → univ G shf eta .map v x ≡ eps .map v x)
     (λ {U} x → hlevel 1)
     (λ x → sym (comm _ x))
-    (λ c x l → is-sheaf.separate shf c (λ f hf → l f hf ∙ eps .is-natural _ _ _ · _))
+    (λ c x l → is-sheaf.separate shf c (λ f hf → l f hf ∙ eps .com _ _ _ · _))
 ```
 
 <!--

@@ -222,8 +222,8 @@ Finally, we can use this to show that $S'$ is closed.
 open _=>_
 
 ΩJ=>Ω : ΩJ .fst => Sieves
-ΩJ=>Ω .η U              = fst
-ΩJ=>Ω .is-natural x y f = refl
+ΩJ=>Ω .map U              = fst
+ΩJ=>Ω .com x y f = refl
 ```
 -->
 
@@ -252,7 +252,7 @@ sheaf-name {A} A' = nm module sheaf-name where
     (free-objects→left-adjoint (Small.make-free-sheaf J))
     {A' .dom} {A} (λ {C} → A' .monic {C})
 
-  emb : ∀ {i} → is-embedding (A' .map .η i)
+  emb : ∀ {i} → is-embedding (A' .map .map i)
   emb = is-monic→is-embedding-at ℓ C (sub' .monic)
 
   nm' : A .fst => Sieves
@@ -275,13 +275,13 @@ element of $A'(W)$ from this mere fibre. By the usual functoriality
 work, this extends to a patch over $h^*(\name{A'} x)$.
 
 ```agda
-  name-is-closed : {U : ⌞ C ⌟} (x : A ʻ U) → is-closed (nm' .η U x)
+  name-is-closed : {U : ⌞ C ⌟} (x : A ʻ U) → is-closed (nm' .map U x)
   name-is-closed {U} x {V} h pb = inc (it .whole , prf) where
     it = sat.split (A' .dom .snd) pb record where
       part f hf = □-out (emb _) hf .fst
       patch f hf g hgf = ap fst $ emb _
-        (_ , (A' .map .η _ (A' .dom .fst ⟪ g ⟫ (□-out (emb _) hf .fst))  ≡⟨ A' .map .is-natural _ _ _ $ₚ _ ⟩
-              (A .fst ⟪ g ⟫ (A' .map .η _ (□-out (emb _) hf .fst)))      ≡⟨ ap (A .fst .F₁ g) (□-out (emb _) hf .snd) ⟩
+        (_ , (A' .map .map _ (A' .dom .fst ⟪ g ⟫ (□-out (emb _) hf .fst))  ≡⟨ A' .map .com _ _ _ $ₚ _ ⟩
+              (A .fst ⟪ g ⟫ (A' .map .map _ (□-out (emb _) hf .fst)))      ≡⟨ ap (A .fst .F₁ g) (□-out (emb _) hf .snd) ⟩
               (A .fst ⟪ g ⟫ (A .fst ⟪ h ∘ f ⟫ x))                        ≡⟨ sym (A .fst .F-∘ _ _ $ₚ _) ⟩
               (A .fst ⟪ (h ∘ f) ∘ g ⟫ x)                                 ∎))
         (_ , □-out (emb _) hgf .snd ∙ ap₂ (A .fst .F₁) (assoc _ _ _) refl)
@@ -295,15 +295,15 @@ true by construction.
 
 ```agda
     prf = sat.separate (A .snd) pb λ f hf →
-      A .fst ⟪ f ⟫ A' .map .η V (it .whole)       ≡˘⟨ A' .map .is-natural _ _ _ $ₚ _ ⟩
-      A' .map .η _ (A' .dom .fst ⟪ f ⟫ it .whole) ≡⟨ ap (A' .map .η _) (it .glues f hf) ⟩
-      A' .map .η _ (□-out (emb _) hf .fst)        ≡⟨ □-out (emb _) hf .snd ⟩
+      A .fst ⟪ f ⟫ A' .map .map V (it .whole)       ≡˘⟨ A' .map .com _ _ _ $ₚ _ ⟩
+      A' .map .map _ (A' .dom .fst ⟪ f ⟫ it .whole) ≡⟨ ap (A' .map .map _) (it .glues f hf) ⟩
+      A' .map .map _ (□-out (emb _) hf .fst)        ≡⟨ □-out (emb _) hf .snd ⟩
       A .fst ⟪ h ∘ f ⟫ x                          ≡⟨ A .fst .F-∘ _ _ $ₚ _ ⟩
       A .fst ⟪ f ⟫ (A .fst ⟪ h ⟫ x)               ∎
 
   nm : A .fst => ΩJ .fst
-  nm .η U x = record { fst = nm' .η U x ; snd = name-is-closed x }
-  nm .is-natural x y f = funext λ a → Σ-prop-path! (happly (nm' .is-natural x y f) a)
+  nm .map U x = record { fst = nm' .map U x ; snd = name-is-closed x }
+  nm .com x y f = funext λ a → Σ-prop-path! (happly (nm' .com x y f) a)
 ```
 
 This "if" direction turns out to be sufficient to prove that $\Omega_J$
@@ -313,8 +313,8 @@ because it contains *every* morphism:
 ```agda
 Sh[]-true : Subobject (Sheaves J ℓ) ΩJ
 Sh[]-true .dom                   = Terminal.top (Sh[]-terminal J)
-Sh[]-true .map .η _ _            = maximal' , (λ _ _ → tt)
-Sh[]-true .map .is-natural x y f = ext λ _ _ → refl
+Sh[]-true .map .map _ _            = maximal' , (λ _ _ → tt)
+Sh[]-true .map .com x y f = ext λ _ _ → refl
 Sh[]-true .monic g h x           = ext λ _ _ → refl
 ```
 
@@ -372,18 +372,18 @@ show that it is separated, because it embeds into a sheaf:
 ```agda
 name-is-closed→is-sheaf
   : {A : Sheaf J _} (A' : Subobject (PSh ℓ C) (A .fst))
-  → (∀ {U : ⌞ C ⌟} (x : A ʻ U) → is-closed (psh-name A' .η U x))
+  → (∀ {U : ⌞ C ⌟} (x : A ʻ U) → is-closed (psh-name A' .map U x))
   → is-sheaf J (A' .dom)
 name-is-closed→is-sheaf {A = A} A' cl = from-is-sheaf₁ λ {U} j p → from-is-separated₁ _ (sep j) (s j p) where
-  emb : ∀ {i} → is-embedding (A' .map .η i)
+  emb : ∀ {i} → is-embedding (A' .map .map i)
   emb = is-monic→is-embedding-at ℓ C (A' .monic)
 
   sep : ∀ {U} (j : J .covers U) → is-separated₁ (A' .dom) (J .cover j)
   sep j {x} {y} h = ap fst $ emb _ (_ , refl) $ _ , A .snd .separate j λ f hf →
-    A .fst ⟪ f ⟫ A' .map .η _ y      ≡˘⟨ A' .map .is-natural _ _ _ $ₚ _ ⟩
-    A' .map .η _ ⌜ A' .dom ⟪ f ⟫ y ⌝ ≡⟨ ap! (sym (h f hf)) ⟩
-    A' .map .η _ (A' .dom ⟪ f ⟫ x)   ≡⟨ A' .map .is-natural _ _ _ $ₚ _ ⟩
-    A .fst ⟪ f ⟫ A' .map .η _ x      ∎
+    A .fst ⟪ f ⟫ A' .map .map _ y      ≡˘⟨ A' .map .com _ _ _ $ₚ _ ⟩
+    A' .map .map _ ⌜ A' .dom ⟪ f ⟫ y ⌝ ≡⟨ ap! (sym (h f hf)) ⟩
+    A' .map .map _ (A' .dom ⟪ f ⟫ x)   ≡⟨ A' .map .com _ _ _ $ₚ _ ⟩
+    A .fst ⟪ f ⟫ A' .map .map _ x      ∎
 ```
 
 Now, given a $J$-covering sieve $R$ of some object $U$ and a patch $p$
@@ -395,8 +395,8 @@ sieve; and this glues to a section $s' : A(U)$.
   module _ {U} (j : J .covers U) (p : Patch (A' .dom) (J .cover j)) where
     p' : Patch (A .fst) (J .cover j)
     p' = record
-      { part  = λ {V} f hf → A' .map .η V (p .part f hf)
-      ; patch = λ {V} {W} f hf g hgf → sym (A' .map .is-natural _ _ _ $ₚ _) ∙ ap (A' .map .η _) (p .patch f hf g hgf)
+      { part  = λ {V} f hf → A' .map .map V (p .part f hf)
+      ; patch = λ {V} {W} f hf g hgf → sym (A' .map .com _ _ _ $ₚ _) ∙ ap (A' .map .map _) (p .patch f hf g hgf)
       }
 
     s' : Section (A .fst) p'
@@ -414,25 +414,25 @@ we're left with a simple computation:
 
 ```agda
     abstract
-      has : J ∋ pullback id (psh-name A' .η U (s' .whole))
+      has : J ∋ pullback id (psh-name A' .map U (s' .whole))
       has = local (inc j) λ {V} f hf →
         let
-          α : pullback f (pullback id (psh-name A' .η U (s' .whole))) ≡ psh-name A' .η V (p' .part f hf)
+          α : pullback f (pullback id (psh-name A' .map U (s' .whole))) ≡ psh-name A' .map V (p' .part f hf)
           α =
-            pullback f ⌜ pullback id (psh-name A' .η U (s' .whole)) ⌝  ≡⟨ ap! pullback-id ⟩
-            pullback f (psh-name A' .η U (s' .whole))                  ≡⟨ sym (psh-name A' .is-natural _ _ _ $ₚ _) ⟩
-            psh-name A' .η V (A .fst ⟪ f ⟫ s' .whole)                  ≡⟨ ap (psh-name A' .η _) (s' .glues f hf) ⟩
-            psh-name A' .η V (p' .part f hf)                           ∎
+            pullback f ⌜ pullback id (psh-name A' .map U (s' .whole)) ⌝  ≡⟨ ap! pullback-id ⟩
+            pullback f (psh-name A' .map U (s' .whole))                  ≡⟨ sym (psh-name A' .com _ _ _ $ₚ _) ⟩
+            psh-name A' .map V (A .fst ⟪ f ⟫ s' .whole)                  ≡⟨ ap (psh-name A' .map _) (s' .glues f hf) ⟩
+            psh-name A' .map V (p' .part f hf)                           ∎
         in subst (J ∋_) (sym α) (max (inc (p .part f hf , sym (A .fst .F-id $ₚ _))))
 
-    it : fibre (map A' .η U) (A .fst ⟪ id ⟫ s' .whole)
+    it : fibre (map A' .map U) (A .fst ⟪ id ⟫ s' .whole)
     it = □-out (emb _) (cl (s' .whole) id has)
 
     s : Section (A' .dom) p
     s = record
       { whole = it .fst
       ; glues = λ f hf → ap fst (emb (A .fst ⟪ f ⟫ s' .whole)
-        (_ , A' .map .is-natural _ _ _ $ₚ _ ∙ ap (A .fst .F₁ f) (it .snd ∙ A .fst .F-id $ₚ _))
+        (_ , A' .map .com _ _ _ $ₚ _ ∙ ap (A .fst .F₁ f) (it .snd ∙ A .fst .F-id $ₚ _))
         (_ , sym (s' .glues f hf)))
       }
 ```

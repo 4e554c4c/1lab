@@ -490,7 +490,7 @@ open import Meta.Bind
 
 instance
   Map-∥∥ : Map (eff ∥_∥)
-  Map-∥∥ .Map.map = ∥-∥-map
+  Map-∥∥ .fmap = ∥-∥-map
 
   Idiom-∥∥ : Idiom (eff ∥_∥)
   Idiom-∥∥ .Idiom.pure = inc

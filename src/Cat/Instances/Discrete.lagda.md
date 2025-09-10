@@ -183,8 +183,8 @@ Disc-natural
   → {F G : Functor (Disc' X) C}
   → (∀ x → C .Hom (F .F₀ x) (G .F₀ x))
   → F => G
-Disc-natural fam .η = fam
-Disc-natural {C = C} {F = F} {G = G} fam .is-natural x y f =
+Disc-natural fam .map = fam
+Disc-natural {C = C} {F = F} {G = G} fam .com x y f =
   J (λ y p → fam y C.∘ F .F₁ p ≡ G .F₁ p C.∘ fam x)
     (C.elimr (F .F-id) ∙ C.introl (G .F-id))
     f
@@ -196,8 +196,8 @@ Disc-natural₂
   → {F G : Functor (Disc X issx ×ᶜ Disc Y issy) C}
   → ((x : X × Y) → C .Hom (F .F₀ x) (G .F₀ x))
   → F => G
-Disc-natural₂ fam .η = fam
-Disc-natural₂ {C = C} {F = F} {G = G} fam .is-natural x y (p , q) =
+Disc-natural₂ fam .map = fam
+Disc-natural₂ {C = C} {F = F} {G = G} fam .com x y (p , q) =
   J (λ y' p' → fam y' C.∘ F .F₁ (ap fst p' , ap snd p')
              ≡ G .F₁ (ap fst p' , ap snd p') C.∘ fam x)
     (C.elimr (F .F-id) ∙ C.introl (G .F-id))

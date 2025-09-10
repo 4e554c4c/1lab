@@ -170,10 +170,10 @@ module _ {o ℓ o' ℓ' oj ℓj} {B : Precategory o ℓ} {J : Precategory oj ℓ
     no-eta-equality
 
     field
-      η' : ∀ (j) → Hom[ α .η j ] (F' .F₀' j) (G' .F₀' j)
+      η' : ∀ (j) → Hom[ α .map j ] (F' .F₀' j) (G' .F₀' j)
 
       is-natural' : ∀ (i j : J.Ob) (f : J.Hom i j)
-                  → η' j ∘' F' .F₁' f ≡[ α .is-natural i j f ] G' .F₁' f  ∘' η' i
+                  → η' j ∘' F' .F₁' f ≡[ α .com i j f ] G' .F₁' f  ∘' η' i
 ```
 
 <!--
@@ -184,14 +184,14 @@ module _ {o ℓ o' ℓ' oj ℓj} {B : Precategory o ℓ} {J : Precategory oj ℓ
     : ∀ {F G : Functor J B} {F' : Lifting E F} {G' : Lifting E G}
     → {α : F => G} {β : F => G} {α' : F' =[ α ]=>l G'} {β' : F' =[ β ]=>l G'}
     → {p : α ≡ β}
-    → (∀ j → α' .η' j ≡[ p ηₚ j ] β' .η' j)
+    → (∀ j → α' .map' j ≡[ p ηₚ j ] β' .map' j)
     → PathP (λ i → F' =[ p i ]=>l G') α' β'
-  Nat-lift-pathp q i .η' x = q x i
-  Nat-lift-pathp {F' = F'} {G'} {α' = α'} {β'} {p = p} q i .is-natural' x y f =
-    is-set→squarep (λ i j → Hom[ p i .is-natural x y f j ]-set _ _)
+  Nat-lift-pathp q i .map' x = q x i
+  Nat-lift-pathp {F' = F'} {G'} {α' = α'} {β'} {p = p} q i .com' x y f =
+    is-set→squarep (λ i j → Hom[ p i .com x y f j ]-set _ _)
       (λ j → q y j ∘' F' .F₁' f)
-      (α' .is-natural' x y f)
-      (β' .is-natural' x y f)
+      (α' .com' x y f)
+      (β' .com' x y f)
       (λ j → G' .F₁' f ∘' q x j) i
 
   private unquoteDecl eqv = declare-record-iso eqv (quote _=[_]=>l_)
@@ -229,10 +229,10 @@ transformations between the associated functors.
   Nat-lift→Nat
     : ∀ {F G : Functor J B} {F' : Lifting E F} {G' : Lifting E G}
     → {α : F => G} → F' =[ α ]=>l G' → Lifting→Functor E F' => Lifting→Functor E G'
-  Nat-lift→Nat {α = α} α' .η x .fst = α .η x
-  Nat-lift→Nat {α = α} α' .η x .snd = α' .η' x
-  Nat-lift→Nat {α = α} α' .is-natural x y f =
-    ∫Hom-path E (α .is-natural x y f) (α' .is-natural' x y f)
+  Nat-lift→Nat {α = α} α' .map x .fst = α .map x
+  Nat-lift→Nat {α = α} α' .map x .snd = α' .map' x
+  Nat-lift→Nat {α = α} α' .com x y f =
+    ∫Hom-path E (α .com x y f) (α' .com' x y f)
 ```
 
 As liftings are definitional, any natural transformation $F \to G$ is
@@ -243,8 +243,8 @@ this requires repacking some data due to the lack of some $\eta$-rules.
   Nat→Nat-lift
     : ∀ {F G : Functor J B} (F' : Lifting E F) (G' : Lifting E G)
     → F => G → πᶠ E F∘ Lifting→Functor E F' => πᶠ E F∘ Lifting→Functor E G'
-  Nat→Nat-lift F' G' α .η          = α .η
-  Nat→Nat-lift F' G' α .is-natural = α .is-natural
+  Nat→Nat-lift F' G' α .map          = α .map
+  Nat→Nat-lift F' G' α .com = α .com
 ```
 
 This allows us to characterize natural transformations of liftings: they
@@ -264,18 +264,18 @@ composition.
 
 ```agda
   idntl : ∀ {F : Functor J B} {F' : Lifting E F} → F' =[ idnt ]=>l F'
-  idntl .η' j = id'
-  idntl .is-natural' i j f = cast[] $ idl' _ ∙[] symP (idr' _)
+  idntl .map' j = id'
+  idntl .com' i j f = cast[] $ idl' _ ∙[] symP (idr' _)
 
   _∘ntl_
     : ∀ {F G H : Functor J B} {F' : Lifting E F} {G' : Lifting E G} {H' : Lifting E H}
     → {α : G => H} {β : F => G}
     → G' =[ α ]=>l H' → F' =[ β ]=>l G' → F' =[ α ∘nt β ]=>l H'
-  _∘ntl_ α' β' .η' j = α' .η' j ∘' β' .η' j
-  _∘ntl_  {F' = F'} {G'} {H'} α' β' .is-natural' i j f' =
-    (α' .η' j ∘' β' .η' j) ∘' F' .F₁' f' ≡[]⟨ pullr[] _ (β' .is-natural' i j f') ⟩
-    α' .η' j ∘' G' .F₁' f' ∘' β' .η' i   ≡[]⟨ extendl[] _ (α' .is-natural' i j f') ⟩
-    H' .F₁' f' ∘' α' .η' i ∘' β' .η' i   ∎
+  _∘ntl_ α' β' .map' j = α' .map' j ∘' β' .map' j
+  _∘ntl_  {F' = F'} {G'} {H'} α' β' .com' i j f' =
+    (α' .map' j ∘' β' .map' j) ∘' F' .F₁' f' ≡[]⟨ pullr[] _ (β' .com' i j f') ⟩
+    α' .map' j ∘' G' .F₁' f' ∘' β' .map' i   ≡[]⟨ extendl[] _ (α' .com' i j f') ⟩
+    H' .F₁' f' ∘' α' .map' i ∘' β' .map' i   ∎
 ```
 
 ## The fibration of liftings
@@ -317,14 +317,14 @@ module _
 
 <!--
 ```agda
-  Liftings .Displayed.hom[_] p f .η' x = hom[ p ηₚ x ] (f .η' x)
-  Liftings .Displayed.hom[_] p f .is-natural' i j g = to-pathp[] $
+  Liftings .Displayed.hom[_] p f .map' x = hom[ p ηₚ x ] (f .map' x)
+  Liftings .Displayed.hom[_] p f .com' i j g = to-pathp[] $
     smashl _ _
-    ∙ ap hom[] (from-pathp[]⁻ (f .is-natural'  i j g))
+    ∙ ap hom[] (from-pathp[]⁻ (f .com'  i j g))
     ∙ hom[]-∙ _ _
     ∙ reindex _ _
     ∙ sym (whisker-r _)
-  Liftings .Displayed.coh[_] p f = Nat-lift-pathp λ _ → coh[ p ηₚ _ ] (f .η' _)
+  Liftings .Displayed.coh[_] p f = Nat-lift-pathp λ _ → coh[ p ηₚ _ ] (f .map' _)
 ```
 -->
 
@@ -335,23 +335,23 @@ it is cartesian.
   pointwise-cartesian→Liftings-cartesian
     : ∀ {F G : Functor J B} {F' : Lifting E F} {G' : Lifting E G}
     → {α : F => G} {α' : F' =[ α ]=>l G'}
-    → (∀ x → is-cartesian E (α .η x) (α' .η' x))
+    → (∀ x → is-cartesian E (α .map x) (α' .map' x))
     → is-cartesian Liftings α α'
   pointwise-cartesian→Liftings-cartesian {α = α} {α' = α'} pointwise = cart where
     module pointwise x = is-cartesian (pointwise x)
 
     cart : is-cartesian Liftings α α'
-    cart .is-cartesian.universal β γ' .η' x =
-      pointwise.universal x (β .η x) (γ' .η' x)
-    cart .is-cartesian.universal β γ' .is-natural' x y f =
+    cart .is-cartesian.universal β γ' .map' x =
+      pointwise.universal x (β .map x) (γ' .map' x)
+    cart .is-cartesian.universal β γ' .com' x y f =
       pointwise.uniquep₂ _ _ _ _ _ _
-        (pulll[] _ (pointwise.commutes _ _ _) ∙[] γ' .is-natural' _ _ _)
-        (pulll[] _ (α' .is-natural' x y f)
+        (pulll[] _ (pointwise.commutes _ _ _) ∙[] γ' .com' _ _ _)
+        (pulll[] _ (α' .com' x y f)
         ∙[] pullr[] _ (pointwise.commutes _ _ _))
     cart .is-cartesian.commutes β γ' =
       Nat-lift-pathp (λ _ → pointwise.commutes _ _ _)
     cart .is-cartesian.unique γ' p =
-      Nat-lift-pathp (λ x → pointwise.unique _ _ λ i → p i .η' x)
+      Nat-lift-pathp (λ x → pointwise.unique _ _ λ i → p i .map' x)
 ```
 
 
@@ -375,10 +375,10 @@ reindexing $G'$ pointwise.
 
 ```agda
     G'* : Lifting E F
-    G'* .F₀' j = (α .η j) ^* (G' .F₀' j)
+    G'* .F₀' j = (α .map j) ^* (G' .F₀' j)
     G'* .F₁' f =
       π*.universal _
-        (hom[ α .is-natural _ _ f ]⁻ (G' .F₁' f ∘' π* _ _))
+        (hom[ α .com _ _ f ]⁻ (G' .F₁' f ∘' π* _ _))
 ```
 
 <details>
@@ -387,19 +387,19 @@ reindexing $G'$ pointwise.
 
 ```agda
     G'* .F-id' =
-      symP $ π*.uniquep _ (sym (F .F-id)) (α .is-natural _ _ _) id' $
+      symP $ π*.uniquep _ (sym (F .F-id)) (α .com _ _ _) id' $
         π* _ _ ∘' id'          ≡[]⟨ idr' _ ⟩
         π* _ _                 ≡[]⟨ symP (idl' _) ⟩
-        id' ∘' π* _ _          ≡[]⟨ (λ i → G' .F-id' (~ i) ∘' π* (α .η _) (G' .F₀' _)) ⟩
+        id' ∘' π* _ _          ≡[]⟨ (λ i → G' .F-id' (~ i) ∘' π* (α .map _) (G' .F₀' _)) ⟩
         G' .F₁' J.id ∘' π* _ _ ∎
 
     G'* .F-∘' f g =
       symP $ π*.uniquep _
-        (sym (F .F-∘ f g)) (α .is-natural _ _ _ ) (G'* .F₁' f ∘' G'* .F₁' g) $
+        (sym (F .F-∘ f g)) (α .com _ _ _ ) (G'* .F₁' f ∘' G'* .F₁' g) $
           π* _ _ ∘' G'* .F₁' f ∘' G'* .F₁' g        ≡[]⟨ pulll[] _ (π*.commutes _ _) ⟩
-          hom[] (G' .F₁' f ∘' π* _ _) ∘' G'* .F₁' g ≡[ ap (_∘ F.F₁ g) (α .is-natural _ _ _) ]⟨ to-pathp[]⁻ (whisker-l (sym (α .is-natural _ _ _))) ⟩
+          hom[] (G' .F₁' f ∘' π* _ _) ∘' G'* .F₁' g ≡[ ap (_∘ F.F₁ g) (α .com _ _ _) ]⟨ to-pathp[]⁻ (whisker-l (sym (α .com _ _ _))) ⟩
           (G' .F₁' f ∘' π* _ _) ∘' G'* .F₁' g       ≡[]⟨ pullr[] _ (π*.commutes _ _) ⟩
-          G' .F₁' f ∘' hom[] (G' .F₁' g ∘' π* _ _)  ≡[ ap (G.F₁ f ∘_) (α .is-natural _ _ _) ]⟨ to-pathp[]⁻ (whisker-r (sym (α .is-natural _ _ _))) ⟩
+          G' .F₁' f ∘' hom[] (G' .F₁' g ∘' π* _ _)  ≡[ ap (G.F₁ f ∘_) (α .com _ _ _) ]⟨ to-pathp[]⁻ (whisker-r (sym (α .com _ _ _))) ⟩
           G' .F₁' f ∘' (G' .F₁' g ∘' π* _ _)        ≡[]⟨ pulll[] _ (symP (G' .F-∘' f g)) ⟩
           G' .F₁' (f J.∘ g) ∘' π* _ _               ∎
 ```
@@ -412,8 +412,8 @@ implies that our natural transformation is cartesian.
 
 ```agda
     α'* : G'* =[ α ]=>l G'
-    α'* .η' x = π* (α .η x) (G' .F₀' x)
-    α'* .is-natural' x y f = π*.commutesp _ _
+    α'* .map' x = π* (α .map x) (G' .F₀' x)
+    α'* .com' x y f = π*.commutesp _ _
 
     α-lift : Cartesian-lift Liftings α G'
     α-lift .Cartesian-lift.x' = G'*
@@ -463,16 +463,16 @@ their types, we omit the definitions from the page entirely.
   Functor+Lifting→∫Functor F F' .F-∘ f g =
     ∫Hom-path E (F .F-∘ f g) (F' .F-∘' f g)
 
-  ∫Nat→Nat α .η x = α .η x .fst
-  ∫Nat→Nat α .is-natural x y f = ap fst (α .is-natural x y f)
+  ∫Nat→Nat α .map x = α .map x .fst
+  ∫Nat→Nat α .com x y f = ap fst (α .com x y f)
 
-  Nat+Nat-lift→∫Nat α α' .η x .fst = α .η x
-  Nat+Nat-lift→∫Nat α α' .η x .snd = α' .η' x
-  Nat+Nat-lift→∫Nat α α' .is-natural x y f =
-    ∫Hom-path E (α .is-natural x y f) (α' .is-natural' x y f)
+  Nat+Nat-lift→∫Nat α α' .map x .fst = α .map x
+  Nat+Nat-lift→∫Nat α α' .map x .snd = α' .map' x
+  Nat+Nat-lift→∫Nat α α' .com x y f =
+    ∫Hom-path E (α .com x y f) (α' .com' x y f)
 
-  ∫Nat→Nat-lift α .η' x = α .η x .snd
-  ∫Nat→Nat-lift α .is-natural' x y f = ap snd (α .is-natural x y f)
+  ∫Nat→Nat-lift α .map' x = α .map x .snd
+  ∫Nat→Nat-lift α .com' x y f = ap snd (α .com x y f)
 ```
 -->
 

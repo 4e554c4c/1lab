@@ -235,7 +235,7 @@ define-abbrev def-nm suf ty val with is-atomic-tree? val
 
 private
   make-args : Nat → List (Arg Nat) → List (Arg Term)
-  make-args n xs = reverse $ map (λ (arg ai i) → arg ai (var (n - i - 1) [])) xs
+  make-args n xs = reverse $ fmap (λ (arg ai i) → arg ai (var (n - i - 1) [])) xs
 
   class-for-param : (Arg Term → Term) → Nat → List (Arg Nat) → Term → Maybe Term
   class-for-param class n xs (agda-sort _) =
@@ -250,7 +250,7 @@ private
   compute-telescope d n xs is ((x , a) ∷ tel) =
     let
       narg = arg (Arg.arg-info a) n
-      is'  = map (λ (s , arg ai t) → s , arg ai (raise 1 t)) is
+      is'  = fmap (λ (s , arg ai t) → s , arg ai (raise 1 t)) is
 
       (tele , args) = case class-for-param d 0 [] (raise 1 (Arg.unarg a)) of λ where
         (just i) → compute-telescope d (1 + n) (narg ∷ xs) ((x , argI (raise (length is) i)) ∷ is') tel

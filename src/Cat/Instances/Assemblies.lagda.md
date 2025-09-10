@@ -357,10 +357,10 @@ underlying set of each assembly.</summary>
   Forget .F-∘ f g = refl
 
   Forget⊣∇ : Forget {ℓ} ⊣ Cofree
-  Forget⊣∇ .unit .η X = extend λ x → x
-  Forget⊣∇ .unit .is-natural x y f = ext λ _ → refl
-  Forget⊣∇ .counit .η X a = a
-  Forget⊣∇ .counit .is-natural x y f = refl
+  Forget⊣∇ .unit .map X = extend λ x → x
+  Forget⊣∇ .unit .com x y f = ext λ _ → refl
+  Forget⊣∇ .counit .map X a = a
+  Forget⊣∇ .counit .com x y f = refl
   Forget⊣∇ .zig = refl
   Forget⊣∇ .zag = ext λ _ → refl
 ```

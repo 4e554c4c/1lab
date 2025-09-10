@@ -48,8 +48,8 @@ transformation $\pi \To U$ by projecting the arrow.
 
 ```agda
 sieve→cocone : ∀ {U} (S : Sieve C U) → πₚ C (to-presheaf S) => Const U
-sieve→cocone S .η (elem i (f , f∈S)) = f
-sieve→cocone S .is-natural (elem _ (f , _)) (elem _ (g , _)) h =
+sieve→cocone S .map (elem i (f , f∈S)) = f
+sieve→cocone S .com (elem _ (f , _)) (elem _ (g , _)) h =
   g ∘ h .hom ≡⟨ ap fst (h .commute) ⟩
   f          ≡⟨ introl refl ⟩
   id ∘ f     ∎
@@ -119,13 +119,13 @@ patch→cocone
   : ∀ {U V} (S : Sieve C U)
   → Patch (Hom-into C V) S
   → πₚ C (to-presheaf S) => !Const V F∘ !F
-patch→cocone S p .η (elem _ (f , hf)) = p .part f hf
+patch→cocone S p .map (elem _ (f , hf)) = p .part f hf
 ```
 
 It remains to show that this transformation is natural. We compute:
 
 ```agda
-patch→cocone S p .is-natural (elem _ (f , hf)) (elem _ (g , hg)) h =
+patch→cocone S p .com (elem _ (f , hf)) (elem _ (g , hg)) h =
   p .part g hg ∘ h .hom  ≡⟨ p .patch g hg (h .hom) (S .closed hg (h .hom)) ⟩
   p .part (g ∘ h .hom) _ ≡⟨ app p (ap fst (h .commute)) ⟩
   p .part f _            ≡⟨ introl refl ⟩
@@ -154,7 +154,7 @@ Note now that $\pi$, with its "computation rule", is precisely a
 
 ```agda
   π : Hom U V
-  π = x.σ p' .η tt
+  π = x.σ p' .map tt
 
   πβ : ∀ {W} (f : Hom W _) hf → π ∘ f ≡ p .part f hf
   πβ f hf = x.σ-comm {α = p'} ηₚ elem _ (f , hf) ∙ app p refl

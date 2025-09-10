@@ -55,7 +55,7 @@ is-colimit→is-coequaliser
   : ∀ (F : Functor ·⇉· C) {K : Functor ⊤Cat C}
   → {eta : F => K F∘ !F}
   → is-lan !F F K eta
-  → is-coequaliser C (forkl F) (forkr F) (eta .η true)
+  → is-coequaliser C (forkl F) (forkr F) (eta .map true)
 is-colimit→is-coequaliser F {K} {eta} colim = co where
   module colim = is-colimit colim
 
@@ -74,14 +74,14 @@ is-colimit→is-coequaliser F {K} {eta} colim = co where
   parallel-commutes p _ _ inr = sym p
   parallel-commutes p _ _ inl = refl
 
-  co : is-coequaliser C (forkl F) (forkr F) (eta .η true)
-  co .coequal = eta .is-natural _ _ inl ∙ sym (eta .is-natural _ _ inr)
+  co : is-coequaliser C (forkl F) (forkr F) (eta .map true)
+  co .coequal = eta .com _ _ inl ∙ sym (eta .com _ _ inr)
   co .universal {e' = e'} p =
     colim.universal (parallel e') (λ {i} {j} h → parallel-commutes p i j h)
   co .factors = colim.factors {j = true} _ _
   co .unique {p = p} {colim = other} q = colim.unique _ _ _ λ where
     true → q
-    false → ap (other ∘_) (introl (K .F-id) ∙ sym (eta .is-natural _ _ inr))
+    false → ap (other ∘_) (introl (K .F-id) ∙ sym (eta .com _ _ inr))
          ∙∙ pulll q
          ∙∙ sym p
 

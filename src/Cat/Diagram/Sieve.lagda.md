@@ -139,8 +139,8 @@ componentwise monic, and embeddings are monic, the result follows.
 
 ```agda
   to-presheaf↪よ : ∀ {c} {S : Sieve C c} → to-presheaf S PSh.↪ よ₀ C c
-  to-presheaf↪よ {S} .mor .η x (f , _) = f
-  to-presheaf↪よ {S} .mor .is-natural x y f = refl
+  to-presheaf↪よ {S} .mor .map x (f , _) = f
+  to-presheaf↪よ {S} .mor .com x y f = refl
   to-presheaf↪よ {S} .monic g h path = ext λ i x → Σ-prop-path! (unext path i x)
 ```
 

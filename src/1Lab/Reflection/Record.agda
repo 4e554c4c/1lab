@@ -28,7 +28,7 @@ field-names→paths : List (Arg Name) → Fields
 field-names→paths [] = []
 field-names→paths (arg _ nm ∷ []) = (nm , []) ∷ []
 field-names→paths (arg _ x  ∷ (y ∷ ys)) with field-names→paths (y ∷ ys)
-... | fields = (x , quote fst ∷ []) ∷ map (λ (f , p) → f , quote snd ∷ p) fields
+... | fields = (x , quote fst ∷ []) ∷ fmap (λ (f , p) → f , quote snd ∷ p) fields
 
 -- Given the name of a record type and the corresponding Σ-type, generate
 -- the type of the corresponding iso helper.
@@ -104,7 +104,7 @@ undo-clause (r-field , sel-path) = clause
 redo-clause : Name × List Name → Clause
 redo-clause (r-field , sel-path) = clause
   (("rec" , argN unknown) ∷ [])
-  (argN (proj (quote fst)) ∷ argN (var 0) ∷ map (argN ∘ proj) sel-path)
+  (argN (proj (quote fst)) ∷ argN (var 0) ∷ fmap (argN ∘ proj) sel-path)
   (def r-field (var 0 [] v∷ []))
 
 undo-redo-clause : Name × List Name → Clause
@@ -118,7 +118,7 @@ redo-undo-clause : Name × List Name → Clause
 redo-undo-clause (r-field , sel-path) = clause
   (("rec" , argN unknown) ∷ ("i" , argN (quoteTerm I)) ∷ [])
   (  [ argN (proj (quote snd)) , argN (proj (quote is-iso.rinv)) , argN (var 1) , argN (var 0) ]
-  <> map (argN ∘ proj) sel-path)
+  <> fmap (argN ∘ proj) sel-path)
   (foldr (λ n t → def n (t v∷ [])) (var 1 []) (reverse sel-path))
 
 -- Transform the type of a record constructor into a Σ-type isomorphic
@@ -163,10 +163,10 @@ make-record-iso-sigma declare? nm `R = do
     declare (argN nm) ty
 
   define-function nm
-    ( map redo-clause fields ++
-      map undo-clause fields ++
-      map redo-undo-clause fields ++
-      map undo-redo-clause fields)
+    ( fmap redo-clause fields ++
+      fmap undo-clause fields ++
+      fmap redo-undo-clause fields ++
+      fmap undo-redo-clause fields)
 
 {-
 Usage: slap
@@ -215,7 +215,7 @@ make-record-path declare? nm `R = do
 
   define-function nm
     [ clause
-      (map (λ _ → "p" , argN unknown) ps')
+      (fmap (λ _ → "p" , argN unknown) ps')
       (map-up (λ i _ → argN (var (n - i))) 1 ps')
       (def (quote Iso.injective) (def eqv [] v∷ Σ-pathpⁿ (bools→terms n ps) v∷ []))
     ]
@@ -262,7 +262,7 @@ declare-record-hlevel lvl inst rec = do
 
     head-ty = it H-Level ##ₙ def rec args ##ₙ var₀ 1
 
-    inst-ty = unpi-view (map (λ (nm , arg _ ty) → nm , argH ty) rec-tele) $
+    inst-ty = unpi-view (fmap (λ (nm , arg _ ty) → nm , argH ty) rec-tele) $
       pi (argH (it Nat)) $ abs "n" $
       pi (argI (it _≤_ ##ₙ lit (nat lvl) ##ₙ var₀ 0)) $ abs "le" $
       head-ty

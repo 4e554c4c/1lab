@@ -119,8 +119,8 @@ postcomposition; This is natural because we must show $f \circ x \circ g
 
 ```agda
 よ₁ : Hom a b → よ₀ a => よ₀ b
-よ₁ f .η _ g            = f ∘ g
-よ₁ f .is-natural x y g = funext λ x → assoc f x g
+よ₁ f .map _ g            = f ∘ g
+よ₁ f .com x y g = funext λ x → assoc f x g
 ```
 
 The other category laws from $\cC$ ensure that this assignment of
@@ -142,11 +142,11 @@ embedding functor is [[fully faithful]].
 ```agda
 よ-is-fully-faithful : is-fully-faithful よ
 よ-is-fully-faithful = is-iso→is-equiv λ where
-  .is-iso.from nt → nt .η _ id
+  .is-iso.from nt → nt .map _ id
   .is-iso.rinv nt → ext λ c g →
-    nt .η _ id ∘ g   ≡⟨ sym (nt .is-natural _ _ _) $ₚ _ ⟩
-    nt .η c (id ∘ g) ≡⟨ ap (nt .η c) (idl g) ⟩
-    nt .η c g        ∎
+    nt .map _ id ∘ g   ≡⟨ sym (nt .com _ _ _) $ₚ _ ⟩
+    nt .map c (id ∘ g) ≡⟨ ap (nt .map c) (idl g) ⟩
+    nt .map c g        ∎
   .is-iso.linv _  → idr _
 ```
 
@@ -168,8 +168,8 @@ though we define it anyways for posterity.
 
 ```agda
 よcov₁ : Hom a b → Hom-from b => Hom-from a
-よcov₁ f .η _ g = g ∘ f
-よcov₁ f .is-natural x y g = funext λ x → sym (assoc g x f)
+よcov₁ f .map _ g = g ∘ f
+よcov₁ f .com x y g = funext λ x → sym (assoc g x f)
 
 よcov : Functor (C ^op) Cat[ C , Sets h ]
 よcov .F₀ = Hom-from
@@ -183,8 +183,8 @@ As expected, the covariant yoneda embedding is also fully faithful.
 ```agda
 よcov-is-fully-faithful : is-fully-faithful よcov
 よcov-is-fully-faithful = is-iso→is-equiv λ where
-  .is-iso.from nt → nt .η _ id
-  .is-iso.rinv nt → ext λ c g → sym (nt .is-natural _ _ _) $ₚ _ ∙ ap (nt .η c) (idr g)
+  .is-iso.from nt → nt .map _ id
+  .is-iso.rinv nt → ext λ c g → sym (nt .com _ _ _) $ₚ _ ∙ ap (nt .map c) (idr g)
   .is-iso.linv h  → idl h
 ```
 

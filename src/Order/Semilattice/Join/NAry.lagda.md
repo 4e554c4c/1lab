@@ -174,7 +174,7 @@ module
     pure $
       cast-is-lub (enum e⁻¹) (λ _ → refl) $
       pres-fin-lub (k ⊙ Equiv.from enum) x $
-      cast-is-lub enum (λ x → sym (ap k (Equiv.η enum x))) P-lub
+      cast-is-lub enum (λ x → sym (ap k (Equiv.map enum x))) P-lub
 ```
 
 As a corollary, join semilattice homomorphisms must also preserve joins of

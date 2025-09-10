@@ -292,7 +292,7 @@ further comment.
 _^op' .D.idr' {x = x} {y} {f} f' = to-pathp $
   transport (λ i → Hom[ id ] (idr f i ^* y) x) _  ≡⟨ transp-lift _ ∙ ap₂ _∘v_ refl adjust-idr ⟩
   (π* _ _ ∘v id [ f' ] ∘v γ→) ∘v γ← ∘v ι←         ≡⟨ F.pullr (F.pullr (F.cancell (^*-comp .F.invl))) ⟩
-  π* _ _ ∘v id [ f' ] ∘v ι←                       ≡⟨ ap (π* _ _ ∘v_) (sym (base-change-id .Isoⁿ.from .is-natural _ _ _)) ⟩
+  π* _ _ ∘v id [ f' ] ∘v ι←                       ≡⟨ ap (π* _ _ ∘v_) (sym (base-change-id .Isoⁿ.from .com _ _ _)) ⟩
   π* _ _ ∘v ι← ∘v f'                              ≡⟨ F.cancell (base-change-id .Isoⁿ.invl ηₚ _) ⟩
   f'                                              ∎
 

@@ -281,8 +281,8 @@ other data we have been given:
   open _=>_
 
   to-cone : ∀ {D : Functor J C} {apex} → make-is-limit D apex → Const apex => D
-  to-cone ml .η = ml .make-is-limit.ψ
-  to-cone ml .is-natural x y f = C.idr _ ∙ sym (ml .make-is-limit.commutes f)
+  to-cone ml .map = ml .make-is-limit.ψ
+  to-cone ml .com x y f = C.idr _ ∙ sym (ml .make-is-limit.commutes f)
 ```
 -->
 
@@ -297,15 +297,15 @@ other data we have been given:
     open _=>_
 
     lim : is-limit Diagram apex (to-cone mklim)
-    lim .σ {M = M} α .η _ =
-      universal (α .η) (λ f → sym (α .is-natural _ _ f) ∙ C.elimr (M .F-id))
-    lim .σ {M = M} α .is-natural _ _ _ =
-      lim .σ α .η _ C.∘ M .F₁ tt ≡⟨ C.elimr (M .F-id) ⟩
-      lim .σ α .η _              ≡˘⟨ C.idl _ ⟩
-      C.id C.∘ lim .σ α .η _     ∎
-    lim .σ-comm {β = β} = ext λ j → factors (β .η) _
+    lim .σ {M = M} α .map _ =
+      universal (α .map) (λ f → sym (α .com _ _ f) ∙ C.elimr (M .F-id))
+    lim .σ {M = M} α .com _ _ _ =
+      lim .σ α .map _ C.∘ M .F₁ tt ≡⟨ C.elimr (M .F-id) ⟩
+      lim .σ α .map _              ≡˘⟨ C.idl _ ⟩
+      C.id C.∘ lim .σ α .map _     ∎
+    lim .σ-comm {β = β} = ext λ j → factors (β .map) _
     lim .σ-uniq {β = β} {σ' = σ'} p = ext λ _ →
-      sym $ unique (β .η) _ (σ' .η tt) (λ j → sym (p ηₚ j))
+      sym $ unique (β .map) _ (σ' .map tt) (λ j → sym (p ηₚ j))
 ```
 
 <!--
@@ -314,7 +314,7 @@ other data we have been given:
     : ∀ {D : Functor J C} {K : Functor ⊤Cat C}
     → {eps : (Const (Functor.F₀ K tt)) => D} {eps' : K F∘ !F => D}
     → is-ran !F D (!Const (Functor.F₀ K tt)) eps
-    → (∀ {j} → eps .η j ≡ eps' .η j)
+    → (∀ {j} → eps .map j ≡ eps' .map j)
     → is-ran !F D K eps'
   generalize-limitp {D} {K} {eps} {eps'} ran q = ran' where
     module ran = is-ran ran
@@ -322,17 +322,17 @@ other data we have been given:
     open Functor
 
     ran' : is-ran !F D K eps'
-    ran' .σ α = !constⁿ (ran.σ α .η tt)
+    ran' .σ α = !constⁿ (ran.σ α .map tt)
     ran' .σ-comm {M} {β} = ext λ j →
       ap (C._∘ _) (sym q) ∙ ran.σ-comm {β = β} ηₚ _
     ran' .σ-uniq {M} {β} {σ'} r = ext λ j →
-      ran.σ-uniq {σ' = !constⁿ (σ' .η tt)}
+      ran.σ-uniq {σ' = !constⁿ (σ' .map tt)}
         (ext λ j → r ηₚ j ∙ ap (C._∘ _) (sym q)) ηₚ j
 
   to-is-limitp
     : ∀ {D : Functor J C} {K : Functor ⊤Cat C} {eps : K F∘ !F => D}
     → (mk : make-is-limit D (Functor.F₀ K tt))
-    → (∀ {j} → to-cone mk .η j ≡ eps .η j)
+    → (∀ {j} → to-cone mk .map j ≡ eps .map j)
     → is-ran !F D K eps
   to-is-limitp {D} {K} {eps} mklim p =
     generalize-limitp (to-is-limit mklim) p
@@ -364,15 +364,15 @@ limit:
       where
 
       eps-nt : Const x => D
-      eps-nt .η = eps
-      eps-nt .is-natural _ _ f = C.idr _ ∙ sym (p f)
+      eps-nt .map = eps
+      eps-nt .com _ _ f = C.idr _ ∙ sym (p f)
 
       hom : C.Hom x a
-      hom = σ {M = !Const x} eps-nt .η tt
+      hom = σ {M = !Const x} eps-nt .map tt
 
     ml : make-is-limit D a
-    ml .ψ j        = eps.η j
-    ml .commutes f = sym (eps.is-natural _ _ f) ∙ C.elimr (F .Functor.F-id)
+    ml .ψ j        = eps.map j
+    ml .commutes f = sym (eps.com _ _ f) ∙ C.elimr (F .Functor.F-id)
 
     ml .universal   = hom
     ml .factors e p = σ-comm {β = eps-nt e p} ηₚ _
@@ -380,8 +380,8 @@ limit:
       sym $ σ-uniq {σ' = other-nt} (ext λ j → sym (q j)) ηₚ tt
       where
         other-nt : !Const x => F
-        other-nt .η _ = other
-        other-nt .is-natural _ _ _ = C.idr _ ∙ C.introl (F .Functor.F-id)
+        other-nt .map _ = other
+        other-nt .com _ _ _ = C.idr _ ∙ C.introl (F .Functor.F-id)
 
   to-limit
     : ∀ {D : Functor J C} {K : Functor ⊤Cat C} {eps : K F∘ !F => D}
@@ -447,19 +447,19 @@ computation.
 
 ```agda
   cone : Const apex => D
-  cone .η x = eps .η x
-  cone .is-natural x y f = ap (_ C.∘_) (sym $ Ext .F-id) ∙ eps .is-natural x y f
+  cone .map x = eps .map x
+  cone .com x y f = ap (_ C.∘_) (sym $ Ext .F-id) ∙ eps .com x y f
 
   has-limit : is-limit D apex cone
-  has-limit .is-ran.σ α .η = σ α .η
-  has-limit .is-ran.σ α .is-natural x y f =
-    σ α .is-natural tt tt tt ∙ ap (C._∘ _) (Ext .F-id)
+  has-limit .is-ran.σ α .map = σ α .map
+  has-limit .is-ran.σ α .com x y f =
+    σ α .com tt tt tt ∙ ap (C._∘ _) (Ext .F-id)
   has-limit .is-ran.σ-comm = ext (σ-comm ηₚ_)
   has-limit .is-ran.σ-uniq {M = M} {σ' = σ'} p =
     ext λ _ → σ-uniq {σ' = nt} (reext! p) ηₚ _ where
       nt : M => Ext
-      nt .η = σ' .η
-      nt .is-natural x y f = σ' .is-natural x y f ∙ ap (C._∘ _) (sym $ Ext .F-id)
+      nt .map = σ' .map
+      nt .com x y f = σ' .com x y f ∙ ap (C._∘ _) (sym $ Ext .F-id)
 
   open is-limit has-limit public
 ```
@@ -571,8 +571,8 @@ module _ {o₁ h₁ o₂ h₂ : _} {J : Precategory o₁ h₁} {C : Precategory 
     → (eps : ∀ j → C.Hom x (D.₀ j))
     → (∀ {x y} (f : J.Hom x y) → D.₁ f C.∘ eps x ≡ eps y)
     → Const x => D
-  family→cone eps p .η = eps
-  family→cone eps p .is-natural _ _ _ = C.idr _ ∙ sym (p _)
+  family→cone eps p .map = eps
+  family→cone eps p .com _ _ _ = C.idr _ ∙ sym (p _)
 ```
 -->
 
@@ -581,7 +581,7 @@ module _ {o₁ h₁ o₂ h₂ : _} {J : Precategory o₁ h₁} {C : Precategory 
     : ∀ {K' : Functor ⊤Cat C} {eps : K' F∘ !F => D}
     → (eps' : ∀ j → C.Hom (K' .F₀ tt) (D.₀ j))
     → (p : ∀ {x y} (f : J.Hom x y) → D.₁ f C.∘ eps' x ≡ eps' y)
-    → (∀ {j} → eps' j ≡ eps .η j)
+    → (∀ {j} → eps' j ≡ eps .map j)
     → C.is-invertible (Ly.universal eps' p)
     → is-ran !F D K' eps
   is-invertible→is-limitp {K' = K'} eps' p q invert =
@@ -598,7 +598,7 @@ apex of $L$ is also a limit of $\rm{Dia}'$.
   natural-iso-diagram→is-limitp
     : ∀ {D' : Functor J C} {eps : K F∘ !F => D'}
     → (isos : D ≅ⁿ D')
-    → (∀ {j} → Isoⁿ.to isos .η j C.∘ Ly.ψ j ≡ eps .η j)
+    → (∀ {j} → Isoⁿ.to isos .map j C.∘ Ly.ψ j ≡ eps .map j)
     → is-ran !F D' K eps
   natural-iso-diagram→is-limitp {D' = D'} isos p =
     generalize-limitp
@@ -904,10 +904,10 @@ module _ {J : Precategory o₁ h₁} {C : Precategory o₂ h₂} {D : Precategor
     natural-isos→is-ran
       idni (α ◂ni Dia) (α ◂ni K)
         (ext λ j →
-          α.to .η _ D.∘ (F .F₁ (eps .η j) D.∘ ⌜ F .F₁ (K .F₁ tt) D.∘ α.from .η _ ⌝) ≡⟨ ap! (eliml F (K .F-id)) ⟩
-          α.to .η _ D.∘ (F .F₁ (eps .η j) D.∘ α.from .η _)                          ≡⟨ D.pushr (sym (α.from .is-natural _ _ _)) ⟩
-          (α.to .η _ D.∘ α.from .η _) D.∘ F' .F₁ (eps .η j)                         ≡⟨ D.eliml (α.invl ηₚ _) ⟩
-          F' .F₁ (eps .η j)                                                         ∎)
+          α.to .map _ D.∘ (F .F₁ (eps .map j) D.∘ ⌜ F .F₁ (K .F₁ tt) D.∘ α.from .map _ ⌝) ≡⟨ ap! (eliml F (K .F-id)) ⟩
+          α.to .map _ D.∘ (F .F₁ (eps .map j) D.∘ α.from .map _)                          ≡⟨ D.pushr (sym (α.from .com _ _ _)) ⟩
+          (α.to .map _ D.∘ α.from .map _) D.∘ F' .F₁ (eps .map j)                         ≡⟨ D.eliml (α.invl ηₚ _) ⟩
+          F' .F₁ (eps .map j)                                                         ∎)
         (F-preserves lim)
     where
       module α = Isoⁿ α

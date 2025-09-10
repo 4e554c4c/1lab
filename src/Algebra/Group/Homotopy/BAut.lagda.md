@@ -76,7 +76,7 @@ direct application of `univalence`{.Agda}.
 
 ```agda
   encode∘decode : ∀ b (p : Code b) → encode b (decode b p) ≡ p
-  encode∘decode b p = ua.η _
+  encode∘decode b p = ua.map _
 ```
 
 We now have the core result: Specialising `encode`{.Agda} and

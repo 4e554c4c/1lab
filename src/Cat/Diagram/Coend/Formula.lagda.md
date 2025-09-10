@@ -61,14 +61,14 @@ module _ (F : Functor (C ^op ×ᶜ C) D) where
 
   cocone→cowedge : ∀ {x} → twistᵒᵖ F => Const x → Cowedge F
   cocone→cowedge eta .nadir = _
-  cocone→cowedge eta .ψ c = eta .η ((c , c) , C.id)
+  cocone→cowedge eta .ψ c = eta .map ((c , c) , C.id)
   cocone→cowedge eta .extranatural f =
-    eta .is-natural _ _ (twist _ _ (C.eliml (C.idl _)))
-    ∙ (sym $ eta .is-natural _ _ (twist _ _ (C.cancelr (C.idl _))))
+    eta .com _ _ (twist _ _ (C.eliml (C.idl _)))
+    ∙ (sym $ eta .com _ _ (twist _ _ (C.cancelr (C.idl _))))
 
   cowedge→cocone : (W : Cowedge F) → twistᵒᵖ F => Const (W .nadir)
-  cowedge→cocone W .η ((c , c') , f) = W .ψ c D.∘ second F f
-  cowedge→cocone W .is-natural ((a , b) , f) ((x , y) , g) h =
+  cowedge→cocone W .map ((c , c') , f) = W .ψ c D.∘ second F f
+  cowedge→cocone W .com ((a , b) , f) ((x , y) , g) h =
     (W .ψ x D.∘ F.F₁ (C.id , g)) D.∘ F.F₁ (_ , _)                           ≡⟨ W .extranatural g D.⟩∘⟨refl ⟩
     (W .ψ y D.∘ F.F₁ (g , C.id)) D.∘ F.F₁ (h .before , h .after)            ≡⟨ D.pullr (F.weave (C.introl refl ,ₚ refl)) ⟩
     W .ψ y D.∘ ((F.F₁ (h .before C.∘ g , C.id)) D.∘ F.F₁ (C.id , h .after)) ≡⟨ D.extendl (sym (W .extranatural _)) ⟩
@@ -88,8 +88,8 @@ colimits: $\cD$ has a coend for $F$ if it has a colimit for $F\pi_t$.
     coend : Coend F
     coend .cowedge = cocone→cowedge W.cocone
     coend .factor W' = W.universal
-      (cowedge→cocone W' .η)
-      (λ f → cowedge→cocone W' .is-natural _ _ f ∙ D.idl _)
+      (cowedge→cocone W' .map)
+      (λ f → cowedge→cocone W' .com _ _ f ∙ D.idl _)
     coend .commutes {W = W'} = W.factors _ _ ∙ D.elimr (Bifunctor.second-id F)
     coend .unique {W = W'} comm = W.unique _ _ _ $ λ j → sym $
       W' .extranatural _

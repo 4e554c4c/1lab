@@ -43,8 +43,8 @@ data Maybe {ℓ} (A : Type ℓ) : Type ℓ where
 ```agda
 instance
   Map-Maybe : Map (eff Maybe)
-  Map-Maybe .map f (just x) = just (f x)
-  Map-Maybe .map f nothing  = nothing
+  Map-Maybe .fmap f (just x) = just (f x)
+  Map-Maybe .fmap f nothing  = nothing
 
   Idiom-Maybe : Idiom (eff Maybe)
   Idiom-Maybe .Idiom.Map-idiom = Map-Maybe

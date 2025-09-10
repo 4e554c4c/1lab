@@ -77,9 +77,9 @@ to $\Sets$.
 
 ```agda
 Free-DCPO⊣Forget-DCPO : ∀ {ℓ} → Free-DCPO {ℓ} ⊣ DCPOs↪Sets
-Free-DCPO⊣Forget-DCPO .unit .η _ x = x
-Free-DCPO⊣Forget-DCPO .unit .is-natural _ _ _ = refl
-Free-DCPO⊣Forget-DCPO .counit .η D =
+Free-DCPO⊣Forget-DCPO .unit .map _ x = x
+Free-DCPO⊣Forget-DCPO .unit .com _ _ _ = refl
+Free-DCPO⊣Forget-DCPO .counit .map D =
   to-scott-directed (λ x → x) λ s dir x x-lub → λ where
     .is-lub.fam≤lub i → ≤-refl' (disc-is-lub→const x-lub i)
     .is-lub.least y le →
@@ -90,7 +90,7 @@ Free-DCPO⊣Forget-DCPO .counit .η D =
           y   ≤∎)
         (dir .elt)
    where open DCPO D
-Free-DCPO⊣Forget-DCPO .counit .is-natural x y f = ext λ _ → refl
+Free-DCPO⊣Forget-DCPO .counit .com x y f = ext λ _ → refl
 Free-DCPO⊣Forget-DCPO .zig = ext λ _ → refl
 Free-DCPO⊣Forget-DCPO .zag = refl
 ```
@@ -345,16 +345,16 @@ We can tie this all together to obtain the desired adjunction.
 ```agda
 Free-Pointed-dcpo⊣Forget-Pointed-dcpo
   : ∀ {ℓ} → Free-Pointed-dcpo {ℓ} ⊣ Pointed-DCPOs↪Sets
-Free-Pointed-dcpo⊣Forget-Pointed-dcpo .unit .η A x = always x
-Free-Pointed-dcpo⊣Forget-Pointed-dcpo .unit .is-natural x y f = ext λ _ →
+Free-Pointed-dcpo⊣Forget-Pointed-dcpo .unit .map A x = always x
+Free-Pointed-dcpo⊣Forget-Pointed-dcpo .unit .com x y f = ext λ _ →
   sym (always-natural f)
 
-Free-Pointed-dcpo⊣Forget-Pointed-dcpo .counit .η D = to-strict-scott-bottom
+Free-Pointed-dcpo⊣Forget-Pointed-dcpo .counit .map D = to-strict-scott-bottom
   (part-counit D)
   (part-counit-⊑ D)
   (λ s dir → part-counit-lub D s (dir .semidirected))
   (part-counit-never D)
-Free-Pointed-dcpo⊣Forget-Pointed-dcpo .counit .is-natural D E f = ext λ x →
+Free-Pointed-dcpo⊣Forget-Pointed-dcpo .counit .com D E f = ext λ x →
   sym $ Strict-scott.pres-⋃-prop f _ _ _
 
 Free-Pointed-dcpo⊣Forget-Pointed-dcpo .zig {A} = ext λ x → part-ext

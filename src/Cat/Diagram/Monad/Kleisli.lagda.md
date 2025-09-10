@@ -77,7 +77,7 @@ $$
 Luckily, the algebra is simple enough that we can automate it away!
 </summary>
 ```agda
-  Kleisli-maps .Precategory.idr _ = lswizzle (sym (unit.is-natural _ _ _)) μ-unitl
+  Kleisli-maps .Precategory.idr _ = lswizzle (sym (unit.com _ _ _)) μ-unitl
   Kleisli-maps .Precategory.idl _ = cancell μ-unitr
   Kleisli-maps .Precategory.assoc _ _ _ = monad! M
 ```
@@ -104,7 +104,7 @@ particularly interesting.
   Kleisli-maps→Kleisli .Functor.F-id =
     ext μ-unitr
   Kleisli-maps→Kleisli .Functor.F-∘ f g =
-    ext (MR.shufflel μ-assoc ∙ pushr (MR.shufflel (mult.is-natural _ _ _)))
+    ext (MR.shufflel μ-assoc ∙ pushr (MR.shufflel (mult.com _ _ _)))
 ```
 </details>
 
@@ -231,10 +231,10 @@ adjoint.
   Free-Kleisli-maps .Functor.F-∘ f g = monad! M
 
   Free-Kleisli-maps⊣Forget-Kleisli-maps : Free-Kleisli-maps ⊣ Forget-Kleisli-maps
-  Free-Kleisli-maps⊣Forget-Kleisli-maps ._⊣_.unit ._=>_.η = η
-  Free-Kleisli-maps⊣Forget-Kleisli-maps ._⊣_.unit ._=>_.is-natural _ _ f = monad! M
-  Free-Kleisli-maps⊣Forget-Kleisli-maps ._⊣_.counit ._=>_.η _ = id
-  Free-Kleisli-maps⊣Forget-Kleisli-maps ._⊣_.counit ._=>_.is-natural _ _ f = monad! M
+  Free-Kleisli-maps⊣Forget-Kleisli-maps ._⊣_.unit ._=>_.map = η
+  Free-Kleisli-maps⊣Forget-Kleisli-maps ._⊣_.unit ._=>_.com _ _ f = monad! M
+  Free-Kleisli-maps⊣Forget-Kleisli-maps ._⊣_.counit ._=>_.map _ = id
+  Free-Kleisli-maps⊣Forget-Kleisli-maps ._⊣_.counit ._=>_.com _ _ f = monad! M
   Free-Kleisli-maps⊣Forget-Kleisli-maps ._⊣_.zig = monad! M
   Free-Kleisli-maps⊣Forget-Kleisli-maps ._⊣_.zag = monad! M
 ```

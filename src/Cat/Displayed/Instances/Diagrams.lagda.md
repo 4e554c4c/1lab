@@ -101,8 +101,8 @@ transformations between them.
   const-ntl
     : ∀ {x y x' y'} {f : Hom x y} → Hom[ f ] x' y'
     → (ConstL x') =[ constⁿ f ]=>l (ConstL y')
-  const-ntl f' .η' _ = f'
-  const-ntl f' .is-natural' _ _ _ =
+  const-ntl f' .map' _ = f'
+  const-ntl f' .com' _ _ _ =
     cast[] (idr' _ ∙[] (symP (idl' _)))
 ```
 
@@ -161,15 +161,15 @@ functor.
 
 <!--
 ```agda
-  ConstL-natl→Diagram-nat α' .η = α' .η'
-  ConstL-natl→Diagram-nat α' .is-natural x y f =
-    ap hom[] (cast[] $ α' .is-natural' x y f)
+  ConstL-natl→Diagram-nat α' .map = α' .map'
+  ConstL-natl→Diagram-nat α' .com x y f =
+    ap hom[] (cast[] $ α' .com' x y f)
 
-  Diagram-nat→ConstL-natl α .η' = α .η
-  Diagram-nat→ConstL-natl {F = F} {G = G} α .is-natural' x y f =
+  Diagram-nat→ConstL-natl α .map' = α .map
+  Diagram-nat→ConstL-natl {F = F} {G = G} α .com' x y f =
     cast[] $
-      to-pathp[] (α .is-natural x y f)
-      ∙[] symP (coh[ idl id ] (G .F₁ f ∘' α .η x))
+      to-pathp[] (α .com x y f)
+      ∙[] symP (coh[ idl id ] (G .F₁ f ∘' α .map x))
 ```
 -->
 

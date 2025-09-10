@@ -352,21 +352,21 @@ proposition $P$ to the sieve which contains any $h$ iff $P$.
 ```agda
   private interleaved mutual
     m1 : ΩJ cov .fst => ΩJ' .fst
-    m1 .η U (S , _) = lift (S .arrows id)
+    m1 .map U (S , _) = lift (S .arrows id)
 
     m2 : ΩJ' .fst => ΩJ cov .fst
-    m2 .η x P .fst .arrows h = P .lower
+    m2 .map x P .fst .arrows h = P .lower
 ```
 
 <!--
 ```agda
-    m1 .is-natural x y f = ext λ S cl → Ω-ua
+    m1 .com x y f = ext λ S cl → Ω-ua
       (λ hf → cl id (inc (pullback id S , inc (y , f , subst (_∈ S) id-comm hf))))
       (λ hid → subst (_∈ S) id-comm-sym (S .closed hid f))
 
-    m2 .η x P .fst .closed hf _ = hf
-    m2 .η x P .snd h y = case Atomic.unsaturate C sq y of λ _ _ α → α
-    m2 .is-natural x y f = ext λ P → Σ-prop-path! (ext λ _ → refl)
+    m2 .map x P .fst .closed hf _ = hf
+    m2 .map x P .snd h y = case Atomic.unsaturate C sq y of λ _ _ α → α
+    m2 .com x y f = ext λ P → Σ-prop-path! (ext λ _ → refl)
 ```
 -->
 

@@ -41,8 +41,8 @@ There's no secret in choosing the components of the isomorphism:
 
 ```agda
   yo : ∀ {U} → A ʻ U → Hom-into C U => A
-  yo a .η i h = A ⟪ h ⟫ a
-  yo a .is-natural x y f = ext λ h → A.expand refl
+  yo a .map i h = A ⟪ h ⟫ a
+  yo a .com x y f = ext λ h → A.expand refl
 ```
 
 - Given an $\eta : \cC(-, U) \To A$, we obtain a value
@@ -50,7 +50,7 @@ There's no secret in choosing the components of the isomorphism:
 
 ```agda
   unyo : ∀ {U} → Hom-into C U => A → A ʻ U
-  unyo h = h .η _ id
+  unyo h = h .map _ id
 ```
 
 This inverse explains why the Yoneda lemma is sometimes stated as
@@ -63,9 +63,9 @@ expressions which are easy to cancel using naturality and functoriality:
   yo-is-equiv = is-iso→is-equiv λ where
     .is-iso.from   → unyo
     .is-iso.rinv x → ext λ i h →
-      yo (unyo x) .η i h ≡˘⟨ x .is-natural _ _ _ · _ ⟩
-      x .η i (id ∘ h)    ≡⟨ ap (x .η i) (idl h) ⟩
-      x .η i h           ∎
+      yo (unyo x) .map i h ≡˘⟨ x .com _ _ _ · _ ⟩
+      x .map i (id ∘ h)    ≡⟨ ap (x .map i) (idl h) ⟩
+      x .map i h           ∎
     .is-iso.linv x →
       A ⟪ id ⟫ x ≡⟨ A.elim refl ⟩
       x          ∎
@@ -121,12 +121,12 @@ as natural transformations $\cC(-,U) \To B$, for any $x : A(U)$.
 ```agda
   yo-natl
     : ∀ {B : Functor (C ^op) (Sets ℓ)} {U} {x : A ʻ U} {y : B ʻ U} {h : A => B}
-    → h .η U x ≡ y → h ∘nt yo A x ≡ yo B y
-  yo-natl {B = B} {h = h} p = ext λ i f → h .is-natural _ _ _ · _ ∙ PSh.ap B p
+    → h .map U x ≡ y → h ∘nt yo A x ≡ yo B y
+  yo-natl {B = B} {h = h} p = ext λ i f → h .com _ _ _ · _ ∙ PSh.ap B p
 
   yo-naturall
     : ∀ {B : Functor (C ^op) (Sets ℓ)} {U} {x : A ʻ U} {h : A => B}
-    → h ∘nt yo A x ≡ yo B (h .η U x)
+    → h ∘nt yo A x ≡ yo B (h .map U x)
   yo-naturall = yo-natl refl
 ```
 

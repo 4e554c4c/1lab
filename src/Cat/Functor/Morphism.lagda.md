@@ -223,9 +223,9 @@ module _ {L : Functor 𝒟 𝒞} (L⊣F : L ⊣ F) where
   right-adjoint→is-monic {a = a} a-monic f g p =
     R-adjunct.injective L⊣F $
     a-monic _ _ $
-    a 𝒞.∘ ε _ 𝒞.∘ L.₁ f            ≡⟨ 𝒞.pulll (sym (counit.is-natural _ _ _)) ⟩
+    a 𝒞.∘ ε _ 𝒞.∘ L.₁ f            ≡⟨ 𝒞.pulll (sym (counit.com _ _ _)) ⟩
     (ε _ 𝒞.∘ L.₁ (F₁ a)) 𝒞.∘ L.₁ f ≡⟨ L.extendr p ⟩
-    (ε _ 𝒞.∘ L.₁ (F₁ a)) 𝒞.∘ L.₁ g ≡⟨ 𝒞.pushl (counit.is-natural _ _ _) ⟩
+    (ε _ 𝒞.∘ L.₁ (F₁ a)) 𝒞.∘ L.₁ g ≡⟨ 𝒞.pushl (counit.com _ _ _) ⟩
     a 𝒞.∘ ε _ 𝒞.∘ L.₁ g            ∎
 ```
 
@@ -245,9 +245,9 @@ module _ {R : Functor 𝒟 𝒞} (F⊣R : F ⊣ R) where
   left-adjoint→is-epic {a = a} a-epic f g p =
     L-adjunct.injective F⊣R $
     a-epic _ _ $
-    𝒞.pullr (unit.is-natural _ _ _)
+    𝒞.pullr (unit.com _ _ _)
     ∙ R.extendl p
-    ∙ 𝒞.pushr (sym (unit.is-natural _ _ _))
+    ∙ 𝒞.pushr (sym (unit.com _ _ _))
 ```
 
 </details>

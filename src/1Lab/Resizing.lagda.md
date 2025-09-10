@@ -199,7 +199,7 @@ instance
 
 instance
   Map-□ : Map (eff □)
-  Map-□ .Map.map = □-map
+  Map-□ .fmap = □-map
 
   Idiom-□ : Idiom (eff □)
   Idiom-□ .Idiom.pure = inc

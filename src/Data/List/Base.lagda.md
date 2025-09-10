@@ -124,7 +124,7 @@ List B`.
 ```agda
 instance
   Map-List : Map (eff List)
-  Map-List = record { map = go } where
+  Map-List .fmap = go where
     go : (A → B) → List A → List B
     go f []       = []
     go f (x ∷ xs) = f x ∷ go f xs
@@ -162,7 +162,7 @@ concat (x ∷ xs) = x ++ concat xs
 
 count : Nat → List Nat
 count zero = []
-count (suc n) = 0 ∷ map suc (count n)
+count (suc n) = 0 ∷ fmap suc (count n)
 
 product : List Nat → Nat
 product [] = 1
@@ -248,7 +248,7 @@ unzip ((a , b) ∷ xs) = ×-map (a ∷_) (b ∷_) (unzip xs)
 
 sigma : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} → List A → (∀ a → List (B a)) → List (Σ A B)
 sigma [] f = []
-sigma (x ∷ xs) f = map (x ,_) (f x) <> sigma xs f
+sigma (x ∷ xs) f = fmap (x ,_) (f x) <> sigma xs f
 
 instance
   Idiom-List : Idiom (eff List)

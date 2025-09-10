@@ -115,7 +115,7 @@ strict-category→span-monad C cset = m where
   m : Monad Spans[Sets] (el (C .Ob) cset)
   m .M = homs
   m .μ = mult
-  m .η = unit
+  m .map = unit
 ```
 
 It is annoying, but entirely straightforward, to verify that the

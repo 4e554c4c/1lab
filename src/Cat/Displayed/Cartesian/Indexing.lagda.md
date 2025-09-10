@@ -198,10 +198,10 @@ base-changes = Disc-adjunct base-change
 
 base-change-coherence
   : ∀ {a b} {b' : Ob[ b ]} {f g : Hom a b} (p : f ≡ g)
-  → π* g b' ∘' base-changes .F₁ p .η b'
+  → π* g b' ∘' base-changes .F₁ p .map b'
   ≡[ idr _ ∙ sym p ] π* f b'
 base-change-coherence {b' = b'} {f} = J
-  (λ g p → π* g b' ∘' base-changes .F₁ p .η b'
+  (λ g p → π* g b' ∘' base-changes .F₁ p .map b'
          ≡[ idr _ ∙ sym p ] π* f b')
   (elimr' refl Regularity.reduce!)
 ```

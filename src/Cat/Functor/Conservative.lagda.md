@@ -97,7 +97,7 @@ module _ {F : Functor C D} (conservative : is-conservative F) where
   conservative-reflects-limits L-lim preserves {K} {eps} FK-lim =
     is-invertible→is-limitp
       {K = Limit.Ext L-lim} {epsy = Limit.cone L-lim} (Limit.has-limit L-lim)
-      (eps .η) (λ f → sym (eps .is-natural _ _ f) ∙ C.elimr (K .F-id)) refl
+      (eps .map) (λ f → sym (eps .com _ _ f) ∙ C.elimr (K .F-id)) refl
       $ conservative
       $ invert
 
@@ -112,7 +112,7 @@ module _ {F : Functor C D} (conservative : is-conservative F) where
           (λ j → F .F₁ (L-lim.ψ j))
           (λ f → sym (F .F-∘ _ _) ∙ ap (F .F₁) (L-lim.commutes f))
 
-      invert : D.is-invertible (F .F₁ (L-lim.universal (eps .η) _))
+      invert : D.is-invertible (F .F₁ (L-lim.universal (eps .map) _))
       invert =
         D.make-invertible uinv
           (FL-lim.unique₂ FL-lim.ψ (λ j → FL-lim.commutes j)
@@ -169,7 +169,7 @@ about colimits follows by duality.
   conservative-reflects-colimits C-colim preserves {K} {eta} FK-colim =
     is-invertible→is-colimitp
       {K = Colimit.Ext C-colim} {etay = Colimit.cocone C-colim} (Colimit.has-colimit C-colim)
-      (eta .η) (λ f → eta .is-natural _ _ f ∙ C.eliml (K .F-id)) refl
+      (eta .map) (λ f → eta .com _ _ f ∙ C.eliml (K .F-id)) refl
       $ conservative
       $ invert
 
@@ -184,7 +184,7 @@ about colimits follows by duality.
           (λ j → F .F₁ (C-colim.ψ j))
           (λ f → sym (F .F-∘ _ _) ∙ ap (F .F₁) (C-colim.commutes f))
 
-      invert : D.is-invertible (F .F₁ (C-colim.universal (eta .η) _))
+      invert : D.is-invertible (F .F₁ (C-colim.universal (eta .map) _))
       invert =
         D.make-invertible uinv
           (FK-colim.unique₂ _ (λ j → FK-colim.commutes j)

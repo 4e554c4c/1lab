@@ -120,21 +120,21 @@ module
     invs = invertible→invertibleⁿ counit λ x →
       is-reflective→counit-is-invertible
 
-  η-comonad-commute : ∀ {x} → unit.η (ι.₀ (L.₀ x)) ≡ ι.₁ (L.₁ (unit.η x))
+  η-comonad-commute : ∀ {x} → unit.map (ι.₀ (L.₀ x)) ≡ ι.₁ (L.₁ (unit.map x))
   η-comonad-commute {x} = C.right-inv-unique
     (F-map-iso ι is-reflective→counit-is-iso)
     zag
     (sym (ι.F-∘ _ _) ∙ ap ι.₁ zig ∙ ι.F-id)
 
-  is-reflective→unit-right-is-iso : ∀ {o} → C.is-invertible (unit.η (ι.₀ o))
+  is-reflective→unit-right-is-iso : ∀ {o} → C.is-invertible (unit.map (ι.₀ o))
   is-reflective→unit-right-is-iso {o} = C.make-invertible (ι-ff.to (ε _))
-    (unit.is-natural _ _ _ ∙∙ ap₂ C._∘_ refl η-comonad-commute ∙∙ ιL.annihilate zag)
+    (unit.com _ _ _ ∙∙ ap₂ C._∘_ refl η-comonad-commute ∙∙ ιL.annihilate zag)
     zag
 
-  is-reflective→left-unit-is-iso : ∀ {o} → D.is-invertible (L.₁ (unit.η o))
+  is-reflective→left-unit-is-iso : ∀ {o} → D.is-invertible (L.₁ (unit.map o))
   is-reflective→left-unit-is-iso {o} = D.make-invertible
     (ε _)
-    (sym (counit.is-natural _ _ _) ∙ ap₂ D._∘_ refl (ap L.₁ (sym η-comonad-commute)) ∙ zig)
+    (sym (counit.com _ _ _) ∙ ap₂ D._∘_ refl (ap L.₁ (sym η-comonad-commute)) ∙ zig)
     zig
 ```
 -->
@@ -198,9 +198,9 @@ because $\eps$ is.
     Lo→o .snd = alg .ν-mult
 
     o→Lo : Algebra-hom (R∘L adj) (ob , alg) (Comp.₀ (L.₀ ob))
-    o→Lo .fst = unit.η _
+    o→Lo .fst = unit.map _
     o→Lo .snd =
-        unit.is-natural _ _ _
+        unit.com _ _ _
       ∙ ap₂ C._∘_ refl (η-comonad-commute adj ι-ff)
       ∙ sym (ι.F-∘ _ _)
       ∙ ap ι.₁ (sym (L.F-∘ _ _) ∙∙ ap L.₁ (alg .ν-unit) ∙∙ L.F-id)
@@ -210,7 +210,7 @@ because $\eps$ is.
     isom = EM.make-iso Lo→o o→Lo
       (ext (alg .ν-unit))
       (ext (
-          unit.is-natural _ _ _
+          unit.com _ _ _
         ∙∙ ap₂ C._∘_ refl (η-comonad-commute adj ι-ff)
         ∙∙ sym (ι.F-∘ _ _)
         ∙∙ ap ι.₁ (sym (L.F-∘ _ _) ∙∙ ap L.₁ (alg .ν-unit) ∙∙ L.F-id)
@@ -300,17 +300,17 @@ invertible.
       module α = Isoⁿ α
 
       δ : Id {C = D} => Id
-      δ .η x = α.to .η x D.∘ α.to .η (L.₀ (R.₀ x)) D.∘ L.₁ (unit.η (R.₀ x)) D.∘ α.from .η x
-      δ .is-natural x y f =
-          D.extendr (D.extendr (D.extendr (α.from .is-natural _ _ _)))
-        ∙ D.pushl (D.pushr (D.pushr (L.weave (unit .is-natural _ _ _))))
-        ∙ D.pushl (D.pushr (α.to .is-natural _ _ _))
-        ∙ D.pushl (α.to .is-natural _ _ _)
+      δ .map x = α.to .map x D.∘ α.to .map (L.₀ (R.₀ x)) D.∘ L.₁ (unit.map (R.₀ x)) D.∘ α.from .map x
+      δ .com x y f =
+          D.extendr (D.extendr (D.extendr (α.from .com _ _ _)))
+        ∙ D.pushl (D.pushr (D.pushr (L.weave (unit .com _ _ _))))
+        ∙ D.pushl (D.pushr (α.to .com _ _ _))
+        ∙ D.pushl (α.to .com _ _ _)
 
       right-ident : (counit ∘nt α.from) ∘nt δ ≡ idnt
       right-ident = ext λ x →
           D.cancel-inner (α.invr ηₚ _)
-        ∙ D.pulll (sym $ α.to .is-natural _ _ _)
+        ∙ D.pulll (sym $ α.to .com _ _ _)
         ∙ D.cancel-inner (L.annihilate zag)
         ∙ α.invl ηₚ _
 

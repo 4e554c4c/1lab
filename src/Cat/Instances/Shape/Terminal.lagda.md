@@ -108,8 +108,8 @@ correspond to isomorphisms in $\cC$.
     : ∀ {F G : Functor ⊤Cat C}
     → C.Hom (F .F₀ tt) (G .F₀ tt)
     → F => G
-  !constⁿ {F = F} {G = G} f .η _ = f
-  !constⁿ {F = F} {G = G} f .is-natural _ _ _ =
+  !constⁿ {F = F} {G = G} f .map _ = f
+  !constⁿ {F = F} {G = G} f .com _ _ _ =
     C.elimr (F .F-id) ∙ C.introl (G .F-id)
 
   !const-isoⁿ

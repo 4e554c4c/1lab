@@ -199,47 +199,47 @@ abbreviations here too:
 
 ```agda
   λ← : ∀ {A B} (f : A ↦ B) → id ⊗ f ⇒ f
-  λ← = unitor-l .Cr._≅_.from .η
+  λ← = unitor-l .Cr._≅_.from .map
 
   λ→ : ∀ {A B} (f : A ↦ B) → f ⇒ id ⊗ f
-  λ→ = unitor-l .Cr._≅_.to .η
+  λ→ = unitor-l .Cr._≅_.to .map
 
   ρ← : ∀ {A B} (f : A ↦ B) → f ⊗ id ⇒ f
-  ρ← = unitor-r .Cr._≅_.from .η
+  ρ← = unitor-r .Cr._≅_.from .map
 
   ρ→ : ∀ {A B} (f : A ↦ B) → f ⇒ f ⊗ id
-  ρ→ = unitor-r .Cr._≅_.to .η
+  ρ→ = unitor-r .Cr._≅_.to .map
 
   ρ←nat : ∀ {A B} {f f' : A ↦ B} (β : f ⇒ f')
         → Path ((f ⊗ id) ⇒ f') (ρ← _ ∘ (β ◀ id)) (β ∘ ρ← _)
-  ρ←nat {A} {B} {f} {f'} β = unitor-r .Cr.from .is-natural f f' β
+  ρ←nat {A} {B} {f} {f'} β = unitor-r .Cr.from .com f f' β
 
   λ←nat : ∀ {A B} {f f' : A ↦ B} (β : f ⇒ f')
         → Path ((id ⊗ f) ⇒ f') (λ← _ ∘ (id ▶ β)) (β ∘ λ← _)
-  λ←nat {A} {B} {f} {f'} β = unitor-l .Cr.from .is-natural f f' β
+  λ←nat {A} {B} {f} {f'} β = unitor-l .Cr.from .com f f' β
 
   ρ→nat : ∀ {A B} {f f' : A ↦ B} (β : f ⇒ f')
         → Path (f ⇒ f' ⊗ id) (ρ→ _ ∘ β) ((β ◀ id) ∘ ρ→ _)
-  ρ→nat {A} {B} {f} {f'} β = unitor-r .Cr.to .is-natural f f' β
+  ρ→nat {A} {B} {f} {f'} β = unitor-r .Cr.to .com f f' β
 
   λ→nat : ∀ {A B} {f f' : A ↦ B} (β : f ⇒ f')
         → Path (f ⇒ id ⊗ f') (λ→ _ ∘ β) ((id ▶ β) ∘ λ→ _)
-  λ→nat {A} {B} {f} {f'} β = unitor-l .Cr.to .is-natural f f' β
+  λ→nat {A} {B} {f} {f'} β = unitor-l .Cr.to .com f f' β
 
   α→ : ∀ {A B C D} (f : C ↦ D) (g : B ↦ C) (h : A ↦ B)
      → (f ⊗ g) ⊗ h ⇒ f ⊗ (g ⊗ h)
-  α→ f g h = associator.to .η (f , g , h)
+  α→ f g h = associator.to .map (f , g , h)
 
   α← : ∀ {A B C D} (f : C ↦ D) (g : B ↦ C) (h : A ↦ B)
      → f ⊗ (g ⊗ h) ⇒ (f ⊗ g) ⊗ h
-  α← f g h = associator.from .η (f , g , h)
+  α← f g h = associator.from .map (f , g , h)
 
   α←nat : ∀ {A B C D} {f f' : C ↦ D} {g g' : B ↦ C} {h h' : A ↦ B}
         → (β : f ⇒ f') (γ : g ⇒ g') (δ : h ⇒ h')
         → Path (f ⊗ g ⊗ h ⇒ ((f' ⊗ g') ⊗ h'))
           (α← _ _ _ ∘ (β ◆ (γ ◆ δ))) (((β ◆ γ) ◆ δ) ∘ α← _ _ _)
   α←nat {A} {B} {C} {D} {f} {f'} {g} {g'} {h} {h'} β γ δ =
-    associator.from .is-natural (f , g , h) (f' , g' , h') (β , γ , δ)
+    associator.from .com (f , g , h) (f' , g' , h') (β , γ , δ)
 
   α→nat : ∀ {A B C D} {f f' : C ↦ D} {g g' : B ↦ C} {h h' : A ↦ B}
         → (β : f ⇒ f') (γ : g ⇒ g') (δ : h ⇒ h')
@@ -247,7 +247,7 @@ abbreviations here too:
            (α→ _ _ _ ∘ ((β ◆ γ) ◆ δ))
            ((β ◆ (γ ◆ δ)) ∘ α→ _ _ _)
   α→nat {A} {B} {C} {D} {f} {f'} {g} {g'} {h} {h'} β γ δ =
-    associator.to .is-natural (f , g , h) (f' , g' , h') (β , γ , δ)
+    associator.to .com (f , g , h) (f' , g' , h') (β , γ , δ)
 ```
 
 The final data we need are coherences relating the left and right
@@ -457,7 +457,7 @@ have components $F_1(f)F_1(g) \To F_1(fg)$ and $\id \To F_1(\id)$.
 
   γ→ : ∀ {a b c} (f : b B.↦ c) (g : a B.↦ b)
      → ₁ f C.⊗ ₁ g C.⇒ ₁ (f B.⊗ g)
-  γ→ f g = compositor .η (f , g)
+  γ→ f g = compositor .map (f , g)
 ```
 -->
 
@@ -588,7 +588,7 @@ and thus consists of a natural family of 2-cells $G(f)\sigma_a \To
         → preaction C (σ b) F∘ G.P₁ => postaction C (σ a) F∘ F.P₁
 
     ν→ : ∀ {a b} (f : a B.↦ b) → G.₁ f C.⊗ σ a C.⇒ σ b C.⊗ F.₁ f
-    ν→ = naturator .η
+    ν→ = naturator .map
 ```
 
 The naturator $\nu$ is required to be compatible with the compositor and

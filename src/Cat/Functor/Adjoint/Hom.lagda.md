@@ -102,16 +102,16 @@ of adjunction units and co-units.
 
 ```agda
     adj' : L ⊣ R
-    adj' .unit .η x = f C.id
-    adj' .unit .is-natural x y h =
+    adj' .unit .map x = f C.id
+    adj' .unit .com x y h =
       f C.id D.∘ h                    ≡⟨ D.introl R.F-id ⟩
       R.₁ C.id D.∘ f C.id D.∘ h       ≡˘⟨ natural _ _ _ ⟩
       f (C.id C.∘ C.id C.∘ L.₁ h)     ≡⟨ ap f (C.cancell (C.idl _) ∙ C.intror (C.idl _ ∙ L.F-id)) ⟩
       f (L.₁ h C.∘ C.id C.∘ L.₁ D.id) ≡⟨ natural _ _ C.id ⟩
       R.₁ (L.₁ h) D.∘ f C.id D.∘ D.id ≡⟨ D.refl⟩∘⟨ D.idr _ ⟩
       R.₁ (L.₁ h) D.∘ f C.id          ∎
-    adj' .counit .η x = f⁻¹ D.id
-    adj' .counit .is-natural x y f =
+    adj' .counit .map x = f⁻¹ D.id
+    adj' .counit .com x y f =
       f⁻¹ D.id C.∘ L.₁ (R.₁ f) ≡⟨ C.introl refl ⟩
       C.id C.∘ f⁻¹ D.id C.∘ L.₁ (R.₁ f) ≡˘⟨ inv-natural _ _ _ ⟩
       f⁻¹ (R.₁ C.id D.∘ D.id D.∘ R.₁ f) ≡⟨ ap f⁻¹ (D.cancell (D.idr _ ∙ R.F-id) ∙ D.intror (D.idl _)) ⟩
@@ -165,8 +165,8 @@ module _ {o ℓ o'} {C : Precategory o ℓ} {D : Precategory o' ℓ}
     : (Hom[-,-] C F∘ (Functor.op L F× Id)) ≅ⁿ (Hom[-,-] D F∘ (Id F× R))
     → L ⊣ R
   hom-natural-iso→adjoints eta =
-    hom-iso→adjoints (to .η _) (natural-iso-to-is-equiv eta (_ , _)) λ g h x →
-      happly (to .is-natural _ _ (h , g)) x
+    hom-iso→adjoints (to .map _) (natural-iso-to-is-equiv eta (_ , _)) λ g h x →
+      happly (to .com _ _ (h , g)) x
     where
       open Isoⁿ eta
       open _=>_

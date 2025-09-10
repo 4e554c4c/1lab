@@ -204,10 +204,10 @@ fold-pure [] = refl
 fold-pure {X = X} (x ∷ xs) = ap (x ∷_) (fold-pure {X = X} xs)
 
 Free-monoid⊣Forget : ∀ {ℓ} → Free-monoid {ℓ} ⊣ Mon↪Sets
-Free-monoid⊣Forget .unit .η _ x = x ∷ []
-Free-monoid⊣Forget .unit .is-natural x y f = refl
-Free-monoid⊣Forget .counit .η M = ∫hom (fold _) record { pres-id = refl ; pres-⋆ = fold-++ }
-Free-monoid⊣Forget .counit .is-natural x y th =
+Free-monoid⊣Forget .unit .map _ x = x ∷ []
+Free-monoid⊣Forget .unit .com x y f = refl
+Free-monoid⊣Forget .counit .map M = ∫hom (fold _) record { pres-id = refl ; pres-⋆ = fold-++ }
+Free-monoid⊣Forget .counit .com x y th =
   ext $ fold-natural (th .fst) (th .snd)
 Free-monoid⊣Forget .zig {A = A} =
   ext $ fold-pure {X = A}

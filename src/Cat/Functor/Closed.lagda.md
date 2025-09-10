@@ -67,7 +67,7 @@ Uncurry {C = C} {D = D} {E = E} F = uncurried where
 
   uncurried : Functor (C ×ᶜ D) E
   uncurried .F₀ (c , d) = F.₀ c .F₀ d
-  uncurried .F₁ (f , g) = F.₁ f .η _ E.∘ F.₀ _ .F₁ g
+  uncurried .F₁ (f , g) = F.₁ f .map _ E.∘ F.₀ _ .F₁ g
 ```
 
 The other direction must do slightly more calculation: Given a functor
@@ -78,20 +78,20 @@ functoriality constraints.
 
 ```agda
   uncurried .F-id {x = x , y} = path where abstract
-    path : E ._∘_ (F.₁ (C .id) .η y) (F.₀ x .F₁ (D .id)) ≡ E .id
+    path : E ._∘_ (F.₁ (C .id) .map y) (F.₀ x .F₁ (D .id)) ≡ E .id
     path =
-      F.₁ C.id .η y E.∘ F.₀ x .F₁ D.id ≡⟨ E.elimr (F.₀ x .F-id) ⟩
-      F.₁ C.id .η y                    ≡⟨ (λ i → F.F-id i .η y) ⟩
+      F.₁ C.id .map y E.∘ F.₀ x .F₁ D.id ≡⟨ E.elimr (F.₀ x .F-id) ⟩
+      F.₁ C.id .map y                    ≡⟨ (λ i → F.F-id i .map y) ⟩
       E.id                             ∎
 
   uncurried .F-∘ (f , g) (f' , g') = path where abstract
     path : uncurried .F₁ (f C.∘ f' , g D.∘ g')
          ≡ uncurried .F₁ (f , g) E.∘ uncurried .F₁ (f' , g')
     path =
-      F.₁ (f C.∘ f') .η _ E.∘ F.₀ _ .F₁ (g D.∘ g')                      ≡˘⟨ E.pulll (λ i → F.F-∘ f f' (~ i) .η _) ⟩
-      F.₁ f .η _ E.∘ F.₁ f' .η _ E.∘ ⌜ F.₀ _ .F₁ (g D.∘ g') ⌝           ≡⟨ ap! (F.₀ _ .F-∘ _ _) ⟩
-      F.₁ f .η _ E.∘ F.₁ f' .η _ E.∘ F.₀ _ .F₁ g E.∘ F.₀ _ .F₁ g'       ≡⟨ cat! E ⟩
-      F.₁ f .η _ E.∘ ⌜ F.₁ f' .η _ E.∘ F.₀ _ .F₁ g ⌝ E.∘ F.₀ _ .F₁ g'   ≡⟨ ap! (F.₁ f' .is-natural _ _ _) ⟩
-      F.₁ f .η _ E.∘ (F.₀ _ .F₁ g E.∘ F.₁ f' .η _) E.∘ F.₀ _ .F₁ g'     ≡⟨ cat! E ⟩
-      ((F.₁ f .η _ E.∘ F.₀ _ .F₁ g) E.∘ (F.₁ f' .η _ E.∘ F.₀ _ .F₁ g')) ∎
+      F.₁ (f C.∘ f') .map _ E.∘ F.₀ _ .F₁ (g D.∘ g')                      ≡˘⟨ E.pulll (λ i → F.F-∘ f f' (~ i) .map _) ⟩
+      F.₁ f .map _ E.∘ F.₁ f' .map _ E.∘ ⌜ F.₀ _ .F₁ (g D.∘ g') ⌝           ≡⟨ ap! (F.₀ _ .F-∘ _ _) ⟩
+      F.₁ f .map _ E.∘ F.₁ f' .map _ E.∘ F.₀ _ .F₁ g E.∘ F.₀ _ .F₁ g'       ≡⟨ cat! E ⟩
+      F.₁ f .map _ E.∘ ⌜ F.₁ f' .map _ E.∘ F.₀ _ .F₁ g ⌝ E.∘ F.₀ _ .F₁ g'   ≡⟨ ap! (F.₁ f' .com _ _ _) ⟩
+      F.₁ f .map _ E.∘ (F.₀ _ .F₁ g E.∘ F.₁ f' .map _) E.∘ F.₀ _ .F₁ g'     ≡⟨ cat! E ⟩
+      ((F.₁ f .map _ E.∘ F.₀ _ .F₁ g) E.∘ (F.₁ f' .map _ E.∘ F.₀ _ .F₁ g')) ∎
 ```

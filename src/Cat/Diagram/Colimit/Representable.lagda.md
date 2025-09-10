@@ -56,8 +56,8 @@ conditions.
   Hom-into-inj
     : ∀ {c : C.Ob} (eta : Dia => Const c)
     → Hom-from C c => Lim[C[F-,=]]
-  Hom-into-inj eta .η x f = constⁿ f ∘nt eta
-  Hom-into-inj eta .is-natural x y f = ext λ g _ →
+  Hom-into-inj eta .map x f = constⁿ f ∘nt eta
+  Hom-into-inj eta .com x y f = ext λ g _ →
     sym $ C.assoc _ _ _
 
   represents→is-colimit
@@ -69,11 +69,11 @@ conditions.
 
     colim : is-colimit Dia c eta
     colim .σ {M} α =
-      !constⁿ (nat-inv.inv .η _ (to-coconeⁿ α))
+      !constⁿ (nat-inv.inv .map _ (to-coconeⁿ α))
     colim .σ-comm {M} {α} = ext λ j → unext nat-inv.invl _ _ j
     colim .σ-uniq {M} {α} {σ'} q = ext λ j →
-      nat-inv.inv .η _ (to-coconeⁿ ⌜ α ⌝)                  ≡⟨ ap! q ⟩
-      nat-inv.inv .η _ ⌜ to-coconeⁿ ((σ' ◂ !F) ∘nt eta) ⌝  ≡⟨ ap! (ext λ i → refl) ⟩
-      nat-inv.inv .η _ ((!constⁿ (σ' .η tt) ◂ !F) ∘nt eta) ≡⟨ unext nat-inv.invr _ _ ⟩
-      σ' .η tt                                             ∎
+      nat-inv.inv .map _ (to-coconeⁿ ⌜ α ⌝)                  ≡⟨ ap! q ⟩
+      nat-inv.inv .map _ ⌜ to-coconeⁿ ((σ' ◂ !F) ∘nt eta) ⌝  ≡⟨ ap! (ext λ i → refl) ⟩
+      nat-inv.inv .map _ ((!constⁿ (σ' .map tt) ◂ !F) ∘nt eta) ≡⟨ unext nat-inv.invr _ _ ⟩
+      σ' .map tt                                             ∎
 ```

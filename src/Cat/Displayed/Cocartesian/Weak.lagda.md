@@ -805,7 +805,7 @@ assigning adjuncts is an equivalence!
         eqv' : is-equiv λ h' → π*.universalv (hom[ idl _ ] (h' ∘' ι!))
         eqv' = is-iso→is-equiv record where
           from f = eqv.from f
-          linv x = ap eqv.from (sym (coh _)) ∙ eqv.η _
+          linv x = ap eqv.from (sym (coh _)) ∙ eqv.map _
           rinv x = sym (coh _) ∙ eqv.ε _
 ```
 
@@ -922,7 +922,7 @@ the details.
       (f^!.₁ h' ∘' π* f (f.^! x')) ∘' η x'
         ≡[]⟨ Fib.pushlf (symP $ π*.commutesp id-comm _) ⟩
       π* f (f.^! x'') ∘' π*.universal' id-comm (f^!.₁ h' ∘' π* f (f.^! x')) Fib.∘ η x'
-        ≡[]˘⟨ (refl⟩∘'⟨ unit.is-natural _ _ _) ⟩
+        ≡[]˘⟨ (refl⟩∘'⟨ unit.com _ _ _) ⟩
       π* f (f.^! x'') ∘' (η x'' Fib.∘ h')
         ≡[]⟨ Fib.pulllf (wrap (idr _)) ⟩
       hom[] (π* f (f.^! x'') ∘' η x'') ∘' h' ∎
@@ -954,7 +954,7 @@ spare the reader the details.
             ∙[] pullr[] _ (π*.commutesv _)
             ∙[] π*.commutesp (idl f) _)
             (idr' _)))
-      ∙ Fib.extendl (counit.is-natural (id ^* y') y' (π* id y'))
+      ∙ Fib.extendl (counit.com (id ^* y') y' (π* id y'))
       ∙ reindex _ _
 
     left-adjoint→unit-cartesian-universal =
@@ -1071,10 +1071,10 @@ module _ (U : ∀ {x y} → Hom x y → Functor (Fibre ℰ x) (Fibre ℰ y)) whe
   hom-iso→weak-opfibration hom-iso =
     vertical-equiv→weak-opfibration
       (λ u → U u .F₀)
-      (λ u' → Isoⁿ.to (hom-iso _) .η _ u')
+      (λ u' → Isoⁿ.to (hom-iso _) .map _ u')
       (natural-iso-to-is-equiv (hom-iso _) _)
       λ f' g' → to-pathp[]⁻ $
-        happly (Isoⁿ.to (hom-iso _) .is-natural _ _ f') g'
+        happly (Isoⁿ.to (hom-iso _) .com _ _ f') g'
 ```
 -->
 
@@ -1135,9 +1135,9 @@ module _ (opfib : Cocartesian-fibration) where
     mi .inv∘eta x = funext λ u' →
       from-pathp[] (ι!.commutesv _)
     mi .natural _ _ (v₁' , v₂') = funext λ u' →
-      Fibre.pulll (sym (happly (from-iso.to .is-natural _ _ v₂') u'))
-      ∙∙ sym (happly (into-iso.to .is-natural _ _ v₁') (hom[ idl _ ] (v₂' ∘' u')))
-      ∙∙ ap (into-iso.to .η _) (smashl _ _ ∙ sym assoc[])
+      Fibre.pulll (sym (happly (from-iso.to .com _ _ v₂') u'))
+      ∙∙ sym (happly (into-iso.to .com _ _ v₁') (hom[ idl _ ] (v₂' ∘' u')))
+      ∙∙ ap (into-iso.to .map _) (smashl _ _ ∙ sym assoc[])
 
   opfibration→universal-is-equiv
     : ∀ {x y x' y'}

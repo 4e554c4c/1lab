@@ -132,7 +132,7 @@ functor $U$ reflects limits: We already had an algebra structure
 ```agda
   Forget-reflects-limits : reflects-limit Forget-EM F
   Forget-reflects-limits {K} {eps} lim = to-is-limitp
-    (make-algebra-limit lim (K .F₀ tt .snd) (λ j → eps .η j .snd))
+    (make-algebra-limit lim (K .F₀ tt .snd) (λ j → eps .map j .snd))
     (ext refl)
 ```
 
@@ -196,7 +196,7 @@ more complicated.
 ```agda
     apex-algebra .ν-unit = lim-over.unique₂ _ lim-over.commutes
       (λ j → C.pulll (lim-over.factors _ _)
-          ∙∙ C.pullr (sym $ M.unit.is-natural _ _ _)
+          ∙∙ C.pullr (sym $ M.unit.com _ _ _)
           ∙∙ C.cancell (FAlg.ν-unit j))
       (λ j → C.idr _)
     apex-algebra .ν-mult = lim-over.unique₂ _
@@ -206,7 +206,7 @@ more complicated.
       (λ j → C.pulll (lim-over.factors _ _)
           ∙∙ C.pullr (sym (M.M-∘ _ _) ∙ ap M.M₁ (lim-over.factors _ _) ∙ M.M-∘ _ _)
           ∙∙ C.extendl (sym (FAlg.ν-mult j))
-          ∙∙ ap (FAlg.ν j C.∘_) (M.mult.is-natural _ _ _)
+          ∙∙ ap (FAlg.ν j C.∘_) (M.mult.com _ _ _)
           ∙∙ C.assoc _ _ _)
 ```
 

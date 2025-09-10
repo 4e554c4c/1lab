@@ -72,8 +72,8 @@ $px : P(X)$. Then, to construct the injection map, we can just use the
     module ∫ = Precategory (∫ C P)
 
     colim : make-is-colimit (よ F∘ πₚ C P) P
-    colim .ψ x .η y f = P.F₁ f (x .section)
-    colim .ψ x .is-natural y z f =
+    colim .ψ x .map y f = P.F₁ f (x .section)
+    colim .ψ x .com y z f =
       funext (λ g → happly (P.F-∘ f g) (x .section))
     colim .commutes {x = x} {y = y} f = ext λ z g →
       P.F₁ (f .hom ∘ g) (y .section)      ≡⟨ happly (P.F-∘ g (f .hom)) (y .section) ⟩
@@ -96,12 +96,12 @@ construct to the identity morphism. Naturality follows from the fact
 that $K$ is a cocone, and the components of $K$ are natural.
 
 ```agda
-    colim .universal eta _ .η x px =  eta (elem x px) .η x id
-    colim .universal {Q} eta comm .is-natural x y f = funext λ px →
-      eta (elem y (P.F₁ f px)) .η y id        ≡˘⟨ (λ i → comm (induce C P f px) i .η y id) ⟩
-      eta (elem x px) .η y (f ∘ id)           ≡⟨ ap (eta (elem x px) .η y) id-comm ⟩
-      eta (elem x px) .η y (id ∘ f)           ≡⟨ happly (eta (elem x px) .is-natural x y f) id ⟩
-      Q .F₁ f (eta (elem x px) .η x id)       ∎
+    colim .universal eta _ .map x px =  eta (elem x px) .map x id
+    colim .universal {Q} eta comm .com x y f = funext λ px →
+      eta (elem y (P.F₁ f px)) .map y id        ≡˘⟨ (λ i → comm (induce C P f px) i .map y id) ⟩
+      eta (elem x px) .map y (f ∘ id)           ≡⟨ ap (eta (elem x px) .map y) id-comm ⟩
+      eta (elem x px) .map y (id ∘ f)           ≡⟨ happly (eta (elem x px) .com x y f) id ⟩
+      Q .F₁ f (eta (elem x px) .map x id)       ∎
 ```
 
 Next, we need to show that this morphism factors each of the components
@@ -110,9 +110,9 @@ of $K$. The tricky bit of the proof here is that we need to use
 
 ```agda
     colim .factors {o} eta comm = ext λ x f →
-      eta (elem x (P.F₁ f (o .section))) .η x id ≡˘⟨ (λ i → comm (induce C P f (o .section)) i .η x id) ⟩
-      eta o .η x (f ∘ id)                        ≡⟨ ap (eta o .η x) (idr f) ⟩
-      eta o .η x f                               ∎
+      eta (elem x (P.F₁ f (o .section))) .map x id ≡˘⟨ (λ i → comm (induce C P f (o .section)) i .map x id) ⟩
+      eta o .map x (f ∘ id)                        ≡⟨ ap (eta o .map x) (idr f) ⟩
+      eta o .map x f                               ∎
 ```
 
 Finally, uniqueness: This just follows by the commuting conditions on
@@ -120,9 +120,9 @@ Finally, uniqueness: This just follows by the commuting conditions on
 
 ```agda
     colim .unique eta comm α p = ext λ x px →
-      α .η x px               ≡˘⟨ ap (α .η x) (happly P.F-id px) ⟩
-      α .η x (P.F₁ id px)     ≡⟨ happly (p _ ηₚ x) id ⟩
-      eta (elem x px) .η x id ∎
+      α .map x px               ≡˘⟨ ap (α .map x) (happly P.F-id px) ⟩
+      α .map x (P.F₁ id px)     ≡⟨ happly (p _ ηₚ x) id ⟩
+      eta (elem x px) .map x id ∎
 ```
 
 And that's it! The important takeaway here is not the shuffling around
@@ -152,14 +152,14 @@ fact that $\id$ is initial the coslice category under $P$.
     Map→cocone-under : Cocone (よ F∘ πₚ C P)
     Map→cocone-under .coapex = Y
 
-    Map→cocone-under .ψ (elem ob sect) .η x i = f .η x (P.₁ i sect)
-    Map→cocone-under .ψ (elem ob sect) .is-natural x y h = funext λ a →
-      f .η _ (P.₁ (a ∘ h) sect)   ≡⟨ happly (f .is-natural _ _ _) _ ⟩
-      Y.₁ (a ∘ h) (f .η _ sect)   ≡⟨ happly (Y.F-∘ _ _) _ ⟩
-      Y.₁ h (Y.₁ a (f .η _ sect)) ≡˘⟨ ap (Y .F₁ h) (happly (f .is-natural _ _ _) _) ⟩
-      Y.₁ h (f .η _ (P.₁ a sect)) ∎
+    Map→cocone-under .ψ (elem ob sect) .map x i = f .map x (P.₁ i sect)
+    Map→cocone-under .ψ (elem ob sect) .com x y h = funext λ a →
+      f .map _ (P.₁ (a ∘ h) sect)   ≡⟨ happly (f .com _ _ _) _ ⟩
+      Y.₁ (a ∘ h) (f .map _ sect)   ≡⟨ happly (Y.F-∘ _ _) _ ⟩
+      Y.₁ h (Y.₁ a (f .map _ sect)) ≡˘⟨ ap (Y .F₁ h) (happly (f .com _ _ _) _) ⟩
+      Y.₁ h (f .map _ (P.₁ a sect)) ∎
 
-    Map→cocone-under .commutes {x} {y} o = ext λ i a → ap (f .η _) $
+    Map→cocone-under .commutes {x} {y} o = ext λ i a → ap (f .map _) $
       P.₁ (o .hom ∘ a) (y .section)     ≡⟨ happly (P.F-∘ _ _) _ ⟩
       P.₁ a (P.₁ (o .hom) (y .section)) ≡⟨ ap (P.F₁ _) (o .commute) ⟩
       P.₁ a (x .section)                ∎
@@ -234,7 +234,7 @@ private module _ where private
   よ-cancelr sep =
     ff→faithful {F = よ} よ-is-fully-faithful $
       Representables-generate-presheaf λ h → ext λ x a →
-        sep (h .η x a)
+        sep (h .map x a)
 ```
 
 However note that we have eliminated a mosquito using a low-orbit ion

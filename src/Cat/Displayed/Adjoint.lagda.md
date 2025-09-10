@@ -80,9 +80,9 @@ module _
 
     field
       zig' : ∀ {x} {x' : ℰ.Ob[ x ]}
-          → (counit'.ε' (L' .F₀' x') ℱ.∘' L' .F₁' (unit'.η' x')) ℱ.≡[ zig ] ℱ.id'
+          → (counit'.ε' (L' .F₀' x') ℱ.∘' L' .F₁' (unit'.map' x')) ℱ.≡[ zig ] ℱ.id'
       zag' : ∀ {x} {x' : ℱ.Ob[ x ]}
-          → (R' .F₁' (counit'.ε' x') ℰ.∘' unit'.η' (R' .F₀' x')) ℰ.≡[ zag ] ℰ.id'
+          → (R' .F₁' (counit'.ε' x') ℰ.∘' unit'.map' (R' .F₀' x')) ℰ.≡[ zag ] ℰ.id'
 ```
 
 ## Fibred adjunctions {defines="fibred-adjunction fibred-left-adjoint fibred-right-adjoint"}
@@ -133,7 +133,7 @@ module _
 
     field
       zig' : ∀ {x} {x' : ℰ.Ob[ x ]}
-           → counit'.ε' (L .F₀' x') ℱ.∘' L .F₁' (unit'.η' x') ℱ.≡[ idl id ] ℱ.id'
+           → counit'.ε' (L .F₀' x') ℱ.∘' L .F₁' (unit'.map' x') ℱ.≡[ idl id ] ℱ.id'
       zag' : ∀ {x} {x' : ℱ.Ob[ x ]}
-           → R .F₁' (counit'.ε' x') ℰ.∘' unit'.η' (R .F₀' x') ℰ.≡[ idl id ] ℰ.id'
+           → R .F₁' (counit'.ε' x') ℰ.∘' unit'.map' (R .F₀' x') ℰ.≡[ idl id ] ℰ.id'
 ```

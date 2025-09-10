@@ -312,11 +312,11 @@ equivalent as this category is self-dual.
         (lift ⊙ fst) (lift ⊙ fst ⊙ snd)
     in opFˡ (opFˡ it)
 
-  graph→presheaf .F₁ f .η true  a = lift (f .node (a .lower))
-  graph→presheaf .F₁ f .η false a = _ , _ , f .edge (a .snd .snd)
-  graph→presheaf .F₁ f .is-natural x y idh = refl
-  graph→presheaf .F₁ f .is-natural x y inl = refl
-  graph→presheaf .F₁ f .is-natural x y inr = refl
+  graph→presheaf .F₁ f .map true  a = lift (f .node (a .lower))
+  graph→presheaf .F₁ f .map false a = _ , _ , f .edge (a .snd .snd)
+  graph→presheaf .F₁ f .com x y idh = refl
+  graph→presheaf .F₁ f .com x y inl = refl
+  graph→presheaf .F₁ f .com x y inr = refl
 
   graph→presheaf .F-id = ext λ where
     true  x → refl
@@ -328,12 +328,12 @@ equivalent as this category is self-dual.
   g→p-is-ff : is-fully-faithful graph→presheaf
   g→p-is-ff {x = x} {y = y} = is-iso→is-equiv (iso from ir il) where
     from : graph→presheaf · x => graph→presheaf · y → Graph-hom x y
-    from h .node v = h .η true (lift v) .lower
+    from h .node v = h .map true (lift v) .lower
     from h .edge e =
       let
-        (s' , t' , e') = h .η false (_ , _ , e)
-        ps = ap lower (sym (h .is-natural _ _ inl $ₚ (_ , _ , e)))
-        pt = ap lower (sym (h .is-natural _ _ inr $ₚ (_ , _ , e)))
+        (s' , t' , e') = h .map false (_ , _ , e)
+        ps = ap lower (sym (h .com _ _ inl $ₚ (_ , _ , e)))
+        pt = ap lower (sym (h .com _ _ inr $ₚ (_ , _ , e)))
       in subst₂ (y .Edge) ps pt e'
 
     ir : is-right-inverse from (graph→presheaf .F₁)
@@ -341,9 +341,9 @@ equivalent as this category is self-dual.
       true x          → refl
       false (s , t , e) →
         let
-          ps = ap lower (h .is-natural _ _ inl $ₚ (s , t , e))
-          pt = ap lower (h .is-natural _ _ inr $ₚ (s , t , e))
-          s' , t' , e' = h .η false (_ , _ , e)
+          ps = ap lower (h .com _ _ inl $ₚ (s , t , e))
+          pt = ap lower (h .com _ _ inr $ₚ (s , t , e))
+          s' , t' , e' = h .map false (_ , _ , e)
         in Σ-pathp ps (Σ-pathp pt λ i → coe1→i (λ j → y .Edge (ps j) (pt j)) i e')
 
     il : is-left-inverse from (graph→presheaf .F₁)

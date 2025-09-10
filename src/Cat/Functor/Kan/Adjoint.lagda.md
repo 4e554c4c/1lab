@@ -54,7 +54,7 @@ extensions]] along $G$ are given by precomposition with $F$).
 module _ {F : Functor C D} {G : Functor D C} (F⊣G : F ⊣ G) where
   adjoint→is-lan
     : (H : Functor C E)
-    → is-lan F H (H F∘ G) (precomposite-adjunction F⊣G .unit .η H)
+    → is-lan F H (H F∘ G) (precomposite-adjunction F⊣G .unit .map H)
   adjoint→is-lan = adjoint-precompose→Lan F (precompose G) (precomposite-adjunction F⊣G)
 ```
 
@@ -89,7 +89,7 @@ The dual statement is obtained by... [duality], this time using the
 module _ {F : Functor C D} {G : Functor D C} (F⊣G : F ⊣ G) where
   adjoint→is-ran
     : (H : Functor D E)
-    → is-ran G H (H F∘ F) (precomposite-adjunction F⊣G .counit .η H)
+    → is-ran G H (H F∘ F) (precomposite-adjunction F⊣G .counit .map H)
   adjoint→is-ran H =
     transport (λ i → is-ran G H (fixF i) (fixNT i))
       (is-co-lan'→is-ran G H

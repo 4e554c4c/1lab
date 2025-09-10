@@ -41,7 +41,7 @@ record Diagonals : Type (o ⊔ ℓ) where
   module δ = _=>_ diagonals
 
   δ : ∀ {A} → Hom A (A ⊗ A)
-  δ = δ.η _
+  δ = δ.map _
 
   field
     diagonal-λ→ : δ {Unit} ≡ λ→ {Unit}

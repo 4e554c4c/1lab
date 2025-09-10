@@ -259,12 +259,12 @@ module _ {A : Precategory ao ah} {B : Precategory bo bh} where
   S ↘ X = S ↓ !Const X
 
   θ↘ : ∀ {X} → F F∘ Dom F (!Const X) => Const X
-  θ↘ ._=>_.η f = f .map
-  θ↘ ._=>_.is-natural _ _ γ = γ .com
+  θ↘ ._=>_.map f = f .map
+  θ↘ ._=>_.com _ _ γ = γ .com
 
   θ↙ : ∀ {X} → Const X => F F∘ Cod (!Const X) F
-  θ↙ ._=>_.η f = f .map
-  θ↙ ._=>_.is-natural _ _ γ = γ .com
+  θ↙ ._=>_.map f = f .map
+  θ↙ ._=>_.com _ _ γ = γ .com
 
 
 module ↙-compose

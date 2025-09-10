@@ -55,15 +55,15 @@ is-sheaf₁-limit {C = C} {D} F L ψ lim {U} R F-sheaf ps = from-is-separated₁
   abstract
     sep : is-separated₁ L R
     sep {x} {y} loc = unyo-path $ lim.unique₂ {x = よ₀ C U} _
-      (λ f → yo-natl (sym (ψ .is-natural _ _ _ ηₚ _ $ₚ _))) (λ j → yo-natl refl)
+      (λ f → yo-natl (sym (ψ .com _ _ _ ηₚ _ $ₚ _))) (λ j → yo-natl refl)
       (λ j → yo-natl (is-sheaf₁→is-separated₁ _ _ (F-sheaf j) λ f hf →
-        F.₁ j f (ψ .η j .η U y) ≡˘⟨ ψ .η j .is-natural _ _ _ $ₚ _ ⟩
-        ψ .η j .η _ (L.₁ f y)   ≡˘⟨ ap (ψ .η j .η _) (loc f hf) ⟩
-        ψ .η j .η _ (L.₁ f x)   ≡⟨ ψ .η j .is-natural _ _ _ $ₚ _ ⟩
-        F.₁ j f (ψ .η j .η U x) ∎))
+        F.₁ j f (ψ .map j .map U y) ≡˘⟨ ψ .map j .com _ _ _ $ₚ _ ⟩
+        ψ .map j .map _ (L.₁ f y)   ≡˘⟨ ap (ψ .map j .map _) (loc f hf) ⟩
+        ψ .map j .map _ (L.₁ f x)   ≡⟨ ψ .map j .com _ _ _ $ₚ _ ⟩
+        F.₁ j f (ψ .map j .map U x) ∎))
 
-  ps' : ∀ j → Section (F · j) (map-patch (ψ .η j) ps)
-  ps' j = F-sheaf j (map-patch (ψ .η j) ps) .centre
+  ps' : ∀ j → Section (F · j) (map-patch (ψ .map j) ps)
+  ps' j = F-sheaf j (map-patch (ψ .map j) ps) .centre
 
   elts : ∀ j → よ₀ C U => F .F₀ j
   elts j = yo (F .F₀ j) (ps' j .whole)
@@ -72,17 +72,17 @@ is-sheaf₁-limit {C = C} {D} F L ψ lim {U} R F-sheaf ps = from-is-separated₁
     elts-nat : ∀ {x y} (f : D .Precategory.Hom x y) → F .F₁ f ∘nt elts x ≡ elts y
     elts-nat {x} {y} f = yo-natl $ is-sheaf₁→is-separated₁ _ _ (F-sheaf y) λ g hg → sym $
       F.₁ y g (ps' y .whole)                      ≡⟨ ps' y .glues g hg ⟩
-      ψ .η y .η _ (ps .part g hg)                 ≡⟨ ψ .is-natural x y f ηₚ _ $ₚ ps .part g hg ⟩
-      F .F₁ f .η _ (ψ .η x .η _ (ps .part g hg))  ≡˘⟨ ap (F .F₁ f .η _) (ps' x .glues g hg) ⟩
-      F .F₁ f .η _ (F.₁ x g (ps' x .whole))       ≡⟨ F .F₁ f .is-natural _ _ _ $ₚ _ ⟩
-      F.₁ y g (F .F₁ f .η _ (ps' x .whole))       ∎
+      ψ .map y .map _ (ps .part g hg)                 ≡⟨ ψ .com x y f ηₚ _ $ₚ ps .part g hg ⟩
+      F .F₁ f .map _ (ψ .map x .map _ (ps .part g hg))  ≡˘⟨ ap (F .F₁ f .map _) (ps' x .glues g hg) ⟩
+      F .F₁ f .map _ (F.₁ x g (ps' x .whole))       ≡⟨ F .F₁ f .com _ _ _ $ₚ _ ⟩
+      F.₁ y g (F .F₁ f .map _ (ps' x .whole))       ∎
 
   sec : Section L ps
   sec .whole = unyo _ (lim.universal elts elts-nat)
   sec .glues {V} f hf =
-    L ⟪ f ⟫ sec .whole                        ≡˘⟨ lim.universal _ _ .is-natural _ _ _ $ₚ _ ⟩
-    lim.universal elts elts-nat .η V (id ∘ f) ≡⟨ ap (lim.universal _ _ .η _) (Cat.id-comm-sym C) ⟩
-    lim.universal elts elts-nat .η V (f ∘ id) ≡⟨ unext it _ id ⟩
+    L ⟪ f ⟫ sec .whole                        ≡˘⟨ lim.universal _ _ .com _ _ _ $ₚ _ ⟩
+    lim.universal elts elts-nat .map V (id ∘ f) ≡⟨ ap (lim.universal _ _ .map _) (Cat.id-comm-sym C) ⟩
+    lim.universal elts elts-nat .map V (f ∘ id) ≡⟨ unext it _ id ⟩
     L ⟪ id ⟫ (ps .part f hf)                  ≡⟨ L.F-id ⟩
     ps .part f hf                             ∎
     where

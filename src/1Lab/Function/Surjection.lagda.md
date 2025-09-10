@@ -350,7 +350,7 @@ surjective-splitting-cancelr {g = g} fg-split c =
   in g fg*c , p
 
 is-split-surjective-cancelr fg-split =
-  map surjective-splitting-cancelr fg-split
+  fmap surjective-splitting-cancelr fg-split
 ```
 </details>
 

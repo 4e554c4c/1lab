@@ -78,10 +78,10 @@ _◆_ {E = E} {F = F} {G} {H} {K} α β = nat module horizontal-comp where
   private module E = Cat.Reasoning E
   open Cat.Functor.Reasoning
   nat : F F∘ H => G F∘ K
-  nat .η x = G .F₁ (β .η _) E.∘ α .η _
-  nat .is-natural x y f =
-    E.pullr (α .is-natural _ _ _)
-    ∙ E.extendl (weave G (β .is-natural _ _ _))
+  nat .map x = G .F₁ (β .map _) E.∘ α .map _
+  nat .com x y f =
+    E.pullr (α .com _ _ _)
+    ∙ E.extendl (weave G (β .com _ _ _))
 ```
 
 <!--
@@ -102,10 +102,10 @@ F∘-functor {C = C} = go module F∘-f where
 
   go .F-id {x} = ext λ _ → C.idr _ ∙ x .fst .F-id
   go .F-∘ {x} {y , _} {z , _} (f , _) (g , _) = ext λ _ →
-    z .F₁ _ C.∘ f .η _ C.∘ g .η _                 ≡⟨ C.pushl (z .F-∘ _ _) ⟩
-    z .F₁ _ C.∘ z .F₁ _ C.∘ f .η _ C.∘ g .η _     ≡⟨ C.extend-inner (sym (f .is-natural _ _ _)) ⟩
-    z .F₁ _ C.∘ f .η _ C.∘ y .F₁ _ C.∘ g .η _     ≡⟨ C.pulll refl ⟩
-    (z .F₁ _ C.∘ f .η _) C.∘ (y .F₁ _ C.∘ g .η _) ∎
+    z .F₁ _ C.∘ f .map _ C.∘ g .map _                 ≡⟨ C.pushl (z .F-∘ _ _) ⟩
+    z .F₁ _ C.∘ z .F₁ _ C.∘ f .map _ C.∘ g .map _     ≡⟨ C.extend-inner (sym (f .com _ _ _)) ⟩
+    z .F₁ _ C.∘ f .map _ C.∘ y .F₁ _ C.∘ g .map _     ≡⟨ C.pulll refl ⟩
+    (z .F₁ _ C.∘ f .map _) C.∘ (y .F₁ _ C.∘ g .map _) ∎
 
 {-# DISPLAY F∘-f.go = F∘-functor #-}
 ```
@@ -121,13 +121,13 @@ type $FG \to FH$, as long as $\theta : G \to H$.
 
 ```agda
 _◂_ : F => G → (H : Functor C D) → F F∘ H => G F∘ H
-_◂_ nt H .η x = nt .η _
-_◂_ nt H .is-natural x y f = nt .is-natural _ _ _
+_◂_ nt H .map x = nt .map _
+_◂_ nt H .com x y f = nt .com _ _ _
 
 _▸_ : (H : Functor E C) → F => G → H F∘ F => H F∘ G
-_▸_ H nt .η x = H .F₁ (nt .η x)
-_▸_ H nt .is-natural x y f =
-  sym (H .F-∘ _ _) ∙ ap (H .F₁) (nt .is-natural _ _ _) ∙ H .F-∘ _ _
+_▸_ H nt .map x = H .F₁ (nt .map x)
+_▸_ H nt .com x y f =
+  sym (H .F-∘ _ _) ∙ ap (H .F₁) (nt .com _ _ _) ∙ H .F-∘ _ _
 ```
 
 With the whiskerings already defined, defining $- \circ p$ and $p \circ -$ is easy:
@@ -157,8 +157,8 @@ law.
   → (γ : H => L) (δ : K => M)
   → (γ ◆ δ) ∘nt (α ◆ β) ≡ (γ ∘nt α) ◆ (δ ∘nt β)
 ◆-interchange {B = B} {C = C} {A = A} {H = H} {L = L}  α β γ δ = ext λ j →
-  (L.₁ (δ .η _) C.∘ γ .η _) C.∘ H.₁ (β .η _) C.∘ α .η _ ≡⟨ C.extendl (sym (L.shuffler (sym (γ .is-natural _ _ _)))) ⟩
-  L.₁ (δ .η _ B.∘ β .η _) C.∘ γ .η _ C.∘ α .η _         ∎
+  (L.₁ (δ .map _) C.∘ γ .map _) C.∘ H.₁ (β .map _) C.∘ α .map _ ≡⟨ C.extendl (sym (L.shuffler (sym (γ .com _ _ _)))) ⟩
+  L.₁ (δ .map _ B.∘ β .map _) C.∘ γ .map _ C.∘ α .map _         ∎
   where
     module A = Cat.Reasoning A
     module B = Cat.Reasoning B

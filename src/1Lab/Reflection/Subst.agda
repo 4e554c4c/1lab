@@ -43,13 +43,13 @@ raise-fromS n k = liftS n $ raiseS k
 -- ---------------------------------
 -- Γ, Δ ⊢ singletonS |Δ| u : Γ, A, Δ
 singletonS : Nat → Term → Subst
-singletonS n u = map (λ i → var i []) (count n) ++# u ∷ raiseS n
+singletonS n u = fmap (λ i → var i []) (count n) ++# u ∷ raiseS n
 
 --           Γ, A, Δ ⊢ u : A
 -- ----------------------------------
 -- Γ, A, Δ ⊢ inplaceS |Δ| u : Γ, A, Δ
 inplaceS : Nat → Term → Subst
-inplaceS n u = map (λ i → var i []) (count n) ++# u ∷ raiseS (suc n)
+inplaceS n u = fmap (λ i → var i []) (count n) ++# u ∷ raiseS (suc n)
 
 record Has-subst {ℓ} (A : Type ℓ) : Type (lsuc ℓ) where
   field applyS : Subst → A → A
@@ -60,10 +60,10 @@ raise : ∀ {ℓ} {A : Type ℓ} ⦃ _ : Has-subst A ⦄ → Nat → A → A
 raise n = applyS (raiseS n)
 
 raise* : ∀ {ℓ} {A : Type ℓ} ⦃ _ : Has-subst A ⦄ → Nat → List A → List A
-raise* n = map (raise n)
+raise* n = fmap (raise n)
 
 applyS* : ∀ {ℓ} {A : Type ℓ} ⦃ _ : Has-subst A ⦄ → Subst → List A → List A
-applyS* ρ = map (applyS ρ)
+applyS* ρ = fmap (applyS ρ)
 
 instance
   Has-subst-Arg : ∀ {ℓ} {A : Type ℓ} ⦃ _ : Has-subst A ⦄ → Has-subst (Arg A)
@@ -129,7 +129,7 @@ subst-tm ρ (var i args)      = apply-tm* (lookup-tm ρ i) (subst-tm* ρ args)
 subst-tm ρ (con c args)      = con c $ subst-tm* ρ args
 subst-tm ρ (def f args)      = def f $ subst-tm* ρ args
 subst-tm ρ (meta x args)     = meta x $ subst-tm* ρ args
-subst-tm ρ (pat-lam cs args) = pat-lam (map (subst-clause ρ) cs) (subst-tm* ρ args)
+subst-tm ρ (pat-lam cs args) = pat-lam (fmap (subst-clause ρ) cs) (subst-tm* ρ args)
 subst-tm ρ (lam v (abs n b)) = lam v (abs n (subst-tm (liftS 1 ρ) b))
 subst-tm ρ (pi (arg ι a) (abs n b)) = pi (arg ι (subst-tm ρ a)) (abs n (subst-tm (liftS 1 ρ) b))
 subst-tm ρ (lit l) = (lit l)

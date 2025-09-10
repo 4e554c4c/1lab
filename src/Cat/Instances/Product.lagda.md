@@ -123,10 +123,10 @@ _F×_ {B = B} {D = D} {C = C} {E = E} G H = func
 _nt×_
   : {F G : Functor B D} {H K : Functor C E}
   → F => G → H => K → (F F× H) => (G F× K)
-_nt×_ α β .η (c , d) = α .η c , β .η d
-_nt×_ α β .is-natural (c , d) (c' , d') (f , g) = Σ-pathp
-  (α .is-natural c c' f)
-  (β .is-natural d d' g)
+_nt×_ α β .map (c , d) = α .map c , β .map d
+_nt×_ α β .com (c , d) (c' , d') (f , g) = Σ-pathp
+  (α .com c c' f)
+  (β .com d d' g)
 ```
 
 <!--

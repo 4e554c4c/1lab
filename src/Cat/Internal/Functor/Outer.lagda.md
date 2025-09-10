@@ -314,25 +314,25 @@ us to work in the internal language of $\cC$.
 ```agda
   Outer-nat-path
     : ∀ {F G : Outer-functor ℂ} {α β : F =>o G}
-    → (∀ {Γ} (px : Hom Γ (F .∫P)) → α .ηo px ≡ β .ηo px)
+    → (∀ {Γ} (px : Hom Γ (F .∫P)) → α .mapo px ≡ β .mapo px)
     → α ≡ β
-  Outer-nat-path p i .ηo px = p px i
-  Outer-nat-path {G = G} {α = α} {β = β} p i .ηo-fib px =
+  Outer-nat-path p i .mapo px = p px i
+  Outer-nat-path {G = G} {α = α} {β = β} p i .mapo-fib px =
     is-prop→pathp (λ i → Hom-set _ _ (G .P₀ (p px i)) _)
-      (α .ηo-fib px)
-      (β .ηo-fib px) i
-  Outer-nat-path {F = F} {G = G} {α = α} {β = β} p i .is-naturalo px y f j =
+      (α .mapo-fib px)
+      (β .mapo-fib px) i
+  Outer-nat-path {F = F} {G = G} {α = α} {β = β} p i .como px y f j =
     is-set→squarep (λ i j → Hom-set _ _)
       (p (F .P₁ px f))
-      (α .is-naturalo px y f)
-      (β .is-naturalo px y f)
+      (α .como px y f)
+      (β .como px y f)
       (λ i → G .P₁ (p px i)
-        (adjusti (sym (Outer-nat-path {α = α} {β = β} p i .ηo-fib px)) refl f))
+        (adjusti (sym (Outer-nat-path {α = α} {β = β} p i .mapo-fib px)) refl f))
       i j
-  Outer-nat-path {α = α} {β = β} p i .ηo-nat px σ =
+  Outer-nat-path {α = α} {β = β} p i .mapo-nat px σ =
     is-prop→pathp (λ i → Hom-set _ _ (p px i ∘ σ) (p (px ∘ σ) i))
-      (α .ηo-nat px σ)
-      (β .ηo-nat px σ) i
+      (α .mapo-nat px σ)
+      (β .mapo-nat px σ) i
 
 unquoteDecl H-Level-=>o = declare-record-hlevel 2 H-Level-=>o (quote _=>o_)
 ```
@@ -389,8 +389,8 @@ we can apply automation to satisfy the coherence constraints.
 
 ```agda
   const-nato : ∀ {X Y : Ob} → Hom X Y → ConstO X =>o ConstO Y
-  const-nato f .ηo g = ⟨ f ∘ π₁ ∘ g , π₂ ∘ g ⟩
-  const-nato f .ηo-fib px          = products! prods
-  const-nato f .is-naturalo px y g = products! prods
-  const-nato f .ηo-nat px σ        = products! prods
+  const-nato f .mapo g = ⟨ f ∘ π₁ ∘ g , π₂ ∘ g ⟩
+  const-nato f .mapo-fib px          = products! prods
+  const-nato f .como px y g = products! prods
+  const-nato f .mapo-nat px σ        = products! prods
 ```

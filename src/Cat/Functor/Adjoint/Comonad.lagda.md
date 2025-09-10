@@ -50,11 +50,11 @@ comultiplication comes from the unit.
 
 ```agda
 Adjunction→Comonad .counit = adj.counit
-Adjunction→Comonad .comult = NT (λ x → L.₁ (adj.η (R.₀ x))) λ x y f →
-  L.₁ (adj.η (R.₀ y)) D.∘ L.₁ (R.₁ f)             ≡˘⟨ L.F-∘ _ _ ⟩
-  L.₁ (adj.η (R.₀ y) C.∘ R.₁ f)                   ≡⟨ ap L.₁ (adj.unit.is-natural _ _ _) ⟩
-  L.₁ (R.₁ (L.₁ (R.₁ f)) C.∘ adj.η (R.₀ x))       ≡⟨ L.F-∘ _ _ ⟩
-  L.₁ (R.₁ (L.₁ (R.₁ f))) D.∘ L.₁ (adj.η (R.₀ x)) ∎
+Adjunction→Comonad .comult = NT (λ x → L.₁ (adj.map (R.₀ x))) λ x y f →
+  L.₁ (adj.map (R.₀ y)) D.∘ L.₁ (R.₁ f)             ≡˘⟨ L.F-∘ _ _ ⟩
+  L.₁ (adj.map (R.₀ y) C.∘ R.₁ f)                   ≡⟨ ap L.₁ (adj.unit.com _ _ _) ⟩
+  L.₁ (R.₁ (L.₁ (R.₁ f)) C.∘ adj.map (R.₀ x))       ≡⟨ L.F-∘ _ _ ⟩
+  L.₁ (R.₁ (L.₁ (R.₁ f))) D.∘ L.₁ (adj.map (R.₀ x)) ∎
 ```
 
 The comonad laws follow from the zig-zag identities. In fact, the
@@ -69,19 +69,19 @@ The others are slightly more involved.
 
 ```agda
 Adjunction→Comonad .δ-unitl {x} = path where abstract
-  path : L.₁ (R.₁ (adj.ε x)) D.∘ L.₁ (adj.η (R.F₀ x)) ≡ D.id
+  path : L.₁ (R.₁ (adj.ε x)) D.∘ L.₁ (adj.map (R.F₀ x)) ≡ D.id
   path =
-    L.₁ (R.₁ (adj.ε _)) D.∘ L.₁ (adj.η _) ≡⟨ sym (L.F-∘ _ _) ⟩
-    L.₁ (R.₁ (adj.ε _) C.∘ adj.η _)       ≡⟨ ap L.₁ adj.zag ⟩
+    L.₁ (R.₁ (adj.ε _)) D.∘ L.₁ (adj.map _) ≡⟨ sym (L.F-∘ _ _) ⟩
+    L.₁ (R.₁ (adj.ε _) C.∘ adj.map _)       ≡⟨ ap L.₁ adj.zag ⟩
     L.₁ C.id                              ≡⟨ L.F-id ⟩
     D.id                                  ∎
 
 Adjunction→Comonad .δ-assoc {x} = path where abstract
-  path : L.₁ (R.₁ (L.₁ (adj.η (R.F₀ x)))) D.∘ L.₁ (adj.η _)
-       ≡ L.₁ (adj.η (R .F₀ (L.F₀ (R.F₀ x)))) D.∘ L.₁ (adj.η _)
+  path : L.₁ (R.₁ (L.₁ (adj.map (R.F₀ x)))) D.∘ L.₁ (adj.map _)
+       ≡ L.₁ (adj.map (R .F₀ (L.F₀ (R.F₀ x)))) D.∘ L.₁ (adj.map _)
   path =
-    L.₁ (R.₁ (L.₁ (adj.η _))) D.∘ L.₁ (adj.η _)   ≡⟨ sym (L.F-∘ _ _) ⟩
-    L.₁ (R.₁ (L.₁ (adj.η _)) C.∘ adj.η _)         ≡˘⟨ ap L.₁ (adj.unit.is-natural _ _ _) ⟩
-    L.₁ (adj.η _ C.∘ adj.η _)                     ≡⟨ L.F-∘ _ _ ⟩
-    L.₁ (adj.η _) D.∘ L.₁ (adj.η _)               ∎
+    L.₁ (R.₁ (L.₁ (adj.map _))) D.∘ L.₁ (adj.map _)   ≡⟨ sym (L.F-∘ _ _) ⟩
+    L.₁ (R.₁ (L.₁ (adj.map _)) C.∘ adj.map _)         ≡˘⟨ ap L.₁ (adj.unit.com _ _ _) ⟩
+    L.₁ (adj.map _ C.∘ adj.map _)                     ≡⟨ L.F-∘ _ _ ⟩
+    L.₁ (adj.map _) D.∘ L.₁ (adj.map _)               ∎
 ```

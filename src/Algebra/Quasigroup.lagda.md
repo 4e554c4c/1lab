@@ -130,7 +130,7 @@ unit and counit of the equivalence.
     ⋆-right-quasi : is-right-quasigroup _⋆_
     ⋆-right-quasi ._/_ x y = ⋆-eqv.from y x
     ⋆-right-quasi ./-invl x y = ⋆-eqv.ε y x
-    ⋆-right-quasi ./-invr x y = ⋆-eqv.η y x
+    ⋆-right-quasi ./-invr x y = ⋆-eqv.map y x
     ⋆-right-quasi .has-is-magma .is-magma.has-is-set = A-set
 ```
 

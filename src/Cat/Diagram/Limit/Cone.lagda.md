@@ -182,8 +182,8 @@ differently.
 
 ```agda
   Cone→cone : (K : Cone) → Const (Cone.apex K) => F
-  Cone→cone K .η = K .Cone.ψ
-  Cone→cone K .is-natural x y f = C.idr _ ∙ sym (K .Cone.commutes f)
+  Cone→cone K .map = K .Cone.ψ
+  Cone→cone K .com x y f = C.idr _ ∙ sym (K .Cone.commutes f)
 
   is-terminal-cone→is-limit
     : ∀ {K : Cone}
@@ -198,15 +198,15 @@ differently.
     isl .σ {M = M} α = nt where
       α' : Cone
       α' .apex = M .Functor.F₀ tt
-      α' .ψ x = α .η x
-      α' .commutes f = sym (α .is-natural _ _ f) ∙ C.elimr (M .Functor.F-id)
+      α' .ψ x = α .map x
+      α' .commutes f = sym (α .com _ _ f) ∙ C.elimr (M .Functor.F-id)
 
       nt : M => !Const (K .apex)
-      nt .η x = term α' .centre .map
-      nt .is-natural tt tt tt = C.elimr (M .Functor.F-id) ∙ C.introl refl
+      nt .map x = term α' .centre .map
+      nt .com tt tt tt = C.elimr (M .Functor.F-id) ∙ C.introl refl
     isl .σ-comm = ext λ x → term _ .centre .com _
     isl .σ-uniq {σ' = σ'} x = ext λ _ → ap map $ term _ .paths λ where
-      .map   → σ' .η _
+      .map   → σ' .map _
       .com _ → sym (x ηₚ _)
 ```
 

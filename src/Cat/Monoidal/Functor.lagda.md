@@ -66,7 +66,7 @@ record Lax-monoidal-functor-on (F : Functor C D) : Type (oc ⊔ ℓc ⊔ od ⊔ 
   module φ = _=>_ F-mult
 
   φ : ∀ {A B} → Hom (F.₀ A D.⊗ F.₀ B) (F.₀ (A C.⊗ B))
-  φ = φ.η _
+  φ = φ.map _
 
   field
     F-α→ : ∀ {A B C}
@@ -264,8 +264,8 @@ module _ ((F , F-monoidal) (G , G-monoidal) : Lax-monoidal-functor) where
 ```agda
   record is-monoidal-transformation (α : F => G) : Type (oc ⊔ ℓc ⊔ ℓd) where
     field
-      nat-ε : α .η C.Unit ∘ FM.ε ≡ GM.ε
-      nat-φ : ∀ {A B} → α .η _ ∘ FM.φ {A} {B} ≡ GM.φ ∘ (α .η _ D.⊗₁ α .η _)
+      nat-ε : α .map C.Unit ∘ FM.ε ≡ GM.ε
+      nat-φ : ∀ {A B} → α .map _ ∘ FM.φ {A} {B} ≡ GM.φ ∘ (α .map _ D.⊗₁ α .map _)
 ```
 
 Note that, since monoidal categories can be thought of as one-object

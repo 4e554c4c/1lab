@@ -79,10 +79,10 @@ precisely the same data as a monad in $\bf{B}\cC$, on the object $*$.
 
   Monoid-pathp
     : ∀ {P : I → C.Ob} {x : Monoid-on (P i0)} {y : Monoid-on (P i1)}
-    → PathP (λ i → C.Hom C.Unit (P i)) (x .η) (y .η)
+    → PathP (λ i → C.Hom C.Unit (P i)) (x .map) (y .map)
     → PathP (λ i → C.Hom (P i C.⊗ P i) (P i)) (x .μ) (y .μ)
     → PathP (λ i → Monoid-on (P i)) x y
-  Monoid-pathp {x = x} {y} p q i .η = p i
+  Monoid-pathp {x = x} {y} p q i .map = p i
   Monoid-pathp {x = x} {y} p q i .μ = q i
   Monoid-pathp {P = P} {x} {y} p q i .μ-unitl =
     is-prop→pathp
@@ -112,7 +112,7 @@ precisely the same data as a monad in $\bf{B}\cC$, on the object $*$.
   monad→monoid M = go where
     module M = Monad M
     go : Monoid-on M.M
-    go .η = M.η
+    go .map = M.map
     go .μ = M.μ
     go .μ-unitl = M.μ-unitl
     go .μ-unitr = M.μ-unitr
@@ -124,7 +124,7 @@ precisely the same data as a monad in $\bf{B}\cC$, on the object $*$.
     go : Monad BC tt
     go .Monad.M = _
     go .Monad.μ = M.μ
-    go .Monad.η = M.η
+    go .Monad.map = M.map
     go .Monad.μ-assoc = M.μ-assoc
     go .Monad.μ-unitr = M.μ-unitr
     go .Monad.μ-unitl = M.μ-unitl
@@ -171,7 +171,7 @@ algebra, but expressed in a point-free way:
       module n = Monoid-on no
 
     field
-      pres-η : f C.∘ m.η ≡ n.η
+      pres-η : f C.∘ m.map ≡ n.map
       pres-μ : f C.∘ m.μ ≡ n.μ C.∘ (f C.⊗₁ f)
 ```
 
@@ -260,7 +260,7 @@ into an identification.
 
 ```agda
   F : Vertical-functor Mon[ Setsₓ ] Mon
-  F .F₀' o .identity = o .η (lift tt)
+  F .F₀' o .identity = o .map (lift tt)
   F .F₀' o ._⋆_ x y = o .μ (x , y)
   F .F₀' o .has-is-monoid .has-is-semigroup =
     record { has-is-magma = record { has-is-set = hlevel 2 }
@@ -276,7 +276,7 @@ into an identification.
   open is-iso
 
   fiso : ∀ a → is-iso (F .F₀' {a})
-  fiso T .from m .η _ = m .identity
+  fiso T .from m .map _ = m .identity
   fiso T .from m .μ (a , b) = m ._⋆_ a b
   fiso T .from m .μ-unitl = funext λ _ → m .idl
   fiso T .from m .μ-unitr = funext λ _ → m .idr
@@ -328,7 +328,7 @@ We can phrase this nicely as a [[displayed functor]] $\rm{Mon}_1(F) :
 
 ```agda
   Mon₁[_] : Displayed-functor F Mon[ MC ] Mon[ MD ]
-  Mon₁[_] .F₀' m .η = F₁ (m .η) ∘ ε
+  Mon₁[_] .F₀' m .map = F₁ (m .map) ∘ ε
   Mon₁[_] .F₀' m .μ = F₁ (m .μ) ∘ φ
 ```
 
@@ -358,15 +358,15 @@ The unit laws are witnessed by the commutativity of this diagram:
 
 ```agda
   Mon₁[_] .F₀' m .μ-unitl =
-    (F₁ (m .μ) ∘ φ) ∘ ((F₁ (m .η) ∘ ε) ⊗₁ id)          ≡⟨ pullr (refl⟩∘⟨ ⊗.expand (refl ,ₚ F.introl refl)) ⟩
-    F₁ (m .μ) ∘ φ ∘ (F₁ (m .η) ⊗₁ F₁ C.id) ∘ (ε ⊗₁ id) ≡⟨ refl⟩∘⟨ extendl (φ.is-natural _ _ _) ⟩
-    F₁ (m .μ) ∘ F₁ (m .η C.⊗₁ C.id) ∘ φ ∘ (ε ⊗₁ id)    ≡⟨ F.pulll (m .μ-unitl) ⟩
+    (F₁ (m .μ) ∘ φ) ∘ ((F₁ (m .map) ∘ ε) ⊗₁ id)          ≡⟨ pullr (refl⟩∘⟨ ⊗.expand (refl ,ₚ F.introl refl)) ⟩
+    F₁ (m .μ) ∘ φ ∘ (F₁ (m .map) ⊗₁ F₁ C.id) ∘ (ε ⊗₁ id) ≡⟨ refl⟩∘⟨ extendl (φ.com _ _ _) ⟩
+    F₁ (m .μ) ∘ F₁ (m .map C.⊗₁ C.id) ∘ φ ∘ (ε ⊗₁ id)    ≡⟨ F.pulll (m .μ-unitl) ⟩
     F₁ C.λ← ∘ φ ∘ (ε ⊗₁ id)                            ≡⟨ F-λ← ⟩
     λ←                                                 ∎
   Mon₁[_] .F₀' m .μ-unitr =
-    (F₁ (m .μ) ∘ φ) ∘ (id ⊗₁ (F₁ (m .η) ∘ ε))          ≡⟨ pullr (refl⟩∘⟨ ⊗.expand (F.introl refl ,ₚ refl)) ⟩
-    F₁ (m .μ) ∘ φ ∘ (F₁ C.id ⊗₁ F₁ (m .η)) ∘ (id ⊗₁ ε) ≡⟨ refl⟩∘⟨ extendl (φ.is-natural _ _ _) ⟩
-    F₁ (m .μ) ∘ F₁ (C.id C.⊗₁ m .η) ∘ φ ∘ (id ⊗₁ ε)    ≡⟨ F.pulll (m .μ-unitr) ⟩
+    (F₁ (m .μ) ∘ φ) ∘ (id ⊗₁ (F₁ (m .map) ∘ ε))          ≡⟨ pullr (refl⟩∘⟨ ⊗.expand (F.introl refl ,ₚ refl)) ⟩
+    F₁ (m .μ) ∘ φ ∘ (F₁ C.id ⊗₁ F₁ (m .map)) ∘ (id ⊗₁ ε) ≡⟨ refl⟩∘⟨ extendl (φ.com _ _ _) ⟩
+    F₁ (m .μ) ∘ F₁ (C.id C.⊗₁ m .map) ∘ φ ∘ (id ⊗₁ ε)    ≡⟨ F.pulll (m .μ-unitr) ⟩
     F₁ C.ρ← ∘ φ ∘ (id ⊗₁ ε)                            ≡⟨ F-ρ← ⟩
     ρ←                                                 ∎
 ```
@@ -400,10 +400,10 @@ The unit laws are witnessed by the commutativity of this diagram:
 ```agda
   Mon₁[_] .F₀' m .μ-assoc =
     (F₁ (m .μ) ∘ φ) ∘ (id ⊗₁ (F₁ (m .μ) ∘ φ))                       ≡⟨ pullr (refl⟩∘⟨ ⊗.expand (F.introl refl ,ₚ refl)) ⟩
-    F₁ (m .μ) ∘ φ ∘ (F₁ C.id ⊗₁ F₁ (m .μ)) ∘ (id ⊗₁ φ)              ≡⟨ (refl⟩∘⟨ extendl (φ.is-natural _ _ _)) ⟩
+    F₁ (m .μ) ∘ φ ∘ (F₁ C.id ⊗₁ F₁ (m .μ)) ∘ (id ⊗₁ φ)              ≡⟨ (refl⟩∘⟨ extendl (φ.com _ _ _)) ⟩
     F₁ (m .μ) ∘ F₁ (C.id C.⊗₁ m .μ) ∘ φ ∘ (id ⊗₁ φ)                 ≡⟨ F.pulll (m .μ-assoc) ⟩
     F₁ (m .μ C.∘ (m .μ C.⊗₁ C.id) C.∘ C.α← _ _ _) ∘ φ ∘ (id ⊗₁ φ)   ≡⟨ F.popr (F.popr F-α←) ⟩
-    F₁ (m .μ) ∘ F₁ (m .μ C.⊗₁ C.id) ∘ φ ∘ (φ ⊗₁ id) ∘ α← _ _ _      ≡˘⟨ pullr (extendl (φ.is-natural _ _ _)) ⟩
+    F₁ (m .μ) ∘ F₁ (m .μ C.⊗₁ C.id) ∘ φ ∘ (φ ⊗₁ id) ∘ α← _ _ _      ≡˘⟨ pullr (extendl (φ.com _ _ _)) ⟩
     (F₁ (m .μ) ∘ φ) ∘ (F₁ (m .μ) ⊗₁ F₁ C.id) ∘ (φ ⊗₁ id) ∘ α← _ _ _ ≡⟨ refl⟩∘⟨ ⊗.pulll (refl ,ₚ F.eliml refl) ⟩
     (F₁ (m .μ) ∘ φ) ∘ ((F₁ (m .μ) ∘ φ) ⊗₁ id) ∘ α← _ _ _            ∎
 ```
@@ -414,7 +414,7 @@ between the induced monoids on $FM$ and $FN$.
 
 ```agda
   Mon₁[_] .F₁' h .pres-η = F.pulll (h .pres-η)
-  Mon₁[_] .F₁' h .pres-μ = F.extendl (h .pres-μ) ∙ pushr (sym (φ.is-natural _ _ _))
+  Mon₁[_] .F₁' h .pres-μ = F.extendl (h .pres-μ) ∙ pushr (sym (φ.com _ _ _))
   Mon₁[_] .F-id' = prop!
   Mon₁[_] .F-∘' = prop!
 ```

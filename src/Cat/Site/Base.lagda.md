@@ -289,8 +289,8 @@ module _ {o ℓ ℓs} {C : Precategory o ℓ} {A : Functor (C ^op) (Sets ℓs)} 
     : ∀ {B : Functor (C ^op) (Sets ℓs)} {U} {S : Sieve C U} (eta : A => B)
     → Patch A S
     → Patch B S
-  map-patch eta x .part f hf = eta .η _ (x .part f hf)
-  map-patch eta x .patch f hf g hgf = sym (eta .is-natural _ _ _ $ₚ _) ∙ ap (eta .η _) (x .patch f hf g hgf)
+  map-patch eta x .part f hf = eta .map _ (x .part f hf)
+  map-patch eta x .patch f hf g hgf = sym (eta .com _ _ _ $ₚ _) ∙ ap (eta .map _) (x .patch f hf g hgf)
 ```
 -->
 

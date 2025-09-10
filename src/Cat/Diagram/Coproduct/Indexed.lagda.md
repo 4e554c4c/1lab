@@ -77,10 +77,10 @@ Indexed-coproduct-≃
   → {F : I → C.Ob} → Indexed-coproduct (F ⊙ Equiv.from e) → Indexed-coproduct F
 Indexed-coproduct-≃ e {F} p = λ where
   .ΣF → p .ΣF
-  .ι j → p .ι (e.to j) C.∘ C.from (path→iso (ap F (e.η _)))
+  .ι j → p .ι (e.to j) C.∘ C.from (path→iso (ap F (e.map _)))
   .has-is-ic .match f → p .match (f ⊙ e.from)
   .has-is-ic .commute {f = f} →
-    C.pulll (p .commute) ∙ from-pathp-to (C ^op) _ (ap f (e.η _))
+    C.pulll (p .commute) ∙ from-pathp-to (C ^op) _ (ap f (e.map _))
   .has-is-ic .unique f comm → p .unique _ λ j →
       ap (_ C.∘_) (sym (from-pathp-to (C ^op) _ (ap (p .ι) (e.ε j)))
                   ∙ ap (λ z → p .ι _ C.∘ C.from (path→iso (ap F z))) (e.zag j))

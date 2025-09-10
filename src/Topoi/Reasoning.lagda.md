@@ -135,20 +135,20 @@ bit more involved, but not by much:
       pb' .square = square' where abstract
         square' : f ∘ counit.ε _ ∘ L.₁ Pb.p₁ ≡ g ∘ counit.ε _ ∘ L.₁ Pb.p₂
         square' =
-          f ∘ counit.ε _ ∘ L.₁ Pb.p₁           ≡⟨ extendl (sym (counit.is-natural _ _ _)) ⟩
+          f ∘ counit.ε _ ∘ L.₁ Pb.p₁           ≡⟨ extendl (sym (counit.com _ _ _)) ⟩
           counit.ε _ ∘ L.₁ (ι.₁ f) ∘ L.₁ Pb.p₁ ≡⟨ refl⟩∘⟨ lpb.square ⟩
-          counit.ε _ ∘ L.₁ (ι.₁ g) ∘ L.₁ Pb.p₂ ≡⟨ extendl (counit.is-natural _ _ _) ⟩
+          counit.ε _ ∘ L.₁ (ι.₁ g) ∘ L.₁ Pb.p₂ ≡⟨ extendl (counit.com _ _ _) ⟩
           g ∘ counit.ε _ ∘ L.₁ Pb.p₂           ∎
 
       pb' .universal {p₁' = p₁'} {p₂'} p =
-        lpb.universal {p₁' = ε⁻¹.η _ ∘ p₁'} {p₂' = ε⁻¹.η _ ∘ p₂'} path
+        lpb.universal {p₁' = ε⁻¹.map _ ∘ p₁'} {p₂' = ε⁻¹.map _ ∘ p₂'} path
         where abstract
-          path : L.₁ (ι.₁ f) ∘ ε⁻¹.η _ ∘ p₁' ≡ L.₁ (ι.₁ g) ∘ ε⁻¹.η _ ∘ p₂'
+          path : L.₁ (ι.₁ f) ∘ ε⁻¹.map _ ∘ p₁' ≡ L.₁ (ι.₁ g) ∘ ε⁻¹.map _ ∘ p₂'
           path =
-            L.₁ (ι.₁ f) ∘ ε⁻¹.η _ ∘ p₁' ≡⟨ extendl (sym (ε⁻¹.is-natural _ _ _)) ⟩
-            ε⁻¹.η _ ∘ f ∘ p₁'           ≡⟨ refl⟩∘⟨ p ⟩
-            ε⁻¹.η _ ∘ g ∘ p₂'           ≡⟨ extendl (ε⁻¹.is-natural _ _ _) ⟩
-            L.₁ (ι.₁ g) ∘ ε⁻¹.η _ ∘ p₂' ∎
+            L.₁ (ι.₁ f) ∘ ε⁻¹.map _ ∘ p₁' ≡⟨ extendl (sym (ε⁻¹.com _ _ _)) ⟩
+            ε⁻¹.map _ ∘ f ∘ p₁'           ≡⟨ refl⟩∘⟨ p ⟩
+            ε⁻¹.map _ ∘ g ∘ p₂'           ≡⟨ extendl (ε⁻¹.com _ _ _) ⟩
+            L.₁ (ι.₁ g) ∘ ε⁻¹.map _ ∘ p₂' ∎
 
       pb' .p₁∘universal =
         pullr lpb.p₁∘universal ∙ cancell (Lι-iso _ .is-invertible.invl)

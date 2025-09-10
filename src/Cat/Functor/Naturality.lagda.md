@@ -70,7 +70,7 @@ isomorphism in a functor category.
   infix 31 _ni⁻¹
 
   ≅ⁿ-pathp : ∀ {a c b d : Functor C D} (p : a ≡ c) (q : b ≡ d) {f : a ≅ⁿ b} {g : c ≅ⁿ d}
-           → (∀ x → PathP (λ i → D.Hom (p i .F₀ x) (q i .F₀ x)) (Isoⁿ.to f .η x) (Isoⁿ.to g .η x))
+           → (∀ x → PathP (λ i → D.Hom (p i .F₀ x) (q i .F₀ x)) (Isoⁿ.to f .map x) (Isoⁿ.to g .map x))
            → PathP (λ i → p i CD.≅ q i) f g
   ≅ⁿ-pathp p q r = CD.≅-pathp p q (Nat-pathp p q r)
 ```
@@ -86,13 +86,13 @@ only have to establish naturality in one direction, rather than both.
 ```agda
   inverse-is-natural
     : ∀ {F G : Functor C D} (α : F => G) (β : ∀ x → D.Hom (G .F₀ x) (F .F₀ x) )
-    → (∀ x → α .η x D.∘ β x ≡ D.id)
-    → (∀ x → β x D.∘ α .η x ≡ D.id)
+    → (∀ x → α .map x D.∘ β x ≡ D.id)
+    → (∀ x → β x D.∘ α .map x ≡ D.id)
     → is-natural-transformation G F β
   inverse-is-natural {F = F} {G = G} α β invl invr x y f =
-    β y D.∘ G .F₁ f                    ≡⟨ D.refl⟩∘⟨ D.intror (invl x) ⟩
-    β y D.∘ G .F₁ f D.∘ α .η x D.∘ β x ≡⟨ D.refl⟩∘⟨ D.extendl (sym (α .is-natural x y f)) ⟩
-    β y D.∘ α .η y D.∘ F .F₁ f D.∘ β x ≡⟨ D.cancell (invr y) ⟩
+    β y D.∘ G .F₁ f                      ≡⟨ D.refl⟩∘⟨ D.intror (invl x) ⟩
+    β y D.∘ G .F₁ f D.∘ α .map x D.∘ β x ≡⟨ D.refl⟩∘⟨ D.extendl (sym (α .com x y f)) ⟩
+    β y D.∘ α .map y D.∘ F .F₁ f D.∘ β x ≡⟨ D.cancell (invr y) ⟩
     F .F₁ f D.∘ β x ∎
 ```
 
@@ -103,26 +103,26 @@ following data:
   record make-natural-iso (F G : Functor C D) : Type (o ⊔ ℓ ⊔ ℓ') where
     no-eta-equality
     field
-      eta : ∀ x → D.Hom (F .F₀ x) (G .F₀ x)
+      map : ∀ x → D.Hom (F .F₀ x) (G .F₀ x)
       inv : ∀ x → D.Hom (G .F₀ x) (F .F₀ x)
-      eta∘inv : ∀ x → eta x D.∘ inv x ≡ D.id
-      inv∘eta : ∀ x → inv x D.∘ eta x ≡ D.id
-      natural : ∀ x y f → G .F₁ f D.∘ eta x ≡ eta y D.∘ F .F₁ f
+      m∘i : ∀ x → map x D.∘ inv x ≡ D.id
+      i∘m : ∀ x → inv x D.∘ map x ≡ D.id
+      com : ∀ x y f → G .F₁ f D.∘ map x ≡ map y D.∘ F .F₁ f
 
   open make-natural-iso
 
   to-natural-iso : ∀ {F G} → make-natural-iso F G → F ≅ⁿ G
   {-# INLINE to-natural-iso #-}
   to-natural-iso {F = F} {G = G} mk =
-    let to = record { η = mk .eta ; is-natural = λ x y f → sym (mk .natural x y f) } in
+    let to = record { map = mk .map ; com = λ x y f → sym (mk .com x y f) } in
     record
       { to = to
       ; from = record
-        { η = mk .inv
-        ; is-natural = inverse-is-natural {F} {G} to (mk .inv) (mk .eta∘inv) (mk .inv∘eta) }
+        { map = mk .inv
+        ; com = inverse-is-natural {F} {G} to (mk .inv) (mk .m∘i) (mk .i∘m) }
       ; inverses = record
-        { invl = ext (mk .eta∘inv)
-        ; invr = ext (mk .inv∘eta) } }
+        { invl = ext (mk .m∘i)
+        ; invr = ext (mk .i∘m) } }
 ```
 
 Moreover, the following family of functions project out the
@@ -133,10 +133,10 @@ to an invertible natural transformation, resp. natural isomorphism.
   is-invertibleⁿ→is-invertible
     : ∀ {F G} {α : F => G}
     → is-invertibleⁿ α
-    → ∀ x → D.is-invertible (α .η x)
+    → ∀ x → D.is-invertible (α .map x)
   is-invertibleⁿ→is-invertible inv x =
     D.make-invertible
-      (CD.is-invertible.inv inv .η x)
+      (CD.is-invertible.inv inv .map x)
       (CD.is-invertible.invl inv ηₚ x)
       (CD.is-invertible.invr inv ηₚ x)
 
@@ -144,7 +144,7 @@ to an invertible natural transformation, resp. natural isomorphism.
     : ∀ {F G} → F ≅ⁿ G
     → ∀ x → F .F₀ x D.≅ G .F₀ x
   isoⁿ→iso α x =
-    D.make-iso (α.to .η x) (α.from .η x) (α.invl ηₚ x) (α.invr ηₚ x)
+    D.make-iso (α.to .map x) (α.from .map x) (α.invl ηₚ x) (α.invr ηₚ x)
     where module α = Isoⁿ α
 
   iso→isoⁿ
@@ -154,18 +154,18 @@ to an invertible natural transformation, resp. natural isomorphism.
     → F ≅ⁿ G
   iso→isoⁿ {F} {G} is nat = to-natural-iso mk where
     mk : make-natural-iso F G
-    mk .eta x = is x .D.to
+    mk .map x = is x .D.to
     mk .inv x = is x .D.from
-    mk .eta∘inv x = is x .D.invl
-    mk .inv∘eta x = is x .D.invr
-    mk .natural _ _ = nat
+    mk .m∘i x = is x .D.invl
+    mk .i∘m x = is x .D.invr
+    mk .com _ _ = nat
 
   is-invertibleⁿ→isoⁿ : ∀ {F G} {α : F => G} → is-invertibleⁿ α → F ≅ⁿ G
   is-invertibleⁿ→isoⁿ nat-inv = CD.invertible→iso _ nat-inv
 
   isoⁿ→is-invertible
     : ∀ {F G} (α : F ≅ⁿ G)
-    → ∀ x → D.is-invertible (α .Isoⁿ.to .η x)
+    → ∀ x → D.is-invertible (α .Isoⁿ.to .map x)
   isoⁿ→is-invertible α x = D.iso→invertible (isoⁿ→iso α x)
 ```
 
@@ -173,23 +173,23 @@ to an invertible natural transformation, resp. natural isomorphism.
 ```agda
   to-inversesⁿ
     : {F G : Functor C D} {α : F => G} {β : G => F}
-    → (∀ x → α .η x D.∘ β .η x ≡ D.id)
-    → (∀ x → β .η x D.∘ α .η x ≡ D.id)
+    → (∀ x → α .map x D.∘ β .map x ≡ D.id)
+    → (∀ x → β .map x D.∘ α .map x ≡ D.id)
     → Inversesⁿ α β
   to-inversesⁿ p q = CD.make-inverses (ext p) (ext q)
 
   to-is-invertibleⁿ
     : {F G : Functor C D} {α : F => G}
     → (β : G => F)
-    → (∀ x → α .η x D.∘ β .η x ≡ D.id)
-    → (∀ x → β .η x D.∘ α .η x ≡ D.id)
+    → (∀ x → α .map x D.∘ β .map x ≡ D.id)
+    → (∀ x → β .map x D.∘ α .map x ≡ D.id)
     → is-invertibleⁿ α
   to-is-invertibleⁿ β p q = CD.make-invertible β (ext p) (ext q)
 
   inversesⁿ→inverses
     : ∀ {F G} {α : F => G} {β : G => F}
     → Inversesⁿ α β
-    → ∀ x → D.Inverses (α .η x) (β .η x)
+    → ∀ x → D.Inverses (α .map x) (β .map x)
   inversesⁿ→inverses inv x =
     D.make-inverses
       (CD.Inverses.invl inv ηₚ x)
@@ -200,20 +200,20 @@ to an invertible natural transformation, resp. natural isomorphism.
 
   invertible→invertibleⁿ
     : ∀ {F G} (eta : F => G)
-    → (∀ x → D.is-invertible (eta .η x))
+    → (∀ x → D.is-invertible (eta .map x))
     → is-invertibleⁿ eta
   invertible→invertibleⁿ eta i = to-is-invertibleⁿ ate (λ x → D.is-invertible.invl (i x)) λ x → D.is-invertible.invr (i x) where
     ate : _ => _
-    ate .η x = D.is-invertible.inv (i x)
-    ate .is-natural = inverse-is-natural eta _ (λ x → D.is-invertible.invl (i x)) (λ x → D.is-invertible.invr (i x))
+    ate .map x = D.is-invertible.inv (i x)
+    ate .com = inverse-is-natural eta _ (λ x → D.is-invertible.invl (i x)) (λ x → D.is-invertible.invr (i x))
 
   push-eqⁿ : ∀ {F G} (α : F ≅ⁿ G) {a b} {f g : C.Hom a b} → F .F₁ f ≡ F .F₁ g → G .F₁ f ≡ G .F₁ g
   push-eqⁿ {F = F} {G = G} α {f = f} {g} p =
     G .F₁ f                                           ≡⟨ D.insertl (α .Isoⁿ.invl ηₚ _) ⟩
-    α .Isoⁿ.to .η _ D.∘ α .Isoⁿ.from .η _ D.∘ G .F₁ f ≡⟨ D.refl⟩∘⟨ α .Isoⁿ.from .is-natural _ _ _ ⟩
-    α .Isoⁿ.to .η _ D.∘ F .F₁ f D.∘ α .Isoⁿ.from .η _ ≡⟨ D.refl⟩∘⟨ p D.⟩∘⟨refl ⟩
-    α .Isoⁿ.to .η _ D.∘ F .F₁ g D.∘ α .Isoⁿ.from .η _ ≡˘⟨ D.refl⟩∘⟨ α .Isoⁿ.from .is-natural _ _ _ ⟩
-    α .Isoⁿ.to .η _ D.∘ α .Isoⁿ.from .η _ D.∘ G .F₁ g ≡⟨ D.cancell (α .Isoⁿ.invl ηₚ _) ⟩
+    α .Isoⁿ.to .map _ D.∘ α .Isoⁿ.from .map _ D.∘ G .F₁ f ≡⟨ D.refl⟩∘⟨ α .Isoⁿ.from .com _ _ _ ⟩
+    α .Isoⁿ.to .map _ D.∘ F .F₁ f D.∘ α .Isoⁿ.from .map _ ≡⟨ D.refl⟩∘⟨ p D.⟩∘⟨refl ⟩
+    α .Isoⁿ.to .map _ D.∘ F .F₁ g D.∘ α .Isoⁿ.from .map _ ≡˘⟨ D.refl⟩∘⟨ α .Isoⁿ.from .com _ _ _ ⟩
+    α .Isoⁿ.to .map _ D.∘ α .Isoⁿ.from .map _ D.∘ G .F₁ g ≡⟨ D.cancell (α .Isoⁿ.invl ηₚ _) ⟩
     G .F₁ g                                           ∎
 ```
 -->
@@ -227,6 +227,6 @@ module _ {o ℓ} {C : Precategory o ℓ} where
     open _=>_
 
   id-nat-commute : ∀ (α β : Id {C = C} => Id) → α ∘nt β ≡ β ∘nt α
-  id-nat-commute α β = ext λ x → α .is-natural _ _ _
+  id-nat-commute α β = ext λ x → α .com _ _ _
 ```
 -->

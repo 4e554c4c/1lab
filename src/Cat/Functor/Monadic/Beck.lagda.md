@@ -119,14 +119,14 @@ module _ (Aalg : Algebra T) where
     TTA = Free-EM .Functor.F₀ (T.M₀ A)
 
     mult : Algebra-hom T TTA TA
-    mult .fst = T.mult .η _
+    mult .fst = T.mult .map _
     mult .snd = sym T.μ-assoc
 
     fold : Algebra-hom T TTA TA
     fold .fst = T.M₁ A.ν
     fold .snd =
-      T.M₁ A.ν C.∘ T.mult .η _        ≡˘⟨ T.mult .is-natural _ _ _ ⟩
-      T.mult .η _ C.∘ T.M₁ (T.M₁ A.ν) ∎
+      T.M₁ A.ν C.∘ T.mult .map _        ≡˘⟨ T.mult .com _ _ _ ⟩
+      T.mult .map _ C.∘ T.M₁ (T.M₁ A.ν) ∎
 ```
 -->
 
@@ -143,7 +143,7 @@ proof, and any adjunction presenting $T$ will do.
     : is-coequaliser C^T {A = TTA} {B = TA} {E = Aalg}
       mult fold (∫hom A.ν A.ν-mult)
   algebra-is-coequaliser .coequal = ext $
-    A.ν C.∘ T.mult .η _ ≡⟨ A.ν-mult ⟩
+    A.ν C.∘ T.mult .map _ ≡⟨ A.ν-mult ⟩
     A.ν C.∘ T.M₁ A.ν    ∎
 ```
 
@@ -162,24 +162,24 @@ from the algebra laws.
 
 ```agda
   algebra-is-coequaliser .universal {F = F} {e'} p .fst =
-    e' .fst C.∘ T.unit .η A
+    e' .fst C.∘ T.unit .map A
   algebra-is-coequaliser .universal {F = F} {e'} p .snd =
-    (e' .fst C.∘ unit.η A) C.∘ A.ν                   ≡⟨ C.extendr (unit.is-natural _ _ _) ⟩
-    (e' .fst C.∘ T.M₁ A.ν) C.∘ unit.η  (T.M₀ A)      ≡˘⟨ ap fst p C.⟩∘⟨refl ⟩
-    (e' .fst C.∘ T.mult .η A) C.∘ unit.η  (T.M₀ A)   ≡⟨ C.cancelr T.μ-unitl ⟩
+    (e' .fst C.∘ unit.map A) C.∘ A.ν                   ≡⟨ C.extendr (unit.com _ _ _) ⟩
+    (e' .fst C.∘ T.M₁ A.ν) C.∘ unit.map  (T.M₀ A)      ≡˘⟨ ap fst p C.⟩∘⟨refl ⟩
+    (e' .fst C.∘ T.mult .map A) C.∘ unit.map  (T.M₀ A)   ≡⟨ C.cancelr T.μ-unitl ⟩
     e' .fst                                          ≡⟨ C.intror (sym (T.M-∘ _ _) ∙ ap T.M₁ A.ν-unit ∙ T.M-id) ⟩
-    e' .fst C.∘ T.M₁ A.ν C.∘ T.M₁ (unit.η A)         ≡⟨ C.pulll (sym (ap fst p)) ⟩
-    (e' .fst C.∘ T.mult .η A) C.∘ T.M₁ (unit.η A)    ≡⟨ C.pushl (e' .snd) ⟩
-    F .snd .ν C.∘ T.M₁ (e' .fst) C.∘ T.M₁ (unit.η A) ≡˘⟨ C.refl⟩∘⟨ T.M-∘ _ _ ⟩
-    F .snd .ν C.∘ T.M₁ (e' .fst C.∘ unit.η A)        ∎
+    e' .fst C.∘ T.M₁ A.ν C.∘ T.M₁ (unit.map A)         ≡⟨ C.pulll (sym (ap fst p)) ⟩
+    (e' .fst C.∘ T.mult .map A) C.∘ T.M₁ (unit.map A)    ≡⟨ C.pushl (e' .snd) ⟩
+    F .snd .ν C.∘ T.M₁ (e' .fst) C.∘ T.M₁ (unit.map A) ≡˘⟨ C.refl⟩∘⟨ T.M-∘ _ _ ⟩
+    F .snd .ν C.∘ T.M₁ (e' .fst C.∘ unit.map A)        ∎
   algebra-is-coequaliser .factors {F = F} {e'} {p} = ext $
-    (e' .fst C.∘ unit.η _) C.∘ A.ν          ≡⟨ C.extendr (unit.is-natural _ _ _) ⟩
-    (e' .fst C.∘ T.M₁ A.ν) C.∘ unit.η  _    ≡˘⟨ ap fst p C.⟩∘⟨refl ⟩
-    (e' .fst C.∘ T.mult .η _) C.∘ unit.η  _ ≡⟨ C.cancelr T.μ-unitl ⟩
+    (e' .fst C.∘ unit.map _) C.∘ A.ν          ≡⟨ C.extendr (unit.com _ _ _) ⟩
+    (e' .fst C.∘ T.M₁ A.ν) C.∘ unit.map  _    ≡˘⟨ ap fst p C.⟩∘⟨refl ⟩
+    (e' .fst C.∘ T.mult .map _) C.∘ unit.map  _ ≡⟨ C.cancelr T.μ-unitl ⟩
     e' .fst                                 ∎
   algebra-is-coequaliser .unique {F = F} {e'} {p} {colim} q = ext $ sym $
-    e' .fst C.∘ unit.η A              ≡⟨ ap fst (sym q) C.⟩∘⟨refl ⟩
-    (colim .fst C.∘ A.ν) C.∘ unit.η A ≡⟨ C.cancelr A.ν-unit ⟩
+    e' .fst C.∘ unit.map A              ≡⟨ ap fst (sym q) C.⟩∘⟨refl ⟩
+    (colim .fst C.∘ A.ν) C.∘ unit.map A ≡⟨ C.cancelr A.ν-unit ⟩
     colim .fst                        ∎
 ```
 
@@ -232,7 +232,7 @@ far $\cD$ is from being the category of $T$-algebras.
         path =
           (has-coeq Y .coeq D.∘ F.₁ (alg-map .fst)) D.∘ F.₁ (X .snd .ν)      ≡⟨ D.pullr (F.weave (alg-map .snd)) ⟩
           has-coeq Y .coeq D.∘ F.₁ (Y .snd .ν) D.∘ F.₁ (T.M₁ (alg-map .fst)) ≡⟨ D.extendl (has-coeq Y .coequal) ⟩
-          has-coeq Y .coeq D.∘ ε _ D.∘ F.₁ (T.M₁ (alg-map .fst))             ≡⟨ D.pushr (counit.is-natural _ _ _) ⟩
+          has-coeq Y .coeq D.∘ ε _ D.∘ F.₁ (T.M₁ (alg-map .fst))             ≡⟨ D.pushr (counit.com _ _ _) ⟩
           (has-coeq Y .coeq D.∘ F.₁ (alg-map .fst)) D.∘ ε _                  ∎
   Comparison-EM⁻¹ .F-id {X} = sym $ has-coeq X .unique (D.idl _ ∙ D.intror F.F-id)
   Comparison-EM⁻¹ .F-∘ {X} f g = sym $ has-coeq X .unique $
@@ -252,42 +252,42 @@ readers.
 
 ```agda
   Comparison-EM⁻¹⊣Comparison-EM : Comparison-EM⁻¹ ⊣ Comparison-EM F⊣G
-  Comparison-EM⁻¹⊣Comparison-EM .unit .η x .fst =
-    G.₁ (has-coeq _ .coeq) C.∘ T.unit .η _
-  Comparison-EM⁻¹⊣Comparison-EM .counit .η x =
-    has-coeq _ .universal (F⊣G .counit.is-natural _ _ _)
+  Comparison-EM⁻¹⊣Comparison-EM .unit .map x .fst =
+    G.₁ (has-coeq _ .coeq) C.∘ T.unit .map _
+  Comparison-EM⁻¹⊣Comparison-EM .counit .map x =
+    has-coeq _ .universal (F⊣G .counit.com _ _ _)
 ```
 
 <details>
 <summary>Nah, really, it's quite ugly.</summary>
 
 ```agda
-  Comparison-EM⁻¹⊣Comparison-EM .unit .η x .snd =
-      C.pullr (T.unit .is-natural _ _ _)
+  Comparison-EM⁻¹⊣Comparison-EM .unit .map x .snd =
+      C.pullr (T.unit .com _ _ _)
     ∙ G.extendl (has-coeq _ .coequal)
     ∙ C.elimr (F⊣G .zag)
     ∙ G.intror (F⊣G .zig)
-    ∙ G.weave (D.pulll (sym (F⊣G .counit.is-natural _ _ _)) ∙ D.pullr (sym (F.F-∘ _ _)))
-  Comparison-EM⁻¹⊣Comparison-EM .unit .is-natural x y f = ext $
-    (G.₁ (has-coeq y .coeq) C.∘ T.unit.η _) C.∘ f .fst                        ≡⟨ C.pullr (T.unit.is-natural _ _ _) ⟩
-    G.₁ (has-coeq y .coeq) C.∘ T.M₁ (f .fst) C.∘ T.unit .η (x .fst)           ≡⟨ C.pulll (sym (G.F-∘ _ _)) ⟩
-    G.₁ (has-coeq y .coeq D.∘ F.₁ (f .fst)) C.∘ T.unit .η (x .fst)            ≡⟨ ap G.₁ (sym (has-coeq _ .factors)) C.⟩∘⟨refl ⟩
-    G.₁ (has-coeq x .universal _ D.∘ has-coeq x .coeq) C.∘ T.unit .η (x .fst) ≡⟨ C.pushl (G.F-∘ _ _) ⟩
-    G.₁ (has-coeq x .universal _) C.∘ G.₁ (has-coeq x .coeq) C.∘ T.unit.η _   ∎
-  Comparison-EM⁻¹⊣Comparison-EM .counit .is-natural x y f =
+    ∙ G.weave (D.pulll (sym (F⊣G .counit.com _ _ _)) ∙ D.pullr (sym (F.F-∘ _ _)))
+  Comparison-EM⁻¹⊣Comparison-EM .unit .com x y f = ext $
+    (G.₁ (has-coeq y .coeq) C.∘ T.unit.map _) C.∘ f .fst                        ≡⟨ C.pullr (T.unit.com _ _ _) ⟩
+    G.₁ (has-coeq y .coeq) C.∘ T.M₁ (f .fst) C.∘ T.unit .map (x .fst)           ≡⟨ C.pulll (sym (G.F-∘ _ _)) ⟩
+    G.₁ (has-coeq y .coeq D.∘ F.₁ (f .fst)) C.∘ T.unit .map (x .fst)            ≡⟨ ap G.₁ (sym (has-coeq _ .factors)) C.⟩∘⟨refl ⟩
+    G.₁ (has-coeq x .universal _ D.∘ has-coeq x .coeq) C.∘ T.unit .map (x .fst) ≡⟨ C.pushl (G.F-∘ _ _) ⟩
+    G.₁ (has-coeq x .universal _) C.∘ G.₁ (has-coeq x .coeq) C.∘ T.unit.map _   ∎
+  Comparison-EM⁻¹⊣Comparison-EM .counit .com x y f =
       has-coeq (F₀ (Comparison-EM F⊣G) x) .unique
-        {p = ap₂ D._∘_ (F⊣G .counit.is-natural _ _ _) refl
-          ∙∙ D.pullr (F⊣G .counit.is-natural _ _ _)
-          ∙∙ D.pulll (sym (F⊣G .counit.is-natural _ _ _))}
+        {p = ap₂ D._∘_ (F⊣G .counit.com _ _ _) refl
+          ∙∙ D.pullr (F⊣G .counit.com _ _ _)
+          ∙∙ D.pulll (sym (F⊣G .counit.com _ _ _))}
         (D.pullr (has-coeq _ .factors) ∙ D.pulll (has-coeq _ .factors))
-    ∙ sym (has-coeq _ .unique (D.pullr (has-coeq _ .factors) ∙ sym (F⊣G .counit.is-natural _ _ _)))
+    ∙ sym (has-coeq _ .unique (D.pullr (has-coeq _ .factors) ∙ sym (F⊣G .counit.com _ _ _)))
   Comparison-EM⁻¹⊣Comparison-EM .zig =
     unique₂ (has-coeq _)
       (has-coeq _ .coequal)
       (D.pullr (has-coeq _ .factors)
       ∙ D.pulll (has-coeq _ .factors)
       ∙ ap₂ D._∘_ refl (F.F-∘ _ _)
-      ∙ D.pulll (F⊣G .counit.is-natural _ _ _)
+      ∙ D.pulll (F⊣G .counit.com _ _ _)
       ∙ D.cancelr (F⊣G .zig))
       (D.idl _)
   Comparison-EM⁻¹⊣Comparison-EM .zag = ext $

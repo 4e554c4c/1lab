@@ -1149,8 +1149,8 @@ Nfs τ .F-id     = ext (ren-nf-stop stop)
 Nfs τ .F-∘  ρ σ = ext (ren-nf-∘ʳ ρ σ)
 
 rnf : Nfs τ => Tm.₀ τ
-rnf .η Γ σ            = ⟦ σ ⟧ₙ
-rnf .is-natural x y f = ext (λ s → ren-⟦⟧ₙ f s)
+rnf .map Γ σ            = ⟦ σ ⟧ₙ
+rnf .com x y f = ext (λ s → ren-⟦⟧ₙ f s)
 
 Nes : Ty → Sem
 Nes τ .F₀   Γ   = el! (Ne Γ τ)
@@ -1159,8 +1159,8 @@ Nes τ .F-id     = ext (ren-ne-stop stop)
 Nes τ .F-∘  ρ σ = ext (ren-ne-∘ʳ ρ σ)
 
 rne : Nes τ => Tm.₀ τ
-rne .η Γ σ            = ⟦ σ ⟧ₛ
-rne .is-natural x y f = ext (λ s → ren-⟦⟧ₛ f s)
+rne .map Γ σ            = ⟦ σ ⟧ₛ
+rne .com x y f = ext (λ s → ren-⟦⟧ₛ f s)
 ```
 
 </details>
@@ -1230,13 +1230,13 @@ record Nfa {τ : Ty} (P : Gl ʻ τ) : Type ℓ where
 <!--
 ```agda
   ⟦_⟧ₚ : ∀ {Γ} → P .dom ʻ Γ → Mor ⟦ Γ ⟧ᶜ τ
-  ⟦_⟧ₚ {Γ} x = P .map .η Γ x
+  ⟦_⟧ₚ {Γ} x = P .map .map Γ x
 
   reify : ∀ {Γ} → P .dom ʻ Γ → Nf Γ τ
-  reify = reifies .η _
+  reify = reifies .map _
 
   reflect : ∀ {Γ} → Ne Γ τ → P .dom ʻ Γ
-  reflect = reflects .η _
+  reflect = reflects .map _
   field
 ```
 -->
@@ -1277,10 +1277,10 @@ These are required to make the following triangles commute.
 <!--
 ```agda
   reifyₙ : ∀ {Γ Δ} {ρ : Ren Γ Δ} {x : P .dom ʻ Δ} → reify (P .dom ⟪ ρ ⟫ x) ≡ ren-nf ρ (reify x)
-  reifyₙ {Γ} {Δ} {ρ} {x} = reifies .is-natural Δ Γ ρ $ₚ x
+  reifyₙ {Γ} {Δ} {ρ} {x} = reifies .com Δ Γ ρ $ₚ x
 
   reflectₙ : ∀ {Γ Δ} {ρ : Ren Γ Δ} {x : Ne Δ τ} → reflect (ren-ne ρ x) ≡ P .dom ⟪ ρ ⟫ (reflect x)
-  reflectₙ {Γ} {Δ} {ρ} {x} = reflects .is-natural Δ Γ ρ $ₚ x
+  reflectₙ {Γ} {Δ} {ρ} {x} = reflects .com Δ Γ ρ $ₚ x
 
 GlTm-closed = Gl-closed PSh-closed Free-closed PSh-pullbacks
 open Cartesian-closed-over Gl Gl-cartesian {Free-closed} GlTm-closed using ([_,_]')
@@ -1395,8 +1395,8 @@ over that variable, getting a normal form in the right context.
 
 ```agda
   arr : Nfa [ x , y ]'
-  arr .reifies .η Γ (_ , f , p) = lam $ y.reify $
-    f .η _ (drop stop , x.reflect (var stop))
+  arr .reifies .map Γ (_ , f , p) = lam $ y.reify $
+    f .map _ (drop stop , x.reflect (var stop))
 ```
 
 Reflection takes much less explanation. Given a neutral $\Gamma
@@ -1419,13 +1419,13 @@ it is a definable operation built from $x$, so we are done with the
 construction.
 
 ```agda
-  arr .reflects .η Γ x .fst      = ⟦ x ⟧ₛ
-  arr .reflects .η Γ x .snd .fst = record where
+  arr .reflects .map Γ x .fst      = ⟦ x ⟧ₛ
+  arr .reflects .map Γ x .snd .fst = record where
     η Δ (ρ , s)      = y.reflect (app (ren-ne ρ x) (x.reify s))
     is-natural Δ Θ ρ = ext λ σ s →
         ap y.reflect (ap₂ Ne.app (ren-ne-∘ʳ ρ σ x) x.reifyₙ)
       ∙ y.reflectₙ
-  arr .reflects .η Γ x .snd .snd = ext λ Γ ρ s → sym $
+  arr .reflects .map Γ x .snd .snd = ext λ Γ ρ s → sym $
     y.⟦ y.reflect (app (ren-ne ρ x) (x.reify s)) ⟧ₚ ≡⟨ y.com₀ _ ⟩
     `ev `∘ (⟦ ren-ne ρ x ⟧ₛ `, ⟦ x.reify s ⟧ₙ)      ≡⟨ ap₂ (λ a b → `ev `∘ (a `, b)) (ren-⟦⟧ₛ ρ x) (sym (x.com₁ _)) ⟩
     `ev `∘ (⟦ x ⟧ₛ `∘ ⟦ ρ ⟧ʳ `, x.⟦ s ⟧ₚ)           ∎
@@ -1440,7 +1440,7 @@ algebra on.
 ```agda
   arr .com₀ f           = refl
   arr .com₁ (φ , f , α) = sym $
-    `ƛ ⟦ y.reify (f .η _ (drop stop , x.reflect (var stop))) ⟧ₙ   ≡⟨ ap `ƛ (sym (y.com₁ _) ∙ sym (unext α _ _ _)) ⟩
+    `ƛ ⟦ y.reify (f .map _ (drop stop , x.reflect (var stop))) ⟧ₙ   ≡⟨ ap `ƛ (sym (y.com₁ _) ∙ sym (unext α _ _ _)) ⟩
     `ƛ (`ev `∘ (φ `∘ `id `∘ `π₁ `, x.⟦ x.reflect (var stop) ⟧ₚ))  ≡⟨ ap `ƛ (ap₂ (λ a b → `ev `∘ (a `, b)) (ap (φ `∘_) `idl) (x.com₀ _ ∙ sym `idl)) ⟩
     `ƛ (`ev `∘ (φ `∘ `π₁ `, `id `∘ `π₂))                          ≡⟨ sym `ƛη ⟩
     φ                                                             ∎
@@ -1453,12 +1453,12 @@ straightforward, and so we omit it.
 
 <!--
 ```agda
-  arr .reifies .is-natural Γ Δ ρ = ext λ x y p → ap Nf.lam
-    (ap y.reify (ap (λ e → y .η _ e) (ap drop (sym (∘ʳ-idr ρ)) ,ₚ x.reflectₙ)
-    ∙ (y .is-natural (Γ , _) (Δ , _) (keep ρ) ·ₚ (drop stop , _)))
+  arr .reifies .com Γ Δ ρ = ext λ x y p → ap Nf.lam
+    (ap y.reify (ap (λ e → y .map _ e) (ap drop (sym (∘ʳ-idr ρ)) ,ₚ x.reflectₙ)
+    ∙ (y .com (Γ , _) (Δ , _) (keep ρ) ·ₚ (drop stop , _)))
     ∙ y.reifyₙ)
 
-  arr .reflects .is-natural Γ Δ ρ = ext λ n → Σ-pathp (ren-⟦⟧ₛ ρ n) $ Σ-prop-pathp!
+  arr .reflects .com Γ Δ ρ = ext λ n → Σ-pathp (ren-⟦⟧ₛ ρ n) $ Σ-prop-pathp!
     (ext λ Θ σ s → ap y.reflect (ap₂ app (sym (ren-ne-∘ʳ σ ρ n)) refl))
 ```
 -->
@@ -1541,7 +1541,7 @@ which is exactly what we wanted! We're finally `done`{.Agda}.
 
 ```agda
 idsec : (Γ : Cx) → ⟦ ⟦ Γ ⟧ᶜ ⟧₀ .dom ʻ Γ
-idsecβ : (Γ : Cx) → ⟦ ⟦ Γ ⟧ᶜ ⟧₀ .map .η Γ (idsec Γ) ≡ `id
+idsecβ : (Γ : Cx) → ⟦ ⟦ Γ ⟧ᶜ ⟧₀ .map .map Γ (idsec Γ) ≡ `id
 ```
 
 <!--
@@ -1550,7 +1550,7 @@ idsec ∅       = lift tt
 idsec (Γ , x) = (⟦ ⟦ Γ ⟧ᶜ ⟧₀ .dom ⟪ drop stop ⟫ idsec Γ) , Nfa.reflect (normalisation x) (var stop)
 
 idsecβ ∅       = `!-η _
-idsecβ (Γ , x) = ap₂ _`,_ (Γ'.map .is-natural _ _ _ ·ₚ _ ∙ ap₂ _`∘_ (idsecβ Γ) refl ∙ Syn.cancell `idl ∙ Syn.intror refl) (Nfa.com₀ (normalisation x) (var stop) ∙ Syn.intror refl) ∙ sym `πη
+idsecβ (Γ , x) = ap₂ _`,_ (Γ'.map .com _ _ _ ·ₚ _ ∙ ap₂ _`∘_ (idsecβ Γ) refl ∙ Syn.cancell `idl ∙ Syn.intror refl) (Nfa.com₀ (normalisation x) (var stop) ∙ Syn.intror refl) ∙ sym `πη
   where module Γ' = /-Obj ⟦ ⟦ Γ ⟧ᶜ ⟧₀
 ```
 -->
@@ -1562,7 +1562,7 @@ nfᶜ
 nfᶜ Γ {σ} e = record { fst = done ; snd = sym sq } where
   module σ = Nfa (normalisation σ)
 
-  done = σ.reify (⟦ e ⟧₁ .map .η Γ (idsec Γ))
+  done = σ.reify (⟦ e ⟧₁ .map .map Γ (idsec Γ))
 ```
 
 To show that the denotation of this normal form is the map we started
@@ -1575,8 +1575,8 @@ codomain, one each.
     sq : ⟦ done ⟧ₙ ≡ e
     sq =
       ⟦ done ⟧ₙ                            ≡⟨ sym (σ.com₁ _) ⟩
-      σ.⟦ ⟦ e ⟧₁ .map .η Γ (idsec Γ) ⟧ₚ    ≡⟨ unext (⟦ e ⟧₁ .com) _ _ ⟩
-      e `∘ ⟦ ⟦ Γ ⟧ᶜ ⟧₀ .map .η Γ (idsec Γ) ≡⟨ Syn.elimr (idsecβ Γ) ⟩
+      σ.⟦ ⟦ e ⟧₁ .map .map Γ (idsec Γ) ⟧ₚ    ≡⟨ unext (⟦ e ⟧₁ .com) _ _ ⟩
+      e `∘ ⟦ ⟦ Γ ⟧ᶜ ⟧₀ .map .map Γ (idsec Γ) ≡⟨ Syn.elimr (idsecβ Γ) ⟩
       e                                    ∎
 ```
 
@@ -1603,10 +1603,10 @@ enjoys *stability*: normalising a normal form leaves it unchanged.
 stability : (n : Nf Γ τ) → nfᶜ Γ ⟦ n ⟧ₙ .fst ≡ n
 stability-ne
   : (n : Ne Γ τ)
-  → ⟦ ⟦ n ⟧ₛ ⟧₁ .map .η Γ (idsec Γ) ≡ Nfa.reflect (normalisation τ) n
+  → ⟦ ⟦ n ⟧ₛ ⟧₁ .map .map Γ (idsec Γ) ≡ Nfa.reflect (normalisation τ) n
 stability-var
   : (x : Var Γ τ)
-  → ⟦ ⟦ x ⟧ⁿ ⟧₁ .map .η Γ (idsec Γ) ≡ Nfa.reflect (normalisation τ) (var x)
+  → ⟦ ⟦ x ⟧ⁿ ⟧₁ .map .map Γ (idsec Γ) ≡ Nfa.reflect (normalisation τ) (var x)
 ```
 </summary>
 
@@ -1618,11 +1618,11 @@ stability (ne x) = stability-ne x
 
 stability-ne (var x) = stability-var x
 stability-ne {Γ = Γ} {τ = τ} (app {τ = σ} n x) =
-  ⟦ ⟦ app n x ⟧ₛ ⟧₁ .map .η Γ (idsec Γ)
+  ⟦ ⟦ app n x ⟧ₛ ⟧₁ .map .map Γ (idsec Γ)
     ≡⟨⟩
-  ev' .map .η Γ (⟦ ⟦ n ⟧ₛ ⟧₁ .map .η Γ (idsec Γ) , ⟦ ⟦ x ⟧ₙ ⟧₁ .map .η Γ (idsec Γ))
-    ≡⟨ ap (λ a → ev' .map .η Γ (a , ⟦ ⟦ x ⟧ₙ ⟧₁ .map .η Γ (idsec Γ))) (stability-ne n) ⟩
-  ev' .map .η Γ (σ⇒τ.reflect n , ⟦ ⟦ x ⟧ₙ ⟧₁ .map .η Γ (idsec Γ))
+  ev' .map .map Γ (⟦ ⟦ n ⟧ₛ ⟧₁ .map .map Γ (idsec Γ) , ⟦ ⟦ x ⟧ₙ ⟧₁ .map .map Γ (idsec Γ))
+    ≡⟨ ap (λ a → ev' .map .map Γ (a , ⟦ ⟦ x ⟧ₙ ⟧₁ .map .map Γ (idsec Γ))) (stability-ne n) ⟩
+  ev' .map .map Γ (σ⇒τ.reflect n , ⟦ ⟦ x ⟧ₙ ⟧₁ .map .map Γ (idsec Γ))
     ≡⟨⟩
   τ.reflect (app (ren-ne stop n) (nfᶜ Γ ⟦ x ⟧ₙ .fst))
     ≡⟨ ap τ.reflect (ap₂ app (ren-ne-stop stop n) (stability x)) ⟩
@@ -1638,7 +1638,7 @@ stability-ne (sndₙ n) = ap snd (stability-ne n)
 
 stability-var stop = refl
 stability-var {Γ = Γ , σ} {τ = τ} (pop x) =
-    (⟦ ⟦ x ⟧ⁿ ⟧₁ .map .is-natural Γ (Γ , σ) (drop stop) $ₚ idsec Γ)
+    (⟦ ⟦ x ⟧ⁿ ⟧₁ .map .com Γ (Γ , σ) (drop stop) $ₚ idsec Γ)
   ∙ ap (⟦ τ ⟧₀ .dom .F₁ (drop stop)) (stability-var x)
   ∙ sym (Nfa.reflectₙ (normalisation τ))
 ```

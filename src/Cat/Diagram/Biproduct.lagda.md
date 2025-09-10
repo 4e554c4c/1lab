@@ -316,7 +316,7 @@ following diagram:
       ∇ ∘ (id ⊕₁ ∇) ∘ (f ⊗₁ (g ⊗₁ h)) ∘ (id ⊗₁ δ) ∘ δ             ≡˘⟨ pushl ∇-assoc ⟩
       (∇ ∘ (∇ ⊕₁ id) ∘ ⊕-assoc) ∘ (f ⊗₁ (g ⊗₁ h)) ∘ (id ⊗₁ δ) ∘ δ ≡⟨ (refl⟩∘⟨ ⊕₁≡⊗₁ ⟩∘⟨refl) ⟩∘⟨refl ⟩
       (∇ ∘ (∇ ⊗₁ id) ∘ ⊕-assoc) ∘ (f ⊗₁ (g ⊗₁ h)) ∘ (id ⊗₁ δ) ∘ δ ≡⟨ pullr (pullr (coassoc≡assoc ⟩∘⟨refl)) ⟩
-      ∇ ∘ (∇ ⊗₁ id) ∘ ×-assoc ∘ (f ⊗₁ (g ⊗₁ h)) ∘ (id ⊗₁ δ) ∘ δ   ≡⟨ refl⟩∘⟨ refl⟩∘⟨ extendl (associator .Isoⁿ.from .is-natural _ _ _) ⟩
+      ∇ ∘ (∇ ⊗₁ id) ∘ ×-assoc ∘ (f ⊗₁ (g ⊗₁ h)) ∘ (id ⊗₁ δ) ∘ δ   ≡⟨ refl⟩∘⟨ refl⟩∘⟨ extendl (associator .Isoⁿ.from .com _ _ _) ⟩
       ∇ ∘ (∇ ⊗₁ id) ∘ ((f ⊗₁ g) ⊗₁ h) ∘ ×-assoc ∘ (id ⊗₁ δ) ∘ δ   ≡⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ assoc-δ ⟩
       ∇ ∘ (∇ ⊗₁ id) ∘ ((f ⊗₁ g) ⊗₁ h) ∘ (δ ⊗₁ id) ∘ δ             ≡⟨ refl⟩∘⟨ ⊗.pulll3 (refl ,ₚ idl _ ∙ idr _) ⟩
       ∇ ∘ ((∇ ∘ (f ⊗₁ g) ∘ δ) ⊗₁ h) ∘ δ                           ∎

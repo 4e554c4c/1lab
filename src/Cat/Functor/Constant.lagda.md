@@ -74,17 +74,17 @@ morphism, and natural isomorphisms by a single iso.
     : ∀ {F : Functor C D} {K : Functor ⊤Cat D}
     → F => K F∘ !F
     → F => Const (K .F₀ tt)
-  to-coconeⁿ {K = K} ψ .η = ψ .η
-  to-coconeⁿ {K = K} ψ .is-natural x y f =
-    ψ .is-natural x y f ∙ ap₂ D._∘_ (K .F-id) refl
+  to-coconeⁿ {K = K} ψ .map = ψ .map
+  to-coconeⁿ {K = K} ψ .com x y f =
+    ψ .com x y f ∙ ap₂ D._∘_ (K .F-id) refl
 
   to-coneⁿ
     : ∀ {F : Functor C D} {K : Functor ⊤Cat D}
     → K F∘ !F => F
     → Const (K .F₀ tt) => F
-  to-coneⁿ {K = K} ψ .η = ψ .η
-  to-coneⁿ {K = K} ψ .is-natural x y f =
-    ap₂ D._∘_ refl (sym (K .F-id)) ∙ ψ .is-natural x y f
+  to-coneⁿ {K = K} ψ .map = ψ .map
+  to-coneⁿ {K = K} ψ .com x y f =
+    ap₂ D._∘_ refl (sym (K .F-id)) ∙ ψ .com x y f
 ```
 -->
 
@@ -130,7 +130,7 @@ by arbitrary functors.
       pure $ d ,
         iso→isoⁿ
           (λ b → isoⁿ→iso f (G.₀ b))
-          (λ g → sym (f .to .is-natural _ _ (G.₁ g)))
+          (λ g → sym (f .to .com _ _ (G.₁ g)))
 
   essentially-constant-∘r
     : is-essentially-constant G
@@ -142,5 +142,5 @@ by arbitrary functors.
           (λ b → F-map-iso F (isoⁿ→iso f b))
           (λ g →
             ap₂ D._∘_ (sym (F.F-id)) refl
-            ∙ F.weave (sym (f .to .is-natural _ _ g)))
+            ∙ F.weave (sym (f .to .com _ _ g)))
 ```

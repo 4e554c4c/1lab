@@ -87,9 +87,9 @@ turns this into a cocone in $\cC/c$:
       K .map = UF-colim.universal (λ j → F.₀ j .map) (λ f → F.₁ f .com)
 
       mk : make-is-colimit F K
-      mk .ψ j .map = UF-colim.cocone .η j
+      mk .ψ j .map = UF-colim.cocone .map j
       mk .ψ j .com = UF-colim.factors _ _
-      mk .commutes f = ext (UF-colim.cocone .is-natural _ _ f ∙ C.idl _)
+      mk .commutes f = ext (UF-colim.cocone .com _ _ f ∙ C.idl _)
 ```
 
 All that remains is to show that this cocone is colimiting in $\cC/c$.

@@ -230,19 +230,19 @@ member-tabulate f x = member≃lookup ∙e lookup-tabulate-fibre f x
 ```agda
 map-member
   : ∀ {A : Type ℓ} {B : Type ℓ'} (f : A → B) {x : A} {xs : List A}
-  → x ∈ xs → f x ∈ map f xs
+  → x ∈ xs → f x ∈ fmap f xs
 map-member f (here p)  = here (apᵢ f p)
 map-member f (there x) = there (map-member f x)
 
 member-map-inj
   : ∀ {A : Type ℓ} {B : Type ℓ'} (f : A → B) (inj : injective f)
-  → {x : A} {xs : List A} → f x ∈ map f xs → x ∈ xs
+  → {x : A} {xs : List A} → f x ∈ fmap f xs → x ∈ xs
 member-map-inj f inj {xs = x' ∷ xs} (here p)  = here (Id≃path.from (inj (Id≃path.to p)))
 member-map-inj f inj {xs = x' ∷ xs} (there i) = there (member-map-inj f inj i)
 
 member-map-embedding
   : ∀ {A : Type ℓ} {B : Type ℓ'} (f : A → B) (emb : is-embedding f)
-  → {x : A} {xs : List A} → f x ∈ map f xs → x ∈ xs
+  → {x : A} {xs : List A} → f x ∈ fmap f xs → x ∈ xs
 member-map-embedding f emb = member-map-inj f (has-prop-fibres→injective f emb)
 
 member-map-embedding-invl
@@ -257,11 +257,11 @@ member-map-embedding-invl f emb {xs = x' ∷ xs} (there h) = ap there (member-ma
 module _ {A : Type ℓ} {B : Type ℓ'} (f : A ≃ B) where
   private module f = Equiv f
 
-  map-equiv-member : ∀ {x : B} {xs} → f.from x ∈ₗ xs → x ∈ₗ map f.to xs
+  map-equiv-member : ∀ {x : B} {xs} → f.from x ∈ₗ xs → x ∈ₗ fmap f.to xs
   map-equiv-member (here p)  = here (Id≃path.from (sym (f.adjunctr (sym (Id≃path.to p)))))
   map-equiv-member (there p) = there (map-equiv-member p)
 
-  member-map-equiv : ∀ {x : B} {xs} → x ∈ₗ map f.to xs → f.from x ∈ₗ xs
+  member-map-equiv : ∀ {x : B} {xs} → x ∈ₗ fmap f.to xs → f.from x ∈ₗ xs
   member-map-equiv {xs = y ∷ xs} (here p)  = here (Id≃path.from (sym (f.adjunctl (sym (Id≃path.to p)))))
   member-map-equiv {xs = y ∷ xs} (there x) = there (member-map-equiv x)
 
@@ -274,17 +274,17 @@ module _ {A : Type ℓ} {B : Type ℓ'} (f : A ≃ B) where
   member-map-equiv-invl {xs = x ∷ xs} (there p) = ap there (member-map-equiv-invl p)
 
 module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) where
-  member-map : ∀ {y} xs → y ∈ₗ map f xs → Σ[ f ∈ fibreᵢ f y ] (f .fst ∈ₗ xs)
+  member-map : ∀ {y} xs → y ∈ₗ fmap f xs → Σ[ f ∈ fibreᵢ f y ] (f .fst ∈ₗ xs)
   member-map (x ∷ xs) (here p)  = (x , symᵢ p) , here reflᵢ
   member-map (x ∷ xs) (there p) =
     let (f , ix) = member-map xs p
       in f , there ix
 
-  map-member' : ∀ {y} xs (fb : Σ[ f ∈ fibreᵢ f y ] (f .fst ∈ₗ xs)) → y ∈ₗ map f xs
+  map-member' : ∀ {y} xs (fb : Σ[ f ∈ fibreᵢ f y ] (f .fst ∈ₗ xs)) → y ∈ₗ fmap f xs
   map-member' (_ ∷ xs) ((x , p) , here q)  = here (symᵢ p ∙ᵢ apᵢ f q)
   map-member' (_ ∷ xs) ((x , p) , there i) = there (map-member' xs ((x , p) , i))
 
-  member-map→fibre→member : ∀ {y} xs (p : y ∈ₗ map f xs) → map-member' xs (member-map xs p) ≡ p
+  member-map→fibre→member : ∀ {y} xs (p : y ∈ₗ fmap f xs) → map-member' xs (member-map xs p) ≡ p
   member-map→fibre→member (x ∷ xs) (here reflᵢ) = ap here refl
   member-map→fibre→member (x ∷ xs) (there p)    = ap there (member-map→fibre→member xs p)
 
@@ -336,7 +336,7 @@ uncons-is-nubbed hxs = record
 map-is-nubbed
   : {A : Type ℓ} {B : Type ℓ'} {xs : List A} (f : A → B)
   → ((b : B) (f f' : fibreᵢ f b) → f .fst ∈ₗ xs → f' .fst ∈ₗ xs → f ≡ f')
-  → is-nubbed xs → is-nubbed (map f xs)
+  → is-nubbed xs → is-nubbed (fmap f xs)
 map-is-nubbed {xs = xs} f hf hxs e a b =
      sym (member-map→fibre→member f xs a)
   ∙∙ ap (map-member' f xs) (Σ-prop-path (λ _ → hxs _) (hf e (member-map f xs a .fst) (member-map f xs b .fst) (member-map f xs a .snd) (member-map f xs b .snd)))

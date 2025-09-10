@@ -165,7 +165,7 @@ record is-equational {ℓ o' ℓ'} {S : Type ℓ → Type o'} (spec : Thin-struc
     (∫hom (Equiv.to f) e)
     (∫hom (Equiv.from f) (equiv-hom→inverse-hom f e))
     (ext (Equiv.ε f))
-    (ext (Equiv.η f))
+    (ext (Equiv.map f))
 
   ∫-Path
     : ∀ {a b : So.Ob}

@@ -149,11 +149,11 @@ equalisers are unique, this construction is invariant under the chosen
 point; it would thus suffice for the family to be inhabited instead.
 
 ```agda
-  is-limit→joint-equaliser : ∀ {L} {l} → I → is-limit diagram L l → is-joint-equaliser F (l .η false)
+  is-limit→joint-equaliser : ∀ {L} {l} → I → is-limit diagram L l → is-joint-equaliser F (l .map false)
   is-limit→joint-equaliser {L} {l} ix lim = je where
     module l = is-limit lim
-    je : is-joint-equaliser F (l .η false)
-    je .equal = sym (l .is-natural false true _) ∙ l .is-natural false true _
+    je : is-joint-equaliser F (l .map false)
+    je .equal = sym (l .com false true _) ∙ l .com false true _
     je .universal {E'} {e'} eq = l.universal
       (λ { true → F ix ∘ e' ; false → e' })
       λ { {true}  {true}  f → eliml refl
@@ -161,13 +161,13 @@ point; it would thus suffice for the family to be inhabited instead.
         ; {false} {false} f → eliml refl }
     je .factors = l.factors _ _
     je .unique p = l.unique _ _ _ λ where
-      true  → ap₂ _∘_ (intror refl ∙ l .is-natural false true ix) refl ∙ pullr p
+      true  → ap₂ _∘_ (intror refl ∙ l .com false true ix) refl ∙ pullr p
       false → p
 
   open Joint-equaliser
 
   Limit→Joint-equaliser : I → Limit diagram → Joint-equaliser F
   Limit→Joint-equaliser ix lim .apex = Limit.apex lim
-  Limit→Joint-equaliser ix lim .equ = Limit.cone lim .η false
+  Limit→Joint-equaliser ix lim .equ = Limit.cone lim .map false
   Limit→Joint-equaliser ix lim .has-is-je = is-limit→joint-equaliser ix (Limit.has-limit lim)
 ```

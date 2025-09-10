@@ -236,13 +236,13 @@ essentially independent of the coordinate.
 
 ```agda
     f : Γ => GlobalSections
-    f .η x ob = record
+    f .map x ob = record
       { F₀ = λ _ → ob
       ; F₁ = λ _ → x .fst .id
       ; F-id = refl
       ; F-∘ = λ _ _ → sym (x .fst .idl _)
       }
-    f .is-natural x y f = funext λ _ → Functor-path (λ _ → refl) λ _ → sym (f .F-id)
+    f .com x y f = funext λ _ → Functor-path (λ _ → refl) λ _ → sym (f .F-id)
 ```
 
 In the opposite direction, the natural transformation is defined by
@@ -252,8 +252,8 @@ using our path helpers, `Functor-path`{.Agda} and `ext`{.Agda}.
 
 ```agda
     g : GlobalSections => Γ
-    g .η x f = f · lift tt
-    g .is-natural x y f = refl
+    g .map x f = f · lift tt
+    g .com x y f = refl
 
     f∘g : f ∘nt g ≡ idnt
     f∘g = ext λ c x → Functor-path (λ x → refl) λ f → sym (x .F-id)
@@ -311,8 +311,8 @@ quotient.
 Π₀⊣Disc : Π₀ ⊣ Disc {ℓ}
 Π₀⊣Disc = adj where
   adj : _ ⊣ _
-  adj .unit .η x = Disc-into _ inc quot
-  adj .unit .is-natural x y f = Functor-path (λ x → refl) λ _ → squash _ _ _ _
+  adj .unit .map x = Disc-into _ inc quot
+  adj .unit .com x y f = Functor-path (λ x → refl) λ _ → squash _ _ _ _
 ```
 
 The adjunction `counit`{.Agda} is an assignment of functions
@@ -321,8 +321,8 @@ isomorphism: the set of connected components of a discrete category is
 the same set we started with.
 
 ```agda
-  adj .counit .η X = Quot-elim (λ _ → X .is-tr) (λ x → x) λ x y r → r
-  adj .counit .is-natural x y f = ext λ _ → refl
+  adj .counit .map X = Quot-elim (λ _ → X .is-tr) (λ x → x) λ x y r → r
+  adj .counit .com x y f = ext λ _ → refl
 ```
 
 The triangle identities are again straightforwardly checked.
@@ -376,9 +376,9 @@ surjective, i.e. _each piece has at least one point_.
 
 ```agda
 Points→Pieces : Γ {ℓ} {ℓ} => Π₀
-Points→Pieces .η _ x = inc x
-Points→Pieces .is-natural x y f i o = inc (f .F₀ o)
+Points→Pieces .map _ x = inc x
+Points→Pieces .com x y f i o = inc (f .F₀ o)
 
-pieces-have-points : ∀ {x} → is-surjective (Points→Pieces {ℓ} .η x)
+pieces-have-points : ∀ {x} → is-surjective (Points→Pieces {ℓ} .map x)
 pieces-have-points = elim! λ x → inc (x , refl)
 ```

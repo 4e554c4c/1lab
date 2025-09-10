@@ -79,15 +79,15 @@ We will also need the fact that these inverses are also adjoints.
 Twice⊣Slice : (f : Hom a b) → Twice-slice f ⊣ Slice-twice f
 Twice⊣Slice f = adj where
   adj : Twice-slice f ⊣ Slice-twice f
-  adj .unit .η x .map .map = id
-  adj .unit .η x .map .com = idr _ ∙ x .map .com
-  adj .unit .η x .com      = ext (idr _)
+  adj .unit .map x .map .map = id
+  adj .unit .map x .map .com = idr _ ∙ x .map .com
+  adj .unit .map x .com      = ext (idr _)
 
-  adj .unit .is-natural x y f   = ext id-comm-sym
+  adj .unit .com x y f   = ext id-comm-sym
 
-  adj .counit .η x .map         = id
-  adj .counit .η x .com         = idr _
-  adj .counit .is-natural x y f = ext id-comm-sym
+  adj .counit .map x .map         = id
+  adj .counit .map x .com         = idr _
+  adj .counit .com x y f = ext id-comm-sym
 
   adj .zig = ext (idr _)
   adj .zag = ext (idr _)

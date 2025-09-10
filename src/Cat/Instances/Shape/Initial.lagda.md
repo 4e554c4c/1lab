@@ -42,6 +42,6 @@ module _ {o h} {A : Precategory o h} where
   ¡F-unique F G i .F₀ ()
 
   ¡nt : ∀ {F G : Functor ⊥Cat A} → F => G
-  ¡nt ._=>_.η ()
-  ¡nt ._=>_.is-natural ()
+  ¡nt ._=>_.map ()
+  ¡nt ._=>_.com ()
 ```

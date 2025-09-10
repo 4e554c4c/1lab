@@ -33,7 +33,7 @@ constructor.
 record Map (M : Effect) : Typeω where
   private module M = Effect M
   field
-    map : ∀ {ℓ} {ℓ'} {A : Type ℓ} {B : Type ℓ'} → (A → B) → M.₀ A → M.₀ B
+    fmap : ∀ {ℓ} {ℓ'} {A : Type ℓ} {B : Type ℓ'} → (A → B) → M.₀ A → M.₀ B
 
 record Idiom (M : Effect) : Typeω where
   private module M = Effect M
@@ -51,15 +51,15 @@ infixl 4 _<$>_ _<&>_
 
 _<$>_ : ∀ {ℓ ℓ'} {M : Effect} ⦃ _ : Map M ⦄ {A : Type ℓ} {B : Type ℓ'}
       → (A → B) → M .Effect.₀ A → M .Effect.₀ B
-f <$> x = map f x
+f <$> x = fmap f x
 
 _<$_ : ∀ {ℓ ℓ'} {M : Effect} ⦃ _ : Map M ⦄ {A : Type ℓ} {B : Type ℓ'}
       → B → M .Effect.₀ A → M .Effect.₀ B
-c <$ x = map (λ _ → c) x
+c <$ x = fmap (λ _ → c) x
 
 _<&>_ : ∀ {ℓ ℓ'} {M : Effect} ⦃ _ : Map M ⦄ {A : Type ℓ} {B : Type ℓ'}
       → M .Effect.₀ A → (A → B) → M .Effect.₀ B
-x <&> f = map f x
+x <&> f = fmap f x
 
 module _
   {M N : Effect} (let module M = Effect M; module N = Effect N) ⦃ _ : Map M ⦄ ⦃ _ : Map N ⦄

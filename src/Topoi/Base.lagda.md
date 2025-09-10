@@ -295,7 +295,7 @@ sufficient (and necessary) to conclude fully-faithfulness.
   sets .has-ff {x} {y} = is-iso→is-equiv isic where
     open is-iso
     isic : is-iso (incl .F₁ {x} {y})
-    isic .from nt = nt .η _
+    isic .from nt = nt .map _
     isic .rinv nt = ext λ _ _ → refl
     isic .linv f  = refl
 ```
@@ -322,14 +322,14 @@ limits directly for efficiency concerns. </summary>
 [adjoint equivalence]: Cat.Functor.Equivalence.html
 
 ```agda
-  sets .L-lex .pres-⊤ {T} psh-terminal set = contr (cent .η _) uniq where
+  sets .L-lex .pres-⊤ {T} psh-terminal set = contr (cent .map _) uniq where
     func = incl .F₀ set
     cent = psh-terminal func .centre
-    uniq : ∀ f → cent .η _ ≡ f
+    uniq : ∀ f → cent .map _ ≡ f
     uniq f = psh-terminal func .paths f' ηₚ _ where
       f' : _ => _
-      f' .η _ = f
-      f' .is-natural _ _ _ = funext λ x → happly (sym (T .F-id)) _
+      f' .map _ = f
+      f' .com _ _ _ = funext λ x → happly (sym (T .F-id)) _
 
   sets .L-lex .pres-pullback {P} {X} {Y} {Z} pb = pb' where
     open is-pullback
@@ -347,8 +347,8 @@ limits directly for efficiency concerns. </summary>
       pb .unique {lim' = l'} (Nat-pathp _ _ λ _ → p1) (Nat-pathp _ _ λ _ → p2) ηₚ _
       where
         l' : incl .F₀ P' => P
-        l' .η _ = lim'
-        l' .is-natural x y f i o = P .F-id (~ i) (lim' o)
+        l' .map _ = lim'
+        l' .com x y f i o = P .F-id (~ i) (lim' o)
 ```
 </details>
 
@@ -356,12 +356,12 @@ Similarly, we can construct the adjunction unit and counit by looking at
 components and constructing identity natural transformations.
 
 ```agda
-  sets .L⊣ι .unit .η _ .η _ f            = f
-  sets .L⊣ι .unit .η F .is-natural _ _ _ = F .F-id
-  sets .L⊣ι .unit .is-natural _ _ _      = ext λ _ _ → refl
+  sets .L⊣ι .unit .map _ .map _ f            = f
+  sets .L⊣ι .unit .map F .com _ _ _ = F .F-id
+  sets .L⊣ι .unit .com _ _ _      = ext λ _ _ → refl
 
-  sets .L⊣ι .counit .η _ x            = x
-  sets .L⊣ι .counit .is-natural _ _ _ = refl
+  sets .L⊣ι .counit .map _ x            = x
+  sets .L⊣ι .counit .com _ _ _ = refl
 
   sets .L⊣ι .zig = refl
   sets .L⊣ι .zag = ext λ _ _ → refl
@@ -496,8 +496,8 @@ module _ {o ℓ} {C : Precategory o ℓ} (ct : Topos ℓ C) where
     ff→faithful {F = ct.ι} ct.has-ff $
       Representables-generate-presheaf ct.site λ h →
         ι.₁ f PSh.∘ h                                     ≡⟨ mangle ⟩
-        ι.₁ ⌜ f C.∘ counit.ε _ C.∘ L.₁ h ⌝ PSh.∘ unit.η _ ≡⟨ ap! (sep _) ⟩
-        ι.₁ (g C.∘ counit.ε _ C.∘ L.₁ h) PSh.∘ unit.η _   ≡˘⟨ mangle ⟩
+        ι.₁ ⌜ f C.∘ counit.ε _ C.∘ L.₁ h ⌝ PSh.∘ unit.map _ ≡⟨ ap! (sep _) ⟩
+        ι.₁ (g C.∘ counit.ε _ C.∘ L.₁ h) PSh.∘ unit.map _   ≡˘⟨ mangle ⟩
         ι.₁ g PSh.∘ h                                     ∎
 ```
 
@@ -506,15 +506,15 @@ module _ {o ℓ} {C : Precategory o ℓ} (ct : Topos ℓ C) where
     where
       mangle
         : ∀ {X Y} {f : C.Hom X Y} {Z} {h : PSh.Hom Z _}
-        → ι.₁ f PSh.∘ h ≡ ι.₁ (f C.∘ counit.ε _ C.∘ L.₁ h) PSh.∘ unit.η _
+        → ι.₁ f PSh.∘ h ≡ ι.₁ (f C.∘ counit.ε _ C.∘ L.₁ h) PSh.∘ unit.map _
       mangle {f = f} {h = h} =
         ι.₁ f PSh.∘ h                                                                  ≡⟨ PSh.insertl zag ⟩
-        ι.₁ (counit.ε _) PSh.∘ ⌜ unit.η _ PSh.∘ ι.₁ f PSh.∘ h ⌝                        ≡⟨ ap! (PSh.extendl (unit.is-natural _ _ _)) ⟩
-        ι.₁ (counit.ε _) PSh.∘ ι.₁ (L.₁ (ι.₁ f)) PSh.∘ ⌜ unit.η _ PSh.∘ h ⌝            ≡⟨ ap! (unit.is-natural _ _ _) ⟩
-        ι.₁ (counit.ε _) PSh.∘ ⌜ ι.₁ (L.₁ (ι.₁ f)) PSh.∘ ι.₁ (L.₁ h) PSh.∘ unit.η _ ⌝  ≡⟨ ap! (PSh.pulll (sym (ι.F-∘ _ _))) ⟩
-        ι.₁ (counit.ε _) PSh.∘ ι.₁ (L.₁ (ι.₁ f) C.∘ L.₁ h) PSh.∘ unit.η _              ≡⟨ PSh.pulll (sym (ι.F-∘ _ _)) ⟩
-        ι.₁ ⌜ counit.ε _ C.∘ L.₁ (ι.₁ f) C.∘ L.₁ h ⌝ PSh.∘ unit.η _                    ≡⟨ ap! (C.extendl (counit.is-natural _ _ _)) ⟩
-        ι.₁ (f C.∘ counit.ε _ C.∘ L.₁ h) PSh.∘ unit.η _                                ∎
+        ι.₁ (counit.ε _) PSh.∘ ⌜ unit.map _ PSh.∘ ι.₁ f PSh.∘ h ⌝                        ≡⟨ ap! (PSh.extendl (unit.com _ _ _)) ⟩
+        ι.₁ (counit.ε _) PSh.∘ ι.₁ (L.₁ (ι.₁ f)) PSh.∘ ⌜ unit.map _ PSh.∘ h ⌝            ≡⟨ ap! (unit.com _ _ _) ⟩
+        ι.₁ (counit.ε _) PSh.∘ ⌜ ι.₁ (L.₁ (ι.₁ f)) PSh.∘ ι.₁ (L.₁ h) PSh.∘ unit.map _ ⌝  ≡⟨ ap! (PSh.pulll (sym (ι.F-∘ _ _))) ⟩
+        ι.₁ (counit.ε _) PSh.∘ ι.₁ (L.₁ (ι.₁ f) C.∘ L.₁ h) PSh.∘ unit.map _              ≡⟨ PSh.pulll (sym (ι.F-∘ _ _)) ⟩
+        ι.₁ ⌜ counit.ε _ C.∘ L.₁ (ι.₁ f) C.∘ L.₁ h ⌝ PSh.∘ unit.map _                    ≡⟨ ap! (C.extendl (counit.com _ _ _)) ⟩
+        ι.₁ (f C.∘ counit.ε _ C.∘ L.₁ h) PSh.∘ unit.map _                                ∎
 ```
 -->
 
@@ -646,10 +646,10 @@ Idg {E = E} = record { Inv[_] = Id ; Dir[_] = Id
     lex .is-lex.pres-pullback p = p
 
     adj : Id ⊣ Id
-    adj ._⊣_.unit .η _ = E.id
-    adj ._⊣_.unit .is-natural x y f = sym E.id-comm
-    adj ._⊣_.counit .η _ = E.id
-    adj ._⊣_.counit .is-natural x y f = sym E.id-comm
+    adj ._⊣_.unit .map _ = E.id
+    adj ._⊣_.unit .com x y f = sym E.id-comm
+    adj ._⊣_.counit .map _ = E.id
+    adj ._⊣_.counit .com x y f = sym E.id-comm
     adj ._⊣_.zig = E.idl _
     adj ._⊣_.zag = E.idl _
 ```

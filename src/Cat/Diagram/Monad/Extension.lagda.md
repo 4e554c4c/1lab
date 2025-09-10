@@ -128,7 +128,7 @@ part of) $M$-qua-endofunctor, and by the unit natural transformation.
 ```agda
     system : Extension-system C
     system .M₀ = M.M₀
-    system .unit = M.η _
+    system .unit = M.map _
 ```
 
 Defining the extension operation is slightly trickier, but not by much.
@@ -147,14 +147,14 @@ Finally, a few short computations show that this definition is lawful.
 
 ```agda
     system .bind-unit-id =
-      M.μ _ ∘ M.M₁ (M.η _) ≡⟨ M.μ-unitr ⟩
+      M.μ _ ∘ M.M₁ (M.map _) ≡⟨ M.μ-unitr ⟩
       id                             ∎
     system .bind-unit-∘ f =
-      (M.μ _ ∘ M.M₁ f) ∘ M.η _ ≡⟨ pullr (sym $ M.unit.is-natural _ _ _) ⟩
-      M.μ _ ∘ M.η _ ∘ f        ≡⟨ cancell M.μ-unitl ⟩
+      (M.μ _ ∘ M.M₁ f) ∘ M.map _ ≡⟨ pullr (sym $ M.unit.com _ _ _) ⟩
+      M.μ _ ∘ M.map _ ∘ f        ≡⟨ cancell M.μ-unitl ⟩
       f                        ∎
     system .bind-∘ f g =
-      (M.μ _ ∘ M.M₁ f) ∘ (M.μ _ ∘ M.M₁ g)             ≡⟨ pullr (extendl (sym $ M.mult.is-natural _ _ _)) ⟩
+      (M.μ _ ∘ M.M₁ f) ∘ (M.μ _ ∘ M.M₁ g)             ≡⟨ pullr (extendl (sym $ M.mult.com _ _ _)) ⟩
       M.μ _ ∘ M.μ _ ∘ (M.M₁ (M.M₁ f) ∘ M.M₁ g)        ≡⟨ extendl (sym M.μ-assoc) ⟩
       M.μ _ ∘ M.M₁ (M.μ _) ∘ (M.M₁ (M.M₁ f) ∘ M.M₁ g) ≡⟨ ap₂ _∘_ refl (pulll (sym (M.M-∘ _ _)) ∙ sym (M.M-∘ _ _)) ⟩
       M.μ _ ∘ M.M₁ ((M.μ _ ∘ M.M₁ f) ∘ g)             ∎
@@ -170,10 +170,10 @@ bolting together our results from the previous section.
     open Monad-on
 
     monad : Monad-on E.M
-    monad .unit .η x = E.unit
-    monad .unit .is-natural _ _ f = E.unit-natural f
-    monad .mult .η x = E.join
-    monad .mult .is-natural _ _ f = E.join-natural f
+    monad .unit .map x = E.unit
+    monad .unit .com _ _ f = E.unit-natural f
+    monad .mult .map x = E.join
+    monad .mult .com _ _ f = E.join-natural f
 ```
 
 The monad laws follow from another short series of computations.
@@ -225,8 +225,8 @@ convenient.
         let module M = Monad-on (M .snd) in
         Σ-pathp
           (Functor-path (λ _ → refl) (λ f →
-            M.μ _ ∘ M.M₁ (M.η _ ∘ f)        ≡⟨ pushr (M.M-∘ _ _) ⟩
-            (M.μ _ ∘ M.M₁ (M.η _)) ∘ M.M₁ f ≡⟨ eliml M.μ-unitr ⟩
+            M.μ _ ∘ M.M₁ (M.map _ ∘ f)        ≡⟨ pushr (M.M-∘ _ _) ⟩
+            (M.μ _ ∘ M.M₁ (M.map _)) ∘ M.M₁ f ≡⟨ eliml M.μ-unitr ⟩
             M.M₁ f ∎))
           (Monad-on-path _ (λ _ → refl) (λ _ → elimr M.M-id)))
 ```

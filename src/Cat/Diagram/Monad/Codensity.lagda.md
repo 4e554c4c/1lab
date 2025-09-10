@@ -87,8 +87,8 @@ commutativity of the $F$ -- $\Id$ -- $F$ triangle below.
 
 ```agda
     unit-nt : Id F∘ F => F
-    unit-nt .η x = B.id
-    unit-nt .is-natural x y f = B.id-comm-sym
+    unit-nt .map x = B.id
+    unit-nt .com x y f = B.id-comm-sym
 ```
 
 For the multiplication map, observe that we can piece together a natural
@@ -104,11 +104,11 @@ $(\Lan_F(F))^2 \To \Lan_F(F)$.
 
 ```agda
     mult-nt : (Ext F∘ Ext) F∘ F => F
-    mult-nt .η x = eps .η x B.∘ Ext.₁ (eps .η x)
-    mult-nt .is-natural x y f =
-      (eps .η y B.∘ Ext.₁ (eps .η y)) B.∘ Ext.₁ (Ext.₁ (F.₁ f)) ≡⟨ Ext.extendr (eps .is-natural _ _ _) ⟩
-      (eps .η y B.∘ Ext.F₁ (F.₁ f)) B.∘ Ext.₁ (eps .η x)        ≡⟨ B.pushl (eps .is-natural _ _ _) ⟩
-      F.₁ f B.∘ eps .η x B.∘ Ext.₁ (eps .η x)                   ∎
+    mult-nt .map x = eps .map x B.∘ Ext.₁ (eps .map x)
+    mult-nt .com x y f =
+      (eps .map y B.∘ Ext.₁ (eps .map y)) B.∘ Ext.₁ (Ext.₁ (F.₁ f)) ≡⟨ Ext.extendr (eps .com _ _ _) ⟩
+      (eps .map y B.∘ Ext.F₁ (F.₁ f)) B.∘ Ext.₁ (eps .map x)        ≡⟨ B.pushl (eps .com _ _ _) ⟩
+      F.₁ f B.∘ eps .map x B.∘ Ext.₁ (eps .map x)                   ∎
 
   Codensity : Monad-on Ext
   Codensity .unit = σ unit-nt
@@ -125,9 +125,9 @@ maps we want to compute with.</summary>
 ```agda
   Codensity .μ-unitr {x = x} = path ηₚ x where
     nat₁ : Ext => Ext
-    nat₁ .η x = σ mult-nt .η x B.∘ Ext.₁ (σ unit-nt .η x)
-    nat₁ .is-natural x y f = Ext.extendr (σ unit-nt .is-natural x y f)
-                           ∙ B.pushl (σ mult-nt .is-natural _ _ _)
+    nat₁ .map x = σ mult-nt .map x B.∘ Ext.₁ (σ unit-nt .map x)
+    nat₁ .com x y f = Ext.extendr (σ unit-nt .com x y f)
+                           ∙ B.pushl (σ mult-nt .com _ _ _)
 
     abstract
       path : nat₁ ≡ idnt
@@ -139,34 +139,34 @@ maps we want to compute with.</summary>
 
   Codensity .μ-unitl {x = x} = path ηₚ x where
     nat₁ : Ext => Ext
-    nat₁ .η x = σ mult-nt .η x B.∘ σ unit-nt .η (Ext.₀ x)
-    nat₁ .is-natural x y f = B.extendr (σ unit-nt .is-natural _ _ _)
-                           ∙ B.pushl (σ mult-nt .is-natural _ _ _)
+    nat₁ .map x = σ mult-nt .map x B.∘ σ unit-nt .map (Ext.₀ x)
+    nat₁ .com x y f = B.extendr (σ unit-nt .com _ _ _)
+                           ∙ B.pushl (σ mult-nt .com _ _ _)
 
     abstract
       path : nat₁ ≡ idnt
       path = σ-uniq₂ eps
         (ext λ x → sym $
             B.pulll (σ-comm ηₚ x)
-          ∙∙ B.pullr (sym (σ unit-nt .is-natural _ _ _))
+          ∙∙ B.pullr (sym (σ unit-nt .com _ _ _))
           ∙∙ B.cancell (σ-comm ηₚ x))
         (ext λ _ → B.intror refl)
 
   Codensity .μ-assoc {x = x} = path ηₚ x where
     mult' : (Ext F∘ Ext F∘ Ext) F∘ F => F
-    mult' .η x = eps .η x B.∘ Ext.₁ (mult-nt .η x)
-    mult' .is-natural x y f = Ext.extendr (mult-nt .is-natural _ _ _)
-                            ∙ B.pushl (eps .is-natural _ _ _)
+    mult' .map x = eps .map x B.∘ Ext.₁ (mult-nt .map x)
+    mult' .com x y f = Ext.extendr (mult-nt .com _ _ _)
+                            ∙ B.pushl (eps .com _ _ _)
 
     sig₁ : Ext F∘ Ext F∘ Ext => Ext
-    sig₁ .η x = σ mult-nt .η x B.∘ Ext.₁ (σ mult-nt .η x)
-    sig₁ .is-natural x y f = Ext.extendr (σ mult-nt .is-natural _ _ _)
-                            ∙ B.pushl (σ mult-nt .is-natural _ _ _)
+    sig₁ .map x = σ mult-nt .map x B.∘ Ext.₁ (σ mult-nt .map x)
+    sig₁ .com x y f = Ext.extendr (σ mult-nt .com _ _ _)
+                            ∙ B.pushl (σ mult-nt .com _ _ _)
 
     sig₂ : Ext F∘ Ext F∘ Ext => Ext
-    sig₂ .η x = σ mult-nt .η x B.∘ σ mult-nt .η (Ext.₀ x)
-    sig₂ .is-natural x y f = B.extendr (σ mult-nt .is-natural _ _ _)
-                            ∙ B.pushl (σ mult-nt .is-natural _ _ _)
+    sig₂ .map x = σ mult-nt .map x B.∘ σ mult-nt .map (Ext.₀ x)
+    sig₂ .com x y f = B.extendr (σ mult-nt .com _ _ _)
+                            ∙ B.pushl (σ mult-nt .com _ _ _)
 
     abstract
       path : sig₁ ≡ sig₂
@@ -176,7 +176,7 @@ maps we want to compute with.</summary>
           ∙ Ext.pullr (σ-comm ηₚ x))
         (ext λ x → sym $
              B.pulll (σ-comm ηₚ x)
-          ∙∙ B.pullr (sym (σ mult-nt .is-natural _ _ _))
+          ∙∙ B.pullr (sym (σ mult-nt .com _ _ _))
           ∙∙ B.pulll (σ-comm ηₚ x)
            ∙ Ext.pullr refl)
 ```

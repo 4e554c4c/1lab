@@ -99,11 +99,11 @@ module
     module LG = Functor LG
 
     fixup : ∀ {M : Functor C' A} → (LF => M F∘ p) → F => (R F∘ M) F∘ p
-    fixup α .η x = L-adjunct adj (α .η x)
-    fixup {M = M} α .is-natural x y f =
-      (R.₁ (α .η y) D.∘ unit.η _) D.∘ F.₁ f            ≡⟨ D.pullr (unit.is-natural _ _ _) ⟩
-      (R.₁ (α .η y) D.∘ (RL.₁ (F.₁ f)) D.∘ unit.η _)   ≡⟨ D.extendl (R.weave (α .is-natural _ _ _)) ⟩
-      R.₁ (M.₁ (p.₁ f)) D.∘ R.₁ (α .η x) D.∘ unit.η _  ∎
+    fixup α .map x = L-adjunct adj (α .map x)
+    fixup {M = M} α .com x y f =
+      (R.₁ (α .map y) D.∘ unit.map _) D.∘ F.₁ f            ≡⟨ D.pullr (unit.com _ _ _) ⟩
+      (R.₁ (α .map y) D.∘ (RL.₁ (F.₁ f)) D.∘ unit.map _)   ≡⟨ D.extendl (R.weave (α .com _ _ _)) ⟩
+      R.₁ (M.₁ (p.₁ f)) D.∘ R.₁ (α .map x) D.∘ unit.map _  ∎
       where module M = Functor M
 ```
 -->
@@ -125,11 +125,11 @@ be the adjunct of $\alpha$, factor it through the original $\eta$ into a
 cell $\sigma' : G \to RM$, and let $\sigma : LG \to M$ be its adjunct.
 
 ```agda
-    pres .σ α .η x = R-adjunct adj (l.σ (fixup α) .η x)
-    pres .σ {M = M} α .is-natural x y f =
-      (ε _ A.∘ L.₁ (l.σ (fixup α) .η y)) A.∘ LG.₁ f        ≡⟨ A.pullr (L.weave (l.σ (fixup α) .is-natural x y f)) ⟩
-      ε _ A.∘ (L.₁ (RM.₁ f) A.∘ L.₁ (l.σ (fixup α) .η x))  ≡⟨ A.extendl (counit.is-natural _ _ _) ⟩
-      M.₁ f A.∘ pres .σ α .η x                             ∎
+    pres .σ α .map x = R-adjunct adj (l.σ (fixup α) .map x)
+    pres .σ {M = M} α .com x y f =
+      (ε _ A.∘ L.₁ (l.σ (fixup α) .map y)) A.∘ LG.₁ f        ≡⟨ A.pullr (L.weave (l.σ (fixup α) .com x y f)) ⟩
+      ε _ A.∘ (L.₁ (RM.₁ f) A.∘ L.₁ (l.σ (fixup α) .map x))  ≡⟨ A.extendl (counit.com _ _ _) ⟩
+      M.₁ f A.∘ pres .σ α .map x                             ∎
       where module M = Functor M
             module RM = Functor (R F∘ M)
 ```
@@ -146,29 +146,29 @@ reader but they will not be elaborated on.
 
 ```agda
     pres .σ-comm {α = α} = ext λ x →
-      (R-adjunct adj (l.σ (fixup α) .η _)) A.∘ L.₁ (eta .η _) ≡⟨ L.pullr (l.σ-comm {α = fixup α} ηₚ _) ⟩
-      R-adjunct adj (L-adjunct adj (α .η x))                  ≡⟨ equiv→unit (L-adjunct-is-equiv adj) (α .η x) ⟩
-      α .η x                                                  ∎
+      (R-adjunct adj (l.σ (fixup α) .map _)) A.∘ L.₁ (eta .map _) ≡⟨ L.pullr (l.σ-comm {α = fixup α} ηₚ _) ⟩
+      R-adjunct adj (L-adjunct adj (α .map x))                  ≡⟨ equiv→unit (L-adjunct-is-equiv adj) (α .map x) ⟩
+      α .map x                                                  ∎
 
     pres .σ-uniq {M = M} {α = α} {σ' = σ'} wit = ext λ x →
-      R-adjunct adj (l.σ (fixup α) .η x)      ≡⟨ A.refl⟩∘⟨ ap L.₁ (l.σ-uniq lemma ηₚ x) ⟩
-      R-adjunct adj (L-adjunct adj (σ' .η x)) ≡⟨ equiv→unit (L-adjunct-is-equiv adj) (σ' .η x) ⟩
-      σ' .η x                                 ∎
+      R-adjunct adj (l.σ (fixup α) .map x)      ≡⟨ A.refl⟩∘⟨ ap L.₁ (l.σ-uniq lemma ηₚ x) ⟩
+      R-adjunct adj (L-adjunct adj (σ' .map x)) ≡⟨ equiv→unit (L-adjunct-is-equiv adj) (σ' .map x) ⟩
+      σ' .map x                                 ∎
       where
         module M = Functor M
 
         σ'' : G => R F∘ M
-        σ'' .η x = L-adjunct adj (σ' .η x)
-        σ'' .is-natural x y f =
-          (R.₁ (σ' .η _) D.∘ unit.η _) D.∘ G.₁ f          ≡⟨ D.pullr (unit.is-natural _ _ _) ⟩
-          (R.₁ (σ' .η _) D.∘ (RL.₁ (G.₁ f)) D.∘ unit.η _) ≡⟨ D.extendl (R.weave (σ' .is-natural _ _ _)) ⟩
-          R.₁ (M.₁ f) D.∘ R.₁ (σ' .η x) D.∘ unit.η _      ∎
+        σ'' .map x = L-adjunct adj (σ' .map x)
+        σ'' .com x y f =
+          (R.₁ (σ' .map _) D.∘ unit.map _) D.∘ G.₁ f          ≡⟨ D.pullr (unit.com _ _ _) ⟩
+          (R.₁ (σ' .map _) D.∘ (RL.₁ (G.₁ f)) D.∘ unit.map _) ≡⟨ D.extendl (R.weave (σ' .com _ _ _)) ⟩
+          R.₁ (M.₁ f) D.∘ R.₁ (σ' .map x) D.∘ unit.map _      ∎
 
         lemma : fixup α ≡ ((σ'' ◂ p) ∘nt eta)
         lemma = ext λ x →
-          R.₁ (α .η x) D.∘ unit.η _                     ≡⟨ ap R.₁ (wit ηₚ _) D.⟩∘⟨refl ⟩
-          R.₁ (σ' .η _ A.∘ L.₁ (eta .η _)) D.∘ unit.η _ ≡⟨ ap (D._∘ unit.η _) (R.F-∘ _ _) ∙ D.extendr (sym (unit.is-natural _ _ _)) ⟩
-          (R.₁ (σ' .η _) D.∘ unit.η _) D.∘ eta .η x     ∎
+          R.₁ (α .map x) D.∘ unit.map _                     ≡⟨ ap R.₁ (wit ηₚ _) D.⟩∘⟨refl ⟩
+          R.₁ (σ' .map _ A.∘ L.₁ (eta .map _)) D.∘ unit.map _ ≡⟨ ap (D._∘ unit.map _) (R.F-∘ _ _) ∙ D.extendr (sym (unit.com _ _ _)) ⟩
+          (R.₁ (σ' .map _) D.∘ unit.map _) D.∘ eta .map x     ∎
 ```
 
 </details>

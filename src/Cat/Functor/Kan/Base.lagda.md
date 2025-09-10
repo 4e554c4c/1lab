@@ -136,7 +136,7 @@ that $\eta$ does for $\Lan_p F$), the 2-cell exists and is unique.
     → PathP (λ i → F => q i F∘ p) α₁ α₂
     → PathP (λ i → L => q i) (σ α₁) (σ α₂)
   σ-uniqp q r = Nat-pathp refl q λ c' i →
-    σ {M = q i} (r i) .η c'
+    σ {M = q i} (r i) .map c'
 
   open _=>_ eta
 ```

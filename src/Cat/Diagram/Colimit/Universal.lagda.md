@@ -169,18 +169,18 @@ $\cJ \to \cC/X$ into the [[slice category]] over $X$:
   cocone→cocone▹ {X} {F} α .F₀ (inl j) = F .F₀ j
   cocone→cocone▹ {X} {F} α .F₀ (inr tt) = X .F₀ _
   cocone→cocone▹ {X} {F} α .F₁ {inl x} {inl y} (lift f) = F .F₁ f
-  cocone→cocone▹ {X} {F} α .F₁ {inl x} {inr tt} (lift f) = α .η x
+  cocone→cocone▹ {X} {F} α .F₁ {inl x} {inr tt} (lift f) = α .map x
   cocone→cocone▹ {X} {F} α .F₁ {inr tt} {inr tt} (lift tt) = id
   cocone→cocone▹ {X} {F} α .F-id {inl x} = F .F-id
   cocone→cocone▹ {X} {F} α .F-id {inr x} = refl
   cocone→cocone▹ {X} {F} α .F-∘ {inl x} {inl y} {inl z} f g = F .F-∘ _ _
   cocone→cocone▹ {X} {F} α .F-∘ {inl x} {inl y} {inr z} f g =
-    sym (α .is-natural _ _ _ ∙ eliml (X .F-id))
+    sym (α .com _ _ _ ∙ eliml (X .F-id))
   cocone→cocone▹ {X} {F} α .F-∘ {inl x} {inr y} {inr z} f g = sym (idl _)
   cocone→cocone▹ {X} {F} α .F-∘ {inr x} {inr y} {inr z} f g = sym (idl _)
 
-  cocone▹→cocone F .η j = F .F₁ _
-  cocone▹→cocone F .is-natural x y f = sym (F .F-∘ _ _) ∙ sym (idl _)
+  cocone▹→cocone F .map j = F .F₁ _
+  cocone▹→cocone F .com x y f = sym (F .F-∘ _ _) ∙ sym (idl _)
 
   cocone/→cocone▹ F .F₀ (inl x) = F .F₀ x .dom
   cocone/→cocone▹ {X} F .F₀ (inr _) = X
@@ -287,7 +287,7 @@ colimits, we get that $F$ is colimiting.
 ```agda
     step1→2 : has-stable-colimits J C pb → step2
     step1→2 u F G α eq G-colim = F-colim where
-      f = α .η (inr _)
+      f = α .map (inr _)
 
       f*G≅F : Base-change pb f F∘ cocone▹→cocone/ G F∘ ▹-in
             ≅ⁿ cocone▹→cocone/ F F∘ ▹-in
@@ -300,7 +300,7 @@ colimits, we get that $F$ is colimiting.
         λ f → ext (unique₂ (eq _)
           {p = sym (pb _ _ .Pullback.square) ∙ pushl (G .F-∘ _ _)}
           (pulll (sym (F .F-∘ _ _)) ∙ eq _ .p₁∘universal)
-          (pulll (α .is-natural _ _ _) ∙ pullr (eq _ .p₂∘universal))
+          (pulll (α .com _ _ _) ∙ pullr (eq _ .p₂∘universal))
           (pulll (eq _ .p₁∘universal) ∙ pb _ _ .Pullback.p₂∘universal)
           (pulll (eq _ .p₂∘universal) ∙ pb _ _ .Pullback.p₁∘universal))
 
@@ -320,7 +320,7 @@ colimits, we get that $F$ is colimiting.
           (pulll (eq _ .p₁∘universal) ∙∙ pulll (pb _ _ .Pullback.p₂∘universal) ∙∙ pb _ _ .Pullback.p₂∘universal)
           (pulll (eq _ .p₂∘universal) ∙∙ pulll (pb _ _ .Pullback.p₁∘universal) ∙∙ pullr (pb _ _ .Pullback.p₁∘universal))
           (sym (F .F-∘ _ _))
-          (α .is-natural _ _ _))
+          (α .com _ _ _))
         f*G-colim
 ```
 
@@ -335,11 +335,11 @@ repackaging data between "obviously isomorphic" functors.
       where
         α : cocone/→cocone▹ (Base-change pb f F∘ cocone→cocone▹ eta)
          => cocone/→cocone▹ (cocone→cocone▹ eta)
-        α .η (inl j) = pb _ _ .Pullback.p₁
-        α .η (inr _) = f
-        α .is-natural (inl x) (inl y) g = pb _ _ .Pullback.p₁∘universal
-        α .is-natural (inl x) (inr _) g = sym (pb _ _ .Pullback.square)
-        α .is-natural (inr _) (inr _) g = id-comm
+        α .map (inl j) = pb _ _ .Pullback.p₁
+        α .map (inr _) = f
+        α .com (inl x) (inl y) g = pb _ _ .Pullback.p₁∘universal
+        α .com (inl x) (inr _) g = sym (pb _ _ .Pullback.square)
+        α .com (inr _) (inr _) g = id-comm
 
         eq : is-equifibred α
         eq {inl x} {inl y} (lift g) = pasting-outer→left-is-pullback
@@ -348,7 +348,7 @@ repackaging data between "obviously isomorphic" functors.
             (sym ((Base-change pb f F∘ cocone→cocone▹ eta) .F₁ g .com))
             (sym (cocone→cocone▹ eta .F₁ g .com))
             (rotate-pullback (pb _ _ .Pullback.has-is-pb)))
-          (α .is-natural (inl x) (inl y) (lift g))
+          (α .com (inl x) (inl y) (lift g))
         eq {inl x} {inr _} g = rotate-pullback (pb _ _ .Pullback.has-is-pb)
         eq {inr _} {inr _} g = id-is-pullback
 ```

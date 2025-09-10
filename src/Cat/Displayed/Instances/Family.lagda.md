@@ -156,8 +156,8 @@ module _ {ℓ} (X : Set ℓ) where
 
   Families→functors : Functor (Fibre Family X) Cat[ Disc' X , C ]
   Families→functors .F₀ = Disc-adjunct
-  Families→functors .F₁ f .η = f
-  Families→functors .F₁ {X} {Y} f .is-natural x y =
+  Families→functors .F₁ f .map = f
+  Families→functors .F₁ {X} {Y} f .com x y =
     J (λ y p → f y ∘ lift-f X .F₁ p ≡ lift-f Y .F₁ p ∘ f x)
       (ap (f x ∘_) (lift-f X .F-id) ∙∙ id-comm ∙∙ ap (_∘ f x) (sym (lift-f Y .F-id)))
   Families→functors .F-id = ext λ _ → refl
@@ -299,16 +299,16 @@ the equivalence around.
 
 ```agda
   gsmall .has-generic-ob .classify f x = From .F₀ (f x)
-  gsmall .has-generic-ob .classify' f x = counit⁻¹ .η (f x)
+  gsmall .has-generic-ob .classify' f x = counit⁻¹ .map (f x)
   gsmall .has-generic-ob .classify-cartesian f .universal m h' x =
-    counit .η (f (m x)) ∘ h' x
+    counit .map (f (m x)) ∘ h' x
   gsmall .has-generic-ob .classify-cartesian f .commutes m h' =
     funext λ _ → cancell (is-invertible.invr (counit-iso _))
   gsmall .has-generic-ob .classify-cartesian f .unique {m = m} {h' = h'} m' p =
     funext λ x →
       m' x                                                 ≡⟨ introl (is-invertible.invl (counit-iso _)) ⟩
-      (counit .η (f (m x)) ∘ counit⁻¹ .η (f (m x))) ∘ m' x ≡⟨ pullr (p $ₚ x) ⟩
-      counit .η (f (m x)) ∘ h' x ∎
+      (counit .map (f (m x)) ∘ counit⁻¹ .map (f (m x))) ∘ m' x ≡⟨ pullr (p $ₚ x) ⟩
+      counit .map (f (m x)) ∘ h' x ∎
 ```
 
 If $\cC$ is itself strict, then the set of objects of $\cC$ forms a

@@ -106,8 +106,8 @@ We also have a system of [[diagonal morphisms|monoidal category with diagonals]]
 
 ```agda
   Cartesian-diagonal : Diagonals Cartesian-monoidal
-  Cartesian-diagonal .diagonals ._=>_.η A = δ
-  Cartesian-diagonal .diagonals ._=>_.is-natural = δ-natural
+  Cartesian-diagonal .diagonals ._=>_.map A = δ
+  Cartesian-diagonal .diagonals ._=>_.com = δ-natural
   Cartesian-diagonal .diagonal-λ→ = ap ⟨_, id ⟩ (sym (!-unique _))
 ```
 

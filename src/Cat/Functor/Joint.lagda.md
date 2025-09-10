@@ -38,11 +38,11 @@ $F_i : \cC \to \cD$.
 ```agda
 Swap : Functor K Cat[ C , D ] → Functor C Cat[ K , D ]
 Swap F .F₀ c .F₀ k = F .F₀ k .F₀ c
-Swap F .F₀ c .F₁ f = F .F₁ f .η c
+Swap F .F₀ c .F₁ f = F .F₁ f .map c
 Swap F .F₀ c .F-id = F .F-id ηₚ c
 Swap F .F₀ c .F-∘ f g = F .F-∘ f g ηₚ c
-Swap F .F₁ f .η k = F .F₀ k .F₁ f
-Swap F .F₁ f .is-natural x y g = sym (F .F₁ g .is-natural _ _ f)
+Swap F .F₁ f .map k = F .F₀ k .F₁ f
+Swap F .F₁ f .com x y g = sym (F .F₁ g .com _ _ f)
 Swap F .F-id = ext λ k → F .F₀ k .F-id
 Swap F .F-∘ f g = ext λ k → F .F₀ k .F-∘ f g
 
@@ -160,7 +160,7 @@ module _
     → (F : Functor K Cat[ C , D ])
     → is-jointly-full F
     → (gᵢ : ∀ i → D.Hom (F .F₀ i .F₀ x) (F .F₀ i .F₀ y))
-    → (∀ {i j} (f : K.Hom i j) → gᵢ j D.∘ F .F₁ f .η x ≡ F .F₁ f .η y D.∘ gᵢ i)
+    → (∀ {i j} (f : K.Hom i j) → gᵢ j D.∘ F .F₁ f .map x ≡ F .F₁ f .map y D.∘ gᵢ i)
     → ∃[ f ∈ C.Hom x y ] (∀ i → F .F₀ i .F₁ f ≡ gᵢ i)
   jointly-full-fibre F joint-full gᵢ gᵢ-nat =
     ∥-∥-map (Σ-map₂ λ p i → p ηₚ i) (joint-full (NT gᵢ λ i j f → gᵢ-nat f))
@@ -193,7 +193,7 @@ fully faithful.
   jointly-full+jointly-faithful→jointly-ff F full faithful {x} {y} .is-eqv α =
     is-prop∙→is-contr img-is-prop $
     ∥-∥-elim (λ _ → img-is-prop) (Σ-map₂ (λ p → ext p)) $
-    jointly-full-fibre F full (λ i → α .η i) (λ f → α .is-natural _ _ f)
+    jointly-full-fibre F full (λ i → α .map i) (λ f → α .com _ _ f)
     where
       img-is-prop : is-prop (Σ[ f ∈ C.Hom x y ] (Swap F .F₁ f ≡ α))
       img-is-prop (f , p) (g , q) =

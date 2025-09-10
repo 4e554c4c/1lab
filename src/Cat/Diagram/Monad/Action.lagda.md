@@ -92,7 +92,7 @@ module _
       .α-mult → ext λ _ → alg .ν-mult
     c .snd → is-iso→is-equiv λ where
       .is-iso.from act → λ where
-        .ν → act .α .η tt
+        .ν → act .α .map tt
         .ν-unit → act .α-unit ηₚ tt
         .ν-mult → act .α-mult ηₚ tt
       .is-iso.rinv act → ext λ _ → refl
@@ -121,8 +121,8 @@ module _ {o ℓ} {C : Precategory o ℓ} {M : Functor C C} (Mᵐ : Monad-on M) w
 
 ```agda
   Forget-EM-action : Action-on Mᵐ (Forget-EM {M = Mᵐ})
-  Forget-EM-action .α .η (_ , alg) = alg .ν
-  Forget-EM-action .α .is-natural _ _ f = sym (f .snd)
+  Forget-EM-action .α .map (_ , alg) = alg .ν
+  Forget-EM-action .α .com _ _ f = sym (f .snd)
   Forget-EM-action .α-unit = ext λ (_ , alg) → alg .ν-unit
   Forget-EM-action .α-mult = ext λ (_ , alg) → alg .ν-mult
 ```
@@ -142,19 +142,19 @@ functors $\cB \to \cC$.
       : {A : Functor B C} (act : Action-on Mᵐ A)
       → Functor B (Eilenberg-Moore Mᵐ)
     EM-universal {A = A} act .F₀ b .fst = A .F₀ b
-    EM-universal {A = A} act .F₀ b .snd .ν = act .α .η b
+    EM-universal {A = A} act .F₀ b .snd .ν = act .α .map b
     EM-universal {A = A} act .F₀ b .snd .ν-unit = act .α-unit ηₚ b
     EM-universal {A = A} act .F₀ b .snd .ν-mult = act .α-mult ηₚ b
     EM-universal {A = A} act .F₁ f .fst = A .F₁ f
-    EM-universal {A = A} act .F₁ f .snd = sym (act .α .is-natural _ _ f)
+    EM-universal {A = A} act .F₁ f .snd = sym (act .α .com _ _ f)
     EM-universal {A = A} act .F-id = ext (A .F-id)
     EM-universal {A = A} act .F-∘ f g = ext (A .F-∘ f g)
 
     EM→Action
       : (A^M : Functor B (Eilenberg-Moore Mᵐ))
       → Action-on Mᵐ (Forget-EM F∘ A^M)
-    EM→Action A^M .α .η b = A^M .F₀ b .snd .ν
-    EM→Action A^M .α .is-natural _ _ f = sym (A^M .F₁ f .snd)
+    EM→Action A^M .α .map b = A^M .F₀ b .snd .ν
+    EM→Action A^M .α .com _ _ f = sym (A^M .F₁ f .snd)
     EM→Action A^M .α-unit = ext λ b → A^M .F₀ b .snd .ν-unit
     EM→Action A^M .α-mult = ext λ b → A^M .F₀ b .snd .ν-mult
 ```
@@ -187,9 +187,9 @@ commute, where $\nu$ is the universal $M$-action.
       → (β : Forget-EM F∘ X => Forget-EM F∘ Y)
       → β ∘nt EM→Action X .α ≡ EM→Action Y .α ∘nt (M ▸ β)
       → X => Y
-    EM-2-cell β comm .η b .fst = β .η b
-    EM-2-cell β comm .η b .snd = comm ηₚ b
-    EM-2-cell β comm .is-natural _ _ f = ext (β .is-natural _ _ f)
+    EM-2-cell β comm .map b .fst = β .map b
+    EM-2-cell β comm .map b .snd = comm ηₚ b
+    EM-2-cell β comm .com _ _ f = ext (β .com _ _ f)
 ```
 
 We also provide a useful variant for the heterogeneous case with a

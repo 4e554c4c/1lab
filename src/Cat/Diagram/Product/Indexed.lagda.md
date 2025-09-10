@@ -88,10 +88,10 @@ Indexed-product-≃
   → {F : I → C.Ob} → Indexed-product (F ⊙ Equiv.from e) → Indexed-product F
 Indexed-product-≃ e {F} p = λ where
   .ΠF → p .ΠF
-  .π j → C.to (path→iso (ap F (e.η _))) C.∘ p .π (e.to j)
+  .π j → C.to (path→iso (ap F (e.map _))) C.∘ p .π (e.to j)
   .has-is-ip .tuple f → p .tuple (f ⊙ e.from)
   .has-is-ip .commute {f = f} →
-    C.pullr (p .commute) ∙ from-pathp-to C _ (ap f (e.η _))
+    C.pullr (p .commute) ∙ from-pathp-to C _ (ap f (e.map _))
   .has-is-ip .unique f comm → p .unique _ λ j →
       ap (C._∘ _) (sym (from-pathp-to C _ (ap (p .π) (e.ε j)))
                   ∙ ap (λ z → C.to (path→iso (ap F z)) C.∘ p .π _) (e.zag j))

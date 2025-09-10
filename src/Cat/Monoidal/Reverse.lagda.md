@@ -46,12 +46,12 @@ reversed and has its arguments swapped.
 
 ```agda
 _^rev .unitor-l = iso→isoⁿ (isoⁿ→iso C.unitor-r)
-  λ f → sym (C.unitor-r .Isoⁿ.to .is-natural _ _ f)
+  λ f → sym (C.unitor-r .Isoⁿ.to .com _ _ f)
 _^rev .unitor-r = iso→isoⁿ (isoⁿ→iso C.unitor-l)
-  λ f → sym (C.unitor-l .Isoⁿ.to .is-natural _ _ f)
+  λ f → sym (C.unitor-l .Isoⁿ.to .com _ _ f)
 _^rev .associator = iso→isoⁿ
   (λ (a , b , c) → isoⁿ→iso (C.associator ni⁻¹) (c , b , a))
-  λ (f , g , h) → sym (C.associator .Isoⁿ.from .is-natural _ _ (h , g , f))
+  λ (f , g , h) → sym (C.associator .Isoⁿ.from .com _ _ (h , g , f))
 _^rev .triangle = C.triangle-α→
 _^rev .pentagon = C.pentagon-α→
 ```

@@ -136,17 +136,17 @@ the following diagram:
 ```agda
     module _ {coapex} (cone : D F∘ F => Const coapex) where
       extend : ∀ d → Ob (d ↙ F) → ℰ.Hom (D.₀ d) coapex
-      extend d f = cone .η (f .cod) ℰ.∘ D.₁ (f .map)
+      extend d f = cone .map (f .cod) ℰ.∘ D.₁ (f .map)
 
       opaque
         extend-const1
           : ∀ d {f g : Ob (d ↙ F)} (h : ↓Hom _ _ f g)
           → extend d f ≡ extend d g
         extend-const1 d {f} {g} h =
-          cone .η _ ℰ.∘ D.₁ (f .map)                          ≡˘⟨ cone .is-natural _ _ _ ∙ ℰ.idl _ ℰ.⟩∘⟨refl ⟩
-          (cone .η _ ℰ.∘ D.₁ (F.₁ (h .bot))) ℰ.∘ D.₁ (f .map) ≡⟨ D.pullr refl ⟩
-          cone .η _ ℰ.∘ D.₁ ⌜ F.₁ (h .bot) 𝒟.∘ f .map ⌝       ≡⟨ ap! (sym (h .com) ∙ 𝒟.idr _) ⟩
-          cone .η _ ℰ.∘ D.₁ (g .map)                          ∎
+          cone .map _ ℰ.∘ D.₁ (f .map)                          ≡˘⟨ cone .com _ _ _ ∙ ℰ.idl _ ℰ.⟩∘⟨refl ⟩
+          (cone .map _ ℰ.∘ D.₁ (F.₁ (h .bot))) ℰ.∘ D.₁ (f .map) ≡⟨ D.pullr refl ⟩
+          cone .map _ ℰ.∘ D.₁ ⌜ F.₁ (h .bot) 𝒟.∘ f .map ⌝       ≡⟨ ap! (sym (h .com) ∙ 𝒟.idr _) ⟩
+          cone .map _ ℰ.∘ D.₁ (g .map)                          ∎
 
       opaque
         extend-const
@@ -165,13 +165,13 @@ simultaneously with an elimination principle for its components.
         : ∀ d {ℓ} (P : ℰ.Hom (D.₀ d) coapex → Type ℓ)
         → (∀ f → is-prop (P f))
         → (∀ f → P (extend d f))
-        → P (extend-cocone .η d)
+        → P (extend-cocone .map d)
 
-      extend-cocone .η d = ∥-∥-rec-set (hlevel 2)
+      extend-cocone .map d = ∥-∥-rec-set (hlevel 2)
         (extend d) (extend-const d) (fin.point d)
 
-      extend-cocone .is-natural x y f = extend-cocone-elim x
-        (λ ex → extend-cocone .η y ℰ.∘ D.₁ f ≡ ex)
+      extend-cocone .com x y f = extend-cocone-elim x
+        (λ ex → extend-cocone .map y ℰ.∘ D.₁ f ≡ ex)
         (λ _ → hlevel 1)
         (λ ex → extend-cocone-elim y
           (λ ey → ey ℰ.∘ D.₁ f ≡ extend x ex)
@@ -195,8 +195,8 @@ K\}$.
 
 ```agda
     restrict-cocone : ∀ {coapex} → D => Const coapex → D F∘ F => Const coapex
-    restrict-cocone K .η x = K .η (F.₀ x)
-    restrict-cocone K .is-natural x y f = K .is-natural (F.₀ x) (F.₀ y) (F.₁ f)
+    restrict-cocone K .map x = K .map (F.₀ x)
+    restrict-cocone K .com x y f = K .com (F.₀ x) (F.₀ y) (F.₁ f)
 ```
 
 A computation using connectedness of the comma categories shows that
@@ -208,12 +208,12 @@ these formulae are mutually inverse:
     extend-cocone-is-iso .from = restrict-cocone
     extend-cocone-is-iso .rinv K = ext λ o →
       extend-cocone-elim (restrict-cocone K) o
-        (λ ex → ex ≡ K .η o)
+        (λ ex → ex ≡ K .map o)
         (λ _ → hlevel 1)
-        λ _ → K .is-natural _ _ _ ∙ ℰ.idl _
+        λ _ → K .com _ _ _ ∙ ℰ.idl _
     extend-cocone-is-iso .linv K = ext λ o →
       extend-cocone-elim K (F.₀ o)
-        (λ ex → ex ≡ K .η o)
+        (λ ex → ex ≡ K .map o)
         (λ _ → hlevel 1)
         λ f → extend-const K (F.₀ o) f (↓obj 𝒟.id) ∙ D.elimr refl
 ```
@@ -246,8 +246,8 @@ it in this `<details>`{.html} tag for the curious reader only.
         open make-is-colimit
 
         mc : make-is-colimit D coapex
-        mc .ψ x = extend-cocone K .η x
-        mc .commutes f = extend-cocone K .is-natural _ _ _ ∙ ℰ.idl _
+        mc .ψ x = extend-cocone K .map x
+        mc .commutes f = extend-cocone K .com _ _ _ ∙ ℰ.idl _
         mc .universal eta p =
           colim.universal (λ j → eta (F.₀ j)) λ f → p (F.₁ f)
         mc .factors {j} eta p =

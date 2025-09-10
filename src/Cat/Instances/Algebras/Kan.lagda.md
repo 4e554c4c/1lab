@@ -119,21 +119,21 @@ property and some tedious computations.
         where
           eq : eps ≡ eps ∘nt (Ext-action .α ∘nt nat-idl-from (M.unit ◂ Ext) ◂ p)
           eq = ext λ j → sym $
-            eps .η j C.∘ Ext-action .α .η (p.₀ j) C.∘ M.η (Ext.₀ (p.₀ j)) ≡⟨ C.extendl (σ-comm ηₚ j) ⟩
-            G.₀ j .snd .ν C.∘ M.M₁ (eps .η j) C.∘ M.η (Ext.₀ (p.₀ j))     ≡˘⟨ C.refl⟩∘⟨ M.unit .is-natural _ _ _ ⟩
-            G.₀ j .snd .ν C.∘ M.η (G.₀ j .fst) C.∘ eps .η j               ≡⟨ C.cancell (G.₀ j .snd .ν-unit) ⟩
-            eps .η j                                                      ∎
+            eps .map j C.∘ Ext-action .α .map (p.₀ j) C.∘ M.map (Ext.₀ (p.₀ j)) ≡⟨ C.extendl (σ-comm ηₚ j) ⟩
+            G.₀ j .snd .ν C.∘ M.M₁ (eps .map j) C.∘ M.map (Ext.₀ (p.₀ j))     ≡˘⟨ C.refl⟩∘⟨ M.unit .com _ _ _ ⟩
+            G.₀ j .snd .ν C.∘ M.map (G.₀ j .fst) C.∘ eps .map j               ≡⟨ C.cancell (G.₀ j .snd .ν-unit) ⟩
+            eps .map j                                                      ∎
 
       Ext-action .α-mult = σ-uniq₂ _ eq refl
         where
           eq : _ ≡ eps ∘nt ((Ext-action .α ∘nt nat-unassoc-from (M.mult ◂ Ext)) ◂ p)
           eq = ext λ j →
-            eps .η j C.∘ Ext-action .α .η (p.₀ j) C.∘ M.M₁ (Ext-action .α .η (p.₀ j)) ≡⟨ C.extendl (σ-comm ηₚ j) ⟩
-            G.₀ j .snd .ν C.∘ M.M₁ (eps .η j) C.∘ M.M₁ (Ext-action .α .η (p.₀ j))     ≡⟨ C.refl⟩∘⟨ MR.weave (σ-comm ηₚ j) ⟩
-            G.₀ j .snd .ν C.∘ M.M₁ (G.₀ j .snd .ν) C.∘ M.M₁ (M.M₁ (eps .η j))         ≡˘⟨ C.extendl (G.₀ j .snd .ν-mult) ⟩
-            G.₀ j .snd .ν C.∘ M.μ (G.₀ j .fst) C.∘ M.M₁ (M.M₁ (eps .η j))             ≡⟨ C.refl⟩∘⟨ M.mult .is-natural _ _ _ ⟩
-            G.₀ j .snd .ν C.∘ M.M₁ (eps .η j) C.∘ M.μ (Ext.₀ (p.₀ j))                 ≡˘⟨ C.extendl (σ-comm ηₚ j) ⟩
-            eps .η j C.∘ Ext-action .α .η (p.₀ j) C.∘ M.μ (Ext.₀ (p.₀ j))             ∎
+            eps .map j C.∘ Ext-action .α .map (p.₀ j) C.∘ M.M₁ (Ext-action .α .map (p.₀ j)) ≡⟨ C.extendl (σ-comm ηₚ j) ⟩
+            G.₀ j .snd .ν C.∘ M.M₁ (eps .map j) C.∘ M.M₁ (Ext-action .α .map (p.₀ j))     ≡⟨ C.refl⟩∘⟨ MR.weave (σ-comm ηₚ j) ⟩
+            G.₀ j .snd .ν C.∘ M.M₁ (G.₀ j .snd .ν) C.∘ M.M₁ (M.M₁ (eps .map j))         ≡˘⟨ C.extendl (G.₀ j .snd .ν-mult) ⟩
+            G.₀ j .snd .ν C.∘ M.μ (G.₀ j .fst) C.∘ M.M₁ (M.M₁ (eps .map j))             ≡⟨ C.refl⟩∘⟨ M.mult .com _ _ _ ⟩
+            G.₀ j .snd .ν C.∘ M.M₁ (eps .map j) C.∘ M.μ (Ext.₀ (p.₀ j))                 ≡˘⟨ C.extendl (σ-comm ηₚ j) ⟩
+            eps .map j C.∘ Ext-action .α .map (p.₀ j) C.∘ M.μ (Ext.₀ (p.₀ j))             ∎
 
       Ext^M : Functor D (Eilenberg-Moore M)
       Ext^M = EM-universal M Ext-action
@@ -144,9 +144,9 @@ extends to a natural transformation $\rm{Ext}^M \circ p \To G$.
 
 ```agda
       eps^M : Ext^M F∘ p => G
-      eps^M .η j .fst = eps .η j
-      eps^M .η j .snd = σ-comm ηₚ j
-      eps^M .is-natural _ _ _ = ext (eps .is-natural _ _ _)
+      eps^M .map j .fst = eps .map j
+      eps^M .map j .snd = σ-comm ηₚ j
+      eps^M .com _ _ _ = ext (eps .com _ _ _)
 ```
 
 It remains to check universality, which is another short computation.
@@ -163,11 +163,11 @@ It remains to check universality, which is another short computation.
 
           eq : _ ≡ eps ∘nt ((Ext-action .α ∘nt (F ▸ σ^M)) ◂ p)
           eq = ext λ j →
-            eps .η j C.∘ σ^M .η (p.₀ j) C.∘ X.₀ (p.₀ j) .snd .ν             ≡⟨ C.pulll (σ-comm ηₚ j) ⟩
-            c .η j .fst C.∘ X.₀ (p.₀ j) .snd .ν                             ≡⟨ c .η j .snd ⟩
-            G.₀ j .snd .ν C.∘ M.M₁ (c .η j .fst)                            ≡˘⟨ C.refl⟩∘⟨ MR.collapse (σ-comm ηₚ j) ⟩
-            G.₀ j .snd .ν C.∘ M.M₁ (eps .η j) C.∘ M.M₁ (σ^M .η (p.₀ j))     ≡˘⟨ C.extendl (σ-comm ηₚ j) ⟩
-            eps .η j C.∘ Ext-action .α .η (p.₀ j) C.∘ M.M₁ (σ^M .η (p.₀ j)) ∎
+            eps .map j C.∘ σ^M .map (p.₀ j) C.∘ X.₀ (p.₀ j) .snd .ν             ≡⟨ C.pulll (σ-comm ηₚ j) ⟩
+            c .map j .fst C.∘ X.₀ (p.₀ j) .snd .ν                             ≡⟨ c .map j .snd ⟩
+            G.₀ j .snd .ν C.∘ M.M₁ (c .map j .fst)                            ≡˘⟨ C.refl⟩∘⟨ MR.collapse (σ-comm ηₚ j) ⟩
+            G.₀ j .snd .ν C.∘ M.M₁ (eps .map j) C.∘ M.M₁ (σ^M .map (p.₀ j))     ≡˘⟨ C.extendl (σ-comm ηₚ j) ⟩
+            eps .map j C.∘ Ext-action .α .map (p.₀ j) C.∘ M.M₁ (σ^M .map (p.₀ j)) ∎
 
       has-ran^M .is-ran.σ-comm {β = c} = ext (unext σ-comm)
       has-ran^M .is-ran.σ-uniq {X} {σ' = σ'} eq =

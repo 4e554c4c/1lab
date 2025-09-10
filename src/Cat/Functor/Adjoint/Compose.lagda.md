@@ -61,33 +61,33 @@ module _
 
 ```agda
   LF⊣GR : (L F∘ F) ⊣ (G F∘ R)
-  LF⊣GR .unit .η x          = G.₁ (lr.η _) A.∘ fg.η _
-  LF⊣GR .counit .η x        = lr.ε _ C.∘ L.₁ (fg.ε _)
+  LF⊣GR .unit .map x          = G.₁ (lr.map _) A.∘ fg.map _
+  LF⊣GR .counit .map x        = lr.ε _ C.∘ L.₁ (fg.ε _)
 
-  LF⊣GR .unit .is-natural x y f =
-    (G.₁ (lr.η _) A.∘ fg.η _) A.∘ f                ≡⟨ A.pullr (fg.unit.is-natural _ _ _) ⟩
-    G.₁ (lr.η _) A.∘ G.₁ (F.₁ f) A.∘ fg.η _        ≡⟨ A.pulll (sym (G.F-∘ _ _)) ⟩
-    G.₁ ⌜ lr.η _ B.∘ F.₁ f ⌝ A.∘ fg.η _            ≡⟨ ap! (lr.unit.is-natural _ _ _) ⟩
-    G.₁ (R.₁ (L.₁ (F.₁ f)) B.∘ lr.η _) A.∘ fg.η _  ≡⟨ A.pushl (G.F-∘ _ _) ⟩
-    GR.₁ (LF.₁ f) A.∘ G.₁ (lr.η _) A.∘ (fg.η _)    ∎
+  LF⊣GR .unit .com x y f =
+    (G.₁ (lr.map _) A.∘ fg.map _) A.∘ f                ≡⟨ A.pullr (fg.unit.com _ _ _) ⟩
+    G.₁ (lr.map _) A.∘ G.₁ (F.₁ f) A.∘ fg.map _        ≡⟨ A.pulll (sym (G.F-∘ _ _)) ⟩
+    G.₁ ⌜ lr.map _ B.∘ F.₁ f ⌝ A.∘ fg.map _            ≡⟨ ap! (lr.unit.com _ _ _) ⟩
+    G.₁ (R.₁ (L.₁ (F.₁ f)) B.∘ lr.map _) A.∘ fg.map _  ≡⟨ A.pushl (G.F-∘ _ _) ⟩
+    GR.₁ (LF.₁ f) A.∘ G.₁ (lr.map _) A.∘ (fg.map _)    ∎
 
-  LF⊣GR .counit .is-natural x y f =
+  LF⊣GR .counit .com x y f =
     (lr.ε _ C.∘ L.₁ (fg.ε _)) C.∘ LF.₁ (GR.₁ f) ≡⟨ C.pullr (sym (L.F-∘ _ _)) ⟩
-    lr.ε _ C.∘ L.₁ ⌜ fg.ε _ B.∘ F.₁ (GR.₁ f) ⌝  ≡⟨ ap! (fg.counit.is-natural _ _ _) ⟩
+    lr.ε _ C.∘ L.₁ ⌜ fg.ε _ B.∘ F.₁ (GR.₁ f) ⌝  ≡⟨ ap! (fg.counit.com _ _ _) ⟩
     lr.ε _ C.∘ ⌜ L.₁ (R.F₁ f B.∘ fg.ε _) ⌝      ≡⟨ ap! (L.F-∘ _ _) ⟩
-    lr.ε _ C.∘ L.₁ (R.F₁ f) C.∘ L.₁ (fg.ε _)    ≡⟨ C.extendl (lr.counit.is-natural _ _ _) ⟩
+    lr.ε _ C.∘ L.₁ (R.F₁ f) C.∘ L.₁ (fg.ε _)    ≡⟨ C.extendl (lr.counit.com _ _ _) ⟩
     f C.∘ lr.ε _ C.∘ L.₁ (fg.ε _)               ∎
 
   LF⊣GR .zig =
-    (lr.ε _ C.∘ L.₁ (fg.ε _)) C.∘ ⌜ LF.₁ (G.₁ (lr.η _) A.∘ fg.η _) ⌝ ≡⟨ C.extendr (ap! (LF.F-∘ _ _) ∙ L.extendl (fg.counit.is-natural _ _ _)) ⟩
-    (lr.ε _ C.∘ L.₁ (lr.η _)) C.∘ (L.₁ (fg.ε _) C.∘ LF.₁ (fg.η _))   ≡⟨ C.elimr (L.annihilate fg.zig) ⟩
-    lr.ε _ C.∘ L.₁ (lr.η _)                                          ≡⟨ lr.zig ⟩
+    (lr.ε _ C.∘ L.₁ (fg.ε _)) C.∘ ⌜ LF.₁ (G.₁ (lr.map _) A.∘ fg.map _) ⌝ ≡⟨ C.extendr (ap! (LF.F-∘ _ _) ∙ L.extendl (fg.counit.com _ _ _)) ⟩
+    (lr.ε _ C.∘ L.₁ (lr.map _)) C.∘ (L.₁ (fg.ε _) C.∘ LF.₁ (fg.map _))   ≡⟨ C.elimr (L.annihilate fg.zig) ⟩
+    lr.ε _ C.∘ L.₁ (lr.map _)                                          ≡⟨ lr.zig ⟩
     C.id                                                             ∎
 
   LF⊣GR .zag =
-    GR.₁ (lr.ε _ C.∘ L.₁ (fg.ε _)) A.∘ G.₁ (lr.η _) A.∘ fg.η _ ≡⟨ A.pulll (G.collapse (B.pushl (R.F-∘ _ _) ∙ ap₂ B._∘_ refl (sym (lr.unit.is-natural _ _ _)))) ⟩
-    G.₁ ⌜ R.₁ (lr.ε _) B.∘ lr.η _ B.∘ fg.ε _ ⌝ A.∘ fg.η _      ≡⟨ ap! (B.cancell lr.zag) ⟩
-    G.₁ (fg.ε _) A.∘ fg.η _                                    ≡⟨ fg.zag ⟩
+    GR.₁ (lr.ε _ C.∘ L.₁ (fg.ε _)) A.∘ G.₁ (lr.map _) A.∘ fg.map _ ≡⟨ A.pulll (G.collapse (B.pushl (R.F-∘ _ _) ∙ ap₂ B._∘_ refl (sym (lr.unit.com _ _ _)))) ⟩
+    G.₁ ⌜ R.₁ (lr.ε _) B.∘ lr.map _ B.∘ fg.ε _ ⌝ A.∘ fg.map _      ≡⟨ ap! (B.cancell lr.zag) ⟩
+    G.₁ (fg.ε _) A.∘ fg.map _                                    ≡⟨ fg.zag ⟩
     A.id                                                       ∎
 ```
 
@@ -99,10 +99,10 @@ module _ {o ℓ} {C : Precategory o ℓ} where
   open _⊣_
 
   Id⊣Id : Id {C = C} ⊣ Id {C = C}
-  Id⊣Id .unit .η x = id
-  Id⊣Id .unit .is-natural x y f = id-comm-sym
-  Id⊣Id .counit .η x = id
-  Id⊣Id .counit .is-natural x y f = id-comm-sym
+  Id⊣Id .unit .map x = id
+  Id⊣Id .unit .com x y f = id-comm-sym
+  Id⊣Id .counit .map x = id
+  Id⊣Id .counit .com x y f = id-comm-sym
   Id⊣Id .zig = id2
   Id⊣Id .zag = id2
 ```

@@ -431,13 +431,13 @@ $F(x)$s into $G(x)$s that doesn't involve any "arbitrary choices".
     module C = Precategory C
 
   field
-    η : (x : _) → D.Hom (F.₀ x) (G.₀ x)
+    map : (x : _) → D.Hom (F.₀ x) (G.₀ x)
 ```
 
-The transformation itself is given by `η`{.Agda}, the family of
+The transformation itself is given by `map`{.Agda}, the family of
 _components_, where the component at $x$ is a map $F(x) \to G(x)$. The
-"without arbitrary choices" part is encoded in the field
-`is-natural`{.Agda}, which encodes commutativity of the square below:
+"without arbitrary choices" part is encoded in the field `com`{.Agda},
+which encodes commutativity of the square below:
 
 ~~~{.quiver}
 \[\begin{tikzcd}
@@ -452,8 +452,7 @@ _components_, where the component at $x$ is a map $F(x) \to G(x)$. The
 ~~~
 
 ```agda
-    is-natural : (x y : _) (f : C.Hom x y)
-               → η y D.∘ F.₁ f ≡ G.₁ f D.∘ η x
+    com : (x y : _) (f : C.Hom x y) → map y D.∘ F.₁ f ≡ G.₁ f D.∘ map x
 ```
 
 Natural transformations also dualise. The opposite of $\eta : F
@@ -462,8 +461,8 @@ Natural transformations also dualise. The opposite of $\eta : F
 ```agda
   op : Functor.op G => Functor.op F
   op = record
-    { η = η
-    ; is-natural = λ x y f → sym (is-natural _ _ f)
+    { map = map
+    ; com = λ x y f → sym (com _ _ f)
     }
 ```
 
@@ -522,29 +521,29 @@ is a proposition:
   Nat-pathp : {F' G' : Functor C D}
             → (p : F ≡ F') (q : G ≡ G')
             → {a : F => G} {b : F' => G'}
-            → (∀ x → PathP _ (a .η x) (b .η x))
+            → (∀ x → PathP _ (a .map x) (b .map x))
             → PathP (λ i → p i => q i) a b
-  Nat-pathp p q path i .η x = path x i
-  Nat-pathp p q {a} {b} path i .is-natural x y f =
+  Nat-pathp p q path i .map x = path x i
+  Nat-pathp p q {a} {b} path i .com x y f =
     is-prop→pathp
       (λ i → D.Hom-set _ _
         (path y i D.∘ Functor.F₁ (p i) f) (Functor.F₁ (q i) f D.∘ path x i))
-      (a .is-natural x y f)
-      (b .is-natural x y f) i
+      (a .com x y f)
+      (b .com x y f) i
 
   Nat-path : {a b : F => G}
-           → ((x : _) → a .η x ≡ b .η x)
+           → ((x : _) → a .map x ≡ b .map x)
            → a ≡ b
   Nat-path = Nat-pathp refl refl
 
-  _ηₚ_ : ∀ {a b : F => G} → a ≡ b → ∀ x → a .η x ≡ b .η x
-  p ηₚ x = ap (λ e → e .η x) p
+  _ηₚ_ : ∀ {a b : F => G} → a ≡ b → ∀ x → a .map x ≡ b .map x
+  p ηₚ x = ap (λ e → e .map x) p
 
   _ηᵈ_ : ∀ {F' G' : Functor C D} {p : F ≡ F'} {q : G ≡ G'}
        → {a : F => G} {b : F' => G'}
        → PathP (λ i → p i => q i) a b
-       → ∀ x → PathP (λ i → D.Hom (p i .F₀ x) (q i .F₀ x)) (a .η x) (b .η x)
-  p ηᵈ x = apd (λ i e → e .η x) p
+       → ∀ x → PathP (λ i → D.Hom (p i .F₀ x) (q i .F₀ x)) (a .map x) (b .map x)
+  p ηᵈ x = apd (λ i e → e .map x) p
 
   infixl 45 _ηₚ_
 ```
@@ -566,15 +565,15 @@ instance
   Funlike-natural-transformation
     : ∀ {o ℓ o' ℓ'} {C : Precategory o ℓ} {D : Precategory o' ℓ'} {F G : Functor C D}
     → Funlike (F => G) ⌞ C ⌟ (λ x → D .Precategory.Hom (F · x) (G · x))
-  Funlike-natural-transformation = record { _·_ = _=>_.η }
+  Funlike-natural-transformation = record { _·_ = _=>_.map }
 
   Extensional-natural-transformation
     : ∀ {o ℓ o' ℓ' ℓr} {C : Precategory o ℓ} {D : Precategory o' ℓ'}
     → {F G : Functor C D}
     → ⦃ sa : {x : ⌞ C ⌟} → Extensional (D .Hom (F · x) (G · x)) ℓr ⦄
     → Extensional (F => G) (o ⊔ ℓr)
-  Extensional-natural-transformation ⦃ sa ⦄ .Pathᵉ f g = ∀ i → Pathᵉ sa (f .η i) (g .η i)
-  Extensional-natural-transformation ⦃ sa ⦄ .reflᵉ x i = reflᵉ sa (x .η i)
+  Extensional-natural-transformation ⦃ sa ⦄ .Pathᵉ f g = ∀ i → Pathᵉ sa (f .map i) (g .map i)
+  Extensional-natural-transformation ⦃ sa ⦄ .reflᵉ x i = reflᵉ sa (x .map i)
   Extensional-natural-transformation ⦃ sa ⦄ .idsᵉ .to-path x = Nat-path λ i →
     sa .idsᵉ .to-path (x i)
   Extensional-natural-transformation {D = D} ⦃ sa ⦄ .idsᵉ .to-path-over h =
@@ -586,16 +585,16 @@ module _ {o ℓ o' ℓ'} {C : Precategory o ℓ} {D : Precategory o' ℓ'} where
   module opN {F G : Functor C D} (eta : F => G) = _=>_ (_=>_.op eta)
 
   unopN : {F G : Functor (C ^op) (D ^op)} → F => G → unopF G => unopF F
-  unopN eta .η = eta .η
-  unopN eta .is-natural x y f = sym (eta .is-natural y x f)
+  unopN eta .map = eta .map
+  unopN eta .com x y f = sym (eta .com y x f)
 
   opNˡ : {F G : Functor C (D ^op)} → F => G → opFˡ G => opFˡ F
-  opNˡ eta .η = eta .η
-  opNˡ eta .is-natural x y f = sym (eta .is-natural y x f)
+  opNˡ eta .map = eta .map
+  opNˡ eta .com x y f = sym (eta .com y x f)
 
   opNʳ : {F G : Functor (C ^op) D} → F => G → opFʳ G => opFʳ F
-  opNʳ eta .η = eta .η
-  opNʳ eta .is-natural x y f = sym (eta .is-natural y x f)
+  opNʳ eta .map = eta .map
+  opNʳ eta .com x y f = sym (eta .com y x f)
 
 _⟪_⟫_
   : ∀ {o ℓ o' ℓ'} {C : Precategory o ℓ} {D : Precategory o' ℓ'}

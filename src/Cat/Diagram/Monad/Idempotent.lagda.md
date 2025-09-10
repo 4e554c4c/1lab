@@ -86,7 +86,7 @@ computation involving the naturality of $\eta$.
   → ∀ (A : Algebra monad)
   → is-invertible (A .snd .ν)
 η≡Mη→algebra-invertible h (A , alg) = make-invertible (η _) (alg .ν-unit) $
-  η A ∘ alg .ν           ≡⟨ unit.is-natural _ _ _ ⟩
+  η A ∘ alg .ν           ≡⟨ unit.com _ _ _ ⟩
   M₁ (alg .ν) ∘ η (M₀ A) ≡⟨ refl⟩∘⟨ h A ⟩
   M₁ (alg .ν) ∘ M₁ (η A) ≡⟨ M.annihilate (alg .ν-unit) ⟩
   id                     ∎
@@ -142,7 +142,7 @@ which is just the naturality of $\eta$.
 idempotent→reflective : is-idempotent-monad → is-reflective Free-EM⊣Forget-EM
 idempotent→reflective idem = full+faithful→ff Forget-EM
   (λ {(A , a)} {(B , b)} f → inc (∫hom f
-    (sym (swizzle (sym (unit.is-natural _ _ _))
+    (sym (swizzle (sym (unit.com _ _ _))
       (η≡Mη→algebra-invertible (idempotent→η≡Mη idem) (A , a) .is-invertible.invr)
       (b .ν-unit)))
     , refl))
@@ -202,12 +202,12 @@ see there for a diagram.
     idempotent→commutative : is-commutative-strength s
     idempotent→commutative = ext λ (A , B) →
       μ _ ∘ M₁ τ ∘ σ                                              ≡⟨ insertl μ-unitl ⟩
-      μ _ ∘ η _ ∘ μ _ ∘ M₁ τ ∘ σ                                  ≡⟨ refl⟩∘⟨ unit.is-natural _ _ _ ⟩
+      μ _ ∘ η _ ∘ μ _ ∘ M₁ τ ∘ σ                                  ≡⟨ refl⟩∘⟨ unit.com _ _ _ ⟩
       μ _ ∘ M₁ (μ _ ∘ M₁ τ ∘ σ) ∘ η _                             ≡˘⟨ refl⟩∘⟨ refl⟩∘⟨ right-strength-η ⟩
       μ _ ∘ M₁ (μ _ ∘ M₁ τ ∘ σ) ∘ τ ∘ (⌜ η _ ⌝ ⊗₁ id)             ≡⟨ ap! (idempotent→η≡Mη idem _) ⟩
-      μ _ ∘ M₁ (μ _ ∘ M₁ τ ∘ σ) ∘ τ ∘ (M₁ (η _) ⊗₁ id)            ≡⟨ refl⟩∘⟨ refl⟩∘⟨ τ.is-natural _ _ _ ⟩
+      μ _ ∘ M₁ (μ _ ∘ M₁ τ ∘ σ) ∘ τ ∘ (M₁ (η _) ⊗₁ id)            ≡⟨ refl⟩∘⟨ refl⟩∘⟨ τ.com _ _ _ ⟩
       μ _ ∘ M₁ (μ _ ∘ M₁ τ ∘ σ) ∘ M₁ (η _ ⊗₁ ⌜ id ⌝) ∘ τ          ≡˘⟨ ap¡ M-id ⟩
-      μ _ ∘ M₁ (μ _ ∘ M₁ τ ∘ σ) ∘ M₁ (η _ ⊗₁ M₁ id) ∘ τ           ≡⟨ refl⟩∘⟨ M.popr (M.popr (extendl (M.weave (σ.is-natural _ _ _)))) ⟩
+      μ _ ∘ M₁ (μ _ ∘ M₁ τ ∘ σ) ∘ M₁ (η _ ⊗₁ M₁ id) ∘ τ           ≡⟨ refl⟩∘⟨ M.popr (M.popr (extendl (M.weave (σ.com _ _ _)))) ⟩
       μ _ ∘ M₁ (μ _) ∘ M₁ (M₁ τ) ∘ M₁ (M₁ (η _ ⊗₁ id)) ∘ M₁ σ ∘ τ ≡⟨ refl⟩∘⟨ refl⟩∘⟨ M.pulll (M.collapse right-strength-η) ⟩
       μ _ ∘ M₁ (μ _) ∘ M₁ (M₁ (η _)) ∘ M₁ σ ∘ τ                   ≡⟨ refl⟩∘⟨ M.cancell μ-unitr ⟩
       μ _ ∘ M₁ σ ∘ τ                                              ∎
@@ -258,10 +258,10 @@ The proof is by chasing the following slightly wonky diagram.
         : is-diagonal-functor _ _ Cᵈ Cᵈ (M , strength→monoidal s)
       idempotent-monad→diagonal =
         (μ _ ∘ M₁ σ ∘ τ) ∘ δ                                             ≡⟨ pullr (pullr (insertl μ-unitl)) ⟩
-        μ _ ∘ M₁ σ ∘ μ _ ∘ η _ ∘ τ ∘ δ                                   ≡⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ unit.is-natural _ _ _ ⟩
+        μ _ ∘ M₁ σ ∘ μ _ ∘ η _ ∘ τ ∘ δ                                   ≡⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ unit.com _ _ _ ⟩
         μ _ ∘ M₁ σ ∘ μ _ ∘ M₁ (τ ∘ δ) ∘ η _                              ≡⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ idempotent→η≡Mη idem _ ⟩
         μ _ ∘ M₁ σ ∘ μ _ ∘ M₁ (τ ∘ δ) ∘ M₁ (η _)                         ≡⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ M.pushl refl ⟩
-        μ _ ∘ M₁ σ ∘ μ _ ∘ M₁ τ ∘ M₁ δ ∘ M₁ (η _)                        ≡⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ M.weave (δ.is-natural _ _ _) ⟩
+        μ _ ∘ M₁ σ ∘ μ _ ∘ M₁ τ ∘ M₁ δ ∘ M₁ (η _)                        ≡⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ M.weave (δ.com _ _ _) ⟩
         μ _ ∘ M₁ σ ∘ μ _ ∘ M₁ τ ∘ M₁ (η _ ⊗₁ η _) ∘ M₁ δ                 ≡⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ M.pushl (⊗.expand (sym (idr _) ,ₚ sym (idl _))) ⟩
         μ _ ∘ M₁ σ ∘ μ _ ∘ M₁ τ ∘ M₁ (η _ ⊗₁ id) ∘ M₁ (id ⊗₁ η _) ∘ M₁ δ ≡⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ M.pulll right-strength-η ⟩
         μ _ ∘ M₁ σ ∘ μ _ ∘ M₁ (η _) ∘ M₁ (id ⊗₁ η _) ∘ M₁ δ              ≡⟨ refl⟩∘⟨ refl⟩∘⟨ cancell μ-unitr ⟩

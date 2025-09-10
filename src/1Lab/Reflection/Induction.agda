@@ -46,7 +46,7 @@ pi-view-path _ = []
 Replacements = List (Term × Term)
 
 subst-replacements : Subst → Replacements → Replacements
-subst-replacements s = map (×-map (applyS s) (applyS s))
+subst-replacements s = fmap (×-map (applyS s) (applyS s))
 
 instance
   Has-subst-Replacements : Has-subst Replacements

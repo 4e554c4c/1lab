@@ -46,21 +46,21 @@ module _ {ℂ : Internal-cat} where
 
 ```agda
   idnto : ∀ {F : Outer-functor ℂ} → F =>o F
-  idnto {F = F} .ηo px = px
-  idnto {F = F} .ηo-fib _ = refl
-  idnto {F = F} .is-naturalo px y f =
+  idnto {F = F} .mapo px = px
+  idnto {F = F} .mapo-fib _ = refl
+  idnto {F = F} .como px y f =
     ap (F .P₁ px) (Internal-hom-path refl)
-  idnto {F = F} .ηo-nat _ _ = refl
+  idnto {F = F} .mapo-nat _ _ = refl
 
   _∘nto_ : ∀ {F G H : Outer-functor ℂ} → G =>o H → F =>o G → F =>o H
-  _∘nto_ α β .ηo x = α .ηo (β .ηo x)
-  _∘nto_ α β .ηo-fib px = α .ηo-fib (β .ηo px) ∙ β .ηo-fib px
-  _∘nto_ {H = H} α β .is-naturalo px y f =
-    ap (α .ηo) (β .is-naturalo px y f)
-    ∙ α .is-naturalo (β .ηo px) y (adjusti (sym (β .ηo-fib px)) refl f)
+  _∘nto_ α β .mapo x = α .mapo (β .mapo x)
+  _∘nto_ α β .mapo-fib px = α .mapo-fib (β .mapo px) ∙ β .mapo-fib px
+  _∘nto_ {H = H} α β .como px y f =
+    ap (α .mapo) (β .como px y f)
+    ∙ α .como (β .mapo px) y (adjusti (sym (β .mapo-fib px)) refl f)
     ∙ ap (H .P₁ _) (Internal-hom-path refl)
-  (α ∘nto β) .ηo-nat px σ =
-    α .ηo-nat (β .ηo px) σ ∙ ap (α .ηo) (β .ηo-nat px σ)
+  (α ∘nto β) .mapo-nat px σ =
+    α .mapo-nat (β .mapo px) σ ∙ ap (α .mapo) (β .mapo-nat px σ)
 ```
 
 These are almost definitionally a precategory, requiring only an appeal

@@ -68,11 +68,11 @@ module _ {P : Functor (C ^op) (Sets κ)} where
   slice-ob→presheaf
     : Ob (Slice Cat[ C ^op , Sets κ ] P)
     → Functor (∫ C P ^op) (Sets κ)
-  slice-ob→presheaf sl .F₀ (elem x s) = el! (fibre (sl .map .η x) s)
+  slice-ob→presheaf sl .F₀ (elem x s) = el! (fibre (sl .map .map x) s)
 
   slice-ob→presheaf sl .F₁ eh (i , p) =
       sl .dom .F₁ (eh .hom) i
-    , happly (sl .map .is-natural _ _ _) _ ∙∙ ap (P.₁ _) p ∙∙ eh .commute
+    , happly (sl .map .com _ _ _) _ ∙∙ ap (P.₁ _) p ∙∙ eh .commute
 ```
 
 <!--
@@ -107,7 +107,7 @@ projection `fst`{.Agda}:
     obj .dom .F₀ c .∣_∣   = Σ[ sect ∈ P ʻ c ] y ʻ elem c sect
     obj .dom .F₀ c .is-tr = hlevel 2
     obj .dom .F₁ f (x , p) = P.₁ f x , y .F₁ (elem-hom f refl) p
-    obj .map .η x = fst
+    obj .map .map x = fst
 ```
 
 <!--
@@ -118,7 +118,7 @@ projection `fst`{.Agda}:
         ( lemma y _
         ∙∙ ap (λ e → y .F₁ (elem-hom (g C.∘ f) e) p) (P.₀ _ .is-tr _ _ _ _)
         ∙∙ happly (y .F-∘ (elem-hom f refl) (elem-hom g refl)) _) }
-    obj .map .is-natural _ _ _ = refl
+    obj .map .com _ _ _ = refl
 ```
 -->
 
@@ -130,10 +130,10 @@ without comment.
   slice→total = func where
     func : Functor (Slice Cat[ C ^op , Sets κ ] P) Cat[ (∫ C P) ^op , Sets κ ]
     func .F₀ = slice-ob→presheaf
-    func .F₁ {x} {y} h .η i arg =
-      h .map .η (i .ob) (arg .fst) , h .com ηₚ _ $ₚ arg .fst ∙ arg .snd
-    func .F₁ {x} {y} h .is-natural _ _ _ = funext λ i →
-      Σ-prop-path! (happly (h .map .is-natural _ _ _) _)
+    func .F₁ {x} {y} h .map i arg =
+      h .map .map (i .ob) (arg .fst) , h .com ηₚ _ $ₚ arg .fst ∙ arg .snd
+    func .F₁ {x} {y} h .com _ _ _ = funext λ i →
+      Σ-prop-path! (happly (h .map .com _ _ _) _)
 
     func .F-id    = ext λ x y p → Σ-prop-path! refl
     func .F-∘ f g = ext λ x y p → Σ-prop-path! refl
@@ -142,20 +142,20 @@ without comment.
   slice→total-is-ff {x} {y} = is-iso→is-equiv (iso inv rinv linv) where
     inv : Hom Cat[ ∫ C P ^op , Sets _ ] _ _
         → Slice Cat[ C ^op , Sets _ ] P .Hom _ _
-    inv nt .map .η i o = nt .η (elem _ (x .map .η i o)) (o , refl) .fst
+    inv nt .map .map i o = nt .map (elem _ (x .map .map i o)) (o , refl) .fst
 
-    inv nt .map .is-natural _ _ f = funext λ z →
-        ap (λ e → nt .η _ e .fst) (Σ-prop-path! refl)
-      ∙ ap fst (happly (nt .is-natural _ _
-          (elem-hom f (happly (sym (x .map .is-natural _ _ _)) _))) _)
+    inv nt .map .com _ _ f = funext λ z →
+        ap (λ e → nt .map _ e .fst) (Σ-prop-path! refl)
+      ∙ ap fst (happly (nt .com _ _
+          (elem-hom f (happly (sym (x .map .com _ _ _)) _))) _)
 
     inv nt .com = ext λ z w →
-      nt .η (elem _ (x .map .η _ _)) (w , refl) .snd
+      nt .map (elem _ (x .map .map _ _)) (w , refl) .snd
 
     rinv : is-right-inverse inv (F₁ slice→total)
     rinv nt = ext λ where
       o z p → Σ-prop-path! λ i →
-        nt .η (elem (o .ob) (p i)) (z , λ j → p (i ∧ j)) .fst
+        nt .map (elem (o .ob) (p i)) (z , λ j → p (i ∧ j)) .fst
 
     linv : is-left-inverse inv (F₁ slice→total)
     linv sh = ext λ _ _ → refl

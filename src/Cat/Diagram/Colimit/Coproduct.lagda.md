@@ -45,7 +45,7 @@ to $A$ and $1$ to $B$, dualising [[products as limits]].
 ```agda
 is-coproduct→is-colimit
   : ∀ {x} {F : Functor 2-object-category C} {eta : F => Const x}
-  → is-coproduct C (eta .η true) (eta .η false)
+  → is-coproduct C (eta .map true) (eta .map false)
   → is-colimit {C = C} F x eta
 is-coproduct→is-colimit {x = x} {F} {eta} coprod =
   to-is-colimitp mc λ where
@@ -56,8 +56,8 @@ is-coproduct→is-colimit {x = x} {F} {eta} coprod =
     open make-is-colimit
 
     mc : make-is-colimit F x
-    mc .ψ j = eta .η j
-    mc .commutes f = eta .is-natural _ _ _ ∙ idl _
+    mc .ψ j = eta .map j
+    mc .commutes f = eta .com _ _ _ ∙ idl _
     mc .universal eta _ = coprod.[ eta true , eta false ]
     mc .factors {true} eta _ = coprod.[]∘ι₁
     mc .factors {false} eta _ = coprod.[]∘ι₂
@@ -67,7 +67,7 @@ is-colimit→is-coproduct
   : ∀ {a b} {K : Functor ⊤Cat C}
   → {eta : 2-object-diagram a b => K F∘ !F}
   → is-lan !F (2-object-diagram a b) K eta
-  → is-coproduct C (eta .η true) (eta .η false)
+  → is-coproduct C (eta .map true) (eta .map false)
 is-colimit→is-coproduct {a} {b} {K} {eta} colim = coprod where
   module colim = is-colimit colim
 
@@ -89,7 +89,7 @@ is-colimit→is-coproduct {a} {b} {K} {eta} colim = coprod where
       J (λ _ p → copair p1 p2 _ ∘ D .F₁ p ≡ copair p1 p2 _)
         (elimr (D .F-id))
 
-  coprod : is-coproduct C (eta .η true) (eta .η false)
+  coprod : is-coproduct C (eta .map true) (eta .map false)
   coprod .[_,_] f g = colim.universal (copair f g) copair-commutes
   coprod .[]∘ι₁ {_} {p1'} {p2'} = colim.factors (copair p1' p2') copair-commutes
   coprod .[]∘ι₂ {_} {p1'} {p2'} = colim.factors (copair p1' p2') copair-commutes
@@ -102,8 +102,8 @@ Coproduct→Colimit coprod = to-colimit (is-coproduct→is-colimit {eta = 2-obje
 
 Colimit→Coproduct : ∀ {a b} → Colimit (2-object-diagram a b) → Coproduct C a b
 Colimit→Coproduct colim .coapex = Colimit.coapex colim
-Colimit→Coproduct colim .ι₁ = Colimit.cocone colim .η true
-Colimit→Coproduct colim .ι₂ = Colimit.cocone colim .η false
+Colimit→Coproduct colim .ι₁ = Colimit.cocone colim .map true
+Colimit→Coproduct colim .ι₂ = Colimit.cocone colim .map false
 Colimit→Coproduct colim .has-is-coproduct =
   is-colimit→is-coproduct (Colimit.has-colimit colim)
 ```
@@ -119,8 +119,8 @@ module _ {I : Type ℓ'} (i-is-grpd : is-groupoid I) (F : I → Ob) where
 
   Inj→Cocone : ∀ {x} → (∀ i → Hom (F i) x)
              → Disc-adjunct {C = C} {iss = i-is-grpd} F => Const x
-  Inj→Cocone inj .η i = inj i
-  Inj→Cocone inj .is-natural i j p =
+  Inj→Cocone inj .map i = inj i
+  Inj→Cocone inj .com i j p =
     J (λ j p → inj j ∘ subst (Hom (F i) ⊙ F) p id ≡ id ∘ inj i)
       (elimr (transport-refl id) ∙ sym (idl _)) p
 
@@ -148,12 +148,12 @@ module _ {I : Type ℓ'} (i-is-grpd : is-groupoid I) (F : I → Ob) where
     : ∀ {K : Functor ⊤Cat C}
     → {eta : Disc-adjunct {iss = i-is-grpd} F => K F∘ !F}
     → is-lan !F (Disc-adjunct F) K eta
-    → is-indexed-coproduct C F (eta .η)
+    → is-indexed-coproduct C F (eta .map)
   is-colimit→is-indexed-coprduct {K = K} {eta} colim = ic where
     module colim = is-colimit colim
     open is-indexed-coproduct hiding (eta)
 
-    ic : is-indexed-coproduct C F (eta .η)
+    ic : is-indexed-coproduct C F (eta .map)
     ic .match k =
       colim.universal k
         (J (λ j p → k j ∘ subst (Hom (F _) ⊙ F) p id ≡ k _)

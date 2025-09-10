@@ -58,8 +58,8 @@ contr→is-terminal-PSh
   : ∀ (T : ⌞ PSh κ C ⌟)
   → ⦃ ∀ {c n} → H-Level ⌞ T .F₀ c ⌟ n ⦄
   → is-terminal (PSh κ C) T
-contr→is-terminal-PSh T _ .centre .η _ _ = hlevel!
-contr→is-terminal-PSh T _ .centre .is-natural _ _ _ = prop!
+contr→is-terminal-PSh T _ .centre .map _ _ = hlevel!
+contr→is-terminal-PSh T _ .centre .com _ _ _ = prop!
 contr→is-terminal-PSh T _ .paths _ = ext λ _ _ → prop!
 
 prop→is-subterminal-PSh
@@ -94,8 +94,8 @@ PSh-products A B = prod where
   prod .π₁ = NT (λ x → fst) (λ _ _ _ → refl)
   prod .π₂ = NT (λ x → snd) (λ _ _ _ → refl)
   prod .has-is-product .⟨_,_⟩ f g =
-    NT (λ i x → f .η i x , g .η i x) λ x y h i a →
-      f .is-natural x y h i a , g .is-natural x y h i a
+    NT (λ i x → f .map i x , g .map i x) λ x y h i a →
+      f .com x y h i a , g .com x y h i a
   prod .has-is-product .π₁∘⟨⟩ = ext λ _ _ → refl
   prod .has-is-product .π₂∘⟨⟩ = ext λ _ _ → refl
   prod .has-is-product .unique p q = ext λ i x → unext p i x ,ₚ unext q i x
@@ -116,7 +116,7 @@ PSh-pullbacks {X} {Y} {Z} f g = pb where
   open is-pullback
 
   pb-path
-    : ∀ {i} {x y : Σ[ x ∈ X.₀ i ] Σ[ y ∈ Y.₀ i ] f.η i x ≡ g.η i y}
+    : ∀ {i} {x y : Σ[ x ∈ X.₀ i ] Σ[ y ∈ Y.₀ i ] f.map i x ≡ g.map i y}
     → x .fst ≡ y .fst
     → x .snd .fst ≡ y .snd .fst
     → x ≡ y
@@ -124,7 +124,7 @@ PSh-pullbacks {X} {Y} {Z} f g = pb where
   pb-path p q i .snd .fst = q i
   pb-path {idx} {x} {y} p q i .snd .snd j =
     is-set→squarep (λ _ _ → Z.₀ idx .is-tr)
-      (ap (f .η idx) p) (x .snd .snd) (y .snd .snd) (ap (g .η idx) q)
+      (ap (f .map idx) p) (x .snd .snd) (y .snd .snd) (ap (g .map idx) q)
       i j
 ```
 -->
@@ -135,22 +135,22 @@ componentwise.
 
 ```agda
   pb : Pullback (PSh κ C) f g
-  pb .apex .F₀ i = el! (Σ[ x ∈ X.₀ i ] Σ[ y ∈ Y.₀ i ] f.η i x ≡ g.η i y)
+  pb .apex .F₀ i = el! (Σ[ x ∈ X.₀ i ] Σ[ y ∈ Y.₀ i ] f.map i x ≡ g.map i y)
   pb .apex .F₁ {x} {y} h (a , b , p) = X.₁ h a , Y.₁ h b , path where abstract
-    path : f.η y (X.₁ h a) ≡ g.η y (Y.₁ h b)
-    path = happly (f.is-natural _ _ _) _
+    path : f.map y (X.₁ h a) ≡ g.map y (Y.₁ h b)
+    path = happly (f.com _ _ _) _
         ∙∙ (λ i → Z.₁ h (p i))
-        ∙∙ sym (happly (g.is-natural _ _ _) _)
+        ∙∙ sym (happly (g.com _ _ _) _)
   pb .apex .F-id = funext λ (a , b , _) → pb-path (X.F-id $ₚ a) (Y.F-id $ₚ b)
   pb .apex .F-∘ f g = funext λ (a , b , _) → pb-path (X.F-∘ f g $ₚ a) (Y.F-∘ f g $ₚ b)
-  pb .p₁ .η idx (a , b , _) = a
-  pb .p₁ .is-natural _ _ _ = refl
-  pb .p₂ .η x (a , b , _) = b
-  pb .p₂ .is-natural _ _ _ = refl
+  pb .p₁ .map idx (a , b , _) = a
+  pb .p₁ .com _ _ _ = refl
+  pb .p₂ .map x (a , b , _) = b
+  pb .p₂ .com _ _ _ = refl
   pb .has-is-pb .square = ext λ _ _ _ p → p
-  pb .has-is-pb .universal path .η idx arg = _ , _ , unext path _ _
-  pb .has-is-pb .universal {p₁' = p₁'} {p₂'} path .is-natural x y f = funext λ x →
-    pb-path (happly (p₁' .is-natural _ _ _) _) (happly (p₂' .is-natural _ _ _) _)
+  pb .has-is-pb .universal path .map idx arg = _ , _ , unext path _ _
+  pb .has-is-pb .universal {p₁' = p₁'} {p₂'} path .com x y f = funext λ x →
+    pb-path (happly (p₁' .com _ _ _) _) (happly (p₂' .com _ _ _) _)
   pb .has-is-pb .p₁∘universal = ext λ _ _ → refl
   pb .has-is-pb .p₂∘universal = ext λ _ _ → refl
   pb .has-is-pb .unique p q = ext λ _ _ →
@@ -184,7 +184,7 @@ functorial on presheaves; this is the **evaluation functor**.
 private
   ev : ∀ {ℓs} (c : ⌞ C ⌟) → Functor (PSh ℓs C) (Sets ℓs)
   ev c .F₀ F    = F · c
-  ev c .F₁ h i  = h .η _ i
+  ev c .F₁ h i  = h .map _ i
   ev c .F-id    = refl
   ev c .F-∘ f g = refl
 ```
@@ -201,20 +201,20 @@ then we can conclude that $L(c)$ is the limit of the $F(-)(c)$s.
     .F-id         → ext λ a h → refl ,ₚ idr h
     .F-∘ f g      → ext λ a h → refl ,ₚ assoc h g f
 
-  clo c .F₁ f .η i (a , g) = f a , g
-  clo c .F₁ f .is-natural x y g = refl
+  clo c .F₁ f .map i (a , g) = f a , g
+  clo c .F₁ f .com x y g = refl
   clo c .F-id    = ext λ _ _ _ → refl
   clo c .F-∘ f g = ext λ _ _ _ → refl
 
   clo⊣ev : (c : ⌞ C ⌟) → clo {ℓ} c ⊣ ev c
-  clo⊣ev c = hom-iso→adjoints (λ f x → f .η _ (x , id)) (is-iso→is-equiv iiso) λ g h x → refl where
+  clo⊣ev c = hom-iso→adjoints (λ f x → f .map _ (x , id)) (is-iso→is-equiv iiso) λ g h x → refl where
     open is-iso
 
-    iiso : ∀ {x : Set ℓ} {y : ⌞ PSh ℓ C ⌟} → is-iso {A = clo c · x => y} (λ f x → f .η c (x , id))
-    iiso {y = y} .from f .η x (a , g) = y ⟪ g ⟫ (f a)
-    iiso {y = y} .from f .is-natural x z g = ext λ a h → PSh.expand y refl
+    iiso : ∀ {x : Set ℓ} {y : ⌞ PSh ℓ C ⌟} → is-iso {A = clo c · x => y} (λ f x → f .map c (x , id))
+    iiso {y = y} .from f .map x (a , g) = y ⟪ g ⟫ (f a)
+    iiso {y = y} .from f .com x z g = ext λ a h → PSh.expand y refl
     iiso {y = y} .rinv x = ext λ a → PSh.F-id y
-    iiso {y = y} .linv x = ext (λ i y h → sym (x .is-natural _ _ _ $ₚ _) ∙ ap (x .η i) (refl ,ₚ idl h))
+    iiso {y = y} .linv x = ext (λ i y h → sym (x .com _ _ _ $ₚ _) ∙ ap (x .map i) (refl ,ₚ idl h))
 ```
 
 As an important consequence is that if a natural transformation $X \to
@@ -227,7 +227,7 @@ abstract
   is-monic→is-embedding-at
     : ∀ {X Y : ⌞ PSh ℓ C ⌟} {m : X => Y}
     → Cat.is-monic (PSh ℓ C) m
-    → ∀ {i} → is-embedding (m .η i)
+    → ∀ {i} → is-embedding (m .map i)
   is-monic→is-embedding-at {Y = Y} {m} mono {i} =
     monic→is-embedding (hlevel 2) λ {C} g h →
       right-adjoint→is-monic _ (clo⊣ev i) mono {C} g h

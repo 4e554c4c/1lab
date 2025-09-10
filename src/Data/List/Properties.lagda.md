@@ -146,7 +146,7 @@ ap-∷ x≡y xs≡ys i = x≡y i ∷ xs≡ys i
 map-id
   : ∀ {ℓ} {A : Type ℓ}
   → (xs : List A)
-  → map id xs ≡ xs
+  → fmap id xs ≡ xs
 map-id [] = refl
 map-id (x ∷ xs) = ap (x ∷_) (map-id xs)
 
@@ -154,7 +154,7 @@ map-++
   : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
   → (f : A → B)
   → (xs ys : List A)
-  → map f (xs ++ ys) ≡ map f xs ++ map f ys
+  → fmap f (xs ++ ys) ≡ fmap f xs ++ fmap f ys
 map-++ f [] ys = refl
 map-++ f (x ∷ xs) ys = ap (f x ∷_) (map-++ f xs ys)
 
@@ -189,7 +189,7 @@ all-of-map
   → (f : B → Bool)
   → (g : A → B)
   → (xs : List A)
-  → all-of f (map g xs) ≡ all-of (f ∘ g) xs
+  → all-of f (fmap g xs) ≡ all-of (f ∘ g) xs
 all-of-map f g [] = refl
 all-of-map f g (x ∷ xs) = ap (and (f (g x))) (all-of-map f g xs)
 
@@ -208,7 +208,7 @@ any-of-map
   → (f : B → Bool)
   → (g : A → B)
   → (xs : List A)
-  → any-of f (map g xs) ≡ any-of (f ∘ g) xs
+  → any-of f (fmap g xs) ≡ any-of (f ∘ g) xs
 any-of-map f g [] = refl
 any-of-map f g (x ∷ xs) = ap (or (f (g x))) (any-of-map f g xs)
 

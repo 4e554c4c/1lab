@@ -134,7 +134,7 @@ $$.
     T : B.Ob → Type _
     T b = Σ (C.Hom (F.₀ b) (G.₀ b)) λ g →
       (a : A.Ob) (f : H.₀ a B.≅ b) →
-      γ.η a ≡ G.₁ (f .from) C.∘ g C.∘ F.₁ (f .to)
+      γ.map a ≡ G.₁ (f .from) C.∘ g C.∘ F.₁ (f .to)
 ```
 
 We'll first show that components exist at all. Assume that we have some
@@ -153,7 +153,7 @@ establishes that defining
 -->
 
 ```agda
-      g = G.₁ h.to C.∘ γ.η a₀ C.∘ F.₁ h.from
+      g = G.₁ h.to C.∘ γ.map a₀ C.∘ F.₁ h.from
 ```
 
 is indeed a possible choice. We present the formalisation below, but do
@@ -162,16 +162,16 @@ this file in Agda and poke around the proof.
 
 ```agda
       lemma : (a : A.Ob) (f : H.₀ a B.≅ b)
-            → γ.η a ≡ G.₁ (f .from) C.∘ g C.∘ F.₁ (f .to)
+            → γ.map a ≡ G.₁ (f .from) C.∘ g C.∘ F.₁ (f .to)
       lemma a f = ∥-∥-out (C.Hom-set _ _ _ _) do
         (k , p)   ← H-full (h.from B.∘ B.to f)
         (k⁻¹ , q) ← H-full (B.from f B.∘ h.to)
         ∥_∥.inc $
              C.intror (F.annihilate
                (ap₂ B._∘_ q p ∙∙ B.cancel-inner h.invl ∙∙ f .invr))
-          ∙∙ C.extendl (γ.is-natural _ _ _)
-          ∙∙ ap₂ (λ e e' → G.₁ e C.∘ γ.η a₀ C.∘ F.₁ e') q p
-          ∙∙ ap₂ (λ e e' → e C.∘ γ.η a₀ C.∘ e') (G.F-∘ _ _) (F.F-∘ _ _)
+          ∙∙ C.extendl (γ.com _ _ _)
+          ∙∙ ap₂ (λ e e' → G.₁ e C.∘ γ.map a₀ C.∘ F.₁ e') q p
+          ∙∙ ap₂ (λ e e' → e C.∘ γ.map a₀ C.∘ e') (G.F-∘ _ _) (F.F-∘ _ _)
           ∙∙ C.pullr (ap (G.₁ h.to C.∘_) (C.pulll refl) ∙ C.pulll refl)
 ```
 
@@ -234,7 +234,7 @@ the transformation we're defining, too.
         (k , p) ← H-full (h'.from B.∘ f B.∘ h.to)
         pure $ C.pullr (C.pullr (F.weave (sym
                   (B.pushl p ∙ ap₂ B._∘_ refl (B.cancelr h.invl)))))
-            ∙∙ ap₂ C._∘_ refl (C.extendl (γ.is-natural _ _ _))
+            ∙∙ ap₂ C._∘_ refl (C.extendl (γ.com _ _ _))
             ∙∙ C.extendl (G.weave (B.lswizzle p h'.invl))
 ```
 
@@ -249,8 +249,8 @@ $- \circ H$ is faithful, and now we've shown it is full, it is fully faithful.
 
 ```agda
     δ : F => G
-    δ .η b = mkT b .fst
-    δ .is-natural b b' f = ∥-∥-elim₂
+    δ .map b = mkT b .fst
+    δ .com b b' f = ∥-∥-elim₂
       {P = λ α β → ∥-∥-out (T-prop b') (mkT' b' α) .fst C.∘ F.₁ f
                  ≡ G.₁ f C.∘ ∥-∥-out (T-prop b) (mkT' b β) .fst}
       (λ _ _ → C.Hom-set _ _ _ _)
@@ -258,10 +258,10 @@ $- \circ H$ is faithful, and now we've shown it is full, it is fully faithful.
 
   full : is-full (precompose H)
   full {x = x} {y = y} γ = pure (δ _ _ γ , ext p) where
-    p : ∀ b → δ _ _ γ .η (H.₀ b) ≡ γ .η b
+    p : ∀ b → δ _ _ γ .map (H.₀ b) ≡ γ .map b
     p b = subst
       (λ e → ∥-∥-out (T-prop _ _ γ (H.₀ b)) (mkT' _ _ γ (H.₀ b) e) .fst
-           ≡ γ .η b)
+           ≡ γ .map b)
       (squash (inc (b , B.id-iso)) (H-eso (H.₀ b)))
       (C.eliml (y .F-id) ∙ C.elimr (x .F-id))
 

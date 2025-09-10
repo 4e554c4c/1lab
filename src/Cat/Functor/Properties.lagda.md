@@ -148,14 +148,14 @@ the domain category to serve as an inverse for $f$:
     i : Cm.is-invertible _
     i .inv = g
     i .inverses .invl =
-      f C.∘ g                     ≡⟨ sym (ff.η _) ⟩
+      f C.∘ g                     ≡⟨ sym (ff.map _) ⟩
       ff.from ⌜ F .F₁ (f C.∘ g) ⌝ ≡⟨ ap! (Ffog ∙ sym (F .F-id)) ⟩
-      ff.from (F .F₁ C.id)        ≡⟨ ff.η _ ⟩
+      ff.from (F .F₁ C.id)        ≡⟨ ff.map _ ⟩
       C.id                        ∎
     i .inverses .invr =
-      g C.∘ f                     ≡⟨ sym (ff.η _) ⟩
+      g C.∘ f                     ≡⟨ sym (ff.map _) ⟩
       ff.from ⌜ F .F₁ (g C.∘ f) ⌝ ≡⟨ ap! (Fgof ∙ sym (F .F-id)) ⟩
-      ff.from (F .F₁ C.id)        ≡⟨ ff.η _ ⟩
+      ff.from (F .F₁ C.id)        ≡⟨ ff.map _ ⟩
       C.id                        ∎
 
   is-ff→essentially-injective
@@ -254,12 +254,12 @@ some rather tedious calculations.
       (c , Fc≅d) ← F-eso d
       let module Fc≅d = D._≅_ Fc≅d
       pure $
-        α.η d                                             ≡⟨ A.intror (G.annihilate (D.invl Fc≅d)) ⟩
-        α.η d A.∘ G.₁ Fc≅d.to A.∘ G.₁ Fc≅d.from           ≡⟨ A.extendl (α.is-natural _ _ _) ⟩
-        H.₁ Fc≅d.to A.∘ ⌜ α.η (F.₀ c) ⌝ A.∘ G.₁ Fc≅d.from ≡⟨ ap! (unext αL=βL c) ⟩
-        H.₁ Fc≅d.to A.∘ β.η (F.₀ c) A.∘ G.₁ Fc≅d.from     ≡⟨ A.extendl (sym (β.is-natural _ _ _)) ⟩
-        β.η d A.∘ G.₁ Fc≅d.to A.∘ G.₁ Fc≅d.from           ≡⟨ A.elimr (G.annihilate (D.invl Fc≅d)) ⟩
-        β.η d ∎
+        α.map d                                             ≡⟨ A.intror (G.annihilate (D.invl Fc≅d)) ⟩
+        α.map d A.∘ G.₁ Fc≅d.to A.∘ G.₁ Fc≅d.from           ≡⟨ A.extendl (α.com _ _ _) ⟩
+        H.₁ Fc≅d.to A.∘ ⌜ α.map (F.₀ c) ⌝ A.∘ G.₁ Fc≅d.from ≡⟨ ap! (unext αL=βL c) ⟩
+        H.₁ Fc≅d.to A.∘ β.map (F.₀ c) A.∘ G.₁ Fc≅d.from     ≡⟨ A.extendl (sym (β.com _ _ _)) ⟩
+        β.map d A.∘ G.₁ Fc≅d.to A.∘ G.₁ Fc≅d.from           ≡⟨ A.elimr (G.annihilate (D.invl Fc≅d)) ⟩
+        β.map d ∎
     where
       module A = Cat.Reasoning A
       module F = Cat.Functor.Reasoning F
@@ -303,7 +303,7 @@ and $F$ covers every object of $\cD$.
       (c , Fc≅d) ← F-eso d
       let module Fc≅d = D._≅_ Fc≅d
       pure $
-        A.make-invertible (G.₁ Fc≅d.to A.∘ α⁻¹.η c A.∘ H.₁ Fc≅d.from)
+        A.make-invertible (G.₁ Fc≅d.to A.∘ α⁻¹.map c A.∘ H.₁ Fc≅d.from)
           (α.pulll (A.cancell (α⁻¹.invl ·ₚ c)) ∙ H.annihilate Fc≅d.invl)
           (A.pullr (α.cancelr (α⁻¹.invr ·ₚ c)) ∙ G.annihilate Fc≅d.invl)
     where

@@ -351,7 +351,7 @@ algebraic action:
 
 ```agda
   Free-EM .F₁ f .fst = M₁ f
-  Free-EM .F₁ f .snd = sym $ mult.is-natural _ _ _
+  Free-EM .F₁ f .snd = sym $ mult.com _ _ _
   Free-EM .F-id = ext M-id
   Free-EM .F-∘ f g = ext (M-∘ f g)
 ```
@@ -368,7 +368,7 @@ $\cC^M$.
 
   Free-EM⊣Forget-EM : Free-EM ⊣ Forget-EM
   Free-EM⊣Forget-EM .unit =
-    NT M.η M.unit.is-natural
+    NT M.map M.unit.com
   Free-EM⊣Forget-EM .counit =
     NT (λ x → ∫hom (x .snd .ν) (x .snd .ν-mult))
       (λ x y f → ext (sym (f .snd)))
@@ -440,11 +440,11 @@ Eilenberg-Moore category can be restricted to the Kleisli category.
   Free-Kleisli = Essential-inc Free-EM
 
   Free-Kleisli⊣Forget-Kleisli : Free-Kleisli ⊣ Forget-Kleisli
-  Free-Kleisli⊣Forget-Kleisli ._⊣_.unit ._=>_.η = η
-  Free-Kleisli⊣Forget-Kleisli ._⊣_.unit .is-natural = unit.is-natural
-  Free-Kleisli⊣Forget-Kleisli ._⊣_.counit ._=>_.η ((X , α) , free) =
+  Free-Kleisli⊣Forget-Kleisli ._⊣_.unit ._=>_.map = η
+  Free-Kleisli⊣Forget-Kleisli ._⊣_.unit .com = unit.com
+  Free-Kleisli⊣Forget-Kleisli ._⊣_.counit ._=>_.map ((X , α) , free) =
     ∫hom (α .ν) (α .ν-mult)
-  Free-Kleisli⊣Forget-Kleisli ._⊣_.counit .is-natural _ _ f =
+  Free-Kleisli⊣Forget-Kleisli ._⊣_.counit .com _ _ f =
     ext (sym (f .snd))
   Free-Kleisli⊣Forget-Kleisli ._⊣_.zig = ext μ-unitr
   Free-Kleisli⊣Forget-Kleisli ._⊣_.zag {(X , α) , free} =
@@ -476,7 +476,7 @@ module _ {o h : _} {C : Precategory o h} {F G : Functor C C} {M : Monad-on F} {N
 
   Monad-on-path
     : (p0 : F ≡ G)
-    → (∀ x → PathP (λ i → C.Hom x (p0 i · x)) (M.η x) (N.η x))
+    → (∀ x → PathP (λ i → C.Hom x (p0 i · x)) (M.map x) (N.map x))
     → (∀ x → PathP (λ i → C.Hom (p0 i · (p0 i · x)) (p0 i · x)) (M.μ x) (N.μ x))
     → PathP (λ i → Monad-on (p0 i)) M N
   Monad-on-path M=N punit pmult = injectiveP (λ _ → eqv) $

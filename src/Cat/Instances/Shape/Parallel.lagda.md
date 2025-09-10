@@ -210,11 +210,11 @@ squares
 ```agda
   Fork-nt : ∀ {A B C D} {f g : Hom A B} {f' g' : Hom C D} {u : Hom A C} {v : Hom B D}  →
             (α : v ∘ f ≡ f' ∘ u) (β : v ∘ g ≡ g' ∘ u) → (Fork f g) => (Fork f' g')
-  Fork-nt {u = u} _ _ .η false = u
-  Fork-nt {v = v} _ _ .η true  = v
-  Fork-nt _ _ .is-natural _ _ idh = id-comm
-  Fork-nt α _ .is-natural _ _ inl = α
-  Fork-nt _ β .is-natural _ _ inr = β
+  Fork-nt {u = u} _ _ .map false = u
+  Fork-nt {v = v} _ _ .map true  = v
+  Fork-nt _ _ .com _ _ idh = id-comm
+  Fork-nt α _ .com _ _ inl = α
+  Fork-nt _ β .com _ _ inr = β
 
   forkl : (F : Functor ·⇉· C) → Hom (F .F₀ false) (F .F₀ true)
   forkl F = F .F₁ inl
@@ -228,11 +228,11 @@ squares
     → Const e => F
   Fork→Cone {e = e} F {equ = equ} equal = nt where
     nt : Const e => F
-    nt .η true  = forkl F ∘ equ
-    nt .η false = equ
-    nt .is-natural _ _ idh = idr _ ∙ introl (F .F-id)
-    nt .is-natural _ _ inl = idr _
-    nt .is-natural _ _ inr = idr _ ∙ equal
+    nt .map true  = forkl F ∘ equ
+    nt .map false = equ
+    nt .com _ _ idh = idr _ ∙ introl (F .F-id)
+    nt .com _ _ inl = idr _
+    nt .com _ _ inr = idr _ ∙ equal
 
   Cofork→Cocone
     : ∀ {e} (F : Functor ·⇉· C) {coequ : Hom (F .F₀ true) e}
@@ -240,9 +240,9 @@ squares
     → F => Const e
   Cofork→Cocone {e = e} F {coequ} coequal = nt where
     nt : F => Const e
-    nt .η true  = coequ
-    nt .η false = coequ ∘ forkl F
-    nt .is-natural _ _ idh = elimr (F .F-id) ∙ sym (idl _)
-    nt .is-natural _ _ inl = sym (idl _)
-    nt .is-natural _ _ inr = sym coequal ∙ sym (idl _)
+    nt .map true  = coequ
+    nt .map false = coequ ∘ forkl F
+    nt .com _ _ idh = elimr (F .F-id) ∙ sym (idl _)
+    nt .com _ _ inl = sym (idl _)
+    nt .com _ _ inr = sym coequal ∙ sym (idl _)
 ```

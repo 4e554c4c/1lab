@@ -541,18 +541,18 @@ module _ {ℂ 𝔻 : Internal-cat} {F G : Internal-functor ℂ 𝔻} where
 
   Internal-nat-path
     : {α β : F =>i G}
-    → (∀ {Γ} (x : Hom Γ ℂ.C₀) → α .ηi x ≡ β .ηi x)
+    → (∀ {Γ} (x : Hom Γ ℂ.C₀) → α .mapi x ≡ β .mapi x)
     → α ≡ β
-  Internal-nat-path {α} {β} p i .ηi x = p x i
-  Internal-nat-path {α} {β} p i .is-naturali x y f =
+  Internal-nat-path {α} {β} p i .mapi x = p x i
+  Internal-nat-path {α} {β} p i .comi x y f =
     is-prop→pathp (λ i → Internal-hom-set (p y i 𝔻.∘i F .Fi₁ f) (G .Fi₁ f 𝔻.∘i p x i))
-      (α .is-naturali x y f)
-      (β .is-naturali x y f) i
-  Internal-nat-path {α} {β} p i .ηi-nat x σ =
+      (α .comi x y f)
+      (β .comi x y f) i
+  Internal-nat-path {α} {β} p i .mapi-nat x σ =
     is-set→squarep (λ i j → Internal-hom-set)
       (λ i → p x i [ σ ])
-      (α .ηi-nat x σ)
-      (β .ηi-nat x σ)
+      (α .mapi-nat x σ)
+      (β .mapi-nat x σ)
       (λ i → p (x ∘ σ) i) i
 ```
 -->

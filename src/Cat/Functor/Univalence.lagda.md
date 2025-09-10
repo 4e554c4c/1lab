@@ -42,10 +42,10 @@ Functor-is-category {D = D} {C = C} d-cat .to-path {F} {G} im =
       coh : ∀ {x y : C .Ob} (f : C .Hom x y)
           → PathP (λ i → D .Hom (d-cat .to-path (isoⁿ→iso im x) i) (d-cat .to-path (isoⁿ→iso im y) i))
               (F .F₁ f) (G .F₁ f)
-      coh f = Hom-pathp-iso ( pulll (Isoⁿ.to im .is-natural _ _ _)
+      coh f = Hom-pathp-iso ( pulll (Isoⁿ.to im .com _ _ _)
                             ∙ cancelr (Isoⁿ.invl im ηₚ _))
 Functor-is-category {D = D} d-cat .to-path-over p =
-  ≅ⁿ-pathp _ _ (λ x → Hom-pathp-reflr-iso (Precategory.idr D (Isoⁿ.to p .η x)))
+  ≅ⁿ-pathp _ _ (λ x → Hom-pathp-reflr-iso (Precategory.idr D (Isoⁿ.to p .map x)))
   where open Univalent d-cat
 ```
 
@@ -68,10 +68,10 @@ module _
         (ecat : is-category de)
     → (p : G ≅ⁿ G') → ∀ {x}
     → path→iso {C = E} (λ i → (Univalent.iso→path ecat p i F∘ F) .F₀ x) .to
-    ≡ p .to .η (F .F₀ x)
+    ≡ p .to .map (F .F₀ x)
   whisker-path-left {G} {G'} {F} p =
     de.J-iso
-      (λ B isom → ∀ {x} → path→iso {C = E} (λ i → F₀ (de.iso→path isom i F∘ F) x) .to ≡ isom .to .η (F .F₀ x))
+      (λ B isom → ∀ {x} → path→iso {C = E} (λ i → F₀ (de.iso→path isom i F∘ F) x) .to ≡ isom .to .map (F .F₀ x))
       λ {x} → ap (λ e → path→iso {C = E} e .to)
         (λ i j → de.iso→path-id {a = G} i j .F₀ (F .F₀ x))
         ∙ transport-refl _
@@ -82,10 +82,10 @@ module _
         (cdcat : is-category cd)
     → (p : F ≅ⁿ F') → ∀ {x}
     → path→iso {C = E} (λ i → G .F₀ (Univalent.iso→path cdcat p i .F₀ x)) .from
-    ≡ G .F₁ (p .from .η x)
+    ≡ G .F₁ (p .from .map x)
   whisker-path-right {G} {G'} {F} cdcat =
     cd.J-iso
-      (λ B isom → ∀ {x} → path→iso {C = E} (λ i → G .F₀ (cd.iso→path isom i .F₀ x)) .from ≡ G .F₁ (isom .from .η x))
+      (λ B isom → ∀ {x} → path→iso {C = E} (λ i → G .F₀ (cd.iso→path isom i .F₀ x)) .from ≡ G .F₁ (isom .from .map x))
       λ {x} → ap (λ e → path→iso {C = E} e .from)
         (λ i j → G .F₀ (cd.iso→path-id {a = G'} i j .F₀ x))
         ∙ transport-refl _ ∙ sym (G .F-id)

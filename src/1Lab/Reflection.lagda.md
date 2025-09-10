@@ -173,7 +173,7 @@ open P
 
 instance
   Map-TC : Map (eff TC)
-  Map-TC .Map.map f x = P.bindTC x λ x → P.returnTC (f x)
+  Map-TC .fmap f x = P.bindTC x λ x → P.returnTC (f x)
 
   Idiom-TC : Idiom (eff TC)
   Idiom-TC .Idiom.pure = P.returnTC

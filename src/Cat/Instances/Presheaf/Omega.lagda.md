@@ -48,8 +48,8 @@ open _=>_
 
 ```agda
 tru : ⊤PSh => Sieves
-tru .η x _            = maximal'
-tru .is-natural x y f = ext λ a {V} f → Ω-ua _ _
+tru .map x _            = maximal'
+tru .com x y f = ext λ a {V} f → Ω-ua _ _
 ```
 
 We must now show that each [[subobject]] $P$ of a presheaf $A$ is
@@ -67,16 +67,16 @@ construction is just functoriality of $P$.
 
 ```agda
 psh-name : {A : ⌞ PSh ℓ C ⌟} → Subobject A → A => Sieves
-psh-name {A} P .η x e .arrows {y} h = elΩ (fibre (P .map .η y) (A ⟪ h ⟫ e))
-psh-name {A} P .η x e .closed {f = f} = elim! λ x p g →
+psh-name {A} P .map x e .arrows {y} h = elΩ (fibre (P .map .map y) (A ⟪ h ⟫ e))
+psh-name {A} P .map x e .closed {f = f} = elim! λ x p g →
   let
     q =
-      P .map .η _ (P .dom ⟪ g ⟫ x) ≡⟨ P .map .is-natural _ _ _ $ₚ _ ⟩
-      A ⟪ g ⟫ (P .map .η _ x)      ≡⟨ ap₂ (A .F₁) refl p ⟩
+      P .map .map _ (P .dom ⟪ g ⟫ x) ≡⟨ P .map .com _ _ _ $ₚ _ ⟩
+      A ⟪ g ⟫ (P .map .map _ x)      ≡⟨ ap₂ (A .F₁) refl p ⟩
       A ⟪ g ⟫ (A ⟪ f ⟫ e)          ≡⟨ PSh.collapse A refl ⟩
       A ⟪ f ∘ g ⟫ e                ∎
   in inc (_ , q)
-psh-name {P} so .is-natural x y f = ext λ x {V} f → Ω-ua
+psh-name {P} so .com x y f = ext λ x {V} f → Ω-ua
   (□-map λ (e , p) → e , p ∙ PSh.collapse P refl)
   (□-map λ (e , p) → e , p ∙ PSh.expand P refl)
 ```
@@ -121,19 +121,19 @@ map $P' \to P$ which appears dotted in the diagram.
 
 ```agda
 PSh-omega .generic .classifies {A} P = record { has-is-pb = pb } where
-  emb : ∀ {x} → is-embedding (P .map .η x)
+  emb : ∀ {x} → is-embedding (P .map .map x)
   emb = is-monic→is-embedding-at (P .monic)
 
   square→pt
     : ∀ {P'} {p₁' : P' => A} {p₂' : P' => ⊤PSh}
     → psh-name P ∘nt p₁' ≡ tru ∘nt p₂'
-    → ∀ {a} (b : P' ʻ a) → fibre (P .map .η a) (p₁' .η a b)
+    → ∀ {a} (b : P' ʻ a) → fibre (P .map .map a) (p₁' .map a b)
   square→pt {p₁' = p₁'} p {a} b =
     let
-      prf : maximal' ≡ psh-name P .η _ (p₁' .η _ b)
+      prf : maximal' ≡ psh-name P .map _ (p₁' .map _ b)
       prf = sym (p ηₚ _ $ₚ b)
 
-      memb : Σ[ e ∈ P .dom ʻ a ] P .map .η _ e ≡ (A ⟪ id ⟫ p₁' .η a b)
+      memb : Σ[ e ∈ P .dom ʻ a ] P .map .map _ e ≡ (A ⟪ id ⟫ p₁' .map a b)
       memb = □-out (emb _) (subst (id ∈_) prf tt)
     in memb .fst , memb .snd ∙ PSh.F-id A
 ```
@@ -156,17 +156,17 @@ pullback.</summary>
 
 ```agda
   pb : is-pullback (PSh ℓ C) (P .map) (psh-name P) (NT (λ _ _ → _) (λ x y f → refl)) tru
-  pb .square = ext λ i x {V} f → to-is-true (inc (_ , P .map .is-natural _ _ _ $ₚ _))
+  pb .square = ext λ i x {V} f → to-is-true (inc (_ , P .map .com _ _ _ $ₚ _))
 
-  pb .universal path .η i e = square→pt path e .fst
-  pb .universal {P' = P'} {p₁'} p .is-natural x y f = ext λ a → ap fst $
+  pb .universal path .map i e = square→pt path e .fst
+  pb .universal {P' = P'} {p₁'} p .com x y f = ext λ a → ap fst $
     let
       (pt , q) = square→pt p a
       r =
-        P .map .η y (P .dom ⟪ f ⟫ pt) ≡⟨ P .map .is-natural _ _ _ $ₚ _ ⟩
-        A ⟪ f ⟫ P .map .η x pt        ≡⟨ ap₂ (A .F₁) refl q ⟩
-        A ⟪ f ⟫ (p₁' .η x a)          ≡˘⟨ p₁' .is-natural _ _ _ $ₚ _ ⟩
-        p₁' .η y (P' ⟪ f ⟫ a)         ∎
+        P .map .map y (P .dom ⟪ f ⟫ pt) ≡⟨ P .map .com _ _ _ $ₚ _ ⟩
+        A ⟪ f ⟫ P .map .map x pt        ≡⟨ ap₂ (A .F₁) refl q ⟩
+        A ⟪ f ⟫ (p₁' .map x a)          ≡˘⟨ p₁' .com _ _ _ $ₚ _ ⟩
+        p₁' .map y (P' ⟪ f ⟫ a)         ∎
     in emb _ (square→pt p _) (_ , r)
 
   pb .p₁∘universal {p = p} = ext λ a b → square→pt p b .snd
@@ -199,17 +199,17 @@ pullback of $n(x)$ along $f$; and for a sieve $S$ to contain $f$ is
 precisely the statement that $f^*(S)$ is maximal.
 
 ```agda
-    from : □ (fibre (P .map .η U) (A ⟪ f ⟫ x)) → f ∈ nm .η i x
+    from : □ (fibre (P .map .map U) (A ⟪ f ⟫ x)) → f ∈ nm .map i x
     from fib =
       let
         (a , prf) = □-out (emb _) fib
 
         proof =
           maximal'                ≡˘⟨ pb .square ηₚ U $ₚ a ⟩
-          nm .η U (P .map .η U a) ≡⟨ ap (nm .η U) prf ⟩
-          nm .η U (A ⟪ f ⟫ x)     ≡⟨ nm .is-natural _ _ _ $ₚ _ ⟩
-          pullback f (nm .η i x)  ∎
-      in subst (_∈ nm .η i x) (idr f) (subst (id ∈_) proof tt)
+          nm .map U (P .map .map U a) ≡⟨ ap (nm .map U) prf ⟩
+          nm .map U (A ⟪ f ⟫ x)     ≡⟨ nm .com _ _ _ $ₚ _ ⟩
+          pullback f (nm .map i x)  ∎
+      in subst (_∈ nm .map i x) (idr f) (subst (id ∈_) proof tt)
 ```
 
 In the other direction, first note that we a natural transformation $f$
@@ -234,26 +234,26 @@ A$ to give back $f$ --- in particular, it sends arrows $f \in n(x)$ to
 fibres of $P \mono A$ over $A(f)(x)$.
 
 ```agda
-    to : f ∈ nm .η i x → □ (fibre (P .map .η U) (A ⟪ f ⟫ x))
+    to : f ∈ nm .map i x → □ (fibre (P .map .map U) (A ⟪ f ⟫ x))
     to wit =
       let
-        fold-memb : to-presheaf (nm .η i x) => A
+        fold-memb : to-presheaf (nm .map i x) => A
         fold-memb = λ where
-          .η i (h , p) → A ⟪ h ⟫ x
-          .is-natural x y f → ext λ g e → PSh.expand A refl
+          .map i (h , p) → A ⟪ h ⟫ x
+          .com x y f → ext λ g e → PSh.expand A refl
 
         includes : nm ∘nt fold-memb ≡ tru ∘nt Terminal.! PSh-terminal
         includes = ext λ j g hg {U} h →
-          nm .η j (A ⟪ g ⟫ x) .arrows h ≡⟨ ap (λ e → e .arrows h) (nm .is-natural _ _ _ $ₚ _) ⟩
-          nm .η i x .arrows (g ∘ h)     ≡⟨ to-is-true (nm .η i x .closed hg h) ⟩
+          nm .map j (A ⟪ g ⟫ x) .arrows h ≡⟨ ap (λ e → e .arrows h) (nm .com _ _ _ $ₚ _) ⟩
+          nm .map i x .arrows (g ∘ h)     ≡⟨ to-is-true (nm .map i x .closed hg h) ⟩
           ⊤Ω                            ∎
 
-        members→names : to-presheaf (nm .η i x) => P .dom
+        members→names : to-presheaf (nm .map i x) => P .dom
         members→names = pb .universal includes
 
-        it = members→names .η U (f , wit)
+        it = members→names .map U (f , wit)
         prf =
-          P .map .η U it ≡⟨ pb .p₁∘universal ηₚ _ $ₚ _ ⟩
+          P .map .map U it ≡⟨ pb .p₁∘universal ηₚ _ $ₚ _ ⟩
           A ⟪ f ⟫ x      ∎
       in inc (it , prf)
   in Ω-ua to from

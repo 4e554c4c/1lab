@@ -607,10 +607,10 @@ module _ (U : ∀ {x y} → Hom x y → Functor (Fibre ℰ y) (Fibre ℰ x)) whe
   hom-iso→weak-fibration hom-iso =
     vertical-equiv→weak-fibration
       (λ u → U u .F₀)
-      (λ u' → Isoⁿ.to (hom-iso _) .η _ u')
+      (λ u' → Isoⁿ.to (hom-iso _) .map _ u')
       (natural-iso-to-is-equiv (hom-iso _) _)
       λ f' g' → to-pathp[]⁻ $
-        happly (Isoⁿ.to (hom-iso _) .is-natural _ _ g') f'
+        happly (Isoⁿ.to (hom-iso _) .com _ _ g') f'
 ```
 -->
 
@@ -695,7 +695,7 @@ a natural iso between $\cE_{u}(-,-)$ and $\cE_{\id}(-,u^{*}(-))$.
     mi .inv∘eta x = funext λ u' →
       from-pathp[] (π*.commutesv _)
     mi .natural _ _ (v₁' , v₂') = funext λ u' →
-      sym (apr' (happly (into-iso.to .is-natural _ _ v₁') u'))
-      ∙∙ sym (happly (from-iso.to .is-natural _ _ v₂') (hom[ idr _ ] (u' ∘' v₁')))
-      ∙∙ ap (into-iso.to .η _) (smashr _ _ ∙ reindex _ _ )
+      sym (apr' (happly (into-iso.to .com _ _ v₁') u'))
+      ∙∙ sym (happly (from-iso.to .com _ _ v₂') (hom[ idr _ ] (u' ∘' v₁')))
+      ∙∙ ap (into-iso.to .map _) (smashr _ _ ∙ reindex _ _ )
 ```

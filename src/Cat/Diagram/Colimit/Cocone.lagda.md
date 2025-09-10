@@ -139,8 +139,8 @@ defined here and those considered in the definition of colimit.
 
 ```agda
   Cocone→cocone : (K : Cocone) → F => Const (Cocone.coapex K)
-  Cocone→cocone K .η = K .Cocone.ψ
-  Cocone→cocone K .is-natural x y f = K .Cocone.commutes f ∙ sym (C.idl _)
+  Cocone→cocone K .map = K .Cocone.ψ
+  Cocone→cocone K .com x y f = K .Cocone.commutes f ∙ sym (C.idl _)
 ```
 
 We can then rephrase the universality from the definition of [[left Kan

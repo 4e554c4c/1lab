@@ -151,27 +151,27 @@ module _ {o ℓ κ} {C : Precategory o ℓ} where
   natural-iso-to-is-equiv
     : {F G : Functor C (Sets κ)}
     → (eta : F ≅ⁿ G)
-    → ∀ x → is-equiv (Isoⁿ.to eta .η x)
+    → ∀ x → is-equiv (Isoⁿ.to eta .map x)
   natural-iso-to-is-equiv eta x = is-iso→is-equiv $ iso
-    (Isoⁿ.from eta .η x)
-    (λ x i → Isoⁿ.invl eta i .η _ x)
-    (λ x i → Isoⁿ.invr eta i .η _ x)
+    (Isoⁿ.from eta .map x)
+    (λ x i → Isoⁿ.invl eta i .map _ x)
+    (λ x i → Isoⁿ.invr eta i .map _ x)
 
   natural-iso-from-is-equiv
     : {F G : Functor C (Sets κ)}
     → (eta : F ≅ⁿ G)
-    → ∀ x → is-equiv (Isoⁿ.from eta .η x)
+    → ∀ x → is-equiv (Isoⁿ.from eta .map x)
   natural-iso-from-is-equiv eta x = is-iso→is-equiv $ iso
-    (Isoⁿ.to eta .η x)
-    (λ x i → Isoⁿ.invr eta i .η _ x)
-    (λ x i → Isoⁿ.invl eta i .η _ x)
+    (Isoⁿ.to eta .map x)
+    (λ x i → Isoⁿ.invr eta i .map _ x)
+    (λ x i → Isoⁿ.invl eta i .map _ x)
 
   natural-iso→equiv
     : {F G : Functor C (Sets κ)}
     → (eta : F ≅ⁿ G)
     → ∀ x → F ʻ x ≃ G ʻ x
   natural-iso→equiv eta x =
-    Isoⁿ.to eta .η x ,
+    Isoⁿ.to eta .map x ,
     natural-iso-to-is-equiv eta x
 ```
 -->

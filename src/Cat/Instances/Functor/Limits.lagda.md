@@ -94,22 +94,22 @@ homomorphism $K \to \lim F(-, x)$ will be called `!-for`{.Agda}.
     open make-is-limit
 
     ml : make-is-limit F functor-apex
-    ml .ψ j .η x = D-lim.ψ x j
-    ml .ψ j .is-natural x y f =
+    ml .ψ j .map x = D-lim.ψ x j
+    ml .ψ j .com x y f =
       D-lim.factors _ _ _ ∙ ap₂ C._∘_ (C.eliml (F.F-id ηₚ _)) refl
     ml .commutes f = ext λ j →
       C.pushr (C.introl (F.₀ _ .F-id)) ∙ D-lim.commutes j f
-    ml .universal eps p .η x = D-lim.universal x
-      (λ j → eps j .η x)
+    ml .universal eps p .map x = D-lim.universal x
+      (λ j → eps j .map x)
       (λ f → ap₂ C._∘_ (C.elimr (F.₀ _ .F-id)) refl ∙ p f ηₚ x)
-    ml .universal eps p .is-natural x y f = D-lim.unique₂ y _
+    ml .universal eps p .com x y f = D-lim.unique₂ y _
       (λ g → C.pulll (ap₂ C._∘_ (C.elimr (F.₀ _ .F-id)) refl ∙ p g ηₚ y))
       (λ j → C.pulll (D-lim.factors _ _ _))
       (λ j →
           C.pulll (D-lim.factors _ _ _)
         ∙ C.pullr (D-lim.factors _ _ _)
         ∙ ap₂ C._∘_ (C.eliml (F.F-id ηₚ _)) refl
-        ∙ sym (eps j .is-natural x y f))
+        ∙ sym (eps j .com x y f))
     ml .factors eps p = ext λ j →
       D-lim.factors j _ _
     ml .unique eps p other q = ext λ x →

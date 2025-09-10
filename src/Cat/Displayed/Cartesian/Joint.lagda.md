@@ -758,7 +758,7 @@ postcompose-equiv→jointly-cartesian {a = a} {uᵢ = uᵢ} fᵢ eqv = fᵢ-cart
   fᵢ-cart .commutes v hᵢ ix =
     eqv.ε hᵢ ·ₚ ix
   fᵢ-cart .unique {hᵢ = hᵢ} other p =
-    sym (eqv.η other) ∙ ap eqv.from (ext p)
+    sym (eqv.map other) ∙ ap eqv.from (ext p)
 
 jointly-cartesian→postcompose-equiv {uᵢ = uᵢ} {fᵢ = fᵢ} fᵢ-cart v x' .is-eqv hᵢ =
   contr (fᵢ.universal v hᵢ , ext (fᵢ.commutes v hᵢ)) λ fib →

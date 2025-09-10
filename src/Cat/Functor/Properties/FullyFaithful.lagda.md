@@ -61,12 +61,12 @@ whose whiskering with $F$ on the left is $\theta$. This implies that the
 ```agda
 module _ {oe ℓe} {E : Precategory oe ℓe} where
   unwhisker : ∀ {G H : Functor E C} → F F∘ G => F F∘ H → G => H
-  unwhisker θ .η d = F.from (θ .η d)
-  unwhisker θ .is-natural x y f = sym (F.ε-twist (sym (θ .is-natural x y f)))
+  unwhisker θ .map d = F.from (θ .map d)
+  unwhisker θ .com x y f = sym (F.ε-twist (sym (θ .com x y f)))
 
   ff→postcompose-ff : is-fully-faithful (postcompose F {D = E})
   ff→postcompose-ff = is-iso→is-equiv $ iso unwhisker
-    (λ _ → ext λ d → F.ε _) (λ _ → ext λ d → F.η _)
+    (λ _ → ext λ d → F.ε _) (λ _ → ext λ d → F.map _)
 ```
 
 ## Fully faithful functors reflect (co)limits {defines="ff-reflect-limits ff-reflect-colimits"}

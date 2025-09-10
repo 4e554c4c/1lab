@@ -297,23 +297,23 @@ commutative diagram.
 
 ```agda
     strength→monoidal .F-α→ =
-      M₁ (α→ _ _ _) ∘ (μ _ ∘ M₁ σ ∘ τ) ∘ ((μ _ ∘ M₁ σ ∘ τ) ⊗₁ id)                                    ≡⟨ pulll (extendl (sym (mult.is-natural _ _ _))) ⟩
+      M₁ (α→ _ _ _) ∘ (μ _ ∘ M₁ σ ∘ τ) ∘ ((μ _ ∘ M₁ σ ∘ τ) ⊗₁ id)                                    ≡⟨ pulll (extendl (sym (mult.com _ _ _))) ⟩
       (μ _ ∘ M₁ (M₁ (α→ _ _ _)) ∘ M₁ σ ∘ τ) ∘ ((μ _ ∘ M₁ σ ∘ τ) ⊗₁ id)                               ≡⟨ pullr (pullr (pullr refl)) ⟩
       μ _ ∘ M₁ (M₁ (α→ _ _ _)) ∘ M₁ σ ∘ τ ∘ ((μ _ ∘ M₁ σ ∘ τ) ⊗₁ id)                                 ≡⟨ refl⟩∘⟨ M.pulll left-strength-α→ ⟩
       μ _ ∘ M₁ (σ ∘ (id ⊗₁ σ) ∘ α→ _ _ _) ∘ τ ∘ ((μ _ ∘ M₁ σ ∘ τ) ⊗₁ id)                             ≡⟨ refl⟩∘⟨ refl⟩∘⟨ ◀.popl right-strength-μ ⟩
-      μ _ ∘ M₁ (σ ∘ (id ⊗₁ σ) ∘ α→ _ _ _) ∘ (μ _ ∘ M₁ τ ∘ τ) ∘ ((M₁ σ ∘ τ) ⊗₁ id)                    ≡⟨ refl⟩∘⟨ refl⟩∘⟨ pullr (pullr (◀.popl (τ.is-natural _ _ _))) ⟩
-      μ _ ∘ M₁ (σ ∘ (id ⊗₁ σ) ∘ α→ _ _ _) ∘ μ _ ∘ M₁ τ ∘ (M₁ (σ ⊗₁ id) ∘ τ) ∘ (τ ⊗₁ id)              ≡⟨ refl⟩∘⟨ M.popr (M.popr (pulll (sym (mult.is-natural _ _ _)))) ⟩
+      μ _ ∘ M₁ (σ ∘ (id ⊗₁ σ) ∘ α→ _ _ _) ∘ (μ _ ∘ M₁ τ ∘ τ) ∘ ((M₁ σ ∘ τ) ⊗₁ id)                    ≡⟨ refl⟩∘⟨ refl⟩∘⟨ pullr (pullr (◀.popl (τ.com _ _ _))) ⟩
+      μ _ ∘ M₁ (σ ∘ (id ⊗₁ σ) ∘ α→ _ _ _) ∘ μ _ ∘ M₁ τ ∘ (M₁ (σ ⊗₁ id) ∘ τ) ∘ (τ ⊗₁ id)              ≡⟨ refl⟩∘⟨ M.popr (M.popr (pulll (sym (mult.com _ _ _)))) ⟩
       μ _ ∘ M₁ σ ∘ M₁ (id ⊗₁ σ) ∘ (μ _ ∘ M₁ (M₁ (α→ _ _ _))) ∘ M₁ τ ∘ (M₁ (σ ⊗₁ id) ∘ τ) ∘ (τ ⊗₁ id) ≡⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ pullr (refl⟩∘⟨ refl⟩∘⟨ pullr refl) ⟩
       μ _ ∘ M₁ σ ∘ M₁ (id ⊗₁ σ) ∘ μ _ ∘ M₁ (M₁ (α→ _ _ _)) ∘ M₁ τ ∘ M₁ (σ ⊗₁ id) ∘ τ ∘ (τ ⊗₁ id)     ≡⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ M.pulll3 strength-α→ ⟩
       μ _ ∘ M₁ σ ∘ M₁ (id ⊗₁ σ) ∘ μ _ ∘ M₁ (σ ∘ (id ⊗₁ τ) ∘ α→ _ _ _) ∘ τ ∘ (τ ⊗₁ id)                ≡⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ M.popr (M.popr (sym right-strength-α→)) ⟩
-      μ _ ∘ M₁ σ ∘ M₁ (id ⊗₁ σ) ∘ μ _ ∘ M₁ σ ∘ M₁ (id ⊗₁ τ) ∘ τ ∘ α→ _ _ _                           ≡˘⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ extendl (τ.is-natural _ _ _) ⟩
-      μ _ ∘ M₁ σ ∘ M₁ (id ⊗₁ σ) ∘ μ _ ∘ M₁ σ ∘ τ ∘ (M₁ id ⊗₁ τ) ∘ α→ _ _ _                           ≡˘⟨ refl⟩∘⟨ refl⟩∘⟨ extendl (mult.is-natural _ _ _) ⟩
-      μ _ ∘ M₁ σ ∘ μ _ ∘ M₁ (M₁ (id ⊗₁ σ)) ∘ M₁ σ ∘ τ ∘ (M₁ id ⊗₁ τ) ∘ α→ _ _ _                      ≡˘⟨ refl⟩∘⟨ extendl (mult.is-natural _ _ _) ⟩
+      μ _ ∘ M₁ σ ∘ M₁ (id ⊗₁ σ) ∘ μ _ ∘ M₁ σ ∘ M₁ (id ⊗₁ τ) ∘ τ ∘ α→ _ _ _                           ≡˘⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ extendl (τ.com _ _ _) ⟩
+      μ _ ∘ M₁ σ ∘ M₁ (id ⊗₁ σ) ∘ μ _ ∘ M₁ σ ∘ τ ∘ (M₁ id ⊗₁ τ) ∘ α→ _ _ _                           ≡˘⟨ refl⟩∘⟨ refl⟩∘⟨ extendl (mult.com _ _ _) ⟩
+      μ _ ∘ M₁ σ ∘ μ _ ∘ M₁ (M₁ (id ⊗₁ σ)) ∘ M₁ σ ∘ τ ∘ (M₁ id ⊗₁ τ) ∘ α→ _ _ _                      ≡˘⟨ refl⟩∘⟨ extendl (mult.com _ _ _) ⟩
       μ _ ∘ μ _ ∘ M₁ (M₁ σ) ∘ M₁ (M₁ (id ⊗₁ σ)) ∘ M₁ σ ∘ τ ∘ (M₁ id ⊗₁ τ) ∘ α→ _ _ _                 ≡˘⟨ extendl μ-assoc ⟩
-      μ _ ∘ M₁ (μ _) ∘ M₁ (M₁ σ) ∘ M₁ (M₁ (id ⊗₁ σ)) ∘ M₁ σ ∘ τ ∘ (M₁ id ⊗₁ τ) ∘ α→ _ _ _            ≡˘⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ M.extendl (σ.is-natural _ _ _) ⟩
+      μ _ ∘ M₁ (μ _) ∘ M₁ (M₁ σ) ∘ M₁ (M₁ (id ⊗₁ σ)) ∘ M₁ σ ∘ τ ∘ (M₁ id ⊗₁ τ) ∘ α→ _ _ _            ≡˘⟨ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ M.extendl (σ.com _ _ _) ⟩
       μ _ ∘ M₁ (μ _) ∘ M₁ (M₁ σ) ∘ M₁ σ ∘ M₁ (id ⊗₁ M₁ σ) ∘ τ ∘ (M₁ id ⊗₁ τ) ∘ α→ _ _ _              ≡⟨ refl⟩∘⟨ M.pulll3 (sym left-strength-μ) ⟩
-      μ _ ∘ M₁ (σ ∘ (id ⊗₁ μ _)) ∘ M₁ (id ⊗₁ M₁ σ) ∘ τ ∘ (M₁ id ⊗₁ τ) ∘ α→ _ _ _                     ≡˘⟨ refl⟩∘⟨ refl⟩∘⟨ extendl (τ.is-natural _ _ _) ⟩
-      μ _ ∘ M₁ (σ ∘ (id ⊗₁ μ _)) ∘ τ ∘ (M₁ id ⊗₁ M₁ σ) ∘ (M₁ id ⊗₁ τ) ∘ α→ _ _ _                     ≡⟨ refl⟩∘⟨ M.popr (extendl (sym (τ.is-natural _ _ _))) ⟩
+      μ _ ∘ M₁ (σ ∘ (id ⊗₁ μ _)) ∘ M₁ (id ⊗₁ M₁ σ) ∘ τ ∘ (M₁ id ⊗₁ τ) ∘ α→ _ _ _                     ≡˘⟨ refl⟩∘⟨ refl⟩∘⟨ extendl (τ.com _ _ _) ⟩
+      μ _ ∘ M₁ (σ ∘ (id ⊗₁ μ _)) ∘ τ ∘ (M₁ id ⊗₁ M₁ σ) ∘ (M₁ id ⊗₁ τ) ∘ α→ _ _ _                     ≡⟨ refl⟩∘⟨ M.popr (extendl (sym (τ.com _ _ _))) ⟩
       μ _ ∘ M₁ σ ∘ τ ∘ (M₁ id ⊗₁ μ _) ∘ (M₁ id ⊗₁ M₁ σ) ∘ (M₁ id ⊗₁ τ) ∘ α→ _ _ _                    ≡⟨ pushr (pushr (refl⟩∘⟨ ⊗.pulll3 ((refl⟩∘⟨ M.annihilate (idl _)) ∙ M.eliml refl ,ₚ refl))) ⟩
       (μ _ ∘ M₁ σ ∘ τ) ∘ (id ⊗₁ (μ _ ∘ M₁ σ ∘ τ)) ∘ α→ _ _ _                                         ∎
 ```
@@ -323,13 +323,13 @@ The unitor coherences are relatively easy to prove.
 ```agda
     strength→monoidal .F-λ← =
       M₁ λ← ∘ (μ _ ∘ M₁ σ ∘ τ) ∘ (η _ ⊗₁ id) ≡⟨ refl⟩∘⟨ pullr (pullr right-strength-η) ⟩
-      M₁ λ← ∘ μ _ ∘ M₁ σ ∘ η _               ≡˘⟨ refl⟩∘⟨ refl⟩∘⟨ unit.is-natural _ _ _ ⟩
+      M₁ λ← ∘ μ _ ∘ M₁ σ ∘ η _               ≡˘⟨ refl⟩∘⟨ refl⟩∘⟨ unit.com _ _ _ ⟩
       M₁ λ← ∘ μ _ ∘ η _ ∘ σ                  ≡⟨ refl⟩∘⟨ cancell μ-unitl ⟩
       M₁ λ← ∘ σ                              ≡⟨ left-strength-λ← ⟩
       λ←                                     ∎
     strength→monoidal .F-ρ← =
       M₁ ρ← ∘ (μ _ ∘ M₁ σ ∘ τ) ∘ (⌜ id ⌝ ⊗₁ η _) ≡˘⟨ ap¡ M-id ⟩
-      M₁ ρ← ∘ (μ _ ∘ M₁ σ ∘ τ) ∘ (M₁ id ⊗₁ η _)  ≡⟨ refl⟩∘⟨ pullr (pullr (τ.is-natural _ _ _)) ⟩
+      M₁ ρ← ∘ (μ _ ∘ M₁ σ ∘ τ) ∘ (M₁ id ⊗₁ η _)  ≡⟨ refl⟩∘⟨ pullr (pullr (τ.com _ _ _)) ⟩
       M₁ ρ← ∘ μ _ ∘ M₁ σ ∘ M₁ (id ⊗₁ η _) ∘ τ    ≡⟨ refl⟩∘⟨ refl⟩∘⟨ M.pulll left-strength-η ⟩
       M₁ ρ← ∘ μ _ ∘ M₁ (η _) ∘ τ                 ≡⟨ refl⟩∘⟨ cancell μ-unitr ⟩
       M₁ ρ← ∘ τ                                  ≡⟨ right-strength-ρ← ⟩
@@ -376,7 +376,7 @@ category]] the tensor product.
     is .snd .rinv _ = Right-monad-strength-path Cᵐ monad
       (Equiv.ε (strength^rev Cᵐ M) _)
     is .snd .linv _ = Left-monad-strength-path (Cᵐ ^rev) monad
-      (Equiv.η (strength^rev Cᵐ M) _)
+      (Equiv.map (strength^rev Cᵐ M) _)
 ```
 
 ## Sets-monads are strong {defines="sets-monads-are-strong"}
@@ -397,7 +397,7 @@ the unit and multiplication.
   Sets-monad-strength : Left-monad-strength Setsₓ monad
   Sets-monad-strength .functor-strength = Sets-strength F
   Sets-monad-strength .left-strength-η = ext λ a b →
-    sym (unit.is-natural _ _ (a ,_) $ₚ _)
+    sym (unit.com _ _ (a ,_) $ₚ _)
   Sets-monad-strength .left-strength-μ = ext λ a mmb →
-    sym (mult.is-natural _ _ (a ,_) $ₚ _) ∙ ap (μ _) (M-∘ _ _ $ₚ _)
+    sym (mult.com _ _ (a ,_) $ₚ _) ∙ ap (μ _) (M-∘ _ _ $ₚ _)
 ```

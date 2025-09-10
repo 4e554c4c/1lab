@@ -93,8 +93,8 @@ is indeed a group structure, which is an incredibly boring calculation.
     assoc x y z = sym $
       ν (inc (ν (inc x ◆ inc y)) ◆ inc z)                ≡⟨ (λ i → ν (inc (ν (inc x ◆ inc y)) ◆ inc (ν-unit (~ i) z))) ⟩
       ν (inc (ν (inc x ◆ inc y)) ◆ inc (ν (inc z)))      ≡˘⟨ happly ν-mult (inc _ ◆ inc _) ⟩
-      ν (T.mult.η G (inc (inc x ◆ inc y) ◆ inc (inc z))) ≡˘⟨ ap ν (f-assoc _ _ _) ⟩
-      ν (T.mult.η G (inc (inc x) ◆ inc (inc y ◆ inc z))) ≡⟨ happly ν-mult (inc _ ◆ inc _) ⟩
+      ν (T.mult.map G (inc (inc x ◆ inc y) ◆ inc (inc z))) ≡˘⟨ ap ν (f-assoc _ _ _) ⟩
+      ν (T.mult.map G (inc (inc x) ◆ inc (inc y ◆ inc z))) ≡⟨ happly ν-mult (inc _ ◆ inc _) ⟩
       ν (inc (ν (inc x)) ◆ inc (ν (inc y ◆ inc z)))      ≡⟨ (λ i → ν (inc (ν-unit i x) ◆ inc (ν (inc y ◆ inc z)))) ⟩
       ν (inc x ◆ inc (ν (inc y ◆ inc z)))                ∎
 
@@ -102,15 +102,15 @@ is indeed a group structure, which is an incredibly boring calculation.
     invl x =
       ν (inc (ν (inv (inc x))) ◆ inc x)                ≡⟨ (λ i → ν (inc (ν (inv (inc x))) ◆ inc (ν-unit (~ i) x))) ⟩
       ν (inc (ν (inv (inc x))) ◆ inc (ν (inc x)))      ≡˘⟨ happly ν-mult (inc _ ◆ inc _) ⟩
-      ν (T.mult.η G (inc (inv (inc x)) ◆ inc (inc x))) ≡⟨ ap ν (f-invl _) ⟩
-      ν (T.mult.η G (inc nil))                         ≡⟨⟩
+      ν (T.mult.map G (inc (inv (inc x)) ◆ inc (inc x))) ≡⟨ ap ν (f-invl _) ⟩
+      ν (T.mult.map G (inc nil))                         ≡⟨⟩
       ν nil                                            ∎
 
     idl' : ∀ x → mult (ν nil) x ≡ x
     idl' x =
       ν (inc (ν nil) ◆ inc x)            ≡⟨ (λ i → ν (inc (ν nil) ◆ inc (ν-unit (~ i) x))) ⟩
       ν (inc (ν nil) ◆ inc (ν (inc x)))  ≡˘⟨ happly ν-mult (inc _ ◆ inc _) ⟩
-      ν (T.mult.η G (nil ◆ inc (inc x))) ≡⟨ ap ν (f-idl _) ⟩
+      ν (T.mult.map G (nil ◆ inc (inc x))) ≡⟨ ap ν (f-idl _) ⟩
       ν (inc x)                          ≡⟨ happly ν-unit x ⟩
       x                                  ∎
 

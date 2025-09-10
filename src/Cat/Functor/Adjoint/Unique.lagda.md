@@ -65,25 +65,25 @@ in the other direction is exactly analogous, and so was omitted.
     make-G≅G' .eta x = G'.₁ (ε x) C.∘ η' _
     make-G≅G' .inv x = G.₁ (ε' x) C.∘ η _
     make-G≅G' .inv∘eta x =
-      (G.₁ (ε' x) C.∘ η _) C.∘ G'.₁ (ε _) C.∘ η' _    ≡⟨ C.extendl (C.pullr (a.unit.is-natural _ _ _) ∙ G.pulll (a'.counit.is-natural _ _ _)) ⟩
-      G.₁ (ε x D.∘ ε' _) C.∘ η _ C.∘ η' _             ≡⟨ C.refl⟩∘⟨ a.unit.is-natural _ _ _ ⟩
+      (G.₁ (ε' x) C.∘ η _) C.∘ G'.₁ (ε _) C.∘ η' _    ≡⟨ C.extendl (C.pullr (a.unit.com _ _ _) ∙ G.pulll (a'.counit.com _ _ _)) ⟩
+      G.₁ (ε x D.∘ ε' _) C.∘ η _ C.∘ η' _             ≡⟨ C.refl⟩∘⟨ a.unit.com _ _ _ ⟩
       G.₁ (ε x D.∘ ε' _) C.∘ G.₁ (F.₁ (η' _)) C.∘ η _ ≡⟨ G.pulll (D.cancelr a'.zig) ⟩
       G.₁ (ε x) C.∘ η _                               ≡⟨ a.zag ⟩
       C.id                                            ∎
     make-G≅G' .natural x y f =
-      G'.₁ f C.∘ G'.₁ (ε x) C.∘ η' _               ≡⟨ C.pulll (G'.weave (sym (a.counit.is-natural _ _ _))) ⟩
-      (G'.₁ (ε y) C.∘ G'.₁ (F.₁ (G.₁ f))) C.∘ η' _ ≡⟨ C.extendr (sym (a'.unit.is-natural _ _ _)) ⟩
+      G'.₁ f C.∘ G'.₁ (ε x) C.∘ η' _               ≡⟨ C.pulll (G'.weave (sym (a.counit.com _ _ _))) ⟩
+      (G'.₁ (ε y) C.∘ G'.₁ (F.₁ (G.₁ f))) C.∘ η' _ ≡⟨ C.extendr (sym (a'.unit.com _ _ _)) ⟩
       (G'.₁ (ε y) C.∘ η' _) C.∘ G.₁ f              ∎
 ```
 
 <!--
 ```agda
     make-G≅G' .eta∘inv x =
-          C.extendl (C.pullr (a'.unit.is-natural _ _ _))
-        ∙∙ ap₂ C._∘_ refl (C.pushl (sym (a'.unit.is-natural _ _ _)))
-        ∙∙ C.extend-inner (a'.unit.is-natural _ _ _)
-        ∙∙ G'.extendl (a.counit.is-natural _ _ _)
-        ∙∙ ap₂ C._∘_ refl ( ap₂ C._∘_ refl (a'.unit.is-natural _ _ _)
+          C.extendl (C.pullr (a'.unit.com _ _ _))
+        ∙∙ ap₂ C._∘_ refl (C.pushl (sym (a'.unit.com _ _ _)))
+        ∙∙ C.extend-inner (a'.unit.com _ _ _)
+        ∙∙ G'.extendl (a.counit.com _ _ _)
+        ∙∙ ap₂ C._∘_ refl ( ap₂ C._∘_ refl (a'.unit.com _ _ _)
                           ∙ G'.cancell a.zig)
         ∙ a'.zag
 ```
@@ -101,7 +101,7 @@ natural transformations is a matter of calculating:
     unique-preserves-unit
       : ∀ {x} → make-G≅G' .eta _ C.∘ η x ≡ η' x
     unique-preserves-unit =
-      make-G≅G' .eta _ C.∘ η _                 ≡⟨ C.pullr (a'.unit.is-natural _ _ _) ⟩
+      make-G≅G' .eta _ C.∘ η _                 ≡⟨ C.pullr (a'.unit.com _ _ _) ⟩
       G'.₁ (ε _) C.∘ G'.₁ (F.₁ (η _)) C.∘ η' _ ≡⟨ G'.cancell a.zig ⟩
       η' _                                     ∎
 
@@ -109,7 +109,7 @@ natural transformations is a matter of calculating:
       : ∀ {x} → ε _ D.∘ F.₁ (make-G≅G' .inv _) ≡ ε' x
     unique-preserves-counit =
       ε _ D.∘ F.₁ (make-G≅G' .inv _)         ≡⟨ D.refl⟩∘⟨ F.F-∘ _ _ ⟩
-      ε _ D.∘ F.₁ (G.₁ (ε' _)) D.∘ F.₁ (η _) ≡⟨ D.extendl (a.counit.is-natural _ _ _) ⟩
+      ε _ D.∘ F.₁ (G.₁ (ε' _)) D.∘ F.₁ (η _) ≡⟨ D.extendl (a.counit.com _ _ _) ⟩
       ε' _ D.∘ ε _ D.∘ F.₁ (η _)             ≡⟨ D.elimr a.zig ⟩
       ε' _                                   ∎
 ```
@@ -160,11 +160,11 @@ is-left-adjoint-is-prop cc F (G , a) (G' , a') i = G≡G' cd i , a≡a' cd i
     a≡a' i .counit = same-eps i
     a≡a' i .zig {A} =
       is-set→squarep (λ i j → D.Hom-set (F.₀ A) (F.₀ A))
-        (λ i → same-eps i .η (F.₀ A) D.∘ F.₁ (same-eta i .η A))
+        (λ i → same-eps i .map (F.₀ A) D.∘ F.₁ (same-eta i .map A))
         (a .zig) (a' .zig) refl i
     a≡a' i .zag {A} =
       is-set→squarep (λ i j → C.Hom-set (G≡G' i .F₀ A) (G≡G' i .F₀ A))
-        (λ i → G≡G' i .F₁ (same-eps i .η A) C.∘ same-eta i .η (G≡G' i .F₀ A))
+        (λ i → G≡G' i .F₁ (same-eps i .map A) C.∘ same-eta i .map (G≡G' i .F₀ A))
         (a .zag) (a' .zag) (λ _ → C.id) i
 ```
 -->
@@ -190,7 +190,7 @@ is-equivalence-is-prop ccat F x y = go where
   go i .F⁻¹ = invs i
   go i .F⊣F⁻¹ = adjs i
   go i .unit-iso a =
-    is-prop→pathp (λ i → C.is-invertible-is-prop {f = _⊣_.η (adjs i) a})
+    is-prop→pathp (λ i → C.is-invertible-is-prop {f = _⊣_.map (adjs i) a})
       (x .unit-iso a)
       (y .unit-iso a) i
   go i .counit-iso a =

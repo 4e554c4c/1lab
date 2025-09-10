@@ -102,16 +102,16 @@ the identity internal natural isomorphism as-is.
   α {D = D} = to-natural-iso ni where
     open Cat.Internal.Reasoning D
     ni : make-natural-iso _ _
-    ni .eta (F , G , H) .ηi x = idi _
-    ni .eta (F , G , H) .is-naturali _ _ _ = id-comm-symi
-    ni .eta (F , G , H) .ηi-nat x σ = casti $
+    ni .eta (F , G , H) .mapi x = idi _
+    ni .eta (F , G , H) .comi _ _ _ = id-comm-symi
+    ni .eta (F , G , H) .mapi-nat x σ = casti $
       idi-nat σ
       ∙i ap idi
         (F .Fi₀-nat _ σ
          ∙ ap (F .Fi₀) (G .Fi₀-nat _ σ ∙ ap (G .Fi₀) (H .Fi₀-nat _ σ)))
-    ni .inv (F , G , H) .ηi x = idi _
-    ni .inv (F , G , H) .is-naturali _ _ _ = id-comm-symi
-    ni .inv (F , G , H) .ηi-nat x σ = casti $
+    ni .inv (F , G , H) .mapi x = idi _
+    ni .inv (F , G , H) .comi _ _ _ = id-comm-symi
+    ni .inv (F , G , H) .mapi-nat x σ = casti $
       idi-nat σ
       ∙i ap idi
         (F .Fi₀-nat _ σ

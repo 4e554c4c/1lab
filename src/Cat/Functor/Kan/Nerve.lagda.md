@@ -113,9 +113,9 @@ of $\cC$'s [[Yoneda embedding]] along $F$.
 
 ```agda
     coapprox : よ C => Nerve F∘ F
-    coapprox .η x .η y f            = F.₁ f
-    coapprox .η x .is-natural _ _ _ = ext λ _   → F.F-∘ _ _
-    coapprox .is-natural _ _ _      = ext λ _ _ → F.F-∘ _ _
+    coapprox .map x .map y f            = F.₁ f
+    coapprox .map x .com _ _ _ = ext λ _   → F.F-∘ _ _
+    coapprox .com _ _ _      = ext λ _ _ → F.F-∘ _ _
 ```
 
 ~~~{.quiver}
@@ -138,8 +138,8 @@ of $M(Fc)(c)$, which maps under $M(f)$ to what we want.
 
 ```agda
     Nerve-is-lan : is-lan F (よ C) Nerve coapprox
-    Nerve-is-lan .σ {M = M} α .η d .η c f =
-      M .F₁ f .η c (α .η c .η c C.id)
+    Nerve-is-lan .σ {M = M} α .map d .map c f =
+      M .F₁ f .map c (α .map c .map c C.id)
 ```
 
 <details>
@@ -149,30 +149,30 @@ computations using naturality. It's not very enlightening.
 </summary>
 
 ```agda
-    Nerve-is-lan .σ {M = M} α .η d .is-natural x y f = funext λ g →
-      M.₁ (g D.∘ F.₁ f) .η y (α .η y .η y C.id)          ≡⟨ M.F-∘ g (F .F₁ f) ηₚ _ $ₚ _ ⟩
-      M.₁ g .η y (M .F₁ (F.₁ f) .η y (α .η y .η y C.id)) ≡˘⟨ ap (M.F₁ g .η y) (α .is-natural _ _ _ ηₚ _ $ₚ _) ⟩
-      M.₁ g .η y (α .η x .η y ⌜ f C.∘ C.id ⌝)            ≡⟨ ap! C.id-comm ⟩
-      M.₁ g .η y (α .η x .η y (C.id C.∘ f))              ≡⟨ ap (M.₁ g .η y) (α .η _ .is-natural _ _ _ $ₚ _) ⟩
-      M.₁ g .η y (M.₀ (F.₀ x) .F₁ f (α .η x .η x C.id))  ≡⟨ M.₁ g .is-natural _ _ _ $ₚ _ ⟩
-      M.₀ d .F₁ f (M.₁ g .η x (α .η x .η x C.id))        ∎
+    Nerve-is-lan .σ {M = M} α .map d .com x y f = funext λ g →
+      M.₁ (g D.∘ F.₁ f) .map y (α .map y .map y C.id)          ≡⟨ M.F-∘ g (F .F₁ f) ηₚ _ $ₚ _ ⟩
+      M.₁ g .map y (M .F₁ (F.₁ f) .map y (α .map y .map y C.id)) ≡˘⟨ ap (M.F₁ g .map y) (α .com _ _ _ ηₚ _ $ₚ _) ⟩
+      M.₁ g .map y (α .map x .map y ⌜ f C.∘ C.id ⌝)            ≡⟨ ap! C.id-comm ⟩
+      M.₁ g .map y (α .map x .map y (C.id C.∘ f))              ≡⟨ ap (M.₁ g .map y) (α .map _ .com _ _ _ $ₚ _) ⟩
+      M.₁ g .map y (M.₀ (F.₀ x) .F₁ f (α .map x .map x C.id))  ≡⟨ M.₁ g .com _ _ _ $ₚ _ ⟩
+      M.₀ d .F₁ f (M.₁ g .map x (α .map x .map x C.id))        ∎
       where module M = Functor M
 
-    Nerve-is-lan .σ {M = M} α .is-natural x y f = ext λ z g →
+    Nerve-is-lan .σ {M = M} α .com x y f = ext λ z g →
       M .F-∘ f g ηₚ _ $ₚ _
 
     Nerve-is-lan .σ-comm {M = M} {α = α} = ext λ x y f →
-      M.₁ (F.₁ f) .η y (α .η y .η y C.id) ≡˘⟨ α .is-natural _ _ _ ηₚ _ $ₚ _ ⟩
-      α .η x .η y (f C.∘ C.id)            ≡⟨ ap (α .η x .η y) (C.idr _) ⟩
-      α .η x .η y f                       ∎
+      M.₁ (F.₁ f) .map y (α .map y .map y C.id) ≡˘⟨ α .com _ _ _ ηₚ _ $ₚ _ ⟩
+      α .map x .map y (f C.∘ C.id)            ≡⟨ ap (α .map x .map y) (C.idr _) ⟩
+      α .map x .map y f                       ∎
       where module M = Functor M
 
     Nerve-is-lan .σ-uniq {M = M} {α = α} {σ' = σ'} p = ext λ x y f →
-      M.₁ f .η y (α .η y .η y C.id)          ≡⟨ ap (M.₁ f .η y) (p ηₚ _ ηₚ _ $ₚ _) ⟩
-      M.₁ f .η y (σ' .η _ .η y ⌜ F.₁ C.id ⌝) ≡⟨ ap! F.F-id ⟩
-      M.₁ f .η y (σ' .η _ .η y D.id)         ≡˘⟨ σ' .is-natural _ _ _ ηₚ _ $ₚ _ ⟩
-      σ' .η x .η y (f D.∘ D.id)              ≡⟨ ap (σ' .η x .η y) (D.idr _) ⟩
-      σ' .η x .η y f                         ∎
+      M.₁ f .map y (α .map y .map y C.id)          ≡⟨ ap (M.₁ f .map y) (p ηₚ _ ηₚ _ $ₚ _) ⟩
+      M.₁ f .map y (σ' .map _ .map y ⌜ F.₁ C.id ⌝) ≡⟨ ap! F.F-id ⟩
+      M.₁ f .map y (σ' .map _ .map y D.id)         ≡˘⟨ σ' .com _ _ _ ηₚ _ $ₚ _ ⟩
+      σ' .map x .map y (f D.∘ D.id)              ≡⟨ ap (σ' .map x .map y) (D.idr _) ⟩
+      σ' .map x .map y f                         ∎
       where module M = Functor M
 ```
 </summary>
@@ -249,8 +249,8 @@ below we denote `elem`{.Agda}.
          → (arg : P ʻ i) → ↓Obj (よ C) (!Const P)
     elem P i arg .dom = i
     elem P i arg .cod = tt
-    elem P i arg .map .η j h = P .F₁ h arg
-    elem P i arg .map .is-natural _ _ f = ext λ _ → P .F-∘ _ _ $ₚ _
+    elem P i arg .map .map j h = P .F₁ h arg
+    elem P i arg .map .com _ _ f = ext λ _ → P .F-∘ _ _ $ₚ _
 ```
 
 The adjunction unit is easiest to describe: we must come up with a map
@@ -262,7 +262,7 @@ brevity, but it follows from $\psi$'s universal property.
 
 ```agda
     adj : Realisation F cocompl ⊣ Nerve F
-    adj .unit .η P .η i a = ↓colim.ψ P (elem P i a)
+    adj .unit .map P .map i a = ↓colim.ψ P (elem P i a)
 ```
 
 In the other direction, we're mapping _out_ of a colimit, into an
@@ -280,16 +280,16 @@ the map we want. That this assembles into a map from the colimit follows
 from that same naturality:
 
 ```agda
-    adj .counit .η ob = ↓colim.universal _ (λ j → j .map .η _ C.id) comm
+    adj .counit .map ob = ↓colim.universal _ (λ j → j .map .map _ C.id) comm
       where abstract
       comm
         : ∀ {x y} (f : ↓Hom (よ C) (!Const (Nerve F .F₀ ob)) x y)
-        → y .map .η _ C.id D.∘ F.₁ (f .top) ≡ x .map .η _ C.id
+        → y .map .map _ C.id D.∘ F.₁ (f .top) ≡ x .map .map _ C.id
       comm {x} {y} f =
-        y .map .η _ C.id D.∘ F.₁ (f .top) ≡˘⟨ y .map .is-natural _ _ _ $ₚ _ ⟩
-        y .map .η _ (C.id C.∘ f .top)     ≡⟨ ap (y .map .η _) C.id-comm-sym ⟩
-        y .map .η _ (f .top C.∘ C.id)     ≡⟨ f .com ηₚ _ $ₚ _ ⟩
-        x .map .η (x .dom) C.id           ∎
+        y .map .map _ C.id D.∘ F.₁ (f .top) ≡˘⟨ y .map .com _ _ _ $ₚ _ ⟩
+        y .map .map _ (C.id C.∘ f .top)     ≡⟨ ap (y .map .map _) C.id-comm-sym ⟩
+        y .map .map _ (f .top C.∘ C.id)     ≡⟨ f .com ηₚ _ $ₚ _ ⟩
+        x .map .map (x .dom) C.id           ∎
 ```
 
 Naturality of this putative counit follows from the uniqueness of maps
@@ -301,17 +301,17 @@ obvious thing.
 This proof is hateful.
 
 ```agda
-    adj .unit .η P .is-natural x y f =
+    adj .unit .map P .com x y f =
       funext λ _ → sym $ ↓colim.commutes P $ ↓hom (ext λ _ _ → P .F-∘ _ _ $ₚ _)
-    adj .unit .is-natural x y f = ext λ i arg → sym $
+    adj .unit .com x y f = ext λ i arg → sym $
         ↓colim.factors _ {j = elem x i arg} _ _
       ∙ ap (↓colim.ψ _) (↓Obj-path _ _ refl refl
-          (ext λ _ _ → f .is-natural _ _ _ $ₚ _))
+          (ext λ _ _ → f .com _ _ _ $ₚ _))
 
-    adj .counit .is-natural x y f = ↓colim.unique₂ _ _
+    adj .counit .com x y f = ↓colim.unique₂ _ _
       (λ {x'} {y'} f →
-        D.pullr (sym (y' .map .is-natural _ _ _ $ₚ _)
-                  ∙ ap (y' .map .η _) C.id-comm-sym)
+        D.pullr (sym (y' .map .com _ _ _ $ₚ _)
+                  ∙ ap (y' .map .map _) C.id-comm-sym)
         ∙ ap (_ D.∘_) (f .com ηₚ _ $ₚ C.id))
       (λ j →
         D.pullr (↓colim.factors _ _ _)
@@ -325,8 +325,8 @@ This proof is hateful.
         ∙ ap (↓colim.ψ _)
             (↓Obj-path _ _ refl refl
               (ext λ _ _ →
-                  sym (j .map .is-natural _ _ _ $ₚ _)
-                ∙ ap (j .map .η _) (C.idl _))))
+                  sym (j .map .com _ _ _ $ₚ _)
+                ∙ ap (j .map .map _) (C.idl _))))
       (λ j → D.idl _)
     adj .zag {d} = ext λ c f →
       ↓colim.factors (Nerve F .F₀ d) {j = elem _ c f} _ _

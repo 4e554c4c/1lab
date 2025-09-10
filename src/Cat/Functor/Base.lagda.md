@@ -41,8 +41,8 @@ module _ {C : Precategory o ℓ} {D : Precategory o₁ ℓ₁} where
 
 ```agda
   idnt : {F : Functor C D} → F => F
-  idnt .η _              = D.id
-  idnt .is-natural _ _ _ = D.id-comm-sym
+  idnt .map _              = D.id
+  idnt .com _ _ _ = D.id-comm-sym
 ```
 
 Moreover, if we have a pair of composable-looking natural
@@ -51,11 +51,11 @@ indeed make their pointwise composite into a natural transformation:
 
 ```agda
   _∘nt_ : ∀ {F G H : Functor C D} → G => H → F => G → F => H
-  (f ∘nt g) .η x = f .η x D.∘ g .η x
-  _∘nt_ {F} {G} {H} f g .is-natural x y h =
-    (f .η y D.∘ g .η y) D.∘ F .F₁ h ≡⟨ D.pullr (g .is-natural x y h) ⟩
-    f .η y D.∘ G .F₁ h D.∘ g .η x   ≡⟨ D.extendl (f .is-natural x y h) ⟩
-    H .F₁ h D.∘ f .η x D.∘ g .η x   ∎
+  (f ∘nt g) .map x = f .map x D.∘ g .map x
+  _∘nt_ {F} {G} {H} f g .com x y h =
+    (f .map y D.∘ g .map y) D.∘ F .F₁ h ≡⟨ D.pullr (g .com x y h) ⟩
+    f .map y D.∘ G .F₁ h D.∘ g .map x   ≡⟨ D.extendl (f .com x y h) ⟩
+    H .F₁ h D.∘ f .map x D.∘ g .map x   ∎
 
   infixr 40 _∘nt_
 ```

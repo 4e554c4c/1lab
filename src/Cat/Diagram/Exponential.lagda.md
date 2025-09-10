@@ -516,7 +516,7 @@ $\Delta_B \dashv \Pi_B$ we've been chasing.
      rem₁ _ .fst (Π.₁ g ∘ x ∘ h) .map                           ≡⟨ rem₁-β _ _ ⟩
      app (pb _ _ .p₁ ∘ Π.₁ g ∘ x ∘ h)                           ≡⟨ ap app (pulll (pb _ _ .p₁∘universal ∙ ƛ-∘ {f = g .map} {g = pb _ _ .p₁} (has-is-exp _))) ⟩
      app (ƛ (g .map ∘ ev ∘ pb _ _ .p₁ ⊗₁ id) ∘ x ∘ h)           ≡⟨ ap₂ _∘_ refl (ap₂ _⊗₁_ refl (sym (idl id)) ∙ ×-functor .F-∘ _ _) ∙ pulll refl ⟩
-     app (ƛ (g .map ∘ ev ∘ pb _ _ .p₁ ⊗₁ id)) ∘ (x ∘ h) ⊗₁ id   ≡⟨ ap₂ _∘_ (Equiv.η (_ , lambda-is-equiv _) _) refl ⟩
+     app (ƛ (g .map ∘ ev ∘ pb _ _ .p₁ ⊗₁ id)) ∘ (x ∘ h) ⊗₁ id   ≡⟨ ap₂ _∘_ (Equiv.map (_ , lambda-is-equiv _) _) refl ⟩
      (g .map ∘ ev ∘ pb _ _ .p₁ ⊗₁ id) ∘ (x ∘ h) ⊗₁ id           ≡⟨ pullr (pullr (sym (×-functor .F-∘ _ _) ∙ ap₂ _⊗₁_ (assoc _ _ _) refl ∙ ×-functor .F-∘ _ _)) ⟩
      g .map ∘ ev ∘ (pb _ _ .p₁ ∘ x) ⊗₁ id ∘ h ⊗₁ id             ≡⟨ refl⟩∘⟨ (pulll refl ∙ ap₂ _∘_ refl (ap₂ ⟨_,_⟩ refl (idl _))) ⟩
      g .map ∘ (ev ∘ (pb _ _ .p₁ ∘ x) ⊗₁ id) ∘ b.₁ h .map        ≡⟨ ap₂ _∘_ refl (ap₂ _∘_ (sym (rem₁-β _ _)) refl) ⟩

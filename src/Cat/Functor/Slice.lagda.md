@@ -138,7 +138,7 @@ counit $\eps : LR(x) \to x$A to get a functor left adjoint to $R/X$.
 Sliced-adjoints
   : ∀ {o ℓ o' ℓ'} {C : Precategory o ℓ} {D : Precategory o' ℓ'}
   → {L : Functor C D} {R : Functor D C} (adj : L ⊣ R) {X : ⌞ D ⌟}
-  → (Σf (adj .counit .η _) F∘ Sliced L (R .F₀ X)) ⊣ Sliced R X
+  → (Σf (adj .counit .map _) F∘ Sliced L (R .F₀ X)) ⊣ Sliced R X
 Sliced-adjoints {C = C} {D} {L} {R} adj {X} = adj' where
   module adj = _⊣_ adj
   module L = Functor L
@@ -146,13 +146,13 @@ Sliced-adjoints {C = C} {D} {L} {R} adj {X} = adj' where
   module C = Cat.Reasoning C
   module D = Cat.Reasoning D
 
-  adj' : (Σf (adj .counit .η _) F∘ Sliced L (R .F₀ X)) ⊣ Sliced R X
-  adj' .unit .η x .map         = adj.η _
-  adj' .unit .is-natural x y f = ext (adj.unit.is-natural _ _ _)
+  adj' : (Σf (adj .counit .map _) F∘ Sliced L (R .F₀ X)) ⊣ Sliced R X
+  adj' .unit .map x .map         = adj.map _
+  adj' .unit .com x y f = ext (adj.unit.com _ _ _)
 
-  adj' .counit .η x .map         = adj.ε _
-  adj' .counit .η x .com         = sym (adj.counit.is-natural _ _ _)
-  adj' .counit .is-natural x y f = ext (adj.counit.is-natural _ _ _)
+  adj' .counit .map x .map         = adj.ε _
+  adj' .counit .map x .com         = sym (adj.counit.com _ _ _)
+  adj' .counit .com x y f = ext (adj.counit.com _ _ _)
 
   adj' .zig = ext adj.zig
   adj' .zag = ext adj.zag
@@ -164,9 +164,9 @@ The hard part is proving that the adjunction unit restricts to a map in
 slice categories, which we can compute:
 
 ```agda
-  adj' .unit .η x .com =
-    R.₁ (adj.ε _ D.∘ L.₁ (x .map)) C.∘ adj.η _         ≡⟨ C.pushl (R.F-∘ _ _) ⟩
-    R.₁ (adj.ε _) C.∘ R.₁ (L.₁ (x .map)) C.∘ adj.η _   ≡˘⟨ ap (R.₁ _ C.∘_) (adj.unit.is-natural _ _ _) ⟩
-    R.₁ (adj.ε _) C.∘ adj.η _ C.∘ x .map               ≡⟨ C.cancell adj.zag ⟩
+  adj' .unit .map x .com =
+    R.₁ (adj.ε _ D.∘ L.₁ (x .map)) C.∘ adj.map _         ≡⟨ C.pushl (R.F-∘ _ _) ⟩
+    R.₁ (adj.ε _) C.∘ R.₁ (L.₁ (x .map)) C.∘ adj.map _   ≡˘⟨ ap (R.₁ _ C.∘_) (adj.unit.com _ _ _) ⟩
+    R.₁ (adj.ε _) C.∘ adj.map _ C.∘ x .map               ≡⟨ C.cancell adj.zag ⟩
     x .map                                             ∎
 ```

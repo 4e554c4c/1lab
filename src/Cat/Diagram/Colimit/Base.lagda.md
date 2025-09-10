@@ -165,8 +165,8 @@ the rest of the data.
     : ∀ {D : Functor J C} {coapex}
     → make-is-colimit D coapex
     → D => Const coapex
-  to-cocone ml .η = ml .make-is-colimit.ψ
-  to-cocone ml .is-natural x y f = (ml .make-is-colimit.commutes f) ∙ sym (C.idl _)
+  to-cocone ml .map = ml .make-is-colimit.ψ
+  to-cocone ml .com x y f = (ml .make-is-colimit.commutes f) ∙ sym (C.idl _)
 ```
 -->
 
@@ -181,12 +181,12 @@ the rest of the data.
     open Functor
 
     colim : is-colimit Diagram coapex (to-cocone mkcolim)
-    colim .σ {M = M} α .η _ =
-      universal (α .η) (λ f → α .is-natural _ _ f ∙ C.eliml (M .F-id))
-    colim .σ {M = M} α .is-natural _ _ _ = C.idr _ ∙ C.introl (M .F-id)
-    colim .σ-comm {α = α} = ext λ j → factors (α .η) _
+    colim .σ {M = M} α .map _ =
+      universal (α .map) (λ f → α .com _ _ f ∙ C.eliml (M .F-id))
+    colim .σ {M = M} α .com _ _ _ = C.idr _ ∙ C.introl (M .F-id)
+    colim .σ-comm {α = α} = ext λ j → factors (α .map) _
     colim .σ-uniq {α = α} {σ' = σ'} p = ext λ _ →
-      sym $ unique (α .η) _ (σ' .η _) (λ j → sym (p ηₚ j))
+      sym $ unique (α .map) _ (σ' .map _) (λ j → sym (p ηₚ j))
 ```
 
 <!--
@@ -200,7 +200,7 @@ the rest of the data.
     : ∀ {D : Functor J C} {K : Functor ⊤Cat C}
     → {eta : D => (Const (Functor.F₀ K tt))} {eta' : D => K F∘ !F}
     → is-lan !F D (!Const (Functor.F₀ K tt)) eta
-    → (∀ {j} → eta .η j ≡ eta' .η j)
+    → (∀ {j} → eta .map j ≡ eta' .map j)
     → is-lan !F D K eta'
   generalize-colimitp {D} {K} {eta} {eta'} lan q = lan' where
     module lan = is-lan lan
@@ -208,18 +208,18 @@ the rest of the data.
     open Functor
 
     lan' : is-lan !F D K eta'
-    lan' .σ α = !constⁿ (lan.σ α .η tt)
+    lan' .σ α = !constⁿ (lan.σ α .map tt)
     lan' .σ-comm {M} {α} = ext λ j →
         ap (_ C.∘_) (sym q)
       ∙ lan.σ-comm {α = α} ηₚ _
     lan' .σ-uniq {M} {α} {σ'} r = ext λ j →
-      lan.σ-uniq {σ' = !constⁿ (σ' .η tt)}
+      lan.σ-uniq {σ' = !constⁿ (σ' .map tt)}
         (ext λ j → r ηₚ j ∙ ap (_ C.∘_) (sym q)) ηₚ j
 
   to-is-colimitp
     : ∀ {D : Functor J C} {K : Functor ⊤Cat C} {eta : D => K F∘ !F}
     → (mk : make-is-colimit D (K · tt))
-    → (∀ {j} → to-cocone mk .η j ≡ eta .η j)
+    → (∀ {j} → to-cocone mk .map j ≡ eta .map j)
     → is-lan !F D K eta
   to-is-colimitp {D} {K} {eta} mkcolim p =
     generalize-colimitp (to-is-colimit mkcolim) p
@@ -248,23 +248,23 @@ function which **un**makes a colimit.
       where
 
       eta-nt : D => Const x
-      eta-nt .η = eta
-      eta-nt .is-natural _ _ f = p f ∙ sym (C.idl _)
+      eta-nt .map = eta
+      eta-nt .com _ _ f = p f ∙ sym (C.idl _)
 
       hom : C.Hom coapex x
-      hom = σ {M = !Const x} eta-nt .η tt
+      hom = σ {M = !Const x} eta-nt .map tt
 
     mc : make-is-colimit D coapex
-    mc .ψ = eta.η
-    mc .commutes f = eta.is-natural _ _ f ∙ C.eliml (F .Functor.F-id)
+    mc .ψ = eta.map
+    mc .commutes f = eta.com _ _ f ∙ C.eliml (F .Functor.F-id)
     mc .universal = hom
     mc .factors e p = σ-comm {α = eta-nt e p} ηₚ _
     mc .unique {x = x} eta p other q =
       sym $ σ-uniq {σ' = other-nt} (ext λ j → sym (q j)) ηₚ tt
       where
         other-nt : F => !Const x
-        other-nt .η _ = other
-        other-nt .is-natural _ _ _ = C.elimr (F .Functor.F-id) ∙ sym (C.idl _)
+        other-nt .map _ = other
+        other-nt .com _ _ _ = C.elimr (F .Functor.F-id) ∙ sym (C.idl _)
 ```
 
 <!--
@@ -333,21 +333,21 @@ computation.
 
 ```agda
   cocone : D => Const coapex
-  cocone .η = eta .η
-  cocone .is-natural x y f =
-    eta .is-natural x y f ∙ ap (C._∘ _) (Ext .F-id)
+  cocone .map = eta .map
+  cocone .com x y f =
+    eta .com x y f ∙ ap (C._∘ _) (Ext .F-id)
 
   has-colimit : is-colimit D coapex cocone
-  has-colimit .is-lan.σ α .η = σ α .η
-  has-colimit .is-lan.σ α .is-natural x y f =
-    ap (_ C.∘_) (sym (Ext .F-id)) ∙ σ α .is-natural tt tt tt
+  has-colimit .is-lan.σ α .map = σ α .map
+  has-colimit .is-lan.σ α .com x y f =
+    ap (_ C.∘_) (sym (Ext .F-id)) ∙ σ α .com tt tt tt
   has-colimit .is-lan.σ-comm = ext (σ-comm ηₚ_)
   has-colimit .is-lan.σ-uniq {M = M} {σ' = σ'} p =
     ext (λ _ → σ-uniq {σ' = nt} (reext! p) ηₚ _)
     where
       nt : Ext => M
-      nt .η = σ' .η
-      nt .is-natural x y f = ap (_ C.∘_) (Ext .F-id) ∙ σ' .is-natural x y f
+      nt .map = σ' .map
+      nt .com x y f = ap (_ C.∘_) (Ext .F-id) ∙ σ' .com x y f
 
   open is-colimit has-colimit public
 ```
@@ -453,8 +453,8 @@ module _ {o₁ h₁ o₂ h₂ : _} {J : Precategory o₁ h₁} {C : Precategory 
     → (eta : ∀ j → C.Hom (D.₀ j) x)
     → (∀ {x y} (f : J.Hom x y) → eta y C.∘ D.₁ f ≡ eta x)
     → D => Const x
-  family→cocone eta p .η = eta
-  family→cocone eta p .is-natural _ _ _ = p _ ∙ sym (C.idl _)
+  family→cocone eta p .map = eta
+  family→cocone eta p .com _ _ _ = p _ ∙ sym (C.idl _)
 ```
 -->
 
@@ -463,7 +463,7 @@ module _ {o₁ h₁ o₂ h₂ : _} {J : Precategory o₁ h₁} {C : Precategory 
     : ∀ {K' : Functor ⊤Cat C} {eta : D => K' F∘ !F}
     → (eta' : ∀ j → C.Hom (D.₀ j) (K' .F₀ tt))
     → (p : ∀ {x y} (f : J.Hom x y) → eta' y C.∘ D.₁ f ≡ eta' x)
-    → (∀ {j} → eta' j ≡ eta .η j)
+    → (∀ {j} → eta' j ≡ eta .map j)
     → C.is-invertible (Cy.universal eta' p)
     → is-lan !F D K' eta
   is-invertible→is-colimitp {K' = K'} {eta = eta} eta' p q invert =
@@ -480,7 +480,7 @@ coapex of $C$ is also a colimit of $Dia'$.
   natural-iso-diagram→is-colimitp
     : ∀ {D' : Functor J C} {eta : D' => K F∘ !F}
     → (isos : D ≅ⁿ D')
-    → (∀ {j} →  Cy.ψ j C.∘ Isoⁿ.from isos .η j ≡ eta .η j)
+    → (∀ {j} →  Cy.ψ j C.∘ Isoⁿ.from isos .map j ≡ eta .map j)
     → is-lan !F D' K eta
   natural-iso-diagram→is-colimitp {D' = D'} isos q = generalize-colimitp
     (natural-iso-of→is-lan Cy isos)
@@ -749,10 +749,10 @@ module _ {J : Precategory o₁ h₁} {C : Precategory o₂ h₂} {D : Precategor
   natural-iso→preserves-colimits α F-preserves {G = K} {eta} colim =
     natural-isos→is-lan idni (α ◂ni Dia) (α ◂ni K)
       (ext λ j →
-        ⌜ F' .F₁ (K .F₁ tt) D.∘ α.to .η _ ⌝ D.∘ (F .F₁ (eta .η j) D.∘ α.from .η _) ≡⟨ ap! (eliml F' (K .F-id)) ⟩
-        α.to .η _ D.∘ (F .F₁ (eta .η j) D.∘ α.from .η _)                           ≡⟨ D.pushr (sym (α.from .is-natural _ _ _)) ⟩
-        ((α.to .η _ D.∘ α.from .η _) D.∘ F' .F₁ (eta .η j))                        ≡⟨ D.eliml (α.invl ηₚ _) ⟩
-        F' .F₁ (eta .η j) ∎)
+        ⌜ F' .F₁ (K .F₁ tt) D.∘ α.to .map _ ⌝ D.∘ (F .F₁ (eta .map j) D.∘ α.from .map _) ≡⟨ ap! (eliml F' (K .F-id)) ⟩
+        α.to .map _ D.∘ (F .F₁ (eta .map j) D.∘ α.from .map _)                           ≡⟨ D.pushr (sym (α.from .com _ _ _)) ⟩
+        ((α.to .map _ D.∘ α.from .map _) D.∘ F' .F₁ (eta .map j))                        ≡⟨ D.eliml (α.invl ηₚ _) ⟩
+        F' .F₁ (eta .map j) ∎)
       (F-preserves colim)
     where
       module α = Isoⁿ α

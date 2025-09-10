@@ -47,7 +47,7 @@ simple enough to establish by appropriately shuffling the data.
 ```agda
 is-product→is-limit
   : ∀ {x} {F : Functor 2-object-category C} {eps : Const x => F}
-  → is-product C (eps .η true) (eps .η false)
+  → is-product C (eps .map true) (eps .map false)
   → is-limit {C = C} F x eps
 is-product→is-limit {x = x} {F} {eps} is-prod =
   to-is-limitp ml λ where
@@ -58,8 +58,8 @@ is-product→is-limit {x = x} {F} {eps} is-prod =
     open make-is-limit
 
     ml : make-is-limit F x
-    ml .ψ j = eps .η j
-    ml .commutes f = sym (eps .is-natural _ _ _) ∙ idr _
+    ml .ψ j = eps .map j
+    ml .commutes f = sym (eps .com _ _ _) ∙ idr _
     ml .universal eps _ = is-prod.⟨ eps true , eps false ⟩
     ml .factors {true} eps _ = is-prod.π₁∘⟨⟩
     ml .factors {false} eps _ = is-prod.π₂∘⟨⟩
@@ -69,7 +69,7 @@ is-limit→is-product
   : ∀ {a b} {K : Functor ⊤Cat C}
   → {eps : K F∘ !F => 2-object-diagram a b}
   → is-ran !F (2-object-diagram a b) K eps
-  → is-product C (eps .η true) (eps .η false)
+  → is-product C (eps .map true) (eps .map false)
 is-limit→is-product {a} {b} {K} {eps} lim = prod where
   module lim = is-limit lim
 
@@ -91,7 +91,7 @@ is-limit→is-product {a} {b} {K} {eps} lim = prod where
       J (λ _ p → D .F₁ p ∘ pair p1 p2 _ ≡ pair p1 p2 _)
         (eliml (D .F-id))
 
-  prod : is-product C (eps .η true) (eps .η false)
+  prod : is-product C (eps .map true) (eps .map false)
   prod .⟨_,_⟩ f g = lim.universal (pair f g) pair-commutes
   prod .π₁∘⟨⟩ {_} {p1'} {p2'} = lim.factors (pair p1' p2') pair-commutes
   prod .π₂∘⟨⟩ {_} {p1'} {p2'} = lim.factors (pair p1' p2') pair-commutes
@@ -104,8 +104,8 @@ Product→Limit prod = to-limit (is-product→is-limit {eps = 2-object-nat-trans
 
 Limit→Product : ∀ {a b} → Limit (2-object-diagram a b) → Product C a b
 Limit→Product lim .apex = Limit.apex lim
-Limit→Product lim .π₁ = Limit.cone lim .η true
-Limit→Product lim .π₂ = Limit.cone lim .η false
+Limit→Product lim .π₁ = Limit.cone lim .map true
+Limit→Product lim .π₂ = Limit.cone lim .map false
 Limit→Product lim .has-is-product =
   is-limit→is-product (Limit.has-limit lim)
 ```
@@ -125,8 +125,8 @@ module _ {ℓ} {I : Type ℓ} (i-is-grpd : is-groupoid I) (F : I → Ob) where
 
   Proj→Cone : ∀ {x} → (∀ i → Hom x (F i))
             → Const x => Disc-adjunct {C = C} {iss = i-is-grpd} F
-  Proj→Cone π .η i = π i
-  Proj→Cone π .is-natural i j p =
+  Proj→Cone π .map i = π i
+  Proj→Cone π .com i j p =
     J (λ j p →  π j ∘ id ≡ subst (Hom (F i) ⊙ F) p id ∘ π i)
       (idr _ ∙ introl (transport-refl id))
       p
@@ -155,12 +155,12 @@ module _ {ℓ} {I : Type ℓ} (i-is-grpd : is-groupoid I) (F : I → Ob) where
     : ∀ {K : Functor ⊤Cat C}
     → {eps : K F∘ !F => Disc-adjunct {iss = i-is-grpd} F}
     → is-ran !F (Disc-adjunct F) K eps
-    → is-indexed-product C F (eps .η)
+    → is-indexed-product C F (eps .map)
   is-limit→is-indexed-product {K = K} {eps} lim = ip where
     module lim = is-limit lim
     open is-indexed-product
 
-    ip : is-indexed-product C F (eps .η)
+    ip : is-indexed-product C F (eps .map)
     ip .tuple k =
       lim.universal k
         (J (λ j p → subst (Hom (F _) ⊙ F) p id ∘ k _ ≡ k j)

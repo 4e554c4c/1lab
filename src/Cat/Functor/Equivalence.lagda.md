@@ -50,7 +50,7 @@ record is-equivalence (F : Functor C D) : Type (adj-level C D) where
   open _⊣_ F⊣F⁻¹ hiding (η ; ε) public
 
   field
-    unit-iso   : ∀ x → Cat.is-invertible C (unit.η x)
+    unit-iso   : ∀ x → Cat.is-invertible C (unit.map x)
     counit-iso : ∀ x → Cat.is-invertible D (counit.ε x)
 ```
 
@@ -85,23 +85,23 @@ morphisms gives isomorphisms in the respective functor categories:
     adj' .unit   = counit⁻¹
     adj' .counit = unit⁻¹
     adj' .zig {a} = zig' where abstract
-      p : unit⁻¹ .η (F⁻¹ · a) ≡ F⁻¹ .F₁ (adj.ε _)
+      p : unit⁻¹ .map (F⁻¹ · a) ≡ F⁻¹ .F₁ (adj.ε _)
       p =
-        unit⁻¹ .η _                                      ≡⟨ C.introl adj.zag ⟩
-        (F⁻¹ .F₁ (adj.ε _) C.∘ adj.η _) C.∘ unit⁻¹ .η _  ≡⟨ C.cancelr (unit-iso _ .invl) ⟩
+        unit⁻¹ .map _                                      ≡⟨ C.introl adj.zag ⟩
+        (F⁻¹ .F₁ (adj.ε _) C.∘ adj.map _) C.∘ unit⁻¹ .map _  ≡⟨ C.cancelr (unit-iso _ .invl) ⟩
         F⁻¹ .F₁ (adj.ε _)                                ∎
 
-      zig' : unit⁻¹ .η (F⁻¹ · a) C.∘ F⁻¹ .F₁ (counit⁻¹ .η a) ≡ C.id
+      zig' : unit⁻¹ .map (F⁻¹ · a) C.∘ F⁻¹ .F₁ (counit⁻¹ .map a) ≡ C.id
       zig' = ap₂ C._∘_ p refl ∙∙ sym (F⁻¹ .F-∘ _ _) ∙∙ ap (F⁻¹ .F₁) (counit-iso _ .invl) ∙ F⁻¹ .F-id
 
     adj' .zag {b} = zag' where abstract
-      p : counit⁻¹ .η (F · b) ≡ F .F₁ (adj.η b)
+      p : counit⁻¹ .map (F · b) ≡ F .F₁ (adj.map b)
       p =
-        counit⁻¹ .η _                                  ≡⟨ D.intror adj.zig ⟩
-        counit⁻¹ .η _ D.∘ adj.ε _ D.∘ F .F₁ (adj.η b)  ≡⟨ D.cancell (counit-iso _ .invr) ⟩
-        F .F₁ (adj.η b)                                ∎
+        counit⁻¹ .map _                                  ≡⟨ D.intror adj.zig ⟩
+        counit⁻¹ .map _ D.∘ adj.ε _ D.∘ F .F₁ (adj.map b)  ≡⟨ D.cancell (counit-iso _ .invr) ⟩
+        F .F₁ (adj.map b)                                ∎
 
-      zag' : F .F₁ (unit⁻¹ .η b) D.∘ counit⁻¹ .η (F · b) ≡ D.id
+      zag' : F .F₁ (unit⁻¹ .map b) D.∘ counit⁻¹ .map (F · b) ≡ D.id
       zag' = ap₂ D._∘_ refl p ∙∙ sym (F .F-∘ _ _) ∙∙ ap (F .F₁) (unit-iso _ .invr) ∙ F .F-id
 
   inverse-equivalence : is-equivalence F⁻¹
@@ -170,7 +170,7 @@ by faithfulness.
     ff⁻¹ (f*x-iso .di.from D.∘ ⌜ D.id D.∘ f*x-iso .di.to ⌝) ≡⟨ ap! (D.idl _) ⟩
     ff⁻¹ (f*x-iso .di.from D.∘ f*x-iso .di.to)              ≡⟨ ap ff⁻¹ (f*x-iso .di.invr) ⟩
     ff⁻¹ D.id                                               ≡˘⟨ ap ff⁻¹ (F .F-id) ⟩
-    ff⁻¹ (F .F₁ C.id)                                       ≡⟨ ff.η _ ⟩
+    ff⁻¹ (F .F₁ C.id)                                       ≡⟨ ff.map _ ⟩
     C.id                                                    ∎
     where open Σ (eso x) renaming (fst to f*x ; snd to f*x-iso)
 
@@ -221,7 +221,7 @@ essential fibre $F^*F(x)$ comes equipped with an isomorphism $FF^*F(x)
 
 ```agda
   ff+split-eso→unit : Id => (G F∘ F)
-  ff+split-eso→unit .η x = ff⁻¹ (f*x-iso .di.from)
+  ff+split-eso→unit .map x = ff⁻¹ (f*x-iso .di.from)
     where open Σ (eso (F · x)) renaming (fst to f*x ; snd to f*x-iso)
 ```
 
@@ -229,7 +229,7 @@ essential fibre $F^*F(x)$ comes equipped with an isomorphism $FF^*F(x)
 <summary> Naturality of `ff+split-eso→unit`{.Agda}. </summary>
 
 ```agda
-  ff+split-eso→unit .is-natural x y f =
+  ff+split-eso→unit .com x y f =
     ff→faithful {F = F} ff (
       F .F₁ (ff⁻¹ ffy C.∘ f)                                      ≡⟨ F .F-∘ _ _ ⟩
       ⌜ F .F₁ (ff⁻¹ ffy) ⌝ D.∘ F .F₁ f                            ≡⟨ ap! (ff.ε _) ⟩
@@ -263,7 +263,7 @@ again pick the given isomorphism.
 
 ```agda
   ff+split-eso→counit : (F F∘ G) => Id
-  ff+split-eso→counit .η x = f*x-iso .di.to
+  ff+split-eso→counit .map x = f*x-iso .di.to
     where open Σ (eso x) renaming (fst to f*x ; snd to f*x-iso)
 ```
 
@@ -271,7 +271,7 @@ again pick the given isomorphism.
 <summary> Naturality of `ff+split-eso→counit`{.Agda} </summary>
 
 ```agda
-  ff+split-eso→counit .is-natural x y f =
+  ff+split-eso→counit .com x y f =
     fty D.∘ ⌜ F .F₁ (ff⁻¹ (ffy D.∘ f D.∘ ftx)) ⌝ ≡⟨ ap! (ff.ε _) ⟩
     fty D.∘ ffy D.∘ f D.∘ ftx                    ≡⟨ D.cancell (f*y-iso .di.invl) ⟩
     f D.∘ ftx                                    ∎
@@ -579,7 +579,7 @@ module
 
   is-equivalence→is-ff : is-fully-faithful F
   is-equivalence→is-ff = is-iso→is-equiv λ where
-    .is-iso.from x → e.unit⁻¹ .η _ C.∘ L-adjunct e.F⊣F⁻¹ x
+    .is-iso.from x → e.unit⁻¹ .map _ C.∘ L-adjunct e.F⊣F⁻¹ x
     .is-iso.rinv x →
       D.invertible→monic (F-map-invertible F (e.unit-iso _)) _ _ $
         ap₂ D._∘_ refl (F .F-∘ _ _)
@@ -587,17 +587,17 @@ module
       ∙∙ D.invertible→monic (e.counit-iso _) _ _
           (R-L-adjunct e.F⊣F⁻¹ x ∙ sym (D.cancell e.zig))
     .is-iso.linv x →
-        ap (_ C.∘_) (sym (e.unit .is-natural _ _ _))
+        ap (_ C.∘_) (sym (e.unit .com _ _ _))
       ∙ C.cancell (e.unit-iso _ .invr)
 
   is-equivalence→is-split-eso : is-split-eso F
   is-equivalence→is-split-eso y =
     (e.F⁻¹ .F₀ y) ,
-    Cat.invertible→iso D (e.counit .η y) (e.counit-iso y)
+    Cat.invertible→iso D (e.counit .map y) (e.counit-iso y)
 
   is-equivalence→is-eso : is-eso F
   is-equivalence→is-eso y =
-    inc ((e.F⁻¹ .F₀ y) , Cat.invertible→iso D (e.counit .η y) (e.counit-iso y))
+    inc ((e.F⁻¹ .F₀ y) , Cat.invertible→iso D (e.counit .map y) (e.counit-iso y))
 
   open is-precat-iso
   open is-iso
@@ -827,10 +827,10 @@ Unsurprisingly, the identity functor is an equivalence.
 ```agda
 Id-is-equivalence : ∀ {o h} {C : Precategory o h} → is-equivalence {C = C} Id
 Id-is-equivalence {C = C} .F⁻¹ = Id
-Id-is-equivalence {C = C} .F⊣F⁻¹ .unit .η x = C .id
-Id-is-equivalence {C = C} .F⊣F⁻¹ .unit .is-natural x y f = C .idl _ ∙ sym (C .idr _)
-Id-is-equivalence {C = C} .F⊣F⁻¹ .counit .η x = C .id
-Id-is-equivalence {C = C} .F⊣F⁻¹ .counit .is-natural x y f = C .idl _ ∙ sym (C .idr _)
+Id-is-equivalence {C = C} .F⊣F⁻¹ .unit .map x = C .id
+Id-is-equivalence {C = C} .F⊣F⁻¹ .unit .com x y f = C .idl _ ∙ sym (C .idr _)
+Id-is-equivalence {C = C} .F⊣F⁻¹ .counit .map x = C .id
+Id-is-equivalence {C = C} .F⊣F⁻¹ .counit .com x y f = C .idl _ ∙ sym (C .idr _)
 Id-is-equivalence {C = C} .F⊣F⁻¹ .zig = C .idl _
 Id-is-equivalence {C = C} .F⊣F⁻¹ .zag = C .idl _
 Id-is-equivalence {C = C} .unit-iso x =

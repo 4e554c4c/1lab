@@ -235,7 +235,7 @@ we can use the coprojections!
 
 ```agda
       eta : G => F' F∘ F
-      eta .η c = ↓colim.ψ (F .F₀ c) (↓obj C'.id)
+      eta .map c = ↓colim.ψ (F .F₀ c) (↓obj C'.id)
 ```
 
 This "type checks" because the colimit coprojections for our $F
@@ -244,7 +244,7 @@ maps $G(X) \to F'(Y)$. If we take the identity $C'(F(c), F(c))$, we get
 what we wanted: a map $G(c) \to F'(F(c))$.
 
 ```agda
-      eta .is-natural x y f =
+      eta .com x y f =
         ↓colim.commutes (F .F₀ y) (↓hom (ap (C'.id C'.∘_) (sym (C'.idr _))))
         ∙ sym (↓colim.factors _ _ _)
 ```
@@ -256,12 +256,12 @@ adjustment to $\alpha$:
 
 ```agda
       has-lan : is-lan F G F' eta
-      has-lan .σ {M = M} α .η c' = ↓colim.universal c'
-        (λ j → M .F₁ (j .map) D.∘ α .η (j .dom))
-        (λ f → D.pullr (α .is-natural _ _ _)
+      has-lan .σ {M = M} α .map c' = ↓colim.universal c'
+        (λ j → M .F₁ (j .map) D.∘ α .map (j .dom))
+        (λ f → D.pullr (α .com _ _ _)
             ∙ pulll M ((f .com) ∙ C'.idl _))
-      has-lan .σ {M = M} α .is-natural x y f = ↓colim.unique₂ _ _
-        (λ f → D.pullr (α .is-natural _ _ _)
+      has-lan .σ {M = M} α .com x y f = ↓colim.unique₂ _ _
+        (λ f → D.pullr (α .com _ _ _)
              ∙ pulll M (C'.pullr (f .com) ∙ C'.elim-inner refl))
         (λ j → D.pullr (↓colim.factors _ _ _)
              ∙ ↓colim.factors _ _ _)
@@ -279,11 +279,11 @@ properties of colimits.
         ↓colim.factors _ _ _ ∙ D.eliml (M .F-id)
       has-lan .σ-uniq {M = M} {α = α} {σ' = σ'} p = ext λ c' → sym $
         ↓colim.unique _ _ _ _ λ j →
-        σ' .η c' D.∘ ↓colim.ψ c' j                                ≡⟨ ap (λ ϕ → σ' .η c' D.∘ ↓colim.ψ c' ϕ) (↓Obj-path _ _ refl refl (sym (C'.idr _))) ⟩
-        (σ' .η c' D.∘ ↓colim.ψ c' (↓obj (j .map C'.∘ C'.id)))     ≡⟨ D.pushr (sym $ ↓colim.factors _ _ _) ⟩
-        (σ' .η c' D.∘ ↓colim.universal _ _ _) D.∘ ↓colim.ψ _ _    ≡⟨ D.pushl (σ' .is-natural _ _ _) ⟩
-        M .F₁ (j .map) D.∘ (σ' .η _ D.∘ ↓colim.ψ _ (↓obj C'.id))  ≡˘⟨ (D.refl⟩∘⟨ (p ηₚ j .dom)) ⟩
-        M .F₁ (j .map) D.∘ α .η (j .dom)                          ∎
+        σ' .map c' D.∘ ↓colim.ψ c' j                                ≡⟨ ap (λ ϕ → σ' .map c' D.∘ ↓colim.ψ c' ϕ) (↓Obj-path _ _ refl refl (sym (C'.idr _))) ⟩
+        (σ' .map c' D.∘ ↓colim.ψ c' (↓obj (j .map C'.∘ C'.id)))     ≡⟨ D.pushr (sym $ ↓colim.factors _ _ _) ⟩
+        (σ' .map c' D.∘ ↓colim.universal _ _ _) D.∘ ↓colim.ψ _ _    ≡⟨ D.pushl (σ' .com _ _ _) ⟩
+        M .F₁ (j .map) D.∘ (σ' .map _ D.∘ ↓colim.ψ _ (↓obj C'.id))  ≡˘⟨ (D.refl⟩∘⟨ (p ηₚ j .dom)) ⟩
+        M .F₁ (j .map) D.∘ α .map (j .dom)                          ∎
 ```
 
 All that remains is to bundle up the data!
@@ -456,9 +456,9 @@ We begin by constructing a cocone for every object $c' : \cC'$.
 
 ```agda
   ↓cocone : ∀ (c' : C'.Ob) → F F∘ Dom p (!Const c') => Const (L .F₀ c')
-  ↓cocone c' .η j = L .F₁ (j .map) D.∘ eta .η _
-  ↓cocone c' .is-natural _ _ f =
-    D.pullr (eta .is-natural _ _ _ )
+  ↓cocone c' .map j = L .F₁ (j .map) D.∘ eta .map _
+  ↓cocone c' .com _ _ f =
+    D.pullr (eta .com _ _ _ )
     ∙ pulll L (f .com ∙ C'.idl _)
     ∙ sym (D.idl _)
 ```
@@ -488,9 +488,9 @@ representability nonsense to get there.
         : ∀ (d : D.Ob)
         → F F∘ Dom p (!Const c') => Const d
         → opFʳ (よ₀ D d) F∘ F => opFʳ (よ₀ C' c') F∘ p
-      represent-↓cocone d α .η c f = α .η (↓obj f)
-      represent-↓cocone d α .is-natural _ _ f = funext λ g →
-        α .is-natural (↓obj (g C'.∘ p .F₁ f)) (↓obj g) (↓hom (sym (C'.idl _)))
+      represent-↓cocone d α .map c f = α .map (↓obj f)
+      represent-↓cocone d α .com _ _ f = funext λ g →
+        α .com (↓obj (g C'.∘ p .F₁ f)) (↓obj g) (↓hom (sym (C'.idl _)))
         ∙ D.idl _
 
       pointwise-↓cocone
@@ -505,9 +505,9 @@ the usual Yoneda-like argument.
 
 ```agda
       inv : Lim[C[F-,=]] => Hom-from D (L .F₀ c')
-      inv .η d α =
-        pointwise-↓cocone d α .η c' C'.id
-      inv .is-natural x y f = funext λ α →
+      inv .map d α =
+        pointwise-↓cocone d α .map c' C'.id
+      inv .com x y f = funext λ α →
         pointwise.σ-uniq y {σ' = pointwise-↓cocone x α ∘nt (opNʳ (よ₁ D f) ◂ L)}
           (ext λ c g → D.pushr (sym (pointwise.σ-comm x ηₚ _ $ₚ _))) ηₚ c' $ₚ C'.id
 ```
@@ -521,17 +521,17 @@ _pointwise_, and remember that we're working with a Kan extension.
 ```agda
       invl : Hom-into-inj (↓cocone c') ∘nt inv ≡ idnt
       invl = ext λ d α p↓c' →
-        pointwise-↓cocone d α .η _ C'.id D.∘ L .Functor.F₁ (p↓c' .map) D.∘ eta .η _ ≡⟨ D.pulll (pointwise.σ d (represent-↓cocone d α) .is-natural _ _ _ $ₚ _) ⟩
-        pointwise-↓cocone d α .η _ ⌜ C'.id C'.∘ p↓c' .map ⌝ D.∘ eta .η _            ≡⟨ ap! (C'.idl _) ⟩
-        pointwise-↓cocone d α .η _ (p↓c' .map) D.∘ eta .η (p↓c' .dom)               ≡⟨ pointwise.σ-comm d ηₚ _ $ₚ p↓c' .map ⟩
-        α .η (↓obj (p↓c' .map))                                                     ≡⟨ ap (α .η) (↓Obj-path _ _ refl refl refl) ⟩
-        α .η p↓c'                                                                   ∎
+        pointwise-↓cocone d α .map _ C'.id D.∘ L .Functor.F₁ (p↓c' .map) D.∘ eta .map _ ≡⟨ D.pulll (pointwise.σ d (represent-↓cocone d α) .com _ _ _ $ₚ _) ⟩
+        pointwise-↓cocone d α .map _ ⌜ C'.id C'.∘ p↓c' .map ⌝ D.∘ eta .map _            ≡⟨ ap! (C'.idl _) ⟩
+        pointwise-↓cocone d α .map _ (p↓c' .map) D.∘ eta .map (p↓c' .dom)               ≡⟨ pointwise.σ-comm d ηₚ _ $ₚ p↓c' .map ⟩
+        α .map (↓obj (p↓c' .map))                                                     ≡⟨ ap (α .map) (↓Obj-path _ _ refl refl refl) ⟩
+        α .map p↓c'                                                                   ∎
 
       vaguely-yoneda
         : ∀ {d : D.Ob} (α : D.Hom (L .F₀ c') d)
         → opFʳ (Hom-into D d) F∘ L => opFʳ (Hom-into C' c')
-      vaguely-yoneda α .η c'' f = α D.∘ L .F₁ f
-      vaguely-yoneda α .is-natural x y f =
+      vaguely-yoneda α .map c'' f = α D.∘ L .F₁ f
+      vaguely-yoneda α .com x y f =
         funext λ g → D.pullr (sym (L .F-∘ _ _))
 
       invr : inv ∘nt Hom-into-inj (↓cocone c') ≡ idnt
@@ -559,10 +559,10 @@ construct the requisite cocone.
      invertible→invertibleⁿ eta λ c →
        D.make-invertible (inv c)
          (pointwise-colim.unique₂ _ _
-           (λ f → D.pullr (eta .is-natural _ _ _)
+           (λ f → D.pullr (eta .com _ _ _)
                 ∙ pulll L (sym (p .F-∘ _ _) ∙ path f))
            (λ j → D.pullr (pointwise-colim.factors _ {j = j} _ _)
-                ∙ eta .is-natural _ _ _)
+                ∙ eta .com _ _ _)
            (λ j → D.idl _
                 ∙ ap₂ D._∘_ (ap (L .F₁) (sym (equiv→counit p-ff (j .map)))) refl))
          (pointwise.σ-comm _ ηₚ c $ₚ C'.id
@@ -635,7 +635,7 @@ module _
       (λ j → D.idl _)
     ni .inv∘eta x =
         ↓colim.factors _ _ _
-      ∙ elim G (ap ff.from (sym (F .F-id)) ∙ ff.η _)
+      ∙ elim G (ap ff.from (sym (F .F-id)) ∙ ff.map _)
     ni .natural x y f =
         ↓colim.factors _ _ _
       ∙ sym (↓colim.commutes _ (↓hom (ap₂ C'._∘_ refl (sym (C'.idr _)))))

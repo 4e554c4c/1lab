@@ -112,13 +112,13 @@ module _
 
   private
     η : ∀ {x} → A.Hom x (U.₀ (F.₀ x))
-    η = F⊣U.unit.η _
+    η = F⊣U.unit.map _
 
     ε : ∀ {x} → B.Hom (F.₀ (U.₀ x)) x
     ε = F⊣U.counit.ε _
 
     η' : ∀ {x} → A'.Hom x (U'.₀ (F'.₀ x))
-    η' = F'⊣U'.unit.η _
+    η' = F'⊣U'.unit.map _
 
     ε' : ∀ {x} → B'.Hom (F'.₀ (U'.₀ x)) x
     ε' = F'⊣U'.counit.ε _
@@ -136,13 +136,13 @@ behaviour. Therefore, we calculate the mate of a transformation $\alpha
     module α = _=>_ α
 
     nt : (F' F∘ X) => (Y F∘ F)
-    nt ._=>_.η _ =
-      ε' B'.∘ F'.₁ (α.η _) B'.∘ F'.₁ (X.₁ η)
-    nt ._=>_.is-natural x y f =
-      (ε' B'.∘ F'.₁ (α.η _) B'.∘ F'.₁ (X.₁ η)) B'.∘ F'.₁ (X.₁ f)              ≡⟨ B'.extendr (B'.pullr (F'.weave (X.weave (F⊣U.unit.is-natural _ _ _)))) ⟩
-      (ε' B'.∘ F'.₁ (α.η _)) B'.∘ F'.₁ (X.₁ (U.₁ (F.₁ f))) B'.∘ F'.₁ (X.₁ η)  ≡⟨ B'.extendl (B'.extendr (F'.weave (α.is-natural _ _ _))) ⟩
-      (ε' B'.∘ F'.₁ (U'.₁ (Y.₁ (F.₁ f)))) B'.∘ F'.₁ (α.η _) B'.∘ F'.₁ (X.₁ η) ≡⟨ B'.pushl (F'⊣U'.counit.is-natural _ _ _) ⟩
-      Y.₁ (F.₁ f) B'.∘ (ε' B'.∘ F'.₁ (α.η _) B'.∘ F'.₁ (X.₁ η))               ∎
+    nt ._=>_.map _ =
+      ε' B'.∘ F'.₁ (α.map _) B'.∘ F'.₁ (X.₁ η)
+    nt ._=>_.com x y f =
+      (ε' B'.∘ F'.₁ (α.map _) B'.∘ F'.₁ (X.₁ η)) B'.∘ F'.₁ (X.₁ f)              ≡⟨ B'.extendr (B'.pullr (F'.weave (X.weave (F⊣U.unit.com _ _ _)))) ⟩
+      (ε' B'.∘ F'.₁ (α.map _)) B'.∘ F'.₁ (X.₁ (U.₁ (F.₁ f))) B'.∘ F'.₁ (X.₁ η)  ≡⟨ B'.extendl (B'.extendr (F'.weave (α.com _ _ _))) ⟩
+      (ε' B'.∘ F'.₁ (U'.₁ (Y.₁ (F.₁ f)))) B'.∘ F'.₁ (α.map _) B'.∘ F'.₁ (X.₁ η) ≡⟨ B'.pushl (F'⊣U'.counit.com _ _ _) ⟩
+      Y.₁ (F.₁ f) B'.∘ (ε' B'.∘ F'.₁ (α.map _) B'.∘ F'.₁ (X.₁ η))               ∎
 ```
 
 By a very similar calculation, we can define the mate of $\beta : F'X
@@ -154,13 +154,13 @@ By a very similar calculation, we can define the mate of $\beta : F'X
     module α = _=>_ α
 
     nt : (X F∘ U) => (U' F∘ Y)
-    nt ._=>_.η _ =
-      U'.₁ (Y.₁ ε) A'.∘ U'.₁ (α.η _) A'.∘ η'
-    nt ._=>_.is-natural x y f =
-      (U'.₁ (Y.₁ ε) A'.∘ U'.₁ (α.η _) A'.∘ η') A'.∘ X.₁ (U.₁ f)                     ≡⟨ A'.extendr (A'.pullr (F'⊣U'.unit.is-natural _ _ _)) ⟩
-      (U'.₁ (Y.₁ ε) A'.∘ U'.₁ (α.η (U.₀ y))) A'.∘ U'.₁ (F'.₁ (X.₁ (U.₁ f))) A'.∘ η' ≡⟨ A'.extendl (A'.extendr (U'.weave (α.is-natural _ _ _))) ⟩
-      (U'.₁ (Y.₁ ε) A'.∘ U'.₁ (Y.₁ (F.₁ (U.₁ f)))) A'.∘ U'.₁ (α.η _) A'.∘ η'        ≡⟨ A'.pushl (U'.weave (Y.weave (F⊣U.counit.is-natural _ _ f))) ⟩
-      U'.₁ (Y.₁ f) A'.∘ U'.₁ (Y.₁ ε) A'.∘ U'.₁ (α.η _) A'.∘ η'                      ∎
+    nt ._=>_.map _ =
+      U'.₁ (Y.₁ ε) A'.∘ U'.₁ (α.map _) A'.∘ η'
+    nt ._=>_.com x y f =
+      (U'.₁ (Y.₁ ε) A'.∘ U'.₁ (α.map _) A'.∘ η') A'.∘ X.₁ (U.₁ f)                     ≡⟨ A'.extendr (A'.pullr (F'⊣U'.unit.com _ _ _)) ⟩
+      (U'.₁ (Y.₁ ε) A'.∘ U'.₁ (α.map (U.₀ y))) A'.∘ U'.₁ (F'.₁ (X.₁ (U.₁ f))) A'.∘ η' ≡⟨ A'.extendl (A'.extendr (U'.weave (α.com _ _ _))) ⟩
+      (U'.₁ (Y.₁ ε) A'.∘ U'.₁ (Y.₁ (F.₁ (U.₁ f)))) A'.∘ U'.₁ (α.map _) A'.∘ η'        ≡⟨ A'.pushl (U'.weave (Y.weave (F⊣U.counit.com _ _ f))) ⟩
+      U'.₁ (Y.₁ f) A'.∘ U'.₁ (Y.₁ ε) A'.∘ U'.₁ (α.map _) A'.∘ η'                      ∎
 ```
 
 By some rather tedious applications of the triangle identities, we can
@@ -170,24 +170,24 @@ inverse equivalences.
 ```agda
   mate-invl : ∀ (α : (F' F∘ X) => (Y F∘ F)) → mate (mate-inv α) ≡ α
   mate-invl α = ext λ _ →
-    ε' B'.∘ ⌜ F'.₁ (U'.₁ (Y.₁ ε) A'.∘ U'.₁ (α.η _) A'.∘ η') ⌝ B'.∘ F'.₁ (X.₁ η)           ≡⟨ ap! (F'.F-∘ _ _ ∙ (ap₂ B'._∘_ refl (F'.F-∘ _ _))) ⟩
-    ε' B'.∘ (F'.₁ (U'.₁ (Y.₁ ε)) B'.∘ F'.₁ (U'.₁ (α.η _)) B'.∘ F'.₁ η') B'.∘ F'.₁ (X.₁ η) ≡⟨ B'.extendl (B'.pulll (F'⊣U'.counit.is-natural _ _ _)) ⟩
-    (Y.₁ ε B'.∘ ε') B'.∘ (F'.₁ (U'.₁ (α.η _)) B'.∘ F'.₁ η') B'.∘ F'.₁ (X.₁ η)             ≡⟨ B'.extendl (B'.pulll (B'.pullr (F'⊣U'.counit.is-natural _ _ _))) ⟩
-    (Y.₁ ε B'.∘ α.η _ B'.∘ ε') B'.∘ F'.₁ η' B'.∘ F'.₁ (X.₁ η)                             ≡⟨ B'.pulll (B'.pullr (B'.cancelr F'⊣U'.zig)) ⟩
-    (Y.₁ ε B'.∘ α.η _) B'.∘ F'.₁ (X.₁ η)                                                  ≡⟨ B'.pullr (α.is-natural _ _ _) ⟩
-    Y.₁ ε B'.∘ Y.₁ (F.₁ η) B'.∘ α.η _                                                     ≡⟨ B'.cancell (Y.annihilate F⊣U.zig) ⟩
-    α.η _                                                                                 ∎
+    ε' B'.∘ ⌜ F'.₁ (U'.₁ (Y.₁ ε) A'.∘ U'.₁ (α.map _) A'.∘ η') ⌝ B'.∘ F'.₁ (X.₁ η)           ≡⟨ ap! (F'.F-∘ _ _ ∙ (ap₂ B'._∘_ refl (F'.F-∘ _ _))) ⟩
+    ε' B'.∘ (F'.₁ (U'.₁ (Y.₁ ε)) B'.∘ F'.₁ (U'.₁ (α.map _)) B'.∘ F'.₁ η') B'.∘ F'.₁ (X.₁ η) ≡⟨ B'.extendl (B'.pulll (F'⊣U'.counit.com _ _ _)) ⟩
+    (Y.₁ ε B'.∘ ε') B'.∘ (F'.₁ (U'.₁ (α.map _)) B'.∘ F'.₁ η') B'.∘ F'.₁ (X.₁ η)             ≡⟨ B'.extendl (B'.pulll (B'.pullr (F'⊣U'.counit.com _ _ _))) ⟩
+    (Y.₁ ε B'.∘ α.map _ B'.∘ ε') B'.∘ F'.₁ η' B'.∘ F'.₁ (X.₁ η)                             ≡⟨ B'.pulll (B'.pullr (B'.cancelr F'⊣U'.zig)) ⟩
+    (Y.₁ ε B'.∘ α.map _) B'.∘ F'.₁ (X.₁ η)                                                  ≡⟨ B'.pullr (α.com _ _ _) ⟩
+    Y.₁ ε B'.∘ Y.₁ (F.₁ η) B'.∘ α.map _                                                     ≡⟨ B'.cancell (Y.annihilate F⊣U.zig) ⟩
+    α.map _                                                                                 ∎
     where module α = _=>_ α
 
   mate-invr : ∀ (α : (X F∘ U) => (U' F∘ Y)) → mate-inv (mate α) ≡ α
   mate-invr α = ext λ _ →
-    U'.₁ (Y.₁ ε) A'.∘ ⌜ U'.₁ (ε' B'.∘ F'.₁ (α.η _) B'.∘ F'.₁ (X.₁ η)) ⌝ A'.∘ η'           ≡⟨ ap! (U'.F-∘ _ _ ∙ (ap₂ A'._∘_ refl (U'.F-∘ _ _))) ⟩
-    U'.₁ (Y.₁ ε) A'.∘ (U'.₁ ε' A'.∘ U'.₁ (F'.₁ (α.η _)) A'.∘ U'.₁ (F'.₁ (X.₁ η))) A'.∘ η' ≡⟨ ap₂ A'._∘_ refl (A'.extendr (A'.pullr (sym (F'⊣U'.unit.is-natural _ _ _)))) ⟩
-    U'.₁ (Y.₁ ε) A'.∘ (U'.₁ ε' A'.∘ U'.₁ (F'.₁ (α.η _))) A'.∘ η' A'.∘ X.₁ η               ≡⟨ ap₂ A'._∘_ refl (A'.pullr (A'.extendl (sym (F'⊣U'.unit.is-natural _ _ _)))) ⟩
-    U'.₁ (Y.₁ ε) A'.∘ U'.₁ ε' A'.∘ η' A'.∘ α.η _ A'.∘ X.₁ η                               ≡⟨ ap₂ A'._∘_ refl (A'.cancell F'⊣U'.zag) ⟩
-    U'.₁ (Y.₁ ε) A'.∘ α.η _ A'.∘ X.₁ η                                                    ≡⟨ A'.pulll (sym (α.is-natural _ _ _)) ⟩
-    (α.η _ A'.∘ X.₁ (U.₁ ε)) A'.∘ X.₁ η                                                   ≡⟨ A'.cancelr (X.annihilate F⊣U.zag) ⟩
-    α.η _                                                                                 ∎
+    U'.₁ (Y.₁ ε) A'.∘ ⌜ U'.₁ (ε' B'.∘ F'.₁ (α.map _) B'.∘ F'.₁ (X.₁ η)) ⌝ A'.∘ η'           ≡⟨ ap! (U'.F-∘ _ _ ∙ (ap₂ A'._∘_ refl (U'.F-∘ _ _))) ⟩
+    U'.₁ (Y.₁ ε) A'.∘ (U'.₁ ε' A'.∘ U'.₁ (F'.₁ (α.map _)) A'.∘ U'.₁ (F'.₁ (X.₁ η))) A'.∘ η' ≡⟨ ap₂ A'._∘_ refl (A'.extendr (A'.pullr (sym (F'⊣U'.unit.com _ _ _)))) ⟩
+    U'.₁ (Y.₁ ε) A'.∘ (U'.₁ ε' A'.∘ U'.₁ (F'.₁ (α.map _))) A'.∘ η' A'.∘ X.₁ η               ≡⟨ ap₂ A'._∘_ refl (A'.pullr (A'.extendl (sym (F'⊣U'.unit.com _ _ _)))) ⟩
+    U'.₁ (Y.₁ ε) A'.∘ U'.₁ ε' A'.∘ η' A'.∘ α.map _ A'.∘ X.₁ η                               ≡⟨ ap₂ A'._∘_ refl (A'.cancell F'⊣U'.zag) ⟩
+    U'.₁ (Y.₁ ε) A'.∘ α.map _ A'.∘ X.₁ η                                                    ≡⟨ A'.pulll (sym (α.com _ _ _)) ⟩
+    (α.map _ A'.∘ X.₁ (U.₁ ε)) A'.∘ X.₁ η                                                   ≡⟨ A'.cancelr (X.annihilate F⊣U.zag) ⟩
+    α.map _                                                                                 ∎
     where module α = _=>_ α
 
   mate-is-equiv : is-equiv mate

@@ -235,7 +235,7 @@ gives us **cofree coalgebras**.
   Cofree .F₀ = Cofree-coalgebra
 
   Cofree .F₁ h .fst = W₁ h
-  Cofree .F₁ h .snd = sym (comult.is-natural _ _ h)
+  Cofree .F₁ h .snd = sym (comult.com _ _ h)
 
   Cofree .F-id    = ext W-id
   Cofree .F-∘ f g = ext (W-∘ _ _)
@@ -246,12 +246,12 @@ the forgetful functor, we get a right adjoint!
 
 ```agda
   Forget⊣Cofree : πᶠ (Coalgebras-over W) ⊣ Cofree
-  Forget⊣Cofree .unit .η (x , α) .fst = α .ρ
-  Forget⊣Cofree .unit .η (x , α) .snd = sym (α .ρ-comult)
-  Forget⊣Cofree .unit .is-natural x y f = ext (sym (f .snd))
+  Forget⊣Cofree .unit .map (x , α) .fst = α .ρ
+  Forget⊣Cofree .unit .map (x , α) .snd = sym (α .ρ-comult)
+  Forget⊣Cofree .unit .com x y f = ext (sym (f .snd))
 
-  Forget⊣Cofree .counit .η x              = W.ε x
-  Forget⊣Cofree .counit .is-natural x y f = W.counit.is-natural _ _ _
+  Forget⊣Cofree .counit .map x              = W.ε x
+  Forget⊣Cofree .counit .com x y f = W.counit.com _ _ _
 
   Forget⊣Cofree .zig {A , α} = α .ρ-counit
   Forget⊣Cofree .zag         = ext δ-unitl

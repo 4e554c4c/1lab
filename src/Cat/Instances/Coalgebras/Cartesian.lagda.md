@@ -157,7 +157,7 @@ the formalisation below.
       abstract
         comm₁ : π₁ .fst ∘ ν ≡ p1 .fst
         comm₁ =
-          π₁ .fst ∘ ν                                    ≡⟨ pulll (sym (counit.is-natural _ _ _)) ⟩
+          π₁ .fst ∘ ν                                    ≡⟨ pulll (sym (counit.com _ _ _)) ⟩
           (counit.ε _ ∘ W₁ (π₁ .fst)) ∘ p'.universal _  ≡⟨ pullr p'.p₁∘universal ⟩
           counit.ε _ ∘ α ∘ p1 .fst                       ≡⟨ cancell α.ρ-counit ⟩
           p1 .fst                                        ∎
@@ -173,7 +173,7 @@ commutativity and uniqueness requirements.
 <!--
 ```agda
         comm₂ : π₂ .fst ∘ ν ≡ p2 .fst
-        comm₂ = pulll (sym (counit.is-natural _ _ _))
+        comm₂ = pulll (sym (counit.com _ _ _))
              ∙∙ pullr p'.p₂∘universal
              ∙∙ cancell β.ρ-counit
 ```
@@ -187,7 +187,7 @@ componentwise. Therefore, we calculate
 ```agda
       step₁ : W₁ (π₁ .fst) ∘ W₁ ν ∘ χ ≡ α ∘ p1 .fst
       step₁ =
-        W₁ (π₁ .fst) ∘ W₁ ν ∘ χ                    ≡⟨ pulll (W.weave (pulll (sym (counit.is-natural _ _ _)) ∙ pullr p'.p₁∘universal)) ⟩
+        W₁ (π₁ .fst) ∘ W₁ ν ∘ χ                    ≡⟨ pulll (W.weave (pulll (sym (counit.com _ _ _)) ∙ pullr p'.p₁∘universal)) ⟩
         (W₁ (counit.ε _) ∘ W₁ (α ∘ p1 .fst)) ∘ χ   ≡⟨ pullr (ap₂ _∘_ (W-∘ _ _) refl ∙ pullr (p1 .snd)) ⟩
         W₁ (counit.ε _) ∘ W₁ α ∘ α ∘ p1 .fst       ≡⟨ W.cancell α.ρ-counit ⟩
         α ∘ p1 .fst                                ∎
@@ -210,7 +210,7 @@ so $\nu$ was indeed the map we were looking for!
       factor : Coalgebras.Hom W (Q , χ') (P , π')
       factor .fst = ν
       factor .snd = p'.unique₂ {p = wit'} step₁
-        (  pulll (W.weave (pulll (sym (counit.is-natural _ _ _)) ∙ pullr p'.p₂∘universal))
+        (  pulll (W.weave (pulll (sym (counit.com _ _ _)) ∙ pullr p'.p₂∘universal))
         ∙∙ pullr (ap₂ _∘_ (W-∘ _ _) refl ∙ pullr (p2 .snd))
         ∙∙ W.cancell β.ρ-counit)
         step₂
@@ -339,11 +339,11 @@ formalised proof is a bit annoying, it's hidden in this
 ```agda
     coalg .ρ-counit =
       p.unique₂
-        {p = pulll (sym (counit.is-natural _ _ _))
+        {p = pulll (sym (counit.com _ _ _))
           ∙∙ pullr wit
-          ∙∙ extendl (counit.is-natural _ _ _)}
-        (pulll (sym (counit.is-natural _ _ _)) ∙ pullr p'.p₁∘universal)
-        (pulll (sym (counit.is-natural _ _ _)) ∙ pullr p'.p₂∘universal)
+          ∙∙ extendl (counit.com _ _ _)}
+        (pulll (sym (counit.com _ _ _)) ∙ pullr p'.p₁∘universal)
+        (pulll (sym (counit.com _ _ _)) ∙ pullr p'.p₂∘universal)
         (idr _ ∙ sym (cancell α.ρ-counit))
         (idr _ ∙ sym (cancell β.ρ-counit))
     coalg .ρ-comult =
@@ -351,8 +351,8 @@ formalised proof is a bit annoying, it's hidden in this
         {p = W.extendl (f .snd)
           ∙∙ ap₂ _∘_ refl wit
           ∙∙ W.extendl (sym (g .snd))}
-        (pulll (sym (comult.is-natural _ _ _)) ∙∙ pullr p'.p₁∘universal ∙∙ extendl α.ρ-comult)
-        (  pulll (sym (comult.is-natural _ _ _))
+        (pulll (sym (comult.com _ _ _)) ∙∙ pullr p'.p₁∘universal ∙∙ extendl α.ρ-comult)
+        (  pulll (sym (comult.com _ _ _))
         ∙∙ pullr p'.p₂∘universal
         ∙∙ extendl β.ρ-comult)
         (pulll (W.weave p'.p₁∘universal) ∙ pullr p'.p₁∘universal)

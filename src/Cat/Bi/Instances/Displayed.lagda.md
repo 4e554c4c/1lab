@@ -88,10 +88,10 @@ as in the nondisplayed case.
   ∘V-functor {G = 𝒢} .F-id {F , G} = ext λ x → ap₂ G._∘_ (F .F-id') refl ∙ G.idr _ where
     module G {x} = Cat (Fibre 𝒢 x)
   ∘V-functor {F = ℱ} {G = 𝒢} .F-∘ {X , Y} {Z , W} {U , V} (α , β) (δ , γ) = ext λ x →
-    U .F₁' (β .η' x F.∘ γ .η' x) G.∘ (α .η' _ G.∘ δ .η' _)          ≡⟨ G.pushl (F-∘↓ U) ⟩
-    U .F₁' (β .η' x) G.∘ U .F₁' (γ .η' x) G.∘ α .η' _ G.∘ δ .η' _   ≡⟨ G.extend-inner (sym (is-natural↓ α _ _ _)) ⟩
-    U .F₁' (β .η' x) G.∘ α .η' _ G.∘ Z .F₁' (γ .η' _) G.∘ δ .η' _   ≡⟨ G.pulll refl ⟩
-    (U .F₁' (β .η' _) G.∘ α .η' _) G.∘ Z .F₁' (γ .η' _) G.∘ δ .η' _ ∎
+    U .F₁' (β .map' x F.∘ γ .map' x) G.∘ (α .map' _ G.∘ δ .map' _)          ≡⟨ G.pushl (F-∘↓ U) ⟩
+    U .F₁' (β .map' x) G.∘ U .F₁' (γ .map' x) G.∘ α .map' _ G.∘ δ .map' _   ≡⟨ G.extend-inner (sym (is-natural↓ α _ _ _)) ⟩
+    U .F₁' (β .map' x) G.∘ α .map' _ G.∘ Z .F₁' (γ .map' _) G.∘ δ .map' _   ≡⟨ G.pulll refl ⟩
+    (U .F₁' (β .map' _) G.∘ α .map' _) G.∘ Z .F₁' (γ .map' _) G.∘ δ .map' _ ∎
     where
       module G {x} = Cat (Fibre 𝒢 x) using (_∘_ ; pushl ; extend-inner ; pulll)
       module F {x} = Cat (Fibre ℱ x) using (_∘_)

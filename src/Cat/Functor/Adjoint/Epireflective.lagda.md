@@ -135,7 +135,7 @@ is reflective!
 
       unit-strong-mono : C.is-strong-mono (η x)
       unit-strong-mono = C.strong-mono-cancell (R.₁ (L.₁ f)) (η x)
-        $ C.subst-is-strong-mono (unit.is-natural _ _ _)
+        $ C.subst-is-strong-mono (unit.com _ _ _)
         $ C.∘-is-strong-monic
             (C.invertible→strong-mono
               (is-reflective→unit-right-is-iso L⊣R reflective))
@@ -229,7 +229,7 @@ right-cancellation of epis to deduce that $R(L(e))$ must be epic.
 
 ```agda
       RL[e]-epic : C.is-epic (R.₁ (L.₁ e))
-      RL[e]-epic = C.epic-cancelr $ C.subst-is-epic (unit.is-natural _ _ _) $
+      RL[e]-epic = C.epic-cancelr $ C.subst-is-epic (unit.com _ _ _) $
         C.∘-is-epic (C.invertible→epic unit-im-invertible) e-epi
 ```
 
@@ -256,7 +256,7 @@ itself be invertible, so $m$ is invertible via 2-out-of-3.
       m-invertible : C.is-invertible m
       m-invertible = C.invertible-cancelr
         (is-reflective→unit-right-is-iso L⊣R reflective)
-        (C.subst-is-invertible (sym (unit.is-natural _ _ _))
+        (C.subst-is-invertible (sym (unit.com _ _ _))
           $ C.invertible-∘ RL[m]-invertible unit-im-invertible)
 ```
 
@@ -301,7 +301,7 @@ diagram chase; we will spare the innocent reader the details.
       open is-strong-epireflective strong-epirefl
 
       unit-mono : C.is-monic (η x)
-      unit-mono = C.monic-cancell $ C.subst-is-monic (unit.is-natural _ _ _) $
+      unit-mono = C.monic-cancell $ C.subst-is-monic (unit.com _ _ _) $
         C.∘-is-monic
           (C.invertible→monic (is-reflective→unit-right-is-iso L⊣R reflective))
           f-mono
@@ -329,7 +329,7 @@ diagram chase; we will spare the innocent reader the details.
 
       RL[e]-strong-epi : C.is-strong-epi (R.₁ (L.₁ e))
       RL[e]-strong-epi = C.strong-epi-cancelr _ _
-        $ C.subst-is-strong-epi (unit.is-natural _ _ _)
+        $ C.subst-is-strong-epi (unit.com _ _ _)
         $ C.∘-is-strong-epic
             (C.invertible→strong-epi unit-im-invertible)
             e-strong-epi
@@ -344,7 +344,7 @@ diagram chase; we will spare the innocent reader the details.
       m-invertible : C.is-invertible m
       m-invertible = C.invertible-cancelr
         (is-reflective→unit-right-is-iso L⊣R reflective)
-        (C.subst-is-invertible (sym (unit.is-natural _ _ _))
+        (C.subst-is-invertible (sym (unit.com _ _ _))
           $ C.invertible-∘ RL[m]-invertible unit-im-invertible)
 
       unit-strong-epi : C.is-strong-epi (η x)

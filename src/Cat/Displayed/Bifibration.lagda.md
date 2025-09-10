@@ -153,7 +153,7 @@ then $L$ is a left adjoint to $f^{*}$.
   cocartesian→left-adjoint-base-change
     : ∀ {x y} {L : Functor (Fibre ℰ x) (Fibre ℰ y)} {f : Hom x y}
     → (L-unit : Id => base-change f F∘ L)
-    → (∀ x → is-cocartesian (f ∘ id) (π* f (L .F₀ x) ∘' L-unit .η x))
+    → (∀ x → is-cocartesian (f ∘ id) (π* f (L .F₀ x) ∘' L-unit .map x))
     → L ⊣ base-change f
 ```
 
@@ -191,14 +191,14 @@ equivalence.
 
 ```agda
   cocartesian→left-adjoint-base-change {x = x} {y = y} {L = L} {f = f} L-unit cocart =
-    hom-iso→adjoints (λ v → base-change f .F₁ v Fib.∘ L-unit .η _)
+    hom-iso→adjoints (λ v → base-change f .F₁ v Fib.∘ L-unit .map _)
       precompose-equiv equiv-natural where
       module cocart x = is-cocartesian (cocart x)
       module f* = Functor (base-change f)
 
       precompose-equiv
         : ∀ {x' : Ob[ x ]} {y' : Ob[ y ]}
-        → is-equiv {A = Hom[ id ] (L .F₀ x') y'} (λ v → f*.₁ v Fib.∘ L-unit .η x')
+        → is-equiv {A = Hom[ id ] (L .F₀ x') y'} (λ v → f*.₁ v Fib.∘ L-unit .map x')
       precompose-equiv {x'} {y'} = is-iso→is-equiv $ iso
         (λ v → cocart.universalv _ (π* f _ ∘' v))
         (λ v → π*.uniquep₂ _ _ refl _ _
@@ -217,14 +217,14 @@ equivalence.
 
 ```agda
       equiv-natural
-        : hom-iso-natural {L = L} {R = base-change f} (λ v → f*.₁ v Fib.∘ L-unit .η _)
+        : hom-iso-natural {L = L} {R = base-change f} (λ v → f*.₁ v Fib.∘ L-unit .map _)
       equiv-natural g h k =
         π*.uniquep₂ _ _ _ _ _
           (Fib.pulllf (π*.commutesp id-comm _)
            ∙[] pushl[] _ (pushl[] _ (to-pathp[]⁻ (smashr _ _))))
           (Fib.pulllf (π*.commutesp id-comm _)
            ∙[] extendr[] _ (Fib.pulllf (Fib.pulllf (π*.commutesp id-comm _)))
-           ∙[] extendr[] _ (pullr[] _ (to-pathp[] (L-unit .is-natural _ _ h)))
+           ∙[] extendr[] _ (pullr[] _ (to-pathp[] (L-unit .com _ _ h)))
            ∙[] pullr[] _ (Fib.pulllf (extendr[] _ (π*.commutesp id-comm _))))
 ```
 </details>

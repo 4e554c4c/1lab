@@ -48,10 +48,10 @@ module _ {ℂ 𝔻 : Internal-cat} where
 
 ```agda
   idnti : ∀ {F : Internal-functor ℂ 𝔻} → F =>i F
-  idnti .ηi x = 𝔻.idi _
-  idnti .is-naturali x y f =
+  idnti .mapi x = 𝔻.idi _
+  idnti .comi x y f =
     𝔻.idli _ ∙ sym (𝔻.idri _)
-  idnti {F = F} .ηi-nat x σ = 𝔻.casti $
+  idnti {F = F} .mapi-nat x σ = 𝔻.casti $
     𝔻.idi-nat σ 𝔻.∙i ap 𝔻.idi (F .Fi₀-nat x σ)
 ```
 
@@ -61,14 +61,14 @@ transformation $\alpha \circ \beta : F \To H$.
 
 ```agda
   _∘nti_ : ∀ {F G H : Internal-functor ℂ 𝔻} → G =>i H → F =>i G → F =>i H
-  (α ∘nti β) .ηi x = α .ηi x 𝔻.∘i β .ηi x
-  (α ∘nti β) .is-naturali x y f =
-    𝔻.pullri (β .is-naturali x y f)
-    ∙ 𝔻.extendli (α .is-naturali x y f)
-  (α ∘nti β) .ηi-nat x σ = 𝔻.casti $
-    (α .ηi x 𝔻.∘i β .ηi x) [ σ ]     𝔻.≡i⟨ 𝔻.∘i-nat (α .ηi x) (β .ηi x) σ ⟩
-    α .ηi x [ σ ] 𝔻.∘i β .ηi x [ σ ] 𝔻.≡i⟨ (λ i → α .ηi-nat x σ i 𝔻.∘i β .ηi-nat x σ i) ⟩
-    α .ηi (x ∘ σ) 𝔻.∘i β .ηi (x ∘ σ) ∎
+  (α ∘nti β) .mapi x = α .mapi x 𝔻.∘i β .mapi x
+  (α ∘nti β) .comi x y f =
+    𝔻.pullri (β .comi x y f)
+    ∙ 𝔻.extendli (α .comi x y f)
+  (α ∘nti β) .mapi-nat x σ = 𝔻.casti $
+    (α .mapi x 𝔻.∘i β .mapi x) [ σ ]     𝔻.≡i⟨ 𝔻.∘i-nat (α .mapi x) (β .mapi x) σ ⟩
+    α .mapi x [ σ ] 𝔻.∘i β .mapi x [ σ ] 𝔻.≡i⟨ (λ i → α .mapi-nat x σ i 𝔻.∘i β .mapi-nat x σ i) ⟩
+    α .mapi (x ∘ σ) 𝔻.∘i β .mapi (x ∘ σ) ∎
 ```
 
 Armed with these facts, we proceed to construct the internal functor
@@ -176,16 +176,16 @@ module _ {ℂ 𝔻 : Internal-cat} where
     open Internal-Inversesⁿ {F} {G}
 
     ni : Internal-natural-iso F G
-    ni .to .ηi = etai
-    ni .to .is-naturali = naturali
-    ni .to .ηi-nat = etai-nat
-    ni .from .ηi = invi
-    ni .from .is-naturali x y f =
+    ni .to .mapi = etai
+    ni .to .comi = naturali
+    ni .to .mapi-nat = etai-nat
+    ni .from .mapi = invi
+    ni .from .comi x y f =
       invi y 𝔻.∘i G .Fi₁ f                         ≡⟨ ap (invi y 𝔻.∘i_) (sym (𝔻.idri _) ∙ ap (G .Fi₁ _ 𝔻.∘i_) (sym (etai∘invi x))) ⟩
       invi y 𝔻.∘i G .Fi₁ f 𝔻.∘i etai x 𝔻.∘i invi x ≡⟨ ap (invi y 𝔻.∘i_) (𝔻.extendli (sym (naturali _ _ _))) ⟩
       invi y 𝔻.∘i etai y 𝔻.∘i F .Fi₁ f 𝔻.∘i invi x ≡⟨ 𝔻.cancelli (invi∘etai y) ⟩
       F .Fi₁ f 𝔻.∘i invi x                         ∎
-    ni .from .ηi-nat = invi-nat
+    ni .from .mapi-nat = invi-nat
     ni .inverses .invl = Internal-nat-path etai∘invi
     ni .inverses .invr = Internal-nat-path invi∘etai
 ```

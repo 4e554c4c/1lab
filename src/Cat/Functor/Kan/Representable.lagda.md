@@ -66,8 +66,8 @@ $D^{C'}(G, -) \to D^{C}(F, - \circ p)$.
   Hom-from-precompose
     : F => G F∘ p
     → Hom-from Cat[ C' , D ] G => Hom-from Cat[ C , D ] F F∘ precompose p
-  Hom-from-precompose eta .η H α = (α ◂ p) ∘nt eta
-  Hom-from-precompose eta .is-natural H K α = funext λ β → [C,D].pushl ◂-distribl
+  Hom-from-precompose eta .map H α = (α ◂ p) ∘nt eta
+  Hom-from-precompose eta .com H K α = funext λ β → [C,D].pushl ◂-distribl
 ```
 
 If this natural transformation is an isomorphism, then $(G, \eta)$ is a
@@ -91,9 +91,9 @@ a natural isomorphism.
     module nat-inv = is-invertibleⁿ nat-inv
 
     lan : is-lan p F G eta
-    lan .σ {M} α = nat-inv.inv .η M α
+    lan .σ {M} α = nat-inv.inv .map M α
     lan .σ-comm {M} {α} = nat-inv.invl ηₚ M $ₚ α
-    lan .σ-uniq {M} {α} {σ'} q = ap (nat-inv.inv .η M) q ∙ nat-inv.invr ηₚ M $ₚ σ'
+    lan .σ-uniq {M} {α} {σ'} q = ap (nat-inv.inv .map M) q ∙ nat-inv.invr ηₚ M $ₚ σ'
 ```
 
 Furthermore, if $(G, \eta)$ is a left extension, then we can show that
@@ -111,8 +111,8 @@ exercise in moving data around.
       (λ M → funext λ α → lan .σ-uniq refl)
     where
       inv : Hom-from Cat[ C , D ] F F∘ precompose p => Hom-from Cat[ C' , D ] G
-      inv .η M α = lan .σ α
-      inv .is-natural M N α = funext λ β →
+      inv .map M α = lan .σ α
+      inv .com M N α = funext λ β →
         lan .σ-uniq (ext λ _ → D.pushr (sym $ lan .σ-comm ηₚ _))
 ```
 
@@ -146,17 +146,17 @@ module _
 
   represents→lan : Corepresentation (Hom-from Cat[ C , D ] F F∘ precompose p) → Lan p F
   represents→lan has-corep .Ext = has-corep .corep
-  represents→lan has-corep .eta = has-corep .corepresents .from .η _ idnt
+  represents→lan has-corep .eta = has-corep .corepresents .from .map _ idnt
   represents→lan has-corep .has-lan =
     represents→is-lan (Corep.to has-corep idnt) $
     to-is-invertibleⁿ (has-corep .corepresents .to)
       (λ M → funext λ α →
-        (Corep.from has-corep α ◂ p) ∘nt Corep.to has-corep idnt ≡˘⟨ has-corep .corepresents .from .is-natural _ _ _ $ₚ idnt ⟩
+        (Corep.from has-corep α ◂ p) ∘nt Corep.to has-corep idnt ≡˘⟨ has-corep .corepresents .from .com _ _ _ $ₚ idnt ⟩
         Corep.to has-corep (Corep.from has-corep α ∘nt idnt)     ≡⟨ ap (Corep.to has-corep) ([C',D].idr _) ⟩
         Corep.to has-corep (Corep.from has-corep α)              ≡⟨ Corep.ε has-corep α ⟩
         α ∎)
       (λ M → funext λ α →
-        Corep.from has-corep ((α ◂ p) ∘nt Corep.to has-corep idnt) ≡⟨ has-corep .corepresents .to .is-natural _ _ _ $ₚ _ ⟩
-        α ∘nt Corep.from has-corep (Corep.to has-corep idnt)       ≡⟨ [C',D].elimr (Corep.η has-corep idnt) ⟩
+        Corep.from has-corep ((α ◂ p) ∘nt Corep.to has-corep idnt) ≡⟨ has-corep .corepresents .to .com _ _ _ $ₚ _ ⟩
+        α ∘nt Corep.from has-corep (Corep.to has-corep idnt)       ≡⟨ [C',D].elimr (Corep.map has-corep idnt) ⟩
         α ∎)
 ```

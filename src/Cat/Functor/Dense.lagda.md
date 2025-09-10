@@ -55,8 +55,8 @@ module
 
 ```agda
   dense-cocone : ∀ d → F F∘ Dom F (!Const d) => Const d
-  dense-cocone d .η          x     = x .map
-  dense-cocone d .is-natural _ _ f = f .com
+  dense-cocone d .map          x     = x .map
+  dense-cocone d .com _ _ f = f .com
 
   is-dense : Type _
   is-dense = ∀ d → is-colimit {J = F ↘ d} (F F∘ Dom _ _) d (dense-cocone d)
@@ -74,8 +74,8 @@ the induced [[nerve]] functor is fully faithful.
     inv : ∀ {x y} → (Nerve F .F₀ x => Nerve F .F₀ y) → D.Hom x y
     inv nt =
       is-dense.universal _
-        (λ j → nt .η _ (j .map))
-        λ f → sym (nt .is-natural _ _ _ $ₚ _) ∙ ap (nt .η _) (f .com ∙ D.idl _)
+        (λ j → nt .map _ (j .map))
+        λ f → sym (nt .com _ _ _ $ₚ _) ∙ ap (nt .map _) (f .com ∙ D.idl _)
 
     invr : ∀ {x y} (f : Nerve F .F₀ x => Nerve F .F₀ y) → Nerve F .F₁ (inv f) ≡ f
     invr f = ext λ x i → is-dense.factors _ {j = ↓obj i} _ _
@@ -111,8 +111,8 @@ enough to tell morphisms (and so objects) in the ambient category apart.
     mk .ψ j       = j .map
     mk .commutes f = f .com ∙ D.eliml refl
     mk .universal {x = x} eta p = nrv.from λ where
-      .η          i h   → eta (↓obj h)
-      .is-natural x y f → ext λ h → sym (p (↓hom (D.introl refl)))
+      .map          i h   → eta (↓obj h)
+      .com x y f → ext λ h → sym (p (↓hom (D.introl refl)))
     mk .factors eta p = unext (nrv.ε _) _ _ ∙ ap eta (↓Obj-path _ _ refl refl refl)
     mk .unique eta p other x = nrv.injective₂ (ext (λ i h → x (↓obj h))) (nrv.ε _)
 ```

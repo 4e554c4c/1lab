@@ -55,7 +55,7 @@ is-limit→is-equaliser
   : ∀ (F : Functor ·⇉· C) {K : Functor ⊤Cat C}
   → {eps : K F∘ !F => F}
   → is-ran !F F K eps
-  → is-equaliser C (forkl F) (forkr F) (eps .η false)
+  → is-equaliser C (forkl F) (forkr F) (eps .map false)
 is-limit→is-equaliser F {K} {eps} lim = eq where
   module lim = is-limit lim
 
@@ -74,13 +74,13 @@ is-limit→is-equaliser F {K} {eps} lim = eq where
   parallel-commutes p _ _ inl = refl
   parallel-commutes p _ _ inr = sym p
 
-  eq : is-equaliser C (forkl F) (forkr F) (eps .η false)
-  eq .equal = sym (eps .is-natural _ _ inl) ∙ eps .is-natural _ _ inr
+  eq : is-equaliser C (forkl F) (forkr F) (eps .map false)
+  eq .equal = sym (eps .com _ _ inl) ∙ eps .com _ _ inr
   eq .universal {e' = e'} p =
     lim.universal (parallel e') (λ {i} {j} h → parallel-commutes p i j h)
   eq .factors = lim.factors {j = false} _ _
   eq .unique {p = p} {other = other} q = lim.unique _ _ _ λ where
-    true → ap (_∘ other) (intror (K .F-id) ∙ eps .is-natural _ _ inr)
+    true → ap (_∘ other) (intror (K .F-id) ∙ eps .com _ _ inr)
         ∙∙ pullr q
         ∙∙ sym p
     false → q

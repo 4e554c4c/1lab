@@ -440,7 +440,7 @@ purely based off of how they behave on points.
       fold-ext
         : ∀ {a b}
         → (f g : FAlg.Hom (Free.₀ a) b)
-        → (f .fst ∘ unit.η _ ≡ g .fst ∘ unit.η _)
+        → (f .fst ∘ unit.map _ ≡ g .fst ∘ unit.map _)
         → f .fst ≡ g .fst
       fold-ext f g p =
         ap fst $ Equiv.injective (_ , L-adjunct-is-equiv Free⊣π) {x = f} {y = g} $
@@ -455,7 +455,7 @@ the algebraically free monad via extension along $\mathrm{fold}$.
     lift-alg {a = a} α .ν = fold α
     lift-alg {a = a} α .ν-unit = zag
     lift-alg {a = a} α .ν-mult =
-      ap fst $ sym $ counit.is-natural (Free.₀ a) (a , α) (counit.ε (a , α))
+      ap fst $ sym $ counit.com (Free.₀ a) (a , α) (counit.ε (a , α))
 ```
 
 Likewise, we can extract an $F$-algebra out of a monad algebra by
@@ -465,7 +465,7 @@ passes it off to the monad algebra to be eliminated.
 
 ```agda
     lower-alg : ∀ {a} → Algebra-on Alg-free-monad a → Hom (F.₀ a) a
-    lower-alg {a = a} α = α .ν ∘ roll a ∘ F.₁ (unit.η a)
+    lower-alg {a = a} α = α .ν ∘ roll a ∘ F.₁ (unit.map a)
 ```
 
 We can also view a monad algebra $\alpha$ as a *morphism* of $F$-algebras,
@@ -492,16 +492,16 @@ clear, but proving it involves quite a bit of algebra.
 ```agda
     alg*
       : ∀ {a} → (α : Algebra-on Alg-free-monad a)
-      → FAlg.Hom (F* a , roll a) (a , (α .ν ∘ roll a ∘ F.₁ (unit.η a)))
+      → FAlg.Hom (F* a , roll a) (a , (α .ν ∘ roll a ∘ F.₁ (unit.map a)))
     alg* {a = a} α .fst = α .ν
     alg* {a = a} α .snd =
       α .ν ∘ roll a                                            ≡⟨ intror (F.annihilate zag) ⟩
-      (α .ν ∘ roll a) ∘ (F.₁ (mult a) ∘ F.₁ (unit.η _))        ≡⟨ pull-inner (sym $ fold-roll (roll a)) ⟩
-      α .ν ∘ (mult a ∘ roll (F* a)) ∘ F.₁ (unit.η _)           ≡⟨ dispersel (α .ν-mult) ⟩
-      α .ν ∘ Free.₁ (α .ν) .fst ∘ roll (F* a) ∘ F.₁ (unit.η _) ≡⟨ extend-inner (map*-roll (α .ν)) ⟩
-      α .ν ∘ roll a ∘ F.₁ (map* (α .ν)) ∘ F.₁ (unit.η _)       ≡⟨ centralizer (F.weave (sym (unit.is-natural _ _ _))) ⟩
-      α .ν ∘ (roll a ∘ F.₁ (unit.η _)) ∘ F.₁ (α .ν)            ≡⟨ assoc _ _ _ ⟩
-      (α .ν ∘ roll a ∘ F.₁ (unit.η _)) ∘ F.₁ (α .ν)            ∎
+      (α .ν ∘ roll a) ∘ (F.₁ (mult a) ∘ F.₁ (unit.map _))        ≡⟨ pull-inner (sym $ fold-roll (roll a)) ⟩
+      α .ν ∘ (mult a ∘ roll (F* a)) ∘ F.₁ (unit.map _)           ≡⟨ dispersel (α .ν-mult) ⟩
+      α .ν ∘ Free.₁ (α .ν) .fst ∘ roll (F* a) ∘ F.₁ (unit.map _) ≡⟨ extend-inner (map*-roll (α .ν)) ⟩
+      α .ν ∘ roll a ∘ F.₁ (map* (α .ν)) ∘ F.₁ (unit.map _)       ≡⟨ centralizer (F.weave (sym (unit.com _ _ _))) ⟩
+      α .ν ∘ (roll a ∘ F.₁ (unit.map _)) ∘ F.₁ (α .ν)            ≡⟨ assoc _ _ _ ⟩
+      (α .ν ∘ roll a ∘ F.₁ (unit.map _)) ∘ F.₁ (α .ν)            ∎
 ```
 
 However, this algebra pays off, as it lets us establish an equivalence
@@ -522,7 +522,7 @@ between $F$-algebras and algebras over the algebraically free monad on $F$.
 
         equivr
           : ∀ {a} (α : Hom (F.₀ a) a)
-          → counit.ε (a , α) .fst ∘ roll a ∘ F.₁ (unit.η _) ≡ α
+          → counit.ε (a , α) .fst ∘ roll a ∘ F.₁ (unit.map _) ≡ α
         equivr {a} α =
           pulll (counit.ε (a , α) .snd) ∙ F.cancelr zag
 ```
@@ -539,7 +539,7 @@ algebra morphisms.
       → Free-EM.Hom (a , lift-alg α) (b , lift-alg β)
     lift-alg-hom f .fst = f .fst
     lift-alg-hom f .snd =
-      (sym $ ap fst $ counit.is-natural _ _ f)
+      (sym $ ap fst $ counit.com _ _ f)
 
     lower-alg-hom
       : ∀ {a b} {α β}
@@ -551,7 +551,7 @@ algebra morphisms.
       f .fst ∘ (α ∘ F.₁ (ε (a , α) .fst)) ∘ F.₁ (η a)                 ≡⟨ push-inner (sym (fold-roll α)) ⟩
       ⌜ f .fst ∘ ε (a , α) .fst ⌝ ∘ (roll a ∘ F.₁ (η a))              ≡⟨ ap! (f .snd) ⟩
       (ε (b , β) .fst ∘ Free.F₁ (f .fst) .fst) ∘ (roll a ∘ F.₁ (η a)) ≡⟨ pull-inner (map*-roll (f .fst)) ⟩
-      ε (b , β) .fst ∘ (roll b ∘ F.₁ (map* (f .fst))) ∘ F.₁ (η a)     ≡⟨ disperse (fold-roll β) (F.weave (sym (unit.is-natural _ _ _))) ⟩
+      ε (b , β) .fst ∘ (roll b ∘ F.₁ (map* (f .fst))) ∘ F.₁ (η a)     ≡⟨ disperse (fold-roll β) (F.weave (sym (unit.com _ _ _))) ⟩
       β ∘ F.₁ (ε (b , β) .fst) ∘ F.₁ (η b) ∘ F.₁ (f .fst)             ≡⟨ ap₂ _∘_ refl (cancell (F.annihilate zag)) ⟩
       β ∘ (F.₁ (f .fst))                                              ∎
 ```

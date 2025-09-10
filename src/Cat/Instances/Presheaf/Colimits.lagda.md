@@ -42,8 +42,8 @@ private module PSh = Cat (PSh κ C)
 PSh-initial : Initial (PSh κ C)
 PSh-initial = record { has⊥ = uniq } where
   uniq : is-initial (PSh κ C) ⊥PSh
-  uniq x .centre .η _ ()
-  uniq x .centre .is-natural _ _ _ = ext λ ()
+  uniq x .centre .map _ ()
+  uniq x .centre .com _ _ _ = ext λ ()
   uniq x .paths f = ext λ _ ()
 
 _⊎PSh_ : (A B : PSh.Ob) → PSh.Ob
@@ -65,22 +65,22 @@ PSh-coproducts A B = coprod where
   module B = Functor B
 
   ι₁' : A => (A ⊎PSh B)
-  ι₁' .η _ x = inl x
-  ι₁' .is-natural x y f i a = inl (A.₁ f a)
+  ι₁' .map _ x = inl x
+  ι₁' .com x y f i a = inl (A.₁ f a)
 
   ι₂' : B => (A ⊎PSh B)
-  ι₂' .η _ x = inr x
-  ι₂' .is-natural x y f i b = inr (B.₁ f b)
+  ι₂' .map _ x = inr x
+  ι₂' .com x y f i b = inr (B.₁ f b)
 
   coprod : Coproduct (PSh _ C) A B
   coprod .coapex = A ⊎PSh B
   coprod .ι₁ = ι₁'
   coprod .ι₂ = ι₂'
-  coprod .has-is-coproduct .is-coproduct.[_,_] f g .η _ (inl x) = f .η _ x
-  coprod .has-is-coproduct .is-coproduct.[_,_] f g .η _ (inr x) = g .η _ x
-  coprod .has-is-coproduct .is-coproduct.[_,_] f g .is-natural x y h = funext λ where
-    (inl x) → f .is-natural _ _ _ $ₚ _
-    (inr x) → g .is-natural _ _ _ $ₚ _
+  coprod .has-is-coproduct .is-coproduct.[_,_] f g .map _ (inl x) = f .map _ x
+  coprod .has-is-coproduct .is-coproduct.[_,_] f g .map _ (inr x) = g .map _ x
+  coprod .has-is-coproduct .is-coproduct.[_,_] f g .com x y h = funext λ where
+    (inl x) → f .com _ _ _ $ₚ _
+    (inr x) → g .com _ _ _ $ₚ _
   coprod .has-is-coproduct .[]∘ι₁ = ext λ _ _ → refl
   coprod .has-is-coproduct .[]∘ι₂ = ext λ _ _ → refl
   coprod .has-is-coproduct .unique p q = ext λ where
@@ -96,25 +96,25 @@ PSh-coequaliser {X = X} {Y = Y} f g = coequ where
   module X = Functor X
   module Y = Functor Y
 
-  incq : ∀ {i} → _ → Coeq (f .η i) (g .η i)
+  incq : ∀ {i} → _ → Coeq (f .map i) (g .map i)
   incq = inc
 
   coequ : Coequaliser (PSh _ C) f g
-  coequ .coapex .F₀ i = el (Coeq (f .η i) (g .η i)) squash
+  coequ .coapex .F₀ i = el (Coeq (f .map i) (g .map i)) squash
   coequ .coapex .F₁ h = Coeq-rec (λ g → inc (Y.₁ h g)) λ x →
-    inc (Y.₁ h (f .η _ x)) ≡˘⟨ ap incq (happly (f .is-natural _ _ h) x) ⟩
-    inc (f .η _ _)         ≡⟨ glue (X.₁ h x) ⟩
-    inc (g .η _ _)         ≡⟨ ap incq (happly (g .is-natural _ _ h) x) ⟩
-    inc (Y.₁ h (g .η _ x)) ∎
+    inc (Y.₁ h (f .map _ x)) ≡˘⟨ ap incq (happly (f .com _ _ h) x) ⟩
+    inc (f .map _ _)         ≡⟨ glue (X.₁ h x) ⟩
+    inc (g .map _ _)         ≡⟨ ap incq (happly (g .com _ _ h) x) ⟩
+    inc (Y.₁ h (g .map _ x)) ∎
   coequ .coapex .F-id = ext λ _ → ap incq (happly Y.F-id _)
   coequ .coapex .F-∘ f g = ext λ _ → ap incq (happly (Y.F-∘ f g) _)
-  coequ .coeq .η i = incq
-  coequ .coeq .is-natural x y f = refl
+  coequ .coeq .map i = incq
+  coequ .coeq .com x y f = refl
   coequ .has-is-coeq .coequal = ext λ i x → glue x
-  coequ .has-is-coeq .universal {F = F} {e' = e'} p .η x =
-    Coeq-rec (e' .η x) (p ηₚ x $ₚ_)
-  coequ .has-is-coeq .universal {F = F} {e' = e'} p .is-natural x y f = ext λ x →
-    e' .is-natural _ _ _ $ₚ _
+  coequ .has-is-coeq .universal {F = F} {e' = e'} p .map x =
+    Coeq-rec (e' .map x) (p ηₚ x $ₚ_)
+  coequ .has-is-coeq .universal {F = F} {e' = e'} p .com x y f = ext λ x →
+    e' .com _ _ _ $ₚ _
   coequ .has-is-coeq .factors = ext λ _ _ → refl
   coequ .has-is-coeq .unique {F = F} p = reext! p
 ```

@@ -608,7 +608,7 @@ fast:
   Total-space .F₀ F .dom = el! (Σ _ (∣_∣ ⊙ F₀ F))
   Total-space .F₀ F .map = fst
 
-  Total-space .F₁ nt .map (i , x) = i , nt .η _ x
+  Total-space .F₁ nt .map (i , x) = i , nt .map _ x
   Total-space .F₁ nt .com         = refl
 
   Total-space .F-id    = ext λ _ _ → refl
@@ -639,8 +639,8 @@ dependent function is automatically a natural transformation.
       eta i j = subst (G ʻ_) (mp .com · _) (mp .map (i , j) .snd)
 
       nt : F => G
-      nt .η = eta
-      nt .is-natural _ _ = J (λ _ p → eta _ ⊙ F .F₁ p ≡ G .F₁ p ⊙ eta _) $
+      nt .map = eta
+      nt .com _ _ = J (λ _ p → eta _ ⊙ F .F₁ p ≡ G .F₁ p ⊙ eta _) $
         eta _ ⊙ F .F₁ refl ≡⟨ ap (eta _ ⊙_) (F .F-id) ⟩
         eta _              ≡˘⟨ ap (_⊙ eta _) (G .F-id) ⟩
         G .F₁ refl ⊙ eta _ ∎
@@ -801,15 +801,15 @@ adjunction between [[dependent sum]] and base change.
 
 ```agda
   Forget⊣constant-family : Forget/ ⊣ constant-family
-  Forget⊣constant-family .unit .η X .map = ⟨ id , X .map ⟩
-  Forget⊣constant-family .unit .η X .com = π₂∘⟨⟩
-  Forget⊣constant-family .unit .is-natural _ _ f = ext (⟨⟩-unique₂
+  Forget⊣constant-family .unit .map X .map = ⟨ id , X .map ⟩
+  Forget⊣constant-family .unit .map X .com = π₂∘⟨⟩
+  Forget⊣constant-family .unit .com _ _ f = ext (⟨⟩-unique₂
     (pulll π₁∘⟨⟩ ∙ id-comm-sym)
     (pulll π₂∘⟨⟩ ∙ f .com)
     (pulll π₁∘⟨⟩ ∙ pullr π₁∘⟨⟩)
     (pulll π₂∘⟨⟩ ∙ π₂∘⟨⟩))
-  Forget⊣constant-family .counit .η x = π₁
-  Forget⊣constant-family .counit .is-natural _ _ f = π₁∘⟨⟩
+  Forget⊣constant-family .counit .map x = π₁
+  Forget⊣constant-family .counit .com _ _ f = π₁∘⟨⟩
   Forget⊣constant-family .zig = π₁∘⟨⟩
   Forget⊣constant-family .zag = ext (⟨⟩-unique₂
     (pulll π₁∘⟨⟩ ∙ pullr π₁∘⟨⟩)

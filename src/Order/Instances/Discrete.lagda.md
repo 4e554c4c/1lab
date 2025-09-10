@@ -66,11 +66,11 @@ into $\Sets$.
 
 ```agda
 DiscF⊣Forget : ∀ {ℓ} → DiscF {ℓ} ⊣ Posets↪Sets
-DiscF⊣Forget .unit .η A x = x
-DiscF⊣Forget .unit .is-natural _ _ _ = refl
-DiscF⊣Forget .counit .η P .hom x  = x
-DiscF⊣Forget .counit .η P .pres-≤ = Poset.≤-refl' P
-DiscF⊣Forget .counit .is-natural P Q f = ext λ _ → refl
+DiscF⊣Forget .unit .map A x = x
+DiscF⊣Forget .unit .com _ _ _ = refl
+DiscF⊣Forget .counit .map P .hom x  = x
+DiscF⊣Forget .counit .map P .pres-≤ = Poset.≤-refl' P
+DiscF⊣Forget .counit .com P Q f = ext λ _ → refl
 DiscF⊣Forget .zig = ext λ _ → refl
 DiscF⊣Forget .zag = refl
 ```

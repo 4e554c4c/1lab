@@ -136,7 +136,7 @@ module _ (pb : has-pullbacks 𝒞) where
       x→y : Hom x.apex y.apex
       x→y = y.universal {p₁' = f .map ∘ x.p₁} {p₂' = T₁ (g .map) ∘ x.p₂} comm
         where abstract
-          open Pullback
+          --open Pullback
           comm : y1 .left ∘ f .map ∘ x.p₁ ≡ T₁ (y2 .right) ∘ T₁ (g .map) ∘ x.p₂
           comm = pulll (sym (f .left)) ∙ x.square ∙ (pushl $ T.expand $ g .right)
       res : Span-hom (Span-∘ .F₀ (x1 , x2))  (Span-∘ .F₀ (y1 , y2))
@@ -212,7 +212,7 @@ are pullbacks of the same square.
 
 ```agda
     sλ≅ : ∀ {A B} (x : Span A B) → Span-iso x (Span-id ⊗ x)
-    sλ≅ {A} {B} x = mk-span-iso hom (pullback-unique' pb.has-is-pb x-is-pb) where
+    sλ≅ {A} {B} x = mk-span-iso hom (pullback-unique pb.has-is-pb x-is-pb) where
       module pb = Pullback (pb (T.η B) (T₁ (x .right)))
       abstract
         x-is-pb : is-pullback 𝒞 (x .right) (T.η B) (T.η (x .apex)) (T₁ (x .right))
@@ -228,7 +228,7 @@ are pullbacks of the same square.
         (T.μ _ ∘ T₁ (x .left) ∘ pb.p₂) ∘ pb.universal _ ∎
     module sλ≅ {A B} (x : Span A B) = Spans._≅_ A B (sλ≅ x)
     sρ≅ : ∀ {A B} (x : Span A B) → Span-iso x (x ⊗ Span-id)
-    sρ≅ {A} {B} x = mk-span-iso hom (pullback-unique' pb.has-is-pb x-is-pb) where
+    sρ≅ {A} {B} x = mk-span-iso hom (pullback-unique pb.has-is-pb x-is-pb) where
       module pb = Pullback (pb (x .left) (T₁ id))
       abstract
         x-is-pb : is-pullback 𝒞 id (x .left) (x .left) (T₁ id)
@@ -324,7 +324,7 @@ witnessing isomorphism.
 ```agda
 
     sα≅ : ∀ {A B C D} (f : Span C D) (g : Span B C) (h : Span A B) → Span-iso  ((f ⊗ g) ⊗ h) (f ⊗ (g ⊗ h))
-    sα≅ {A} {B} {C} {D} f g h = mk-span-iso hom (pullback-unique' pb₁-is-pb-inner pb₂-is-pb-inner) module sα≃-data where
+    sα≅ {A} {B} {C} {D} f g h = mk-span-iso hom (pullback-unique pb₁-is-pb-inner pb₂-is-pb-inner) module sα≃-data where
       module f = Span f
       module g = Span g
       module h = Span h

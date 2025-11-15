@@ -277,6 +277,7 @@ object of $(\cC/X)/f$, or [[in other words|iterated slice]] $\cC/Y$.
           module pby = Pullback (pullbacks (f ∘ y .map) f)
       ff .rinv _ = ext refl
       ff .linv _ = ext refl
+```
 
 ## Cartesian Functors {defines="cartesian-functor"}
 

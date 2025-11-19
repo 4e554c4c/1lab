@@ -7,182 +7,121 @@ description: |
 open import Cat.Displayed.TwoSided.Discrete
 open import Cat.Displayed.Cocartesian
 open import Cat.Displayed.Cartesian
+open import Cat.Displayed.Double
 open import Cat.Instances.Product
 open import Cat.Displayed.Base
 open import Cat.Prelude
+open import Cat.Diagram.Pullback
 
 import Cat.Functor.Reasoning
 import Cat.Reasoning
 ```
 -->
 ```agda
-module Cat.Displayed.Instances.Comma where
+module Cat.Displayed.Instances.Spans
+  {o ℓ}
+  {C : Precategory o ℓ}
+  (let open module C = Cat.Reasoning C)
+  (pb : ∀ {a b c} (f : Hom a b) (g : Hom c b) → Pullback C f g)
+  where
+private
+  ℓc = o ⊔ ℓ
+open import Cat.Bi.Instances.Spans C hiding (Spans)
 ```
 
-# Comma categories as displayed categories
+# Spans as two-sided displayed categories
 
-We can neatly present [[comma categories]] as categories displayed over
-product categories.
 
 <!--
 ```agda
-module _
-  {oa ℓa ob ℓb oc ℓc}
-  {A : Precategory oa ℓa}
-  {B : Precategory ob ℓb}
-  {C : Precategory oc ℓc}
-  (F : Functor A C)
-  (G : Functor B C)
-  where
-  private
-    module A = Cat.Reasoning A
-    module B = Cat.Reasoning B
-    module C = Cat.Reasoning C
-    module F = Cat.Functor.Reasoning F
-    module G = Cat.Functor.Reasoning G
 
-  open Displayed
+
+open Span
+record Span-square {a b c d : Ob} (f : Hom a c) (g : Hom b d) (x : Span a b) (y : Span c d) : Type ℓc where
+  no-eta-equality
+  field
+    map   : Hom (x .apex) (y .apex)
+    left  : f ∘ x .left  ≡ y .left ∘ map
+    right : g ∘ x .right ≡ y .right ∘ map
+open Span-square
+
+unquoteDecl H-Level-Span-square = declare-record-hlevel 2 H-Level-Span-square (quote Span-square)
+
+Span-square-pathp
+  : {a b c d : Ob}
+    {f : I → Hom a c}
+    {g : I → Hom b d}
+    {x : Span a b}
+    {y : Span c d}
+    {s : Span-square (f i0) (g i0) x y}
+    {s' : Span-square (f i1) (g i1) x y}
+  → s .map ≡ s' .map
+  → PathP (λ i → Span-square (f i) (g i) x y) s s'
+Span-square-pathp p i .map = p i
+Span-square-pathp  {f = f} {g = g} {x = x} {y} {s} {s'} p i .left j =
+  is-set→squarep (λ i j → Hom-set _ _)
+    (λ j → f j ∘ x .left) (λ j → s .left j) (λ j → s' .left j) (λ j → y .left ∘ p j) i j
+Span-square-pathp  {f = f} {g = g} {x = x} {y} {s} {s'} p i .right j =
+  is-set→squarep (λ i j → Hom-set _ _)
+    (λ j → g j ∘ x .right) (λ j → s .right j) (λ j → s' .right j) (λ j → y .right ∘ p j) i j
+
+open Displayed
+Spans : Displayed (C ×ᶜ C) ℓc ℓc
+Spans .Ob[_] (a , b) = Span a b
+Spans .Hom[_] (f , g) = Span-square f g
+Spans .Hom[_]-set (f , g) h w = hlevel 2
+Spans .id' {a , b} = record
+    { map = id
+    ; left = id-comm-sym
+    ; right = id-comm-sym }
+Spans ._∘'_ s s' = record 
+    { map = s .map ∘ s' .map
+    ; left = {! s .left !}
+    ; right = {! !}
+    }
+Spans .idr' {a , b} {f , g} {s} {s'} h = Span-square-pathp (idr _)
+Spans .idl' {a , b} {f , g} {s} {s'} h = Span-square-pathp (idl _)
+Spans .hom[_] {f = f , g} {g = h , k} p s = record
+    { map = s .map
+    ; left  = (ap fst (sym p) ⟩∘⟨refl) ∙ s .left
+    ; right = (ap snd (sym p) ⟩∘⟨refl) ∙ s .right
+    }
+Spans .coh[_] p s = Span-square-pathp refl
+Spans .assoc' _ _ _ = Span-square-pathp (assoc _ _ _)
+
+module DC = DoubleCategoryOver 
+Spansᴰ : DoubleCategoryOver Spans
+Spansᴰ .DC.e = span _ id id
+Spansᴰ .DC.id[_] h = record 
+  { map = h
+  ; left = id-comm
+  ; right = id-comm
+  }
+Spansᴰ .DC.id[]≡id = Span-square-pathp refl
+Spansᴰ .DC.id[]∘ = Span-square-pathp refl
+Spansᴰ .DC._⊚_ k v = span pb.apex (v .left ∘ p₂) (k .right ∘ p₁)
+  where open module pb = Pullback (pb (k .left) (v .right))
+Spansᴰ .DC._⊡_ {h₁ = h₁} {h₂} {k₁} {k₂} s₁ s₂ = record
+  { map = pb2.universal {p₁' = s₁ .map ∘ pb1.p₁} {p₂' = s₂ .map ∘ pb1.p₂} {! !}
+  ; left = {! !}
+  ; right = {! !}
+  }
+  where 
+    module pb1 = Pullback (pb (h₁ .left) (h₂ .right))
+    module pb2 = Pullback (pb (k₁ .left) (k₂ .right))
+Spansᴰ .DC.interchange α β γ δ = {! !}
+Spansᴰ .DC.λ≅[_] h = record
+  { to' = record
+    { map = {! !}
+    ; left = {! !}
+    ; right = {! !} }
+  ; from' = {! !}
+  ; inverses' = {! !} }
+Spansᴰ .DC.ρ≅[_] h = {! !}
+Spansᴰ .DC.κ≅[_,_,_] f g h = {! !}
+Spansᴰ .DC.λ-nat α = {! !}
+Spansᴰ .DC.ρ-nat α = {! !}
+Spansᴰ .DC.κ-nat α β γ = {! !}
+Spansᴰ .DC.triangle = {! !}
+Spansᴰ .DC.pentagon = {! !}
 ```
--->
-
-```agda
-  Comma : Displayed (A ×ᶜ B) ℓc ℓc
-  Comma = with-thin-display record where
-    Ob[_]  (a , b)     = C.Hom (F.₀ a) (G.₀ b)
-    Hom[_] (u , v) f g = G.₁ v C.∘ f ≡ g C.∘ F.₁ u
-    id'      = C.eliml G.F-id ∙ C.intror F.F-id
-    _∘'_ α β = G.popr β ∙ sym (F.shufflel (sym α))
-```
-
-## Comma categories are discrete two-sided fibrations
-
-<!--
-```agda
-module _
-  {oa ℓa ob ℓb oc ℓc}
-  {A : Precategory oa ℓa}
-  {B : Precategory ob ℓb}
-  {C : Precategory oc ℓc}
-  {F : Functor A C}
-  {G : Functor B C}
-  where
-  private
-    module A = Cat.Reasoning A
-    module B = Cat.Reasoning B
-    module C = Cat.Reasoning C
-    module F = Cat.Functor.Reasoning F
-    module G = Cat.Functor.Reasoning G
-
-  open is-discrete-two-sided-fibration
-  open Displayed
-```
--->
-
-Comma categories are [[discrete two-sided fibrations]].
-
-```agda
-  Comma-is-discrete-two-sided-fibration
-    : is-discrete-two-sided-fibration (Comma F G)
-  Comma-is-discrete-two-sided-fibration .fibre-set _ _ = hlevel 2
-  Comma-is-discrete-two-sided-fibration .cart-lift f g .centre =
-    g C.∘ F.₁ f , C.eliml G.F-id
-  Comma-is-discrete-two-sided-fibration .cart-lift f g .paths (h , p) =
-    Σ-prop-path! (sym p ∙ C.eliml G.F-id)
-  Comma-is-discrete-two-sided-fibration .cocart-lift f g .centre =
-    G.₁ f C.∘ g , C.intror F.F-id
-  Comma-is-discrete-two-sided-fibration .cocart-lift f g .paths (h , p) =
-    Σ-prop-path! (p ∙ C.elimr F.F-id)
-  Comma-is-discrete-two-sided-fibration .vert-lift {x = f} {y = g} {u = h} {v = k} p =
-    G.F₁ B.id C.∘ G.F₁ k C.∘ f   ≡⟨ C.eliml G.F-id ⟩
-    G.F₁ k C.∘ f                 ≡⟨ p ⟩
-    g C.∘ F.₁ h                  ≡⟨ C.intror F.F-id ⟩
-    (g C.∘ F.F₁ h) C.∘ F.F₁ A.id ∎
-  Comma-is-discrete-two-sided-fibration .factors _ = prop!
-```
-
-Every *$B$-vertical* morphism in a discrete two-sided fibration is
-[[cartesian|cartesian morphism]], but this is not necessarily true of
-*every* morphism. In our setting, the cartesian maps are given by
-squares that satisfy the following pasting property: for every
-(potentially non-commutative) square of the below form, if the overall
-rectangle commutes, then the upper square commutes.
-
-~~~{.quiver}
-\begin{tikzcd}
-  F(A) && G(Y) \\
-  \\
-  F(W) && G(Y) \\
-  \\
-  F(X) && G(Z)
-  \arrow["h", from=1-1, to=1-3]
-  \arrow["F(j)"', from=1-1, to=3-1]
-  \arrow["G(k)", from=1-3, to=3-3]
-  \arrow["f", from=3-1, to=3-3]
-  \arrow["F(u)"', from=3-1, to=5-1]
-  \arrow["G(v)", from=3-3, to=5-3]
-  \arrow["g"', from=5-1, to=5-3]
-\end{tikzcd}
-~~~
-
-```agda
-  pasting→comma-cartesian
-    : ∀ {w x y z} {u : A.Hom w x} {v : B.Hom y z} {f : C.Hom (F.₀ w) (G.₀ y)} {g : C.Hom (F.₀ x) (G.₀ z)}
-    → (p : G.₁ v C.∘ f ≡ g C.∘ F.₁ u)
-    → (∀ {a b} {h : C.Hom (F.₀ a) (G.₀ b)} {j : A.Hom a w} {k : B.Hom b y}
-       → G.₁ v C.∘ G.₁ k C.∘ h ≡ g C.∘ F.₁ u C.∘ F.₁ j
-       → G.₁ k C.∘ h ≡ f C.∘ F.₁ j)
-    → is-cartesian (Comma F G) (u , v) p
-  pasting→comma-cartesian p paste .is-cartesian.universal _ outer =
-    paste (C.pulll (sym $ G.F-∘ _ _) ∙∙ outer ∙∙ ap₂ C._∘_ refl (F.F-∘ _ _))
-  pasting→comma-cartesian p paste .is-cartesian.commutes _ _ = prop!
-  pasting→comma-cartesian p paste .is-cartesian.unique _ _ = prop!
-
-  comma-cartesian→pasting
-    : ∀ {w x y z} {u : A.Hom w x} {v : B.Hom y z} {f : C.Hom (F.₀ w) (G.₀ y)} {g : C.Hom (F.₀ x) (G.₀ z)}
-    → (p : G.₁ v C.∘ f ≡ g C.∘ F.₁ u)
-    → is-cartesian (Comma F G) (u , v) p
-    → ∀ {a b} {h : C.Hom (F.₀ a) (G.₀ b)} {j : A.Hom a w} {k : B.Hom b y}
-       → G.₁ v C.∘ G.₁ k C.∘ h ≡ g C.∘ F.₁ u C.∘ F.₁ j
-       → G.₁ k C.∘ h ≡ f C.∘ F.₁ j
-  comma-cartesian→pasting p p-cart outer =
-    is-cartesian.universal p-cart _ $
-      C.pushl (G.F-∘ _ _) ∙∙ outer ∙∙ ap₂ C._∘_ refl (sym $ F.F-∘ _ _)
-```
-
-Moreover, a square is [[cocartesian|cocartesian-morphism]] when it satisfies
-the dual pasting lemma.
-
-```agda
-  pasting→comma-cocartesian
-    : ∀ {w x y z} {u : A.Hom w x} {v : B.Hom y z} {f : C.Hom (F.₀ w) (G.₀ y)} {g : C.Hom (F.₀ x) (G.₀ z)}
-    → (p : G.₁ v C.∘ f ≡ g C.∘ F.₁ u)
-    → (∀ {a b} {h : C.Hom (F.₀ a) (G.₀ b)} {j : A.Hom x a} {k : B.Hom z b}
-        → G.₁ k C.∘ G.₁ v C.∘ f ≡ h C.∘ F.₁ j C.∘ F.₁ u
-        → G.₁ k C.∘ g ≡ h C.∘ F.₁ j)
-    → is-cocartesian (Comma F G) (u , v) p
-
-  comma-cocartesian→pasting
-    : ∀ {w x y z} {u : A.Hom w x} {v : B.Hom y z} {f : C.Hom (F.₀ w) (G.₀ y)} {g : C.Hom (F.₀ x) (G.₀ z)}
-    → (p : G.₁ v C.∘ f ≡ g C.∘ F.₁ u)
-    → is-cocartesian (Comma F G) (u , v) p
-    → ∀ {a b} {h : C.Hom (F.₀ a) (G.₀ b)} {j : A.Hom x a} {k : B.Hom z b}
-        → G.₁ k C.∘ G.₁ v C.∘ f ≡ h C.∘ F.₁ j C.∘ F.₁ u
-        → G.₁ k C.∘ g ≡ h C.∘ F.₁ j
-
-```
-
-<details>
-<summary>The proofs are formally dual, so we omit them.
-</summary>
-
-```agda
-  pasting→comma-cocartesian p paste .is-cocartesian.universal _ outer =
-    paste (C.pulll (sym $ G.F-∘ _ _) ∙∙ outer ∙∙ ap₂ C._∘_ refl (F.F-∘ _ _))
-  pasting→comma-cocartesian p paste .is-cocartesian.commutes _ _ = prop!
-  pasting→comma-cocartesian p paste .is-cocartesian.unique _ _ = prop!
-
-  comma-cocartesian→pasting p p-cocart outer =
-    is-cocartesian.universal p-cocart _ $
-      C.pushl (G.F-∘ _ _) ∙∙ outer ∙∙ ap₂ C._∘_ refl (sym $ F.F-∘ _ _)
-```
-</details>

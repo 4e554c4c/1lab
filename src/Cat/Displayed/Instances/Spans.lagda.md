@@ -1,7 +1,3 @@
----
-description: |
-  Comma categories as two-sided displayed categories.
----
 <!--
 ```agda
 open import Cat.Displayed.TwoSided.Discrete
@@ -28,7 +24,6 @@ module Cat.Displayed.Instances.Spans
   where
 private
   ℓc = o ⊔ ℓ
---open import Cat.Bi.Instances.Spans C hiding (Spans)
 ```
 
 # Spans as two-sided displayed categories
@@ -37,7 +32,6 @@ private
 ```agda
 
 private
-  --open module C = Cat.Reasoning C
   open module T = CartesianMonad T using () renaming (M₀ to T₀; M₁ to T₁)
   T² = T.M F∘ T.M
   open module T² = Functor T² using () renaming (F₀ to T²₀; F₁ to T²₁)
@@ -45,40 +39,30 @@ private
   underlying-Monad-on = T .CartesianMonad.U .snd
 
 
-{-
 record Span (a b : Ob) : Type (o ⊔ ℓ) where
   constructor t-span
   field
     apex  : Ob
-    left  : Hom apex (T.M₀ a)
+    left  : Hom apex (T₀ a)
     right : Hom apex b
+
+module span-∘ {a b c} (s : Span b c) (t : Span a b) where
+  open Pullback (pb (s .Span.left) (T₁ (t .Span.right))) public
+  module dst = Span s
+  module src = Span t
+  left = T.μ _ ∘ T₁ src.left ∘ p₂
+  right = dst.right ∘ p₁
+
+span-∘ : ∀ {a b c} (s : Span b c) (t : Span a b) → Span a c
+span-∘ s t = record { span-∘ s t }
 
 open Span
 
-record Span-hom {a b : Ob} (x y : Span a b) : Type ℓ where
-  no-eta-equality
-  field
-    map   : Hom (x .apex) (y .apex)
-    left  : x .left  ≡ y .left ∘ map
-    right : x .right ≡ y .right ∘ map
-
-open Span-hom
-unquoteDecl H-Level-Span-hom = declare-record-hlevel 2 H-Level-Span-hom (quote Span-hom)
--}
-
-record Span (a b : Ob) : Type (o ⊔ ℓ) where
-  constructor span
-  field
-    apex  : Ob
-    left  : Hom apex a
-    right : Hom apex b
-
-open Span
 record Span-square {a b c d : Ob} (f : Hom a c) (g : Hom b d) (x : Span a b) (y : Span c d) : Type ℓc where
   no-eta-equality
   field
     map   : Hom (x .apex) (y .apex)
-    left  : f ∘ x .left  ≡ y .left ∘ map
+    left  : (T₁ f) ∘ x .left  ≡ y .left ∘ map
     right : g ∘ x .right ≡ y .right ∘ map
 open Span-square
 
@@ -97,7 +81,7 @@ Span-square-pathp
 Span-square-pathp p i .map = p i
 Span-square-pathp  {f = f} {g = g} {x = x} {y} {s} {s'} p i .left j =
   is-set→squarep (λ i j → Hom-set _ _)
-    (λ j → f j ∘ x .left) (λ j → s .left j) (λ j → s' .left j) (λ j → y .left ∘ p j) i j
+    (λ j → T₁ (f j) ∘ x .left) (λ j → s .left j) (λ j → s' .left j) (λ j → y .left ∘ p j) i j
 Span-square-pathp  {f = f} {g = g} {x = x} {y} {s} {s'} p i .right j =
   is-set→squarep (λ i j → Hom-set _ _)
     (λ j → g j ∘ x .right) (λ j → s .right j) (λ j → s' .right j) (λ j → y .right ∘ p j) i j
@@ -109,18 +93,18 @@ Spans .Hom[_] (f , g) = Span-square f g
 Spans .Hom[_]-set (f , g) h w = hlevel 2
 Spans .id' {a , b} = record
     { map = id
-    ; left = id-comm-sym
+    ; left = T.eliml refl ∙ sym (idr _)
     ; right = id-comm-sym }
 Spans ._∘'_ s s' = record
     { map = s .map ∘ s' .map
-    ; left = pullr (s' .left)  ∙ extendl (s .left)
+    ; left = T.popr (s' .left) ∙ extendl (s .left)
     ; right = pullr (s' .right) ∙ extendl (s .right)
     }
-Spans .idr' {a , b} {f , g} {s} {s'} h = Span-square-pathp (idr _)
-Spans .idl' {a , b} {f , g} {s} {s'} h = Span-square-pathp (idl _)
+Spans .idr' _ = Span-square-pathp (idr _)
+Spans .idl' _ = Span-square-pathp (idl _)
 Spans .hom[_] {f = f , g} {g = h , k} p s = record
     { map = s .map
-    ; left  = (ap fst (sym p) ⟩∘⟨refl) ∙ s .left
+    ; left  = (ap (T₁ ⊙ fst) (sym p) ⟩∘⟨refl)  ∙ s .left
     ; right = (ap snd (sym p) ⟩∘⟨refl) ∙ s .right
     }
 Spans .coh[_] p s = Span-square-pathp refl
@@ -128,30 +112,35 @@ Spans .assoc' _ _ _ = Span-square-pathp (assoc _ _ _)
 
 module DC = DoubleCategoryOver
 Spansᴰ : DoubleCategoryOver Spans
-Spansᴰ .DC.e = span _ id id
+Spansᴰ .DC.e {a} = t-span a (T.η a) id
 Spansᴰ .DC.id[_] h = record
   { map = h
-  ; left = id-comm
+  ; left = sym $ T.unit.is-natural _ _ _
   ; right = id-comm
   }
 Spansᴰ .DC.id[]≡id = Span-square-pathp refl
 Spansᴰ .DC.id[]∘ = Span-square-pathp refl
-Spansᴰ .DC._⊚_ k v = span pb.apex (v .left ∘ p₂) (k .right ∘ p₁)
-  where open module pb = Pullback (pb (k .left) (v .right))
-Spansᴰ .DC._⊡_ {h₁ = h₁} {h₂} {k₁} {k₂} s₁ s₂ = record
-  { map = pb2.universal {p₁' = s₁ .map ∘ pb1.p₁} {p₂' = s₂ .map ∘ pb1.p₂} {! !}
+Spansᴰ .DC._⊚_ = span-∘
+Spansᴰ .DC._⊡_ {h₁ = s} {t} {s'} {t'} σ τ = record
+  { map = s'∘t'.universal {p₁' = σ.map ∘ s∘t.p₁} {p₂' = T₁ τ.map ∘ s∘t.p₂} comm
   ; left = {! !}
   ; right = {! !}
   }
   where
-    module pb1 = Pullback (pb (h₁ .left) (h₂ .right))
-    module pb2 = Pullback (pb (k₁ .left) (k₂ .right))
+    module s∘t = span-∘ s t
+    module s'∘t' = span-∘ s' t'
+    module s' = Span s'
+    module t' = Span t'
+    module σ = Span-square σ
+    module τ = Span-square τ
+    comm =
+      s'.left ∘ σ.map ∘ s∘t.p₁ ≡⟨ extendl (sym σ.left) ⟩
+      T₁ _ ∘ s∘t.dst.left ∘ s∘t.p₁ ≡⟨ refl⟩∘⟨ s∘t.square ⟩
+      T₁ _ ∘ T₁ s∘t.src.right ∘ s∘t.p₂ ≡⟨ extendl (T.weave τ.right) ⟩
+      T₁ t'.right ∘ T₁ τ.map ∘ s∘t.p₂ ∎
 Spansᴰ .DC.interchange α β γ δ = {! !}
 Spansᴰ .DC.λ≅[_] h = record
-  { to' = record
-    { map = {! !}
-    ; left = {! !}
-    ; right = {! !} }
+  { to' = {! !}
   ; from' = {! !}
   ; inverses' = {! !} }
 Spansᴰ .DC.ρ≅[_] h = {! !}

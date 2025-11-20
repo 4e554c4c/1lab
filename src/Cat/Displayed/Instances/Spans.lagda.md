@@ -12,6 +12,7 @@ open import Cat.Instances.Product
 open import Cat.Displayed.Base
 open import Cat.Prelude
 open import Cat.Diagram.Pullback
+open import Cat.Diagram.Monad.Pullback
 
 import Cat.Functor.Reasoning
 import Cat.Reasoning
@@ -23,18 +24,54 @@ module Cat.Displayed.Instances.Spans
   {C : Precategory o ℓ}
   (let open module C = Cat.Reasoning C)
   (pb : ∀ {a b c} (f : Hom a b) (g : Hom c b) → Pullback C f g)
+  (T : CartesianMonad C)
   where
 private
   ℓc = o ⊔ ℓ
-open import Cat.Bi.Instances.Spans C hiding (Spans)
+--open import Cat.Bi.Instances.Spans C hiding (Spans)
 ```
 
 # Spans as two-sided displayed categories
 
 
-<!--
 ```agda
 
+private
+  --open module C = Cat.Reasoning C
+  open module T = CartesianMonad T using () renaming (M₀ to T₀; M₁ to T₁)
+  T² = T.M F∘ T.M
+  open module T² = Functor T² using () renaming (F₀ to T²₀; F₁ to T²₁)
+
+  underlying-Monad-on = T .CartesianMonad.U .snd
+
+
+{-
+record Span (a b : Ob) : Type (o ⊔ ℓ) where
+  constructor t-span
+  field
+    apex  : Ob
+    left  : Hom apex (T.M₀ a)
+    right : Hom apex b
+
+open Span
+
+record Span-hom {a b : Ob} (x y : Span a b) : Type ℓ where
+  no-eta-equality
+  field
+    map   : Hom (x .apex) (y .apex)
+    left  : x .left  ≡ y .left ∘ map
+    right : x .right ≡ y .right ∘ map
+
+open Span-hom
+unquoteDecl H-Level-Span-hom = declare-record-hlevel 2 H-Level-Span-hom (quote Span-hom)
+-}
+
+record Span (a b : Ob) : Type (o ⊔ ℓ) where
+  constructor span
+  field
+    apex  : Ob
+    left  : Hom apex a
+    right : Hom apex b
 
 open Span
 record Span-square {a b c d : Ob} (f : Hom a c) (g : Hom b d) (x : Span a b) (y : Span c d) : Type ℓc where
@@ -74,10 +111,10 @@ Spans .id' {a , b} = record
     { map = id
     ; left = id-comm-sym
     ; right = id-comm-sym }
-Spans ._∘'_ s s' = record 
+Spans ._∘'_ s s' = record
     { map = s .map ∘ s' .map
-    ; left = {! s .left !}
-    ; right = {! !}
+    ; left = pullr (s' .left)  ∙ extendl (s .left)
+    ; right = pullr (s' .right) ∙ extendl (s .right)
     }
 Spans .idr' {a , b} {f , g} {s} {s'} h = Span-square-pathp (idr _)
 Spans .idl' {a , b} {f , g} {s} {s'} h = Span-square-pathp (idl _)
@@ -89,10 +126,10 @@ Spans .hom[_] {f = f , g} {g = h , k} p s = record
 Spans .coh[_] p s = Span-square-pathp refl
 Spans .assoc' _ _ _ = Span-square-pathp (assoc _ _ _)
 
-module DC = DoubleCategoryOver 
+module DC = DoubleCategoryOver
 Spansᴰ : DoubleCategoryOver Spans
 Spansᴰ .DC.e = span _ id id
-Spansᴰ .DC.id[_] h = record 
+Spansᴰ .DC.id[_] h = record
   { map = h
   ; left = id-comm
   ; right = id-comm
@@ -106,7 +143,7 @@ Spansᴰ .DC._⊡_ {h₁ = h₁} {h₂} {k₁} {k₂} s₁ s₂ = record
   ; left = {! !}
   ; right = {! !}
   }
-  where 
+  where
     module pb1 = Pullback (pb (h₁ .left) (h₂ .right))
     module pb2 = Pullback (pb (k₁ .left) (k₂ .right))
 Spansᴰ .DC.interchange α β γ δ = {! !}

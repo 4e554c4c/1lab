@@ -111,13 +111,16 @@ record DoubleCategoryOver {C : Precategory o ℓ} (E : Displayed (C ×ᶜ C) ℓ
   field
     triangle : ∀ {A B C}
       {f : Ob[ B , C ]} {g : Ob[ A , B ]} →
-      PathP (λ i → Hom[ C.id2 (~ i) , C.id2 (~ i) ] (f ⊚ (e ⊚ g)) (f ⊚ g))
-      (id' ⊡ λ→ g) (ρ→ f ⊡ id' ∘' κ→ f e g)
+      --PathP (λ i → Hom[ C.id2 (~ i) , C.id2 (~ i) ] (f ⊚ (e ⊚ g)) (f ⊚ g))
+      id' ⊡ λ→ g ≡[ sym (C.id2 ,ₚ C.id2) ] ρ→ f ⊡ id' ∘' κ→ f e g
 
     pentagon : ∀ {A B C D E}
       {f : Ob[ D , E ]} {g : Ob[ C , D ]} {h : Ob[ B , C ]} {k : Ob[ A , B ]} →
       PathP (λ i → Hom[ id ∘ C.id2 (~ i) , id ∘ C.id2 (~ i) ] (f ⊚ g ⊚ h ⊚ k) (((f ⊚ g) ⊚ h) ⊚ k))
       (κ→ _ _ _ ∘' κ→ _ _ _) (κ→ _ _ _ ⊡ id' ∘' κ→ _ _ _ ∘' id' ⊡ κ→ _ _ _)
+      -- (κ→ _ _ _ ∘' κ→ _ _ _)
+      -- ≡[ (refl⟩∘⟨ sym C.id2 ) ,ₚ (refl⟩∘⟨ sym C.id2 ) ]
+      -- (κ→ _ _ _ ⊡ id' ∘' κ→ _ _ _ ∘' id' ⊡ κ→ _ _ _)
 
 
 record DoubleFunctorOver

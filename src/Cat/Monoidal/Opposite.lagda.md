@@ -26,7 +26,7 @@ open _=>_
 ```
 -->
 
-# Opposite monoidal categories {defines="opposte-monoidal-category"}
+# Opposite monoidal categories {defines="opposite-monoidal-category"}
 
 If $\cC$ has the structure of a [[monoidal category]], then there is
 a natural monoidal structure on its [[opposite category]] $\cC\op$,

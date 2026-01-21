@@ -62,6 +62,9 @@ instance
     go (suc zero) xs          = xs ∷ []
     go (suc (suc n)) (x , xs) = x ∷ go (suc n) xs
 
+[_]L : ∀ {ℓ} {A : Type ℓ} {n} → Vecₓ A n → List A
+[ p ]L = [ p ]
+
 -- Test:
 _ : Path (List Nat) [ 1 , 2 , 3 ] (1 ∷ 2 ∷ 3 ∷ [])
 _ = refl

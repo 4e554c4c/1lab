@@ -4,9 +4,11 @@ open import 1Lab.Path
 open import 1Lab.Type
 
 open import Data.Product.NAry
+open import Data.Maybe.Base
 open import Data.List.Base hiding (head ; tail ; lookup) renaming (tabulate to tabulateℓ ; _++_ to _++ℓ_)
 open import Data.Fin.Base
-open import Data.Nat.Base
+open import Data.Nat.Base as Nat
+open import Data.Id.Base
 
 open import Meta.Idiom
 
@@ -59,6 +61,13 @@ instance
 length-uncons : ∀ {xs n x} → Length {A = A} (x ∷ xs) (suc n) → Length xs n
 length-uncons (suc l) = l
 
+has-lengthᵢ : ∀ {xs : List A} {n : Nat} → Irr (Length xs n) → length xs ≡ᵢ n
+has-lengthᵢ {xs = []} {n = zero} len = reflᵢ
+has-lengthᵢ {xs = x ∷ xs} {n = suc n} len = apᵢ suc $ has-lengthᵢ $ length-uncons <$> len
+
+has-length : ∀ {xs : List A} {n : Nat} → Irr (Length xs n) → length xs ≡ n
+has-length l = Id≃path.to $ has-lengthᵢ l
+
 record Vec {ℓ} (A : Type ℓ) (n : Nat) : Type ℓ where
   constructor vec
   field
@@ -89,9 +98,8 @@ tail : Vec A (suc n) → Vec A n
 tail v with (x ∷ xs) ← vec-view v = xs
 
 lookup : Vec A n → Fin n → A
-lookup xs n with fin-view n
-... | zero  = head xs
-... | suc i = lookup (tail xs) i
+lookup (vec xs ⦃ forget len ⦄) (fin n ⦃ forget n<xs ⦄) =
+  from-just! _ $ !?-just xs n $ᵢ ≤-trans n<xs $ subst (Nat._≤ length xs) (has-length $ forget len) Nat.x≤x
 
 instance
   From-prod-Vec : From-product A (Vec A)

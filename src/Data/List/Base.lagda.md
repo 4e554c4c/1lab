@@ -9,6 +9,7 @@ open import Data.Maybe.Base
 open import Data.Bool.Base
 open import Data.Dec.Base
 open import Data.Fin.Base
+open import Data.Irr
 
 open import Meta.Traversable
 open import Meta.Foldable
@@ -16,6 +17,8 @@ open import Meta.Append
 open import Meta.Idiom
 open import Meta.Bind
 open import Meta.Alt
+
+import Data.Nat.Base as Nat
 ```
 -->
 
@@ -338,10 +341,22 @@ lookup x ((k , v) ∷ xs) with x ≡? k
 ... | yes _ = just v
 ... | no  _ = lookup x xs
 
+_!?_ : List A → Nat → Maybe A
+[] !? n = nothing
+(x ∷ xs) !? zero = just x
+(x ∷ xs) !? suc n = xs !? n
+
+-- Make sure that all of the actual computation is guarded behind irrelevance to make this zero cost
+!?-just : ∀ (xs : List A) (n : Nat) → .(n Nat.< length xs) → is-just (xs !? n)
+!?-just {A = a} xs n n<xs = erase (worker xs n n<xs)
+  where
+    worker : ∀ (xs : List A) (n : Nat) → n Nat.< length xs → is-true (is-just? (xs !? n))
+    worker (x ∷ xs) zero n<xs = tt
+    worker (x ∷ xs) (suc n) n<xs = worker xs n (Nat.≤-peel n<xs)
+
 _!_ : (l : List A) → Fin (length l) → A
-(x ∷ xs) ! n with fin-view n
-... | zero  = x
-... | suc i = xs ! i
+xs ! (fin n ⦃ forget pf ⦄) = from-just! _ $ !?-just xs n pf
+
 
 tabulate : ∀ {n} (f : Fin n → A) → List A
 tabulate {n = zero}  f = []

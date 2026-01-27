@@ -89,9 +89,9 @@ is-just? nothing = false
 is-just? (just _) = true
 
 record is-just (m : Maybe A) : Type where
-  constructor erase
+  constructor lift
   field
-    .witness : is-true (is-just? m)
+    lower : So (is-just? m)
 
 
 from-just! : ∀ x → is-just x → A

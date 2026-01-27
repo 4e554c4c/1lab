@@ -348,11 +348,8 @@ _!?_ : List A → Nat → Maybe A
 
 -- Make sure that all of the actual computation is guarded behind irrelevance to make this zero cost
 !?-just : ∀ (xs : List A) (n : Nat) → .(n Nat.< length xs) → is-just (xs !? n)
-!?-just {A = a} xs n n<xs = erase (worker xs n n<xs)
-  where
-    worker : ∀ (xs : List A) (n : Nat) → n Nat.< length xs → is-true (is-just? (xs !? n))
-    worker (x ∷ xs) zero n<xs = tt
-    worker (x ∷ xs) (suc n) n<xs = worker xs n (Nat.≤-peel n<xs)
+!?-just {A = a} (x ∷ xs) zero n<xs = lift oh
+!?-just {A = a} (x ∷ xs) (suc n) n<xs = !?-just xs n (Nat.≤-peel n<xs)
 
 _!_ : (l : List A) → Fin (length l) → A
 xs ! (fin n ⦃ forget pf ⦄) = from-just! _ $ !?-just xs n pf

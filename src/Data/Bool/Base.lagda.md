@@ -81,10 +81,9 @@ is-true true  = ⊤
 is-true false = ⊥
 
 record So (b : Bool) : Type where
+  constructor oh
   field
-    is-so : is-true b
-
-pattern oh = record { is-so = tt }
+    .{is-so} : is-true b
 ```
 
 <!--
@@ -104,7 +103,7 @@ instance
   H-Level-So : ∀ {x n} → H-Level (So x) (suc n)
   H-Level-So {false} = prop-instance λ ()
   H-Level-So {true} = prop-instance λ where
-    oh oh → refl
+    _ _ → refl
 
   Dec-So : ∀ {x} → Dec (So x)
   Dec-So = oh? _

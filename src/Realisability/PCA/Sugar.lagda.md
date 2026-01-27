@@ -121,20 +121,20 @@ instead.
 
 ```agda
 expr_ : (t : ∀ {V} → Termʰ V) ⦃ _ : wf 0 t ⦄ → ↯ ⌞ 𝔸 ⌟
-expr_ t ⦃ i ⦄ = eval {n = 0} (from-wf t i) []
+expr_ t ⦃ i ⦄ = eval {n = 0} (from-wf t i) []v
 
 val_
   : (t : ∀ {V} → Termʰ V) ⦃ _ : wf 0 t ⦄
   → ⦃ _ : always-denotes {Nat} t ⦄ → ↯⁺ ⌞ 𝔸 ⌟
 val_ t ⦃ i ⦄ =
   record
-    { fst = eval {n = 0} (from-wf t i) []
+    { fst = eval {n = 0} (from-wf t i) []v
     ; snd = d t
     }
   where abstract
-  d : (t : Termʰ Nat) ⦃ i : wf 0 t ⦄ ⦃ _ : always-denotes t ⦄ → ⌞ eval {n = 0} (from-wf t i) [] ⌟
+  d : (t : Termʰ Nat) ⦃ i : wf 0 t ⦄ ⦃ _ : always-denotes t ⦄ → ⌞ eval {n = 0} (from-wf t i) []v ⌟
   d (const x) = x .snd
-  d (lam x) = abs↓ (from-wf (x 0) _) []
+  d (lam x) = abs↓ (from-wf (x 0) _) []v
 ```
 
 Finally, we introduce a notation class `To-term`{.Agda} to overload the

@@ -1,5 +1,6 @@
 <!--
 ```agda
+{-# OPTIONS --allow-unsolved-metas #-}
 open import 1Lab.Path
 open import 1Lab.Type
 
@@ -73,6 +74,8 @@ record Vec {ℓ} (A : Type ℓ) (n : Nat) : Type ℓ where
   field
     lower   : List A
     ⦃ len ⦄ : Irr (Length lower n)
+
+open Vec using (lower) public
 
 pattern []v = vec []
 

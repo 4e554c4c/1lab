@@ -86,7 +86,9 @@ module _ where private
 
 <!--
 ```agda
-_ = _≡_
+_≠ᵢ_ : ∀ {ℓ} {A : Type ℓ} → A → A → Type ℓ
+x ≠ᵢ y = ¬ (x ≡ᵢ y)
+
 Id≃path : ∀ {ℓ} {A : Type ℓ} {x y : A} → (x ≡ᵢ y) ≃ (x ≡ y)
 Id≃path .fst p = Id-identity-system .to-path p
 Id≃path {ℓ} {A} {x} {y} .snd =
@@ -185,6 +187,9 @@ instance
       (yes q) → yes (ap₂ _,_ refl q)
       (no ¬q) → no λ p → ¬q (Σ-inj-set (Discrete→is-set auto) p)
     (no ¬p) → no λ p → ¬p (Id≃path.from (ap fst p))
+
+  Disc→decᵢ : ∀ {ℓ} {A : Type ℓ} ⦃ _ : Discrete A ⦄ → ∀ {x y} → Dec (x ≡ᵢ y)
+  Disc→decᵢ ⦃ disc ⦄ {x = x} {y} = _≡ᵢ?_ ⦃ disc ⦄ x y
 
 abstract instance
   H-Level-Id

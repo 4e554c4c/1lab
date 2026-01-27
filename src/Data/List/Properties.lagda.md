@@ -31,8 +31,9 @@ module Data.List.Properties where
 <!--
 ```agda
 private variable
-  ℓ ℓ' : Level
-  A B : Type ℓ
+  ℓ ℓ' ℓ'' : Level
+  A B C : Type ℓ
+  xs ys : List A
 ```
 -->
 
@@ -193,6 +194,14 @@ map-++
 map-++ f [] ys = refl
 map-++ f (x ∷ xs) ys = ap (f x ∷_) (map-++ f xs ys)
 
+map-map
+  : ∀ {A : Type ℓ} {B : Type ℓ} {C : Type ℓ}
+  → {xs : List A}
+  → {f : A → B} {g : B → C}
+  → map (g ∘ f) xs ≡ map g (map f xs)
+map-map {xs = []} = refl
+map-map {xs = x ∷ xs} = ap-∷ refl map-map
+
 take-length : ∀ {ℓ} {A : Type ℓ} (xs : List A) → take (length xs) xs ≡ xs
 take-length [] = refl
 take-length (x ∷ xs) = ap (x ∷_) (take-length xs)
@@ -294,6 +303,23 @@ is-empty? (x ∷ xs) = no id
 length-tabulate : ∀ {n} (f : Fin n → A) → length (tabulate f) ≡ n
 length-tabulate {n = zero}  f = refl
 length-tabulate {n = suc n} f = ap suc (length-tabulate (f ∘ fsuc))
+
+set-length : ∀ {a} {l : List A} {i : Fin (length l)} → length (l [ i ]:= a) ≡ length l
+set-length {a} {l = x ∷ xs} {i} with fin-view i
+... | zero  = refl
+... | suc i = ap suc (set-length {i = i})
+
+
+_ : ∀ { n m } → n ≡ m → Fin n ≡ Fin m
+_  = ap Fin
+
+{-
+set-index : ∀ {a} {l : List A} {i : Fin (length l)} → (l [ i ]:= a) ! i ≡ a
+set-index {l = x ∷ xs} {a} {n}  with fin-view n
+... | zero  = ?
+... | suc i = ?
+-}
+
 ```
 -->
 

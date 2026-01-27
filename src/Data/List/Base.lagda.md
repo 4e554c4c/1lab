@@ -355,6 +355,12 @@ _!_ : (l : List A) → Fin (length l) → A
 xs ! (fin n ⦃ forget pf ⦄) = from-just! _ $ !?-just xs n pf
 
 
+infixr 30 _[_]:=_
+_[_]:=_ : (l : List A) → Fin (length l) → A → List A
+(x ∷ xs) [ n ]:= a with fin-view n
+... | zero  = a ∷ xs
+... | suc i = x ∷ xs [ i ]:= a
+
 tabulate : ∀ {n} (f : Fin n → A) → List A
 tabulate {n = zero}  f = []
 tabulate {n = suc n} f = f fzero ∷ tabulate (f ∘ fsuc)

@@ -1,8 +1,10 @@
 <!--
 ```agda
+{-# OPTIONS --allow-unsolved-metas #-}
 open import 1Lab.Prelude
 
 open import Data.Maybe.Properties
+open import Data.Nat.Properties
 open import Data.Maybe.Base
 open import Data.Fin.Base
 open import Data.Nat.Base using (s≤s)
@@ -262,7 +264,7 @@ _between_ finite sets) [[merely]] split:
 ```agda
 finite-surjection-split
   : ∀ {ℓ} {n} {B : Type ℓ}
-  → (f : B → Fin n) 
+  → (f : B → Fin n)
   → is-surjective f
   → is-split-surjective f
 finite-surjection-split f = finite-choice _
@@ -330,6 +332,24 @@ Fin-find
 Fin-find {P = P} ¬p with Fin-omniscience-neg P
 ... | inl p = absurd (¬p p)
 ... | inr p = p
+
+Fin-find-least
+  : ∀ {n ℓ} (P : Fin n → Type ℓ) ⦃ _ : ∀ {x} → Dec (P x) ⦄
+  → Σ[ x ∈ Fin n ] P x
+  → Σ[ x ∈ Fin n ] P x × ∀ y → P y → x ≤ y
+Fin-find-least P (k , p) with Fin-omniscience P
+... | inl x = x
+... | inr ¬p = absurd $ᵢ ¬p k p
+
+Fin-find-unique
+  : ∀ {n ℓ} (P : Fin n → Type ℓ) ⦃ _ : ∀ {x} → Dec (P x) ⦄
+  → ⦃ Pprop : ∀ {x} → H-Level (P x) 1 ⦄
+  → Dec (is-contr $ Σ[ x ∈ Fin n ] P x)
+Fin-find-unique P ⦃ dec ⦄ with Fin-omniscience P
+... | inr ¬p = no λ p → ¬p (p .centre .fst) (p .centre .snd)
+... | inl (j , pj , _) with Fin-omniscience (λ k → P k × j ≠ k)
+... | inr ¬p = yes $ contr (j , pj) λ { (k , pk) → Σ-prop-path! $ dec→dne λ j≠k → ¬p k (pk , j≠k) }
+... | inl (k , (pk , j≠k) , _) = no λ { (contr (j' , pj') paths) → j≠k $ ap fst $ (sym $ paths (j , pj)) ∙ (paths (k , pk)) }
 ```
 -->
 
@@ -424,6 +444,15 @@ insert-delete ρ i a p j with fin-view i | fin-view j
 ... | zero  | suc j = refl
 insert-delete {suc n} ρ _ a p _ | suc i | zero  = refl
 insert-delete {suc n} ρ _ a p _ | suc i | suc j = insert-delete (ρ ∘ fsuc) i a p j
+
+--insertvec-insert
+--  : ∀ {n} {ℓ} {A : Type ℓ}
+--  → (v : Fin n → A)
+--  → (k : Fin n)
+--  → PathP (λ i → Fin (+-zeror n i) → A)
+--    (v [ k ← (λ _ → v k) ])
+--    v
+--insertvec-insert v k a i = {! !}
 
 ℕ< : Nat → Type
 ℕ< n = Σ[ k ∈ Nat ] k Nat.< n

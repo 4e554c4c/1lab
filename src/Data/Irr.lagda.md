@@ -48,7 +48,6 @@ instance
 instance
   make-irr : ∀ {ℓ} {A : Type ℓ} ⦃ _ : A ⦄ → Irr A
   make-irr ⦃ x ⦄ = forget x
-  {-# INCOHERENT make-irr #-}
 
   Map-Irr : Map (eff Irr)
   Map-Irr = record { map = λ where f (forget x) → forget (f x) }

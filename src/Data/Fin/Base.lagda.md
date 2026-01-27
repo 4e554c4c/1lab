@@ -225,9 +225,24 @@ opaque
   Fin-is-set : ∀ {n} → is-set (Fin n)
   Fin-is-set = Discrete→is-set Discrete-Fin
 
+  fin1-is-contr : is-contr (Fin 1)
+  fin1-is-contr .centre = fin 0
+  fin1-is-contr .paths x with fin-view x
+  ... | zero = refl
+
+  fin0-is-prop : is-prop (Fin 0)
+  fin0-is-prop ()
+
 instance
   H-Level-Fin : ∀ {n k} → H-Level (Fin n) (2 + k)
   H-Level-Fin = basic-instance 2 Fin-is-set
+
+  H-Level-Fin1 : ∀ {k} → H-Level (Fin 1) (k)
+  H-Level-Fin1 = basic-instance 0 fin1-is-contr
+
+  H-Level-Fin0 : ∀ {k} → H-Level (Fin 0) (1 + k)
+  H-Level-Fin0 = basic-instance 1 fin0-is-prop
+  {-# INCOHERENT H-Level-Fin1 H-Level-Fin0 #-}
 ```
 
 However, we can also mimic parts of the proof that `Nat`{.Agda} itself
@@ -330,6 +345,15 @@ split-+ {m = suc m} k with fin-view k
 ... | zero  = inl fzero
 ... | suc i = ⊎-map fsuc id (split-+ i)
 
+--split-+-at : ∀ {m n} → (k : Fin (suc m)) → Fin (m + n) → Fin m ⊎ Fin n
+--split-+-at k i with fin-view k , fin-view i
+--... | zero  , _ = split-+ i
+--... | suc k' , zero = inl fzero
+--... | suc k' , suc i = ⊎-map fsuc id (split-+-at k' i)
+--split-+-at {m = suc m} k with fin-view k
+--... | zero  = inl fzero
+--... | suc i = ⊎-map fsuc id (split-+ i)
+
 avoid : ∀ {n} (i j : Fin (suc n)) → i ≠ j → Fin n
 avoid {n = n} i j i≠j with fin-view i | fin-view j
 ... | zero  | zero  = absurd (i≠j refl)
@@ -359,6 +383,15 @@ _[_≔_] {n = n} ρ fzero a fzero             | zero  | zero  = a
 _[_≔_] {n = n} ρ fzero a .(fsuc j)         | zero  | suc j = ρ j
 _[_≔_] {n = suc n} ρ .(fsuc i) a .fzero    | suc i | zero  = ρ fzero
 _[_≔_] {n = suc n} ρ .(fsuc i) a .(fsuc j) | suc i | suc j = ((ρ ∘ fsuc) [ i ≔ a ]) j
+
+
+--_[_←_]
+--  : ∀ {ℓ} {A : Type ℓ} {n m}
+--  → (Fin (suc n) → A)
+--  → (k : Fin (suc n))
+--  → (Fin m → A)
+--  → Fin (n + m) → A
+--(v [ k ← v' ]) i = [ v , v' ] $ split-+-at k i
 
 delete
   : ∀ {ℓ} {A : Type ℓ} {n}

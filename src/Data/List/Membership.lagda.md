@@ -252,13 +252,13 @@ has-member→nonempty
 has-member→nonempty {xs = x ∷ xs} x∈xs = nonempty
 
 nonempty→has-member
-  : ∀ {xs : List A}
+  : ∀ {A : Type ℓ} {xs : List A}
   → is-nonempty xs
   → Σ[ x ∈ A ] (x ∈ xs)
 nonempty→has-member {xs = x ∷ xs} ne = x , here reflᵢ
 
 nonempty≃has-member
-  : ∀ (xs : List A)
+  : ∀ {A : Type ℓ} (xs : List A)
   → is-nonempty xs ≃ (∃[ x ∈ A ] (x ∈ xs))
 nonempty≃has-member xs =
   prop-ext!

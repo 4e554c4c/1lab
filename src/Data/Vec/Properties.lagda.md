@@ -2,7 +2,11 @@
 ```agda
 open import 1Lab.Prelude
 
+open import Data.Nat.Properties
+open import Data.Product.NAry
+open import Data.List.Base hiding (head ; tail ; lookup) renaming (tabulate to tabulateℓ ; _++_ to _++ℓ_ ;_!_ to _!ℓ_; [] to []ℓ)
 open import Data.Fin.Base
+open import Data.Fin.Closure using (sum)
 
 import Data.Vec.Base as Vec
 
@@ -17,9 +21,9 @@ module Data.Vec.Properties where
 <!--
 ```agda
 private variable
-  ℓ : Level
+  ℓ ℓ' ℓ'' : Level
   A B C : Type ℓ
-  n k : Nat
+  n k l m : Nat
   xs ys zs : Vec A n
 ```
 -->
@@ -43,16 +47,22 @@ lookup-is-equiv = is-iso→is-equiv $
 
 module Lookup {ℓ} {A : Type ℓ} {n : Nat} = Equiv (lookup {A = A} {n} , lookup-is-equiv)
 
-map-lookup : {A B : Type ℓ} (f : A → B) (xs : Vec A n) → ∀ i → lookup (map f xs) i ≡ f (lookup xs i)
+map-lookup : {A : Type ℓ} {B : Type ℓ'} (f : A → B) (xs : Vec A n) → ∀ i → lookup (map f xs) i ≡ f (lookup xs i)
 map-lookup f v i with vec-view v | fin-view i
 ... | (x ∷ xs) | zero  = refl
 ... | (x ∷ xs) | suc i = map-lookup f xs i
 
+lookup-! : ∀ {xs : List A} (n : Fin (length xs)) → lookup (vec xs) n ≡ xs !ℓ n
+lookup-! n = refl
+
 map-id : {A : Type ℓ} (xs : Vec A n) → map (λ x → x) xs ≡ xs
 map-id xs = Lookup.injective₂ (funext λ i → map-lookup _ xs i) refl
 
+--flatten : {ms : Fin n → Nat} → (∀ j → Vec A (ms j)) → Vec A (sum n ms)
+--flatten {n = zero} vs = vec (concat {! !})
+
 map-comp
-  : {A : Type ℓ} (xs : Vec A n) (f : A → B) (g : B → C)
+  : {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} (xs : Vec A n) (f : A → B) (g : B → C)
   → map (λ x → g (f x)) xs ≡ map g (map f xs)
 map-comp xs f g = Lookup.injective $ funext λ i →
   lookup (map (λ x → g (f x)) xs) i ≡⟨ map-lookup (λ x → g (f x)) xs i ⟩

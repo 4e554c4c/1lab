@@ -163,6 +163,9 @@ instance
 
 <!--
 ```agda
+singleton : A → List A
+singleton a = [ a ]
+
 map-up : (Nat → A → B) → Nat → List A → List B
 map-up f _ []       = []
 map-up f n (x ∷ xs) = f n x ∷ map-up f (suc n) xs
@@ -353,6 +356,12 @@ _!?_ : List A → Nat → Maybe A
 _!_ : (l : List A) → Fin (length l) → A
 xs ! (fin n ⦃ pf ⦄) = from-just! _ $ !?-just xs n pf
 
+
+infixr 30 _[_]:=_
+_[_]:=_ : (l : List A) → Fin (length l) → A → List A
+(x ∷ xs) [ n ]:= a with fin-view n
+... | zero  = a ∷ xs
+... | suc i = x ∷ xs [ i ]:= a
 
 tabulate : ∀ {n} (f : Fin n → A) → List A
 tabulate {n = zero}  f = []

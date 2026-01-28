@@ -62,14 +62,13 @@ equivalence between $x \le y$ and $(1 + x) \le (1 + y)$.
 
 <!--
 ```agda
-private
-  from-prim-< : ∀ x y → ⌞ x Prim.< y ⌟ → x < y
-  from-prim-< zero (suc y) o = s≤s 0≤x
-  from-prim-< (suc x) (suc y) o = s≤s (from-prim-< x y o)
+from-prim-< : ∀ {x y} → ⌞ x Prim.< y ⌟ → x < y
+from-prim-< {zero} {suc y} o = s≤s 0≤x
+from-prim-< {suc x} {suc y} o = s≤s (from-prim-< {x} {y} o)
 
-  to-prim-< : ∀ x y → x < y → ⌞ x Prim.< y ⌟
-  to-prim-< zero (suc y) o = oh
-  to-prim-< (suc x) (suc y) o = to-prim-< x y (≤-peel o)
+to-prim-< : ∀ {x y} → x < y → ⌞ x Prim.< y ⌟
+to-prim-< {zero} {suc y} o = oh
+to-prim-< {suc x} {suc y} o = to-prim-< (≤-peel o)
 ```
 -->
 
@@ -146,9 +145,15 @@ module _ where private
 <-trans : ∀ x y z → x < y → y < z → x < z
 <-trans x (suc y) (suc z) x<y y<z = ≤-trans x<y (<-weaken y<z)
 
+≤<-trans : ∀ {x y z} → x ≤ y → y < z → x < z
+≤<-trans {x} {y} {suc z} p q = s≤s $ ≤-trans p $ ≤-peel q
+
+<≤-trans : ∀ {x y z} → x < y → y ≤ z → x < z
+<≤-trans {x} {suc y} {suc z} p q = s≤s $ ≤-trans (≤-peel p) (≤-peel q)
+
 ≤-uncap : ∀ m n → m ≠ suc n → m ≤ suc n → m ≤ n
 ≤-uncap zero n p m≤n+1 = 0≤x
-≤-uncap (suc m) (suc n) p m≤n+1 = s≤s (≤-uncap m n (p ∘ ap suc) (≤-peel m≤n+1))
+≤-uncap (suc m) (suc n) p m≤n+1 = s≤s $ ≤-uncap m n (p ∘ ap suc) (≤-peel m≤n+1)
 ≤-uncap (suc zero) zero p m≤n+1 = absurd (p refl)
 ```
 -->

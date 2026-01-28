@@ -266,6 +266,10 @@ abstract instance
   H-Level-≤ : ∀ {x y n} → H-Level (x ≤ y) (suc n)
   H-Level-≤ = prop-instance (λ _ _ → refl)
 
+≤-pred : ∀ {x y : Nat} → x ≤ y → pred x ≤ pred y
+≤-pred {zero} {y} p = 0≤x
+≤-pred {suc x} {suc y} p = ≤-peel p
+
 ¬suc≤0 : ∀ {x} → suc x ≤ 0 → ⊥
 ¬suc≤0 ()
 

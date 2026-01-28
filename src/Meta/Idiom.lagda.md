@@ -49,17 +49,27 @@ open Map   ⦃ ... ⦄ public
 
 infixl 4 _<$>_ _<&>_
 
-_<$>_ : ∀ {ℓ ℓ'} {M : Effect} ⦃ _ : Map M ⦄ {A : Type ℓ} {B : Type ℓ'}
+private variable
+  ℓ ℓ' : Level
+  A B C : Type ℓ
+
+_<$>_ : {M : Effect} ⦃ _ : Map M ⦄
       → (A → B) → M .Effect.₀ A → M .Effect.₀ B
 f <$> x = map f x
 
-_<$_ : ∀ {ℓ ℓ'} {M : Effect} ⦃ _ : Map M ⦄ {A : Type ℓ} {B : Type ℓ'}
+_<$_ : {M : Effect} ⦃ _ : Map M ⦄
       → B → M .Effect.₀ A → M .Effect.₀ B
 c <$ x = map (λ _ → c) x
 
 _<&>_ : ∀ {ℓ ℓ'} {M : Effect} ⦃ _ : Map M ⦄ {A : Type ℓ} {B : Type ℓ'}
       → M .Effect.₀ A → (A → B) → M .Effect.₀ B
 x <&> f = map f x
+
+infixr 9 _<∙>_
+
+_<∙>_ :  ∀ {ℓ ℓ'} {M : Effect} ⦃ _ : Map M ⦄ {A : Type ℓ} {B : Type ℓ'} →
+  (B → C) → (A → M .Effect.₀ B) → (A → M .Effect.₀ C)
+(f <∙> g) a = f <$> g a
 
 module _
   {M N : Effect} (let module M = Effect M; module N = Effect N) ⦃ _ : Map M ⦄ ⦃ _ : Map N ⦄
@@ -81,4 +91,8 @@ unless : ∀ {M : Effect} (let module M = Effect M) ⦃ app : Idiom M ⦄
        → Bool → M.₀ ⊤ → M.₀ ⊤
 unless false t = t
 unless true  _ = pure tt
+
+liftA2 : ∀ {M : Effect} (let module M = Effect M) ⦃ app : Idiom M ⦄
+       → (A -> B -> C) -> M.₀ A -> M.₀ B -> M.₀ C
+liftA2 f a b = f <$> a <*> b
 ```

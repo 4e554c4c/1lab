@@ -112,6 +112,11 @@ instance
     → H-Level (Maybe A) n
   H-Level-Maybe {n = suc (suc n)} = hlevel-instance $
     Maybe-is-hlevel n (hlevel (2 + n))
+
+  H-Level-is-just : ∀ {n} {x : Maybe A} → H-Level (is-just x) (suc n)
+  H-Level-is-just {x = just _} = prop-instance λ _ _ → refl
+  H-Level-is-just {x = nothing} = prop-instance λ ()
+
 ```
 -->
 
@@ -206,6 +211,7 @@ map-<|>
   → map f (x <|> y) ≡ (map f x <|> map f y)
 map-<|> (just x) y = refl
 map-<|> nothing y = refl
+
 ```
 
 ## Injectivity
@@ -271,5 +277,28 @@ Maybe-is-sum {A = A} = Iso→Equiv (to , iso from ir il) where
   il : is-right-inverse to from
   il nothing = refl
   il (just x) = refl
+
+Dec→Maybe : ⦃ Dec A ⦄ → Maybe A
+Dec→Maybe ⦃ yes a ⦄ = just a
+Dec→Maybe ⦃ no _ ⦄ = nothing
+
+{-
+open is-iso
+lmfaoj
+  : ∀ {ℓ ℓ'} {A : Type ℓ}
+  → (P : (B : Type ℓ) (f : A → B) (g : B → A) (h : ∀ x → f (g x) ≡ x) → Type ℓ')
+  → P A id id (λ x → refl)
+  → ∀ {B : Type ℓ} (f : A → B) (e : is-iso f)
+  → P B f (e .from) (e .rinv)
+lmfaoj {A = A} P base f e = EquivJ
+  (λ B f → (g : B → A) (h : ∀ x → f · g x ≡ x) → P B (f .fst) g h)
+  (λ g h → subst₂ (P A id) (λ i x → h x (~ i)) (λ i x j → h x (~ i ∨ j)) base)
+  (Iso→Equiv (f , e)) (e .from) (e .rinv)
+-}
+
+unmap-equiv : {A B : Type ℓ} → (m : Maybe A) (e : A ≃ B) (x : B)
+       → (e .fst <$> m) ≡ just x
+       → m ≡ just (equiv→inverse (e .snd) x)
+unmap-equiv m = EquivJ (λ B e → ∀ x →  (e .fst <$> m) ≡ just x → m ≡ just (equiv→inverse (e .snd) x)) λ x p → (sym $ map-id _) ∙ p
 ```
 -->

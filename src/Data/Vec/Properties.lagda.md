@@ -2,7 +2,11 @@
 ```agda
 open import 1Lab.Prelude
 
+open import Data.Nat.Properties
+open import Data.Product.NAry
+open import Data.List.Base hiding (head ; tail ; lookup) renaming (tabulate to tabulateℓ ; _++_ to _++ℓ_ ;_!_ to _!ℓ_; [] to []ℓ)
 open import Data.Fin.Base
+open import Data.Fin.Closure using (sum)
 
 import Data.Vec.Base as Vec
 
@@ -19,7 +23,7 @@ module Data.Vec.Properties where
 private variable
   ℓ : Level
   A B C : Type ℓ
-  n k : Nat
+  n k l m : Nat
   xs ys zs : Vec A n
 ```
 -->
@@ -48,8 +52,14 @@ map-lookup f v i with vec-view v | fin-view i
 ... | (x ∷ xs) | zero  = refl
 ... | (x ∷ xs) | suc i = map-lookup f xs i
 
+lookup-! : ∀ {xs : List A} (n : Fin (length xs)) → lookup (vec xs) n ≡ xs !ℓ n
+lookup-! n = refl
+
 map-id : {A : Type ℓ} (xs : Vec A n) → map (λ x → x) xs ≡ xs
 map-id xs = Lookup.injective₂ (funext λ i → map-lookup _ xs i) refl
+
+--flatten : {ms : Fin n → Nat} → (∀ j → Vec A (ms j)) → Vec A (sum n ms)
+--flatten {n = zero} vs = vec (concat {! !})
 
 map-comp
   : {A : Type ℓ} (xs : Vec A n) (f : A → B) (g : B → C)

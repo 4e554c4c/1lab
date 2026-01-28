@@ -124,19 +124,33 @@ isomorphisms in $B$ and $E$.
   private module ∫E = CR ∫
 
   total-iso→iso : ∀ {x y} → x ∫E.≅ y → x .fst ≅ y .fst
-  total-iso→iso f = make-iso
-    (∫E._≅_.to f .fst)
-    (∫E._≅_.from f .fst)
+  total-iso→iso f = make-iso (∫E._≅_.to f .fst) (∫E._≅_.from f .fst)
     (ap fst $ ∫E._≅_.invl f)
     (ap fst $ ∫E._≅_.invr f)
 
   total-iso→iso[] : ∀ {x y} → (f : x ∫E.≅ y) → x .snd ≅[ total-iso→iso f ] y .snd
-  total-iso→iso[] f = make-iso[ total-iso→iso f ]
-    (∫E._≅_.to f .snd)
+  total-iso→iso[] f = make-iso[ total-iso→iso f ] (∫E._≅_.to f .snd)
     (∫E._≅_.from f .snd)
     (ap snd $ ∫E._≅_.invl f)
     (ap snd $ ∫E._≅_.invr f)
 ```
+
+<!--
+```agda
+  total-invertible→invertible
+    : ∀ {x y} {f : ∫Hom x y} → ∫E.is-invertible f → is-invertible (f .fst)
+  total-invertible→invertible i =
+    make-invertible (inv .fst) (ap fst i.invl) (ap fst i.invr)
+    where open module i = ∫E.is-invertible i
+
+  total-invertible→invertible[]
+    : ∀ {x y} {f : ∫Hom x y} → (i : ∫E.is-invertible f)
+    → is-invertible[ total-invertible→invertible i ] (f .snd)
+  total-invertible→invertible[] i = make-invertible[ total-invertible→invertible i ]
+    (inv .snd) (ap snd i.invl) (ap snd i.invr)
+    where open module i = ∫E.is-invertible i
+```
+-->
 
 ## Pullbacks in the total category
 

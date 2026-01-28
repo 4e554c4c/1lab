@@ -3,11 +3,11 @@
 open import 1Lab.Path
 open import 1Lab.Type
 
+open import Data.Bool.Base
 open import Data.Nat.Order
 open import Data.Dec.Base
 open import Data.Nat.Base
 open import Data.Sum.Base
-open import Data.Bool
 ```
 -->
 
@@ -28,10 +28,8 @@ numbers]. Since they're mostly simple inductive arguments written in
 
 ```agda
 +-associative : (x y z : Nat) → x + (y + z) ≡ (x + y) + z
-+-associative zero y z = refl
-+-associative (suc x) y z =
-  suc (x + (y + z)) ≡⟨ ap suc (+-associative x y z) ⟩
-  suc ((x + y) + z) ∎
++-associative zero y z i = y + z
++-associative (suc x) y z i = suc (+-associative x y z i)
 
 +-zerol : (x : Nat) → 0 + x ≡ x
 +-zerol x = refl
@@ -45,6 +43,10 @@ numbers]. Since they're mostly simple inductive arguments written in
 +-sucr : (x y : Nat) → x + suc y ≡ suc (x + y)
 +-sucr zero y = refl
 +-sucr (suc x) y = ap suc (+-sucr x y)
+
++-oner : (x : Nat) → x + 1 ≡ suc x
++-oner zero = refl
++-oner (suc x) = ap suc (+-oner x)
 
 +-commutative : (x y : Nat) → x + y ≡ y + x
 +-commutative zero y = sym (+-zeror y)

@@ -1,5 +1,6 @@
 <!--
 ```agda
+{-# OPTIONS --allow-unsolved-metas #-}
 open import 1Lab.Path
 open import 1Lab.Type
 
@@ -39,7 +40,7 @@ are called `lookup`{.Agda} and `tabulate`{.Agda}.
 private variable
   ℓ : Level
   A B C : Type ℓ
-  n k : Nat
+  n m k : Nat
 
 data Length {ℓ} {A : Type ℓ} : List A → Nat → Type ℓ where
   zero : Length [] zero
@@ -48,14 +49,17 @@ data Length {ℓ} {A : Type ℓ} : List A → Nat → Type ℓ where
 instance
   Length-zero : Length {A = A} [] zero
   Length-zero = zero
+  {-# OVERLAPPING Length-zero #-}
 
   Length-suc : ∀ {x n} {xs : List A} → ⦃ _ : Length xs n ⦄
     → Length (x ∷ xs) (suc n)
   Length-suc ⦃ l ⦄ = suc l
+  {-# OVERLAPPING Length-suc #-}
 
   Length-length : ∀ {xs : List A} → Length xs (length xs)
   Length-length {xs = []} = zero
   Length-length {xs = x ∷ xs} = suc Length-length
+  {-# OVERLAPS Length-length #-}
 
 
 length-uncons : ∀ {xs n x} → Length {A = A} (x ∷ xs) (suc n) → Length xs n
@@ -73,6 +77,8 @@ record Vec {ℓ} (A : Type ℓ) (n : Nat) : Type ℓ where
   field
     lower   : List A
     ⦃ len ⦄ : Irr (Length lower n)
+
+open Vec using (lower) public
 
 pattern []v = vec []
 
@@ -109,10 +115,12 @@ instance
     go (suc zero) xs          = xs ∷v []v
     go (suc (suc n)) (x , xs) = x ∷v go (suc n) xs
 
+len-++ : ∀ {ℓ} {A : Type ℓ} {xs ys : List A} → Length xs n → Length ys m → Length (xs ++ℓ ys) (n + m)
+len-++ {n = zero} zero l' = l'
+len-++ {n = suc n} (suc l) l' = suc (len-++ l l')
+
 _++_ : ∀ {n k} → Vec A n → Vec A k → Vec A (n + k)
-xs ++ ys with vec-view xs
-...| [] = ys
-...| (x ∷ xs) = x ∷v (xs ++ ys)
+(vec xs ⦃ lx ⦄) ++ (vec ys ⦃ ly ⦄) = vec (xs ++ℓ ys) ⦃ liftA2 len-++ lx ly ⦄
 
 Vec-elim
   : ∀ {ℓ ℓ'} {A : Type ℓ} (P : ∀ {n} → Vec A n → Type ℓ')

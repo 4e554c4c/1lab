@@ -145,18 +145,21 @@ $x$, we conclude that any listing generates an equivalence $A \simeq
   find : ∀ a → a ∈ₗ univ
   find a = has-member a .centre
 
+  card : Nat
+  card = length univ
+
   listing→is-equiv : is-equiv (univ !_)
   listing→is-equiv .is-eqv x = Equiv→is-hlevel 0
     (Σ-ap-snd (λ x → Equiv.inverse Id≃path) ∙e Equiv.inverse member≃lookup)
     (has-member x)
 
-  index : A → Fin (length univ)
+  index : A → Fin card
   index = equiv→inverse listing→is-equiv
 ```
 
 <!--
 ```agda
-  listing→fin-equiv : Fin (length univ) ≃ A
+  listing→fin-equiv : Fin card ≃ A
   listing→fin-equiv = record { snd = listing→is-equiv }
 
   opaque
@@ -704,6 +707,10 @@ Finite→Discrete : ⦃ _ : Finite A ⦄ → Discrete A
 Finite→Discrete ⦃ f ⦄ =
   let instance _ = Finite→H-Level {n = 0} ⦃ f ⦄
    in case f of λ l → Listing→Discrete l
+
+--Finite→H-Level ⦃ f ⦄ = basic-instance 2 (case f of Listing→is-set)
+--Finite↔contr : ∀ ⦃ f : Finite A ⦄ → (cardinality ⦃ f ⦄ ≡ 1) ≃ (is-contr A)
+--Finite↔contr ⦃ f ⦄ = ? where
 
 module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} ⦃ fb : Finite B ⦄ (e : ∥ A ≃ B ∥) (f : A → B) where
   Finite-injection→equiv : injective f → is-equiv f

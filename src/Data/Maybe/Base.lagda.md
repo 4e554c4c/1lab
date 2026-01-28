@@ -115,6 +115,11 @@ instance
   Discrete-Maybe .decide (just x) nothing  = no just≠nothing
   Discrete-Maybe .decide nothing (just x)  = no nothing≠just
   Discrete-Maybe .decide nothing nothing   = yes refl
+
+  Dec-is-just : {m : Maybe A} → Dec (is-just m)
+  Dec-is-just {m = nothing} = no λ ()
+  Dec-is-just {m = just x} = yes _
+  {-# OVERLAPPABLE Dec-is-just #-}
 ```
 -->
 

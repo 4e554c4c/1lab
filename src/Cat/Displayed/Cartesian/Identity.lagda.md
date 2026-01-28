@@ -54,4 +54,16 @@ lifts.
     pres : PathP (λ i → Hom[ f ] (obp i) b') l1.lifting l2.lifting
     pres = Hom[]-pathp-refll-iso e-cat (B.idr f) im l1.lifting l2.lifting
       (to-pathp[]⁻ (l1.commutes B.id _))
+
+  Cartesian-morphism-is-prop
+    : ∀ {a'}
+    → is-prop (Cartesian-morphism E f a' b')
+  Cartesian-morphism-is-prop {a'} f' g' = Cartesian-morphism-pathp E $ is-set→cast-pathp 
+      (λ j → Hom[ f ] {! !} b') {! !} foo
+    where 
+    module f' = Cartesian-morphism f'
+    module g' = Cartesian-morphism g'
+    foo = ap Cartesian-lift.lifting $ Cartesian-lift-is-prop
+      record { lifting = f'.hom' ; cartesian = f'.cartesian }
+      record { lifting = g'.hom' ; cartesian = g'.cartesian }
 ```

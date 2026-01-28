@@ -131,7 +131,6 @@ open import Prim.Literals public
 
 auto : ∀ {ℓ} {A : Type ℓ} → ⦃ A ⦄ → A
 auto ⦃ a ⦄ = a
-
 case_of_ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → A → (A → B) → B
 case x of f = f x
 

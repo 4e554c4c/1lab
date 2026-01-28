@@ -69,6 +69,12 @@ c <$ x = map (λ _ → c) x
 _<&>_ : ⦃ _ : Map M ⦄ → M .Effect.₀ A → (A → B) → M .Effect.₀ B
 x <&> f = map f x
 
+infixr 9 _<∙>_
+
+_<∙>_ :  ∀ {ℓ ℓ'} {M : Effect} ⦃ _ : Map M ⦄ {A : Type ℓ} {B : Type ℓ'} →
+  (B → C) → (A → M .Effect.₀ B) → (A → M .Effect.₀ C)
+(f <∙> g) a = f <$> g a
+
 module _
   {M N : Effect} (let module M = Effect M; module N = Effect N) ⦃ _ : Map M ⦄ ⦃ _ : Map N ⦄
   where
@@ -89,6 +95,5 @@ unless true  _ = pure tt
 
 liftA2 : (let module M = Effect M) ⦃ app : Idiom M ⦄
        → (A → B → C) →  M.₀ A → M.₀ B → M.₀ C
-liftA2 f x = (_<*>_) (map f x)
-
+liftA2 f a b = f <$> a <*> b
 ```

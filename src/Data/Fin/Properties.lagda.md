@@ -488,5 +488,5 @@ fkeep-id j with fin-view j
 
 const→fin1 : ∀ {ℓ} {A : Fin 1 → Type ℓ} → A 0 → ∀ j → A j
 const→fin1 a fzero = a
-const→fin1 a (fin (suc j) ⦃ forget p ⦄) = absurd $ᵢ ¬suc≤0 $ ≤-peel p
+const→fin1 a (fin (suc j) ⦃ p ⦄) = absurd $ᵢ ¬suc≤0 $ ≤-peel p
 ```

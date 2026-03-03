@@ -326,6 +326,17 @@ singleton-bind : ∀ {ℓ} {A : Type ℓ} (xs : List A) → (xs >>= singleton) �
 singleton-bind [] = refl
 singleton-bind (x ∷ xs) = ap-∷ refl $ singleton-bind xs
 
+map-tabulate : ∀ {n} {A : Type ℓ} {B : Type ℓ'} (f : A → B) (t : Fin n → A) → (f <$> tabulate t) ≡ tabulate (f ∘ t)
+map-tabulate {n = zero} f _ = refl
+map-tabulate {n = suc n} f _ = ap-∷ refl (map-tabulate f _)
+
+tabulate-! : (tabulate $ xs !_) ≡ xs
+tabulate-! {xs = []} = refl
+tabulate-! {xs = x ∷ xs} = ap-∷ refl tabulate-!
+
+concat-mapp : {A : Type ℓ} {B : Type ℓ'} {xs : List $ List A} (f : A → B) → (concat $ f <<$>> xs) ≡ (f <$> concat xs)
+concat-mapp {xs = []} f = refl
+concat-mapp {xs = xs ∷ xss} f = ap (map f xs ++_) (concat-mapp {xs = xss} f) ∙ (sym $ map-++ f xs $ concat xss)
 ```
 -->
 

@@ -142,8 +142,8 @@ module _ where private
 ≤-from-not-< (suc x) zero p = 0≤x
 ≤-from-not-< (suc x) (suc y) p = s≤s (≤-from-not-< x y (p ∘ s≤s))
 
-<-trans : ∀ x y z → x < y → y < z → x < z
-<-trans x (suc y) (suc z) x<y y<z = ≤-trans x<y (<-weaken y<z)
+<-trans : ∀ {x y z} → x < y → y < z → x < z
+<-trans {x} {suc y} {suc z} x<y y<z = ≤-trans x<y (<-weaken y<z)
 
 ≤<-trans : ∀ {x y z} → x ≤ y → y < z → x < z
 ≤<-trans {x} {y} {suc z} p q = s≤s $ ≤-trans p $ ≤-peel q

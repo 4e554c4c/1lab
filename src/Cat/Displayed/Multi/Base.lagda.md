@@ -12,6 +12,7 @@ open import Cat.Displayed.Fibre
 open import Cat.Displayed.Base
 open import Cat.Morphism.Class
 open import Cat.Prelude
+open import Cat.Prelude
 
 open import Data.Product.NAry
 open import Data.Maybe.Base
@@ -169,7 +170,7 @@ record make-multicat (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
 
     motive₂ : ∀ j → lookup ys (lookup mid j) ≡ lookup (lookup ys <$> mid) j
     motive₂ j =
-      lookup ys (lookup mid j) ≡˘⟨ {! !} ⟩
+      lookup ys (lookup mid j) ≡˘⟨ map-lookup (lookup ys) mid j ⟩
       lookup (lookup ys <$> mid) j ∎
 
     correct-thing : (j : Fin ‖ f ⁻¹ k ‖) → Homl (lookup (lookup xs <<$>> upper) j) (lookup (lookup ys <$> mid) j)
@@ -185,26 +186,29 @@ record make-multicat (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
       (concat $ lookup xs <<$>> upper .lower)
         ≡⟨⟩
       (concat $ lookup xs <<$>> (tabulate λ j → (preimage-indices g $ lookup mid j)) .lower)
-        ≡⟨ {! map-lookup !} ⟩
+        ≡⟨ concat-mapp {xs = tabulateℓ λ j → (preimage-indices g $ (preimage-indices f k) ! j)} (lookup xs) ⟩
       lookup xs <$> (concat $ (tabulate λ j → (preimage-indices g $ lookup mid j)) .lower)
         ≡⟨⟩
       lookup xs <$> (concat $ (tabulateℓ λ j → (preimage-indices g $ (preimage-indices f k) ! j)))
-        ≡⟨ {! !} ⟩
+        ≡˘⟨ ap (λ c → lookup xs <$> (concat c)) $ map-tabulate (preimage-indices g) (λ j → (preimage-indices f k) ! j) ⟩
       lookup xs <$> (concat $ preimage-indices g <$> (tabulateℓ λ j → (preimage-indices f k) ! j))
-        ≡⟨ {! !} ⟩
+        ≡⟨ ap (λ c → Map-List .map (lookup xs) (concat $ Map-List .map (preimage-indices g) c)) $ tabulate-! {xs = preimage-indices f k} ⟩
       lookup xs <$> (concat $ preimage-indices g <$> (preimage-indices f k))
-        ≡⟨ {! !}  -- this is actually the important theorem
+        ≡⟨ ap (λ l → Map-List .map (lookup xs) l) {! !}  -- this is actually the important theorem
          ⟩
       lookup xs <$> preimage-indices (f ∘ g) k
         ∎
 
+  to-displayed .idr' {a} {b} {x = xs} {ys} {f} f' = {! !}
+{-
   to-displayed .idr' {a} {b} {x = xs} {ys} {f} f' i k = comp (λ j →
-      Homl (multi-comp.motive₃ {a} {a} {b} {xs} {xs} {ys} {f} {Δ-id} 
+      Homl (multi-comp.motive₃ {a} {a} {b} {xs} {xs} {ys} {f} {Δ-id}
         f' (λ k' → transport (λ j' → Homl (lookup xs <$> preimage-id {a} {k'} (~ j')) (lookup xs k')) (id (lookup {o} xs k'))) k (j)) (lookup ys k)
     ) (∂ i) λ where
-    j (i = i0) → {! !}
+    j (i = i0) → transp (λ i₁ → Homl (multi-comp.motive₃ {a} {a} {b} {xs} {xs} {ys} {f} {Δ-id} f' (λ k₁ → transport (λ j₁ → Homl (lookup xs <$> preimage-id (~ j₁)) (lookup xs k₁)) (id (lookup xs k₁))) k i₁) (lookup ys k)) j (multi-comp.foo f' (λ k₁ → transport (λ j₁ → Homl (lookup xs <$> preimage-id (~ j₁)) (lookup xs k₁)) (id (lookup xs k₁))) k)
     j (i = i1) → {! !}
-    j (j = i0) → {! idr !}
+    j (j = i0) → {! !}
+-}
   to-displayed .idr' {x = xs} {ys} f' = ext λ k → {! !}
   to-displayed .idl' f' = {! !}
   to-displayed .assoc' f' g' h' = {! !}

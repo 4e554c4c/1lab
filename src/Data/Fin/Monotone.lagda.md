@@ -85,7 +85,7 @@ strict-monotone→suc-is-suc : (f : Fin (suc n) → Fin m) → is-strict-monoton
 strict-monotone→suc-is-suc f sm j = lift $ to-prim-< $ ≤<-trans 0≤x $ sm fzero (fsuc j) (s≤s 0≤x)
 
 strict-monotone→is-suc-is-suc : (f : Fin n → Fin m) → is-strict-monotone f → ∀ j → is-suc j → is-suc (f j)
-strict-monotone→is-suc-is-suc {suc n} f sm (fin (suc j) ⦃ b ⦄) _ = strict-monotone→suc-is-suc f sm (fin j ⦃ ≤-peel <$> b ⦄)
+strict-monotone→is-suc-is-suc {suc n} f sm (fin (suc j) ⦃ b ⦄) _ = strict-monotone→suc-is-suc f sm (fin j ⦃ ≤-peel b ⦄)
 
 strict-monotone→inverse-is-strict-monotone
   : ∀ {f : Fin n → Fin m} {g : Fin m → Fin n} → is-strict-monotone f → is-right-inverse g f → is-strict-monotone g

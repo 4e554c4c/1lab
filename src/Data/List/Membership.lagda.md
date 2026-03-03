@@ -29,6 +29,7 @@ private variable
   P Q : A → Type ℓ'
   x y : A
   xs ys : List A
+  p : A → Bool
 ```
 -->
 
@@ -419,5 +420,11 @@ any-one-of f x (y ∷ xs) (here x=y) x-true =
   ap₂ or (substᵢ (λ e → f e ≡ true) x=y x-true) refl
 any-one-of f x (y ∷ xs) (there x∈xs) x-true =
   ap₂ or refl (any-one-of f x xs x∈xs x-true) ∙ or-truer _
+
+member-filter : x ∈ filter p xs → ⌞ p x ⌟
+member-filter {x = needle} {p} {xs = (x ∷ xs)} pf with p x in eq | pf
+... | true | here w = substᵢ So (symᵢ $ apᵢ p w ∙ᵢ eq) oh
+... | true | there pf = member-filter {x = needle} {p} {xs} pf
+... | false | pf = member-filter {x = needle} {p} {xs} pf
 ```
 -->

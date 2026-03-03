@@ -25,7 +25,7 @@ open import Data.Maybe.Base
 open import Data.Maybe.Properties
 open import Data.Nat.Order
 open import Data.Bool
-open import Data.Nat using (H-Level-Nat; s≤s) renaming (_≤_ to _≤n_)
+open import Data.Nat using (H-Level-Nat; s≤s; 0≤x) renaming (_≤_ to _≤n_)
 open import Data.Dec.Base
 open import Data.Sum.Base --hiding ([_,_])
 open import Data.List
@@ -160,9 +160,9 @@ lift-active f active k = from-just! (f · k) (active k)
 Δ∙ .Precategory.idr f = ext λ j → refl
 Δ∙ .Precategory.idl f = ext p where
   p : (j : Fin _) → (f · j >>= just) ≡ f · j
-  p j with f · j
-  ... | nothing = refl
+  p j with f .map j
   ... | just x = refl
+  ... | nothing = refl
 Δ∙ .Precategory.assoc f g h = ext p where
   p : (j : Fin _) → (h .map j >>= g .map >>= f .map) ≡ (h .map j >>= (g .map >=> f .map))
   p j with h · j
@@ -310,6 +310,24 @@ module _ (f : ⟨ n ⟩→⟨ m ⟩) (j : Fin m) where
       all-fin-sorted : ∀ {n} → is-sorted _<_ (all-fin n)
       all-fin-sorted .sorted i j = {! !}
 
+module _ (g : ⟨ k ⟩→⟨ n ⟩) (f : ⟨ n ⟩→⟨ m ⟩) (j : Fin m) where
+
+  lem₀ : (k : Fin k) → k ∈ preimage-indices (f Δ∙.∘ g) j  → k ∈ (concat $ preimage-indices g <$> preimage-indices f j)
+  lem₀ k p = ?
+  concat-preimages : preimage-indices (f Δ∙.∘ g) j ≡ (concat $ preimage-indices g <$> preimage-indices f j)
+  concat-preimages =
+    filter (λ i → Dec→Bool $ (g .map i >>= f .map) ≡ᵢ? just j) (all-fin k)
+    ≡⟨ {! !} ⟩
+    (concat $
+    (λ j' → filter (λ i → Dec→Bool $ (map g i ≡ᵢ? just j')) (all-fin k))
+    <$> filter (λ i → Dec→Bool (map f i ≡ᵢ? just j)) (all-fin n))
+    ≡⟨ {! !} ⟩
+    (concat $
+    (λ j' → filter (λ i → Dec→Bool $ (map g i ≡ᵢ? just j')) (all-fin k))
+    <$> filter (λ i → Dec→Bool (map f i ≡ᵢ? just j)) (all-fin n))
+    ≡⟨⟩
+    (concat $ preimage-indices g <$> preimage-indices f j) ∎
+
 {-
 
 
@@ -327,7 +345,7 @@ preimage-id : ∀ {n} → {j : Fin n} → preimage-indices Δ-id j ≡  j ∷ []
 preimage-id {suc n} {j} with fin-view j
 ... | zero = ap-∷ refl {! !}
 ... | suc j = want
-  where 
+  where
     rec : preimage-indices Δ-id j ≡ j ∷ []
     rec = preimage-id {n} {j}
     want : (filter _ (fsuc <$> all-fin n)) ≡ (fsuc j) ∷ []

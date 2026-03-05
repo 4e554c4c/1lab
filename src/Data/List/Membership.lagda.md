@@ -421,10 +421,23 @@ any-one-of f x (y ∷ xs) (here x=y) x-true =
 any-one-of f x (y ∷ xs) (there x∈xs) x-true =
   ap₂ or refl (any-one-of f x xs x∈xs x-true) ∙ or-truer _
 
-member-filter : x ∈ filter p xs → ⌞ p x ⌟
-member-filter {x = needle} {p} {xs = (x ∷ xs)} pf with p x in eq | pf
-... | true | here w = substᵢ So (symᵢ $ apᵢ p w ∙ᵢ eq) oh
-... | true | there pf = member-filter {x = needle} {p} {xs} pf
-... | false | pf = member-filter {x = needle} {p} {xs} pf
+
+member-filter : x ∈ filter p xs ≃ (⌞ p x ⌟ × x ∈ xs)
+member-filter = Iso→Equiv (to , to-iso) where
+  to : x ∈ filter p xs → (⌞ p x ⌟ × x ∈ₗ xs)
+  to {x = x} {p = p} {x' ∷ xs} pf with p x' in eq | pf
+  ... | true | here w = (is-true→so $ apᵢ p w ∙ᵢ eq) , here w
+  ... | true | there pf = ×-map₂ there $ to {xs = xs} pf
+  ... | false | pf = ×-map₂ there $ to {xs = xs} pf
+
+  open is-iso
+  to-iso : is-iso (to {x = x} {p} {xs})
+  to-iso {x = x} {p} {y ∷ xs} .from (so , pf) with p y in eq | pf
+  ... | true | here pf = here pf
+  ... | false | here pf = absurd $ᵢ ¬so-false $ substᵢ So (apᵢ p pf ∙ᵢ eq) so
+  ... | true | there pf = there $ to-iso {xs = xs} .from $ so , pf
+  ... | false | there pf = to-iso .from $ so , pf
+  to-iso {p = p} {xs = (y ∷ xs)} .rinv (so , pf) with p y
+  ... | w = ?
 ```
 -->

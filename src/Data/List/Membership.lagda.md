@@ -374,6 +374,37 @@ member-++-view (x ∷ xs) _ (here p)  = inl (here p , refl)
 member-++-view (x ∷ xs) _ (there p) with member-++-view xs _ p
 ... | inl (p , q) = inl (there p , ap there q)
 ... | inr (p , q) = inr (p , ap there q)
+
+concat-member
+  : ∀ {ℓ} {A : Type ℓ} (x : A) (xxs : List (List A)) → Type _
+concat-member {A = A} x xxs = Σ[ xs ∈ List A ] (xs ∈ₗ xxs) × (x ∈ₗ xs)
+
+member→concat-member
+  : ∀ {ℓ} {A : Type ℓ} (x : A) (xxs : List (List A))
+  → (x ∈ concat xxs) → concat-member x xxs
+member→concat-member x (xs ∷ xxs) p with member-++-view xs (concat xxs) p
+... | inl (mem , _) = xs , here reflᵢ , mem
+... | inr (mem , _) = rec .fst , (there $ rec .snd .fst) , rec .snd .snd where
+  rec = member→concat-member x xxs mem
+
+concat-member→member
+  : ∀ {ℓ} {A : Type ℓ} (x : A) (xxs : List (List A))
+  → concat-member x xxs → x ∈ concat xxs
+-- these refls MIGHT be evil, sorry!
+concat-member→member x xxs (l , here reflᵢ , here p) = here p
+concat-member→member x ((y ∷ xs) ∷ xxs) (l , here reflᵢ , there mem) = there $ ++-memberₗ mem
+concat-member→member x (xs ∷ xxs) (l , there loc , mem) = ++-memberᵣ $ concat-member→member x xxs $ l , loc , mem
+
+concat-member≃member
+  : ∀ {ℓ} {A : Type ℓ} (x : A) (xxs : List (List A))
+  → (x ∈ concat xxs) ≃ concat-member x xxs
+concat-member≃member x xxs = Iso→Equiv $ member→concat-member x xxs , is-an-iso x xxs where
+  open is-iso
+  is-an-iso : ∀ x xxs → is-iso $ member→concat-member x xxs
+  is-an-iso x xxs .from = concat-member→member x xxs
+  is-an-iso x xxs .rinv = ?
+  is-an-iso x xxs .linv = ?
+
 ```
 -->
 
@@ -425,19 +456,30 @@ any-one-of f x (y ∷ xs) (there x∈xs) x-true =
 member-filter : x ∈ filter p xs ≃ (⌞ p x ⌟ × x ∈ xs)
 member-filter = Iso→Equiv (to , to-iso) where
   to : x ∈ filter p xs → (⌞ p x ⌟ × x ∈ₗ xs)
-  to {x = x} {p = p} {x' ∷ xs} pf with p x' in eq | pf
-  ... | true | here w = (is-true→so $ apᵢ p w ∙ᵢ eq) , here w
-  ... | true | there pf = ×-map₂ there $ to {xs = xs} pf
-  ... | false | pf = ×-map₂ there $ to {xs = xs} pf
+  to {x = x} {p = p} {x' ∷ xs} pf with p x' in eq
+  to {x = x} {p = p} {x' ∷ xs} (here pf)   | true = (is-true→so $ apᵢ p pf ∙ᵢ eq) , here pf
+  to {x = x} {p = p} {x' ∷ xs} (there pf)  | true = ×-map₂ there $ to {xs = xs} pf
+  to {x = x} {p = p} {x' ∷ xs} pf          | false = ×-map₂ there $ to {xs = xs} pf
 
   open is-iso
   to-iso : is-iso (to {x = x} {p} {xs})
-  to-iso {x = x} {p} {y ∷ xs} .from (so , pf) with p y in eq | pf
-  ... | true | here pf = here pf
-  ... | false | here pf = absurd $ᵢ ¬so-false $ substᵢ So (apᵢ p pf ∙ᵢ eq) so
-  ... | true | there pf = there $ to-iso {xs = xs} .from $ so , pf
-  ... | false | there pf = to-iso .from $ so , pf
-  to-iso {p = p} {xs = (y ∷ xs)} .rinv (so , pf) with p y
-  ... | w = ?
+  to-iso {p = p} {y ∷ xs} .from (so , pf) with p y in eq
+  to-iso {p = p} {y ∷ xs} .from (so , here pf)  | true = here pf
+  to-iso {p = p} {y ∷ xs} .from (so , here pf)  | false = absurd $ᵢ ¬so-false $ substᵢ So (apᵢ p pf ∙ᵢ eq) so
+  to-iso {p = p} {y ∷ xs} .from (so , there pf) | true = there $ to-iso {xs = xs} .from $ so , pf
+  to-iso {p = p} {y ∷ xs} .from (so , there pf) | false = to-iso .from $ so , pf
+
+  to-iso {p = p} {y ∷ xs} .rinv (so , pf) with p y in eq
+  to-iso {p = p} {y ∷ xs} .rinv (so , here pf)  | true = Σ-pathp prop! refl
+  to-iso {p = p} {y ∷ xs} .rinv (so , here pf)  | false = absurd $ᵢ ¬so-false $ substᵢ So (apᵢ p pf ∙ᵢ eq) so
+  to-iso {p = p} {y ∷ xs} .rinv (so , there pf) | true  = Σ-pathp prop! $ ap (there ∘ snd) $ to-iso .rinv (so , pf)
+  to-iso {p = p} {y ∷ xs} .rinv (so , there pf) | false = Σ-pathp prop! $ ap (there ∘ snd) $ to-iso .rinv (so , pf)
+
+  to-iso {p = p} {y ∷ xs} .linv pf with p y in eq
+  to-iso {p = p} {y ∷ xs} .linv (here pf)  | true = refl
+  to-iso {p = p} {y ∷ xs} .linv (there pf) | true = ap there $ to-iso {p = p} {xs} .linv pf
+  to-iso {p = p} {y ∷ xs} .linv pf         | false = to-iso {xs = xs} .linv pf
+
+module member-filter {ℓ} {A : Type ℓ} {x : A} {p} {xs} = Equiv (member-filter {x = x} {p} {xs})
 ```
 -->

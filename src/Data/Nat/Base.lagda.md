@@ -247,6 +247,9 @@ abstract
   <-weaken {zero} {y} 1+x≤y = 0≤x
   <-weaken {suc x} {suc y} 1+x≤y = s≤s (<-weaken (≤-peel 1+x≤y))
 
+1≤s : ∀ {x} → 1 ≤ suc x
+1≤s = s≤s 0≤x
+
 abstract instance
   Leq-zero : ∀ {x} → 0 ≤ x
   Leq-zero = 0≤x

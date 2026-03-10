@@ -106,7 +106,11 @@ apᵢ f reflᵢ = reflᵢ
 
 substᵢ : ∀ {ℓ ℓ'} {A : Type ℓ} (P : A → Type ℓ') {x y : A}
        → x ≡ᵢ y → P x → P y
-substᵢ P p x = transportᵢ (apᵢ P p) x
+substᵢ P reflᵢ x = x
+
+subst₂ᵢ : ∀ {ℓ₁ ℓ₂ ℓ₃} {A : Type ℓ₁} {B : Type ℓ₂} (P : A → B → Type ℓ₃) {a a' : A} {b : B} {b' : B}
+       → (p : a ≡ᵢ a') (q : b ≡ᵢ b') → P a b → P a' b'
+subst₂ᵢ P reflᵢ reflᵢ x = x
 ```
 -->
 
@@ -249,7 +253,8 @@ apᵢ-apᵢ
 apᵢ-apᵢ f g reflᵢ = reflᵢ
 
 id-Σ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} {x y : Σ A B} (p : x ≡ᵢ y) → Σ[ p ∈ x .fst ≡ᵢ y .fst ] Id-over B p (x .snd) (y .snd)
-id-Σ {B = B} {x} {y} p = apᵢ fst p , substᵢ (λ e → transportᵢ e (x .snd) ≡ᵢ (y .snd)) (symᵢ (apᵢ-apᵢ B fst p)) (apdᵢ snd p)
+id-Σ {B = B} {x} {y} reflᵢ = reflᵢ , reflᵢ
+
 
 happlyᵢ : {f g : ∀ x → P x} → f ≡ᵢ g → (x : A) → f x ≡ᵢ g x
 happlyᵢ reflᵢ x = reflᵢ

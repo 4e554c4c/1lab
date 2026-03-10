@@ -12,6 +12,7 @@ open import 1Lab.Membership
 open import 1Lab.Underlying
 
 open import Data.List.Base
+open import Data.List.Membership
 open import Data.Dec.Base
 open import Data.Fin.Base
 open import Data.Nat.Base hiding (_<_)
@@ -75,6 +76,10 @@ filter-sorted : (xs : List A) (p : A → Bool) → is-sorted R xs → is-sorted 
 filter-sorted [] p xs-sorted = []-sorted
 filter-sorted {R = R} (x ∷ xs) p xs-sorted@(sorting r) with p x
 ... | false = filter-sorted xs p $ tail-sorted xs-sorted
-... | true = ∷-sorted x (filter p xs) (filter-subset (R x) p λ i → r fzero (fsuc i) (s≤s 0≤x)) $ filter-sorted xs p $ tail-sorted xs-sorted
+... | true = ∷-sorted x (filter p xs) (filter-subset (R x) p λ i → r fzero (fsuc i) 1≤s) $ filter-sorted xs p $ tail-sorted xs-sorted
+
+mem→rel :  ∀ {x y} {xs : List A} → is-sorted R (x ∷ xs) → (y ∈ xs) → R x y
+mem→rel {x = x} {y} (sorting r) mem with member→lookup mem
+... | j , reflᵢ = r 0 (fsuc j) 1≤s
 
 ```

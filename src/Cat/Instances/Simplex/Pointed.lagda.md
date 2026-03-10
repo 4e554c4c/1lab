@@ -25,7 +25,7 @@ open import Data.Maybe.Base
 open import Data.Maybe.Properties
 open import Data.Nat.Order
 open import Data.Bool
-open import Data.Nat using (H-Level-Nat; s≤s; 0≤x) renaming (_≤_ to _≤n_)
+open import Data.Nat using (H-Level-Nat; s≤s; 0≤x) renaming (_≤_ to _≤n_; _<_ to _<n_)
 open import Data.Dec.Base
 open import Data.Sum.Base --hiding ([_,_])
 open import Data.List
@@ -281,8 +281,8 @@ module _ (n m : Nat) where
   --Δ∙-products .has-is-product .unique x x' = {! !}
 
 module _ (f : ⟨ n ⟩→⟨ m ⟩) (j : Fin m) where
-  List⟨_⁻¹_⟩ : List (fibre (f .map) (just j))
-  List⟨_⁻¹_⟩ = {! !}
+  --List⟨_⁻¹_⟩ : List (fibre (f .map) (just j))
+  --List⟨_⁻¹_⟩ = {! !}
   --module listing = Listing List⟨_⁻¹_⟩
 
   --postulate
@@ -294,7 +294,6 @@ module _ (f : ⟨ n ⟩→⟨ m ⟩) (j : Fin m) where
   ‖_⁻¹_‖ : Nat
   ‖_⁻¹_‖ = length preimage-indices
 
-
   preimage-finmap : Fin ‖_⁻¹_‖ → Fin n
   preimage-finmap j = preimage-indices ! j
 
@@ -304,16 +303,51 @@ module _ (f : ⟨ n ⟩→⟨ m ⟩) (j : Fin m) where
     where
       open is-sorted
       all-fin-index : ∀ {n} j → (all-fin n ! j) .lower ≡ᵢ j .lower
-      all-fin-index {suc n} (fzero) = reflᵢ
-      all-fin-index {suc n} (fin (suc j)) = {! !}
+      all-fin-index {suc n} (fzero) with fin-view j
+      ... | zero = reflᵢ
+      ... | suc j = reflᵢ
 
       all-fin-sorted : ∀ {n} → is-sorted _<_ (all-fin n)
-      all-fin-sorted .sorted i j = {! !}
+      all-fin-sorted .sorted i j lt = subst₂ᵢ _<n_ (symᵢ $ all-fin-index i) (symᵢ $ all-fin-index j) lt
+
+sorted-mem-ext
+  : ∀ {n} {xs ys : List $ Fin n} → (xs-sorted : is-sorted _<_ xs) (ys-sorted : is-sorted _<_ ys) →
+  ((x : Fin n) → x ∈ xs → x ∈ ys) → ((y : Fin n) → y ∈ ys → y ∈ xs) → xs ≡ᵢ ys
+sorted-mem-ext {xs = []} {[]} xs-sorted ys-sorted x→y y→x = reflᵢ
+sorted-mem-ext {n} {xs = x ∷ xs} {y ∷ ys} xs-sorted ys-sorted x→y y→x with (x→y x $ here reflᵢ) | (y→x y $ here reflᵢ)
+... | here p | _ = ap-∷ᵢ p $ sorted-mem-ext (tail-sorted xs-sorted) (tail-sorted ys-sorted) x→y' y→x' where
+  x→y' : (x : Fin n) → x ∈ₗ xs → x ∈ ys
+  x→y' x mem with x→y x (there mem)
+  ... | here p' = absurd $ᵢ <-not-equal (mem→rel xs-sorted mem) $ Id≃path.to $ apᵢ lower $ p ∙ᵢ (symᵢ p')
+  ... | there p = p
+
+  y→x' : (y : Fin n) → y ∈ₗ ys → y ∈ xs
+  y→x' y mem with y→x y (there mem)
+  ... | here p' = absurd $ᵢ <-not-equal (mem→rel ys-sorted mem) $ Id≃path.to $ apᵢ lower $ symᵢ $ p' ∙ᵢ p
+  ... | there p = p
+
+... | there _ | here p = ap-∷ᵢ (symᵢ p) $ sorted-mem-ext (tail-sorted xs-sorted) (tail-sorted ys-sorted) x→y' y→x' where
+  x→y' : (x : Fin n) → x ∈ₗ xs → x ∈ ys
+  x→y' x mem with x→y x (there mem)
+  ... | here p' = absurd $ᵢ <-not-equal (mem→rel xs-sorted mem) $ Id≃path.to $ apᵢ lower $ symᵢ $ p' ∙ᵢ p
+  ... | there p = p
+
+  y→x' : (y : Fin n) → y ∈ₗ ys → y ∈ xs
+  y→x' y mem with y→x y (there mem)
+  ... | here p' = absurd $ᵢ <-not-equal (mem→rel ys-sorted mem) $ Id≃path.to $ apᵢ lower $ p ∙ᵢ (symᵢ p')
+  ... | there p = p
+
+... | there pf1 | there pf2 = absurd $ᵢ <-asym (mem→rel ys-sorted pf1) (mem→rel xs-sorted pf2)
+
 
 module _ (g : ⟨ k ⟩→⟨ n ⟩) (f : ⟨ n ⟩→⟨ m ⟩) (j : Fin m) where
 
+  open is-sorted
+  concat-strictly-sorted : is-sorted _<_ $ concat $ preimage-indices g <$> preimage-indices f j
+  concat-strictly-sorted .sorted i j lt = {!× !}
+
   lem₀ : (k : Fin k) → k ∈ preimage-indices (f Δ∙.∘ g) j  → k ∈ (concat $ preimage-indices g <$> preimage-indices f j)
-  lem₀ k p = ?
+  lem₀ k p = {! !}
   concat-preimages : preimage-indices (f Δ∙.∘ g) j ≡ (concat $ preimage-indices g <$> preimage-indices f j)
   concat-preimages =
     filter (λ i → Dec→Bool $ (g .map i >>= f .map) ≡ᵢ? just j) (all-fin k)

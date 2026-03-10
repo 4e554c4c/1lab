@@ -176,6 +176,11 @@ ap-∷ : ∀ {x y : A} {xs ys : List A}
      → x ≡ y → xs ≡ ys
      → Path (List A) (x ∷ xs) (y ∷ ys)
 ap-∷ x≡y xs≡ys i = x≡y i ∷ xs≡ys i
+
+ap-∷ᵢ : ∀ {x y : A} {xs ys : List A}
+     → x ≡ᵢ y → xs ≡ᵢ ys
+     → (x ∷ xs) ≡ᵢ (y ∷ ys)
+ap-∷ᵢ reflᵢ reflᵢ = reflᵢ
 ```
 
 <!--

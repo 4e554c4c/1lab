@@ -3,11 +3,11 @@
 open import 1Lab.Reflection.HLevel
 open import 1Lab.HLevel.Universe
 open import 1Lab.HLevel.Closure
-open import 1Lab.Type.Sigma
+--open import 1Lab.Type.Sigma
 open import 1Lab.HLevel
 open import 1Lab.Equiv
 open import 1Lab.Path
-open import 1Lab.Type
+open import 1Lab.Type hiding (Σ-syntax)
 open import 1Lab.Membership
 open import 1Lab.Underlying
 
@@ -15,7 +15,7 @@ open import Data.List.Base
 open import Data.List.Membership
 open import Data.Dec.Base
 open import Data.Fin.Base
-open import Data.Nat.Base hiding (_<_)
+open import Data.Nat.Base hiding (_<_ ; _≤_)
 open import Data.Sum.Base
 open import Data.Id.Base
 open import Data.Bool
@@ -81,5 +81,38 @@ filter-sorted {R = R} (x ∷ xs) p xs-sorted@(sorting r) with p x
 mem→rel :  ∀ {x y} {xs : List A} → is-sorted R (x ∷ xs) → (y ∈ xs) → R x y
 mem→rel {x = x} {y} (sorting r) mem with member→lookup mem
 ... | j , reflᵢ = r 0 (fsuc j) 1≤s
+
+---member-++-view
+---  : ∀ {ℓ} {A : Type ℓ} {x : A} (xs : List A) (ys : List A)
+---  → (p : x ∈ₗ (xs ++ ys)) → Member-++-view x xs ys p
+---member-++-view []       _ p         = inr (p , refl)
+---member-++-view (x ∷ xs) _ (here p)  = inl (here p , refl)
+---member-++-view (x ∷ xs) _ (there p) with member-++-view xs _ p
+---... | inl (p , q) = inl $ there p , ap there q
+---... | inr (p , q) = inr $ p , ap there q
+
+concat-index
+  : ∀ {A : Type ℓa} (xxs : List $ List A) i
+  → Σ[ j ∈ Fin (length xxs) ] Σ[ k ∈ Fin (length (xxs ! j)) ] (concat xxs) ! i ≡ (xxs ! j) ! k
+concat-index (xs ∷ xxs) i with split-+ {m = length xs} {n = length (concat xxs)} i
+concat-index (xs ∷ xxs) i | inl i = {! path !}
+concat-index (xs ∷ xxs) i | inr j = {! !}
+--concat-index xxs i | i = ?
+
+concat-index-sum
+  : ∀ {A : Type ℓa} {xxs : List $ List A} i
+  → (concat-index xxs i) .fst .lower + (concat-index xxs i) .snd .fst .lower ≡ᵢ i .lower
+
+concat-index-lt
+  : ∀ {A : Type ℓa} {xxs : List $ List A} i j → i ≤ j
+  → (concat-index xxs i) .fst ≤ (concat-index xxs j) .fst
+
+concat-sorted
+  : {xxs : List $ List A}
+  → (∀ i → is-sorted R (xxs ! i))
+  → is-sorted (λ l m → ∀ i j → R (l ! i) (m ! j)) xxs
+  → is-sorted R (concat xxs)
+--concat-sorted {xxs = xs ∷ xxs} inner (sorting outer) .sorted i j lt with fin-view i | fin-view j
+--concat-sorted {xxs = (x ∷ xs) ∷ xxs} inner (sorting outer) .sorted i j lt | i  | j = {! !}
 
 ```

@@ -1,4 +1,4 @@
-<!--
+
 ```agda
 {-# OPTIONS --allow-unsolved-metas #-}
 --open import Data.Nat
@@ -310,6 +310,12 @@ module _ (f : ⟨ n ⟩→⟨ m ⟩) (j : Fin m) where
       all-fin-sorted : ∀ {n} → is-sorted _<_ (all-fin n)
       all-fin-sorted .sorted i j lt = subst₂ᵢ _<n_ (symᵢ $ all-fin-index i) (symᵢ $ all-fin-index j) lt
 
+  fibre→preimage-mem : (p : fibreᵢ (f .map) (just j)) → (fst p ∈ preimage-indices)
+  fibre→preimage-mem (k , pf) = member-filter.from $ SoDec pf , Listing-Fin .Listing.has-member k .centre
+
+  --preimage-mem→fibre : ∀ {k} → (k ∈ₗ preimage-indices) → (fibreᵢ (f .map) (just j))
+  --preimage-mem→fibre mem = ?
+
 sorted-mem-ext
   : ∀ {n} {xs ys : List $ Fin n} → (xs-sorted : is-sorted _<_ xs) (ys-sorted : is-sorted _<_ ys) →
   ((x : Fin n) → x ∈ xs → x ∈ ys) → ((y : Fin n) → y ∈ ys → y ∈ xs) → xs ≡ᵢ ys
@@ -344,12 +350,18 @@ module _ (g : ⟨ k ⟩→⟨ n ⟩) (f : ⟨ n ⟩→⟨ m ⟩) (j : Fin m) whe
 
   open is-sorted
   concat-strictly-sorted : is-sorted _<_ $ concat $ preimage-indices g <$> preimage-indices f j
-  concat-strictly-sorted .sorted i j lt = {!× !}
+  concat-strictly-sorted .sorted i j lt = {! !}
 
   lem₀ : (k : Fin k) → k ∈ preimage-indices (f Δ∙.∘ g) j  → k ∈ (concat $ preimage-indices g <$> preimage-indices f j)
   lem₀ k p = {! !}
+
+  lem₁ : (k : Fin k) → k ∈ (concat $ preimage-indices g <$> preimage-indices f j) → k ∈ preimage-indices (f Δ∙.∘ g) j
+  lem₁ k p with member→concat-member k (preimage-indices g <$> preimage-indices f j) p
+  ... | inner , m , s = fibre→preimage-mem (f Δ∙.∘ g) j $ k , {! !}
+
   concat-preimages : preimage-indices (f Δ∙.∘ g) j ≡ (concat $ preimage-indices g <$> preimage-indices f j)
-  concat-preimages =
+  concat-preimages = {! sorted-mem-ext !}
+  {-
     filter (λ i → Dec→Bool $ (g .map i >>= f .map) ≡ᵢ? just j) (all-fin k)
     ≡⟨ {! !} ⟩
     (concat $
@@ -361,6 +373,7 @@ module _ (g : ⟨ k ⟩→⟨ n ⟩) (f : ⟨ n ⟩→⟨ m ⟩) (j : Fin m) whe
     <$> filter (λ i → Dec→Bool (map f i ≡ᵢ? just j)) (all-fin n))
     ≡⟨⟩
     (concat $ preimage-indices g <$> preimage-indices f j) ∎
+-}
 
 {-
 

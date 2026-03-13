@@ -383,6 +383,7 @@ module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) where
   → p ≡ q
 ++-memberₗ-inj {xs = x ∷ xs} {ys} {here p} {here q} eq = ap here $ here-injective eq
 ++-memberₗ-inj {xs = x ∷ xs} {ys} {here p} {there q} path = absurd $ᵢ here≠there path
+++-memberₗ-inj {xs = x ∷ xs} {ys} {there p} {here q} path = absurd $ᵢ here≠there $ sym path
 ++-memberₗ-inj {xs = x ∷ xs} {ys} {there p} {there q} eq = ap there $ ++-memberₗ-inj $ there-injective eq
 
 ++-memberᵣ-inj
@@ -391,7 +392,7 @@ module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) where
   → Path (x ∈ₗ (xs ++ ys)) (++-memberᵣ {ys = ys} {xs} p) (++-memberᵣ {ys = ys} {xs} q)
   → p ≡ q
 ++-memberᵣ-inj {xs = []} path = path
-++-memberᵣ-inj {xs = x ∷ xs} path = ++-memberᵣ-inj $ there-injective path
+++-memberᵣ-inj {xs = x ∷ xs} {p = p} {q} path = ++-memberᵣ-inj $ there-injective path
 
 ++-member-partition
   : ∀ {ℓ} {A : Type ℓ} {x : A} {xs ys : List A} {p : x ∈ₗ xs} {q : x ∈ₗ ys}
@@ -453,11 +454,12 @@ concat-member≃member x xxs = Iso→Equiv $ member→concat-member x xxs , is-a
   -- putting in ++-memberᵣ and geting an inl should be impossible, right?
   ... | inl (mem' , path) = absurd $ᵢ ++-member-partition path
   -- here we need to recurse? 😖
-  ... | inr (mem' , path) = {! rec !}  where
+  ... | inr (mem' , path) = ap (Σ-map₂ $ ×-map₁ there) rec'  where
     rec : member→concat-member x xxs (concat-member→member x xxs (l , loc , mem)) ≡ (l , loc , mem)
     rec = is-an-iso x xxs .rinv $ l , loc , mem
     rec' : member→concat-member x xxs mem' ≡ (l , loc , mem)
-    rec' = ap (member→concat-member x xxs) {! !} ∙ rec
+    rec' = ap (member→concat-member x xxs) (++-memberᵣ-inj path) ∙ rec
+
   is-an-iso x (xs ∷ xxs) .linv mem with member-++-view xs (concat xxs) mem
   ... | inl (here _ , p) = p
   ... | inl (there _ , p) = p

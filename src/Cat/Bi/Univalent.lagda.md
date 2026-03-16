@@ -16,8 +16,6 @@ module Cat.Bi.Univalent where
 open _=>_
 
 open Prebicategory
---module _ {o ℓ ℓ'} (B : Prebicategory o ℓ ℓ') where
---  private module B = Prebicategory B
 
 private variable
   o ℓ ℓ' : Level
@@ -33,9 +31,10 @@ is-local-bicategory : (B : Prebicategory o ℓ ℓ') → Type (o ⊔ ℓ ⊔ ℓ
 is-local-bicategory B = ∀ a b → is-category $ B .Hom a b
 
 is-global-bicategory : (B : Prebicategory o ℓ ℓ') → Type (o ⊔ ℓ ⊔ ℓ')
-is-global-bicategory B = is-identity-system (adjoint-equivalence B) {! !}
+is-global-bicategory B = is-identity-system (adjoint-equivalence B) (id-eqv B)
 
 record is-bicategory (B : Prebicategory o ℓ ℓ') : Type (o ⊔ ℓ ⊔ ℓ') where
   field
-
+    is-local : is-local-bicategory B
+    is-global : is-global-bicategory B
 ```

@@ -1,5 +1,6 @@
 <!--
 ```agda
+{-# OPTIONS --allow-unsolved-metas #-}
 open import 1Lab.Reflection.HLevel
 open import 1Lab.HLevel.Universe
 open import 1Lab.HLevel.Closure
@@ -119,15 +120,17 @@ concat-index (xs ∷ xxs) (fin i ⦃ q ⦄)  with holds? (i <n length xs)
 concat-index-sum
   : ∀ {A : Type ℓa} {xxs : List $ List A} i
   → (concat-index xxs i) .fst .lower + (concat-index xxs i) .snd .fst .lower ≡ᵢ i .lower
+concat-index-sum = ?
 
 concat-index-lt
   : ∀ {A : Type ℓa} {xxs : List $ List A} i j → i ≤ j
   → (concat-index xxs i) .fst ≤ (concat-index xxs j) .fst
+concat-index-lt = ?
 
 concat-sorted
   : {xxs : List $ List A}
   → (∀ i → is-sorted R (xxs ! i))
   → is-sorted (λ l m → ∀ i j → R (l ! i) (m ! j)) xxs
   → is-sorted R (concat xxs)
-
+concat-sorted = ?
 ```

@@ -12,10 +12,13 @@ open import 1Lab.Membership
 open import 1Lab.Underlying
 
 open import Data.List.Base
+open import Data.List.Properties
 open import Data.List.Membership
 open import Data.Dec.Base
 open import Data.Fin.Base
-open import Data.Nat.Base hiding (_<_ ; _≤_)
+open import Data.Nat.Base renaming (_<_ to _<n_ ; _≤_ to _≤n_)
+open import Data.Nat.Order
+open import Data.Nat.Properties
 open import Data.Sum.Base
 open import Data.Id.Base
 open import Data.Bool
@@ -94,10 +97,24 @@ mem→rel {x = x} {y} (sorting r) mem with member→lookup mem
 concat-index
   : ∀ {A : Type ℓa} (xxs : List $ List A) i
   → Σ[ j ∈ Fin (length xxs) ] Σ[ k ∈ Fin (length (xxs ! j)) ] (concat xxs) ! i ≡ (xxs ! j) ! k
-concat-index (xs ∷ xxs) i with split-+ {m = length xs} {n = length (concat xxs)} i
-concat-index (xs ∷ xxs) i | inl i = {! path !}
-concat-index (xs ∷ xxs) i | inr j = {! !}
---concat-index xxs i | i = ?
+concat-index (xs ∷ xxs) (fin i ⦃ q ⦄)  with holds? (i <n length xs)
+... | yes p = fzero , fin i ⦃ p ⦄ , {! !}
+... | no ¬p = (fsuc $ rec .fst) , rec .snd .fst , {! rec .snd .snd !} where
+  q₁ : length xs ≤n i
+  q₁ = ≤-from-not-< _ _ ¬p
+
+  q₂ : suc i - length xs ≡ suc (i - length xs)
+  q₂ = monus-≤-suc _ _ q₁
+
+  q₃ : i <n length xs + length (concat xxs)
+  q₃ = subst (λ a → i <n a) (length-++ {xs = xs}) q
+
+  q₄ : suc i - length xs ≤n length (concat xxs)
+  q₄ = {! !}
+
+  q₅ : (i - length xs) <n length (concat xxs)
+  q₅ = subst (λ a → a ≤n length (concat xxs)) q₂ q₄
+  rec = concat-index xxs $ fin (i - length xs) ⦃ q₅ ⦄
 
 concat-index-sum
   : ∀ {A : Type ℓa} {xxs : List $ List A} i
@@ -112,7 +129,5 @@ concat-sorted
   → (∀ i → is-sorted R (xxs ! i))
   → is-sorted (λ l m → ∀ i j → R (l ! i) (m ! j)) xxs
   → is-sorted R (concat xxs)
---concat-sorted {xxs = xs ∷ xxs} inner (sorting outer) .sorted i j lt with fin-view i | fin-view j
---concat-sorted {xxs = (x ∷ xs) ∷ xxs} inner (sorting outer) .sorted i j lt | i  | j = {! !}
 
 ```

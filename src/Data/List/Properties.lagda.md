@@ -219,6 +219,10 @@ take-length-more
 take-length-more [] zero xs≤n = refl
 take-length-more [] (suc n) xs≤n = refl
 take-length-more (x ∷ xs) (suc n) xs≤n = ap (x ∷_) (take-length-more xs n (≤-peel xs≤n))
+
+length-++ : ∀ {ℓ} {A : Type ℓ} {xs ys : List A} → length (xs ++ ys) ≡ length xs + length ys
+length-++ {xs = []} = refl
+length-++ {xs = x ∷ xs} = ap suc $ length-++ {xs = xs}
 ```
 -->
 

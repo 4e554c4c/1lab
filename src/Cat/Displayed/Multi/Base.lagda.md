@@ -1,5 +1,6 @@
 <!--
 ```agda
+{-# OPTIONS --allow-unsolved-metas #-}
 open import Cat.Instances.Simplex.Pointed
 open import Cat.Displayed.BeckChevalley
 open import Cat.Diagram.Limit.Finite
@@ -57,17 +58,24 @@ record Multicat-over (E : Displayed Δ∙ o ℓ)  : Type (lsuc (o ⊔ ℓ)) wher
     lift-inert : ∀ {m n} → (f : ⟨ m ⟩→⟨ n ⟩) → (is-inert f) → ∀ C → Cocartesian-lift f C
     lift-iso : Isofibration
 
+  module lift-inert {m n} (f : ⟨ m ⟩→⟨ n ⟩)(f-inert : is-inert f) C
+    = Cocartesian-lift (lift-inert f f-inert C)
+
+  module lift-ρ {n} (C : Ob[ n ]) k = lift-inert ρ[ k ] (ρ-inert {k = k}) C
+
   Ob : Type o
   Ob = Ob[ 1 ]
 
+
+  infixl 50 _![_] _M![_]
   -- A : Ob[ m ] is a "vec" of colors
   _![_] : ∀ {m} → (A : Ob[ m ]) → (i : Fin m) → Ob
-  L ![ k ] = lift-inert ρ[ k ] (ρ-inert {k = k}) L .y'
+  L ![ k ] = lift-ρ.y' L k
 
   -- likewise morphisms are vecs of multiarrows
   _M![_] : ∀ {m n} {A : Ob[ m ]} {B : Ob[ n ]} → {f : ⟨ m ⟩→⟨ n ⟩}
     → Hom[ f ] A B → (i : Fin n) → Hom[ ρ[ i ] ∘ f ] A (B ![ i ])
-  _M![_] {A = A} {B = B} {f = f} h k = lift-inert ρ[ k ] (ρ-inert {k = k}) B .lifting ∘' h
+  _M![_] {A = A} {B = B} {f = f} h k = lift-ρ.lifting B k ∘' h
 
   -- this transformation should be an equivalence
   field
@@ -95,8 +103,10 @@ module _ {ℰ : Displayed Δ∙ o ℓ} {ℱ : Displayed Δ∙ o ℓ} (O : Multic
 
 record Multicat (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
   field
-    ℰ : Displayed Δ∙ o ℓ
-    is-multi : Multicat-over ℰ
+    disp : Displayed Δ∙ o ℓ
+    is-multi : Multicat-over disp
+
+  open Multicat-over is-multi public
 
 record make-multicat (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
   field
@@ -208,8 +218,8 @@ record make-multicat (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
     j (i = i0) → transp (λ i₁ → Homl (multi-comp.motive₃ {a} {a} {b} {xs} {xs} {ys} {f} {Δ-id} f' (λ k₁ → transport (λ j₁ → Homl (lookup xs <$> preimage-id (~ j₁)) (lookup xs k₁)) (id (lookup xs k₁))) k i₁) (lookup ys k)) j (multi-comp.foo f' (λ k₁ → transport (λ j₁ → Homl (lookup xs <$> preimage-id (~ j₁)) (lookup xs k₁)) (id (lookup xs k₁))) k)
     j (i = i1) → {! !}
     j (j = i0) → {! !}
+  --to-displayed .idr' {x = xs} {ys} f' = ext λ k → {! !}
 -}
-  to-displayed .idr' {x = xs} {ys} f' = ext λ k → {! !}
   to-displayed .idl' f' = {! !}
   to-displayed .assoc' f' g' h' = {! !}
   to-displayed .hom[_] {x = xs} {ys} p f k = transport (λ j → Homl (lookup xs <$> preimage-indices (p j) k) (lookup ys k)) $ f k

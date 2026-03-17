@@ -303,9 +303,11 @@ module _ (f : ⟨ n ⟩→⟨ m ⟩) (j : Fin m) where
     where
       open is-sorted
       all-fin-index : ∀ {n} j → (all-fin n ! j) .lower ≡ᵢ j .lower
-      all-fin-index {suc n} (fzero) with fin-view j
-      ... | zero = reflᵢ
-      ... | suc j = reflᵢ
+      all-fin-index {suc n} i with fin-view i
+      ... | suc i = {! !}
+      ... | zero with fin-view j
+      ...   | zero = reflᵢ
+      ...   | suc j = reflᵢ
 
       all-fin-sorted : ∀ {n} → is-sorted _<_ (all-fin n)
       all-fin-sorted .sorted i j lt = subst₂ᵢ _<n_ (symᵢ $ all-fin-index i) (symᵢ $ all-fin-index j) lt
@@ -319,7 +321,9 @@ module _ (f : ⟨ n ⟩→⟨ m ⟩) (j : Fin m) where
 sorted-mem-ext
   : ∀ {n} {xs ys : List $ Fin n} → (xs-sorted : is-sorted _<_ xs) (ys-sorted : is-sorted _<_ ys) →
   ((x : Fin n) → x ∈ xs → x ∈ ys) → ((y : Fin n) → y ∈ ys → y ∈ xs) → xs ≡ᵢ ys
-sorted-mem-ext {xs = []} {[]} xs-sorted ys-sorted x→y y→x = reflᵢ
+sorted-mem-ext {n} {xs = []}     {[]}     _ _ x→y y→x = reflᵢ
+sorted-mem-ext {n} {xs = x ∷ xs} {[]}     _ _ x→y y→x with () ← x→y x (here reflᵢ)
+sorted-mem-ext {n} {xs = []}     {y ∷ ys} _ _ x→y y→x with () ← y→x y (here reflᵢ)
 sorted-mem-ext {n} {xs = x ∷ xs} {y ∷ ys} xs-sorted ys-sorted x→y y→x with (x→y x $ here reflᵢ) | (y→x y $ here reflᵢ)
 ... | here p | _ = ap-∷ᵢ p $ sorted-mem-ext (tail-sorted xs-sorted) (tail-sorted ys-sorted) x→y' y→x' where
   x→y' : (x : Fin n) → x ∈ₗ xs → x ∈ ys

@@ -457,6 +457,15 @@ module _ {f' : Hom[ f ] x' y'} where abstract
   id-comm[] : {p : id ∘ f ≡ f ∘ id} → hom[ p ] (id' ∘' f') ≡ f' ∘' id'
   id-comm[] {p = p} = duplicate _ _ _ ∙ ap hom[] (from-pathp[] (idl' _)) ∙ from-pathp[] (symP (idr' _))
 
+  id-comm' : {p : id ∘ f ≡ f ∘ id} → (id' ∘' f') ≡[ p ] f' ∘' id'
+  id-comm' = begin[]
+    id' ∘' f' ≡[]⟨ idl' f' ⟩
+    f'        ≡[]˘⟨ idr' f' ⟩
+    f' ∘' id' ∎[]
+
+  id-comm-symm' : {p : f ∘ id ≡ id ∘ f} → f' ∘' id' ≡[ p ] (id' ∘' f')
+  id-comm-symm' = symP id-comm'
+
 assoc[]
   : ∀ {a' : Hom[ a ] y' z'} {b' : Hom[ b ] x' y'} {c' : Hom[ c ] w' x'}
   → {p : a ∘ (b ∘ c) ≡ d} {q : (a ∘ b) ∘ c ≡ d}

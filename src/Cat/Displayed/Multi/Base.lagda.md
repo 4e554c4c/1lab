@@ -83,7 +83,7 @@ record Multicat-over (E : Displayed Δ∙ o ℓ)  : Type (lsuc (o ⊔ ℓ)) wher
 
   -- finally, we can lift vecs to elements of E
     vec→ob : ∀ {n} (C[_] : (Fin n) → Ob) →
-      Σ[ C ∈ Ob[ n ] ] ((k : Fin n) → Σ[ f ∈ Hom[ ρ[ k ] ] C C[ k ] ] is-cocartesian ρ[ k ] f)
+      Σ[ C ∈ Ob[ n ] ] ((k : Fin n) → Σ[ fₖ ∈ Hom[ ρ[ k ] ] C C[ k ] ] is-cocartesian ρ[ k ] fₖ)
 
 module _ {ℰ : Displayed Δ∙ o ℓ} {ℱ : Displayed Δ∙ o ℓ} (O : Multicat-over ℰ) (M : Multicat-over ℱ) where
   private

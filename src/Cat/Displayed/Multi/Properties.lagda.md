@@ -15,6 +15,7 @@ open import Cat.Morphism.Class
 open import Cat.Functor.Base
 open import Cat.Functor.Equivalence
 open import Cat.Functor.Univalence
+open import Cat.Functor.Naturality
 open import Cat.Instances.Discrete
 open import Cat.Prelude
 open import Cat.Gaunt
@@ -63,13 +64,6 @@ module _ (M : Multicat o ℓ) (is-cat : is-category (Fibre (M .Multicat.disp) 1)
 
   module Fibre = FR disp
   open CR Δ∙
-  -- i think this has to be an argument, it's not inherently true
-{-
-  is-category[1] : is-category (Fibre disp 1)
-  is-category[1] .to-path i = {!(i .Fibre._≅_.to) M![ fzero ] !}
-  is-category[1] .to-path-over = {! !}
--}
-
 
   -- basically ℰ[n]=ℰ[1]^n
   open Equivalence
@@ -137,7 +131,7 @@ module _ (M : Multicat o ℓ) (is-cat : is-category (Fibre (M .Multicat.disp) 1)
     $ cocartesian-codomain-unique
       (lift-ρ.cocartesian _ i)
       (vec→ob (λ i → y .F₀ i) .snd i .snd)
-  it's-iso .has-is-iso .is-eqv y .paths (fst , path) = Σ-pathp {! !} {! prop!  !}
+  it's-iso .has-is-iso .is-eqv y .paths (o[n] , path) = Σ-pathp {! !} {! !}
 
   pf : is-category-displayed
   pf = is-category-fibrewise' (Δ∙-gaunt .is-gaunt.has-category) λ n →

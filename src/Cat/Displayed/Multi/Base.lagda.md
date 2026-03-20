@@ -11,6 +11,7 @@ open import Cat.Diagram.Terminal
 open import Cat.Diagram.Product
 open import Cat.Displayed.Fibre
 open import Cat.Displayed.Base
+open import Cat.Displayed.Functor
 open import Cat.Morphism.Class
 open import Cat.Prelude
 open import Cat.Prelude
@@ -44,9 +45,9 @@ module Cat.Displayed.Multi.Base where
 # Displayed multicategories {defines=displayed-multicategory}
 
 ```agda
-open Precategory Δ∙ using (_∘_)
+open Precategory Δ∙ hiding (Ob)--using (_∘_)
 private variable
-  o ℓ : Level
+  o ℓ o' ℓ' : Level
 
 record Multicat-over (E : Displayed Δ∙ o ℓ)  : Type (lsuc (o ⊔ ℓ)) where
   open module E = DR E public
@@ -85,22 +86,6 @@ record Multicat-over (E : Displayed Δ∙ o ℓ)  : Type (lsuc (o ⊔ ℓ)) wher
     vec→ob : ∀ {n} (C[_] : (Fin n) → Ob) →
       Σ[ C ∈ Ob[ n ] ] ((k : Fin n) → Σ[ fₖ ∈ Hom[ ρ[ k ] ] C C[ k ] ] is-cocartesian ρ[ k ] fₖ)
 
-module _ {ℰ : Displayed Δ∙ o ℓ} {ℱ : Displayed Δ∙ o ℓ} (O : Multicat-over ℰ) (M : Multicat-over ℱ) where
-  private
-    module O = Multicat-over O
-    module M = Multicat-over M
-
-  record MultiFunctorOver : Type (lsuc (o ⊔ ℓ)) where
-    field
-      U : Displayed-functor Id ℰ ℱ
-    open Displayed-functor U public
-    field
-      preserves-inert
-        : ∀ {a b a' b'} {f : ⟨ a ⟩→⟨ b ⟩} {f' : O.Hom[ f ] a' b'}
-        → f ∈ Inert
-        → O.is-cocartesian f f'
-        → M.is-cocartesian f (F₁' f')
-
 record Multicat (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
   field
     disp : Displayed Δ∙ o ℓ
@@ -108,6 +93,59 @@ record Multicat (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
 
   open Multicat-over is-multi public
 
+--instance
+--  Underlying-Multicat : Underlying (Multicat o ℓ)
+--  Underlying-Multicat = record { ⌞_⌟ = ⌞_⌟ ⊙ Multicat.disp }
+
+module _ (O : Multicat o ℓ) (M : Multicat o' ℓ') where
+  private
+    module O = Multicat O
+    module M = Multicat M
+
+  record MultiFunctor : Type (o ⊔ ℓ ⊔ o' ⊔ ℓ') where
+    field
+      U : Vertical-functor O.disp M.disp
+    open Vertical-functor U public
+    field
+      preserves-inert
+        : ∀ {a b a' b'} {f : ⟨ a ⟩→⟨ b ⟩} {f' : O.Hom[ f ] a' b'}
+        → f ∈ Inert
+        → O.is-cocartesian f f'
+        → M.is-cocartesian f (F₁' f')
+
+  unquoteDecl MultiFunctor-up  = declare-record-path MultiFunctor-up (quote MultiFunctor)
+
+  open MultiFunctor
+  MultiFunctor-path
+    : {F G : MultiFunctor}
+    → (p0 : ∀ {x} → (x' : O.Ob[ x ]) → F .F₀' x' ≡ G .F₀' x')
+    → (p1 : ∀ {x y x' y'} {f : Hom x y} (f' : O.Hom[ f ] x' y')
+          → PathP (λ i → M.Hom[ f ] (p0 x' i) (p0 y' i)) (F .F₁' f') (G .F₁' f'))
+    → F ≡ G
+  MultiFunctor-path p0 p1 = MultiFunctor-up $ Vertical-functor-path p0 p1
+
+IdM : (M : Multicat o ℓ) → MultiFunctor M M
+IdM M = record where
+  U = Id'
+  preserves-inert f i = i
+
+module _
+  {oe ℓe of ℓf oh ℓh}
+  {M : Multicat oe ℓe}
+  {N : Multicat of ℓf}
+  {S : Multicat oh ℓh}
+  where
+  --open Displayed-functor
+  --open is-fibred-functor
+
+  infixr 30 _∘M_
+  open MultiFunctor
+  _∘M_ : MultiFunctor N S → MultiFunctor M N → MultiFunctor M S
+  (F' ∘M G') .U = F' .U ∘V G' .U
+  (F' ∘M G') .preserves-inert i cc = F' .preserves-inert i $ G' .preserves-inert i cc
+
+
+{-
 record make-multicat (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
   field
     Ob : Type o
@@ -251,5 +289,6 @@ record make-multicat (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
       -- want Goal: Homl (lookup (tabulate (λ j → lookup v (inv j))) <$>  preimage-indices m k) (lookup u' k)
     lift-inert .cocartesian .commutes m h' = {! !}
     lift-inert .cocartesian .unique m' x = {! !}
+-}
 ```
 

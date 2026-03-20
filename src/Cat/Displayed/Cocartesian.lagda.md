@@ -5,6 +5,8 @@ open import Cat.Displayed.Total.Op
 open import Cat.Displayed.Base
 open import Cat.Prelude
 
+open import 1Lab.HLevel.Closure
+
 import Cat.Displayed.Morphism.Duality
 import Cat.Displayed.Reasoning as DR
 import Cat.Displayed.Morphism
@@ -251,6 +253,21 @@ co-cartesian≡cocartesian
 co-cartesian≡cocartesian =
   ua (co-cartesian→cocartesian , co-cartesian→cocartesian-is-equiv)
 ```
+
+<!--
+```agda
+is-cocartesian-is-prop
+  : ∀ {x y x' y'} {f : Hom x y} {f' : Hom[ f ] x' y'}
+  → is-prop (is-cocartesian f f')
+is-cocartesian-is-prop {f' = f'} = equiv→is-hlevel 1 _ co-cartesian→cocartesian-is-equiv (is-cartesian-is-prop _)
+
+instance
+  H-Level-is-cocartesian
+    : ∀ {x y x' y'} {f : Hom x y} {f' : Hom[ f ] x' y'} {n}
+    → H-Level (is-cocartesian f f') (suc n)
+  H-Level-is-cocartesian = prop-instance is-cocartesian-is-prop
+```
+-->
 
 ## Properties of cocartesian morphisms
 

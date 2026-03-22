@@ -64,6 +64,11 @@ record _⊣_ {a b : B.Ob} (f : a B.↦ b) (g : b B.↦ a) : Type ℓ' where
     zig : B.Hom.id ≡ B.λ← f B.∘ (ε B.◀ f) B.∘ B.α← f g f B.∘ (f B.▶ η) B.∘ B.ρ→ f
     zag : B.Hom.id ≡ B.ρ← g B.∘ (g B.▶ ε) B.∘ B.α→ g f g B.∘ (η B.◀ g) B.∘ B.λ→ g
 ```
+<!--
+```agda
+unquoteDecl ⊣-path = declare-record-path ⊣-path (quote _⊣_)
+```
+-->
 
 This means the triangle identities, rather
 than simply expressing a compatibility relation between $\eta$ and

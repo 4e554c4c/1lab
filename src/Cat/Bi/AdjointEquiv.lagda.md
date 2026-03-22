@@ -26,30 +26,37 @@ open Cr._≅_
 # Adjoint equivalences
 
 ```agda
-record is-equivalence {a b} (f : a ↦ b) (g : b ↦ a) (adj : f ⊣ g) : Type (o ⊔ ℓ ⊔ ℓ') where
+record is-equivalence {a b} (To : a ↦ b) : Type (o ⊔ ℓ ⊔ ℓ') where
 
-  open _⊣_ adj public
+
+  field
+    From : b ↦ a
+    adjoint : To ⊣ From
+  open _⊣_ adjoint public
 
   field
     unit-iso   : Cr.is-invertible (Hom a a) η
     counit-iso : Cr.is-invertible (Hom b b) ε
 
+unquoteDecl is-equivalence-path = declare-record-path is-equivalence-path (quote is-equivalence)
+
 record adjoint-equivalence (a b : Ob) : Type (o ⊔ ℓ ⊔ ℓ') where
   field
-    f : a ↦ b
-    g : b ↦ a
-    adj : f ⊣ g
-    is-adj-equiv : is-equivalence f g adj
+    To : a ↦ b
+    is-adj-equiv : is-equivalence To
+  open is-equivalence is-adj-equiv public
+
+unquoteDecl adjoint-equiv-path = declare-record-path adjoint-equiv-path (quote adjoint-equivalence)
 
 open adjoint-equivalence
 open _⊣_
 open is-equivalence
 id-eqv : ∀ a → adjoint-equivalence a a
-id-eqv a .f = id
-id-eqv a .g = id
-id-eqv a .adj .η = λ→ id
-id-eqv a .adj .ε = λ← id
-id-eqv _ .adj .zig = sym $
+id-eqv a .To = id
+id-eqv a .is-adj-equiv .From = id
+id-eqv a .is-adj-equiv .adjoint .η = λ→ id
+id-eqv a .is-adj-equiv .adjoint .ε = λ← id
+id-eqv _ .is-adj-equiv .adjoint .zig = sym $
   λ← id ∘ λ← id ◀ id ∘ α← id id id ∘ id ▶ λ→ id ∘ ρ→ id
   ≡⟨ refl⟩∘⟨ refl⟩∘⟨ pulll triangle-inv ⟩
   λ← id ∘ λ← id ◀ id ∘ ρ→ id ◀ id ∘ ρ→ id
@@ -59,7 +66,7 @@ id-eqv _ .adj .zig = sym $
   ρ← id ∘ ρ→ id
   ≡⟨ ρ≅ .invr ⟩
   Hom.id ∎
-id-eqv _ .adj .zag = sym $
+id-eqv _ .is-adj-equiv .adjoint .zag = sym $
   ρ← id ∘ id ▶ λ← id ∘ α→ id id id ∘ λ→ id ◀ id ∘ λ→ id
   ≡⟨ refl⟩∘⟨ pulll triangle-α→ ⟩
   ρ← id ∘ ρ← id ◀ id ∘ λ→ id ◀ id ∘ λ→ id

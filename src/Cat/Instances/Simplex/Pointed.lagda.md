@@ -257,6 +257,9 @@ open Cat.Morphism
 Δ∙-gaunt .has-category .to-path-over p = is-prop→pathp (λ i a b → is-iso→prop a b) Δ∙.id-iso p
 Δ∙-gaunt .has-strict = hlevel 2
 
+Δ∙-cat : is-category Δ∙
+Δ∙-cat = Δ∙-gaunt .has-category
+
 -- does it have products?
 
 module _ (n m : Nat) where

@@ -12,9 +12,11 @@ open import Cat.Displayed.Base
 open import Cat.Bi.Base
 open import Cat.Bi.Univalent
 open import Cat.Displayed.Total
+open import Cat.Displayed.Functor
 open import Cat.Functor.Univalence
 open import Cat.Bi.Diagram.Adjunction
 open import Cat.Displayed.Univalence
+open import Cat.Displayed.Univalence.Reasoning
 open import Cat.Bi.AdjointEquiv
 open import Cat.Functor.Adjoint.Unique
 open import Cat.Displayed.Functor
@@ -64,8 +66,23 @@ Univalent-Multicat .pentagon f g h i = reext! (Multi.pentagon f g h i)
 
 open is-bicategory
 open MultiFunctor
+open _=>↓_
 Univalent-Multicat-is-bicategory : is-bicategory Univalent-Multicat
-Univalent-Multicat-is-bicategory .is-local (A , _) (B , univ) = {! !}
+Univalent-Multicat-is-bicategory .is-local (A , _) (B , univ) .to-path i =
+  MultiFunctor-path A B (λ x' → vertical-iso→path (B .disp) univ $ record
+    { to' = i.to .η' x'
+    ; from' = i.from .η' x'
+    ; inverses' = record
+      { invl' = B.to-pathp[] $ i.invl η↓ₚ x'
+      ; invr' = B.to-pathp[] $ i.invr η↓ₚ x'
+      }
+    }) λ f' → {! !}
+  where
+  module M[A,B] = Cr (MultiFunctors A B)
+  module i = M[A,B]._≅_ i
+  module B = Multicat B
+Univalent-Multicat-is-bicategory .is-local (A , _) (B , univ) .to-path-over i = ?
+
 Univalent-Multicat-is-bicategory .is-global = {! !}
 {-equiv-path→identity-system $ λ { {a , uaa} {(b , uab)} →
   adjoint-equivalence Univalent-Multicat (a , uaa) (b , uab)

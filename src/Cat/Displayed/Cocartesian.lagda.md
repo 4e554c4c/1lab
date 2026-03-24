@@ -439,6 +439,9 @@ particularly interesting.
 </summary>
 
 ```agda
+unquoteDecl Cocartesian-lift-path =
+  declare-record-path Cocartesian-lift-path (quote Cocartesian-lift)
+
 co-cartesian-lift→cocartesian-lift cart .Cocartesian-lift.y' =
   Cartesian-lift.x' cart
 co-cartesian-lift→cocartesian-lift cart .Cocartesian-lift.lifting =
@@ -452,6 +455,15 @@ cocartesian-lift→co-cartesian-lift cocart .Cartesian-lift.lifting =
   Cocartesian-lift.lifting cocart
 cocartesian-lift→co-cartesian-lift cocart .Cartesian-lift.cartesian =
   cocartesian→co-cartesian (Cocartesian-lift.cocartesian cocart)
+
+cocartesian-lift≃co-cartesian-lift
+  : ∀ {x y} {f : Hom x y} {x' : Ob[ x ]}
+  → Cocartesian-lift f x' ≃ Cartesian-lift (ℰ ^total-op) f x'
+cocartesian-lift≃co-cartesian-lift .fst = cocartesian-lift→co-cartesian-lift
+cocartesian-lift≃co-cartesian-lift .snd = is-iso→is-equiv record where
+  from = co-cartesian-lift→cocartesian-lift
+  rinv x = Cartesian-lift-path _ refl refl
+  linv x = Cocartesian-lift-path refl refl
 ```
 </details>
 

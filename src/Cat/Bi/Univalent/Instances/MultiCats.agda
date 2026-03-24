@@ -25,7 +25,7 @@ open import Cat.Functor.Equivalence.Path
 import Cat.Functor.Equivalence as FunEquiv
 import Cat.Functor.Reasoning as Fr
 import Cat.Reasoning as Cr
-import Cat.Univalent
+open import Cat.Univalent
 import Cat.Functor.Bifunctor as Bi
 
 module Cat.Bi.Univalent.Instances.MultiCats (o ℓ : Level) where
@@ -34,7 +34,7 @@ open import Cat.Bi.Univalent.Instances.Cats o ℓ
 
 open Prebicategory
 module Multi = Prebicategory Multicats
-open Multicat hiding (Ob)
+open Multicat using (disp)
 
 private module _ where
     open MultiFunctor
@@ -68,33 +68,28 @@ open is-bicategory
 open MultiFunctor
 open _=>↓_
 Univalent-Multicat-is-bicategory : is-bicategory Univalent-Multicat
-Univalent-Multicat-is-bicategory .is-local (A , _) (B , univ) .to-path i =
-  MultiFunctor-path A B (λ x' → vertical-iso→path (B .disp) univ $ record
-    { to' = i.to .η' x'
-    ; from' = i.from .η' x'
-    ; inverses' = record
-      { invl' = B.to-pathp[] $ i.invl η↓ₚ x'
-      ; invr' = B.to-pathp[] $ i.invr η↓ₚ x'
-      }
-    }) λ f' → {! !}
+Univalent-Multicat-is-bicategory .is-local (A , _) (B , univ) .to-path {a} {b} i =
+  MultiFunctor-path A B (λ x' → vertical-iso→path (B.disp) univ $ isos x') λ {x' = x'} {y'} f' →
+    Hom[]-pathp-iso (B.disp) univ (Δ∙.idl _ ∙ Δ∙.idr _) (isos _) (isos _) (a .F₁' f') (b .F₁' f') $ begin[]
+    i.to .η' y' ∘' a .F₁' f' ∘' i.from .η' x'
+    ≡[]⟨ extendl[] Δ∙.id-comm-sym $ i.to .is-natural' x' y' f' ⟩
+    b .F₁' f' ∘' i.to .η' x' ∘' i.from .η' x'
+    ≡[]⟨ elimr[] (Δ∙.idr Δ-id) $ to-pathp[] $ i.invl η↓ₚ x' ⟩
+    b .F₁' f'
+    ∎[]
   where
   module M[A,B] = Cr (MultiFunctors A B)
   module i = M[A,B]._≅_ i
-  module B = Multicat B
-Univalent-Multicat-is-bicategory .is-local (A , _) (B , univ) .to-path-over i = ?
+  open module B = Multicat B
+  module A = Multicat A
+  isos : ∀ {n} (x' : A.Ob[ n ]) → a .F₀' x' B.≅↓ b .F₀' x'
+  isos x' = record where
+    to' = i.to .η' x'
+    from' = i.from .η' x'
+    inverses' = record
+      { invl' = B.to-pathp[] $ i.invl η↓ₚ x'
+      ; invr' = B.to-pathp[] $ i.invr η↓ₚ x'
+      }
+Univalent-Multicat-is-bicategory .is-local (A , _) (B , univ) .to-path-over i = {! !}
 
-Univalent-Multicat-is-bicategory .is-global = {! !}
-{-equiv-path→identity-system $ λ { {a , uaa} {(b , uab)} →
-  adjoint-equivalence Univalent-Multicat (a , uaa) (b , uab)
-  ≃⟨ ? ⟩
-  adjoint-equivalence Univalent-Cat ((∫ (a .disp)) , is-category-total _ Δ∙-cat uaa) (∫ (b .disp) , is-category-total _ Δ∙-cat uab)
-  ≃⟨ identity-system-gives-path $ Univalent-Cat-is-bicategory .is-global ⟩
-  (∫ (a .disp) , is-category-total (disp a) Δ∙-cat uaa) ≡ (∫ (b .disp) , is-category-total (disp b) Δ∙-cat uab)
-  ≃⟨ ? ⟩
-  ∫ (a .disp) ≡ ∫ (b .disp)
-  ≃⟨ ? ⟩
-  a ≡ b
-  ≃⟨ ? ⟩
-  (a , _) ≡ (b , _)
-  ≃∎ }
-  -}
+Univalent-Multicat-is-bicategory .is-global .to-path {A , a-cat} {B , b-cat} eqv  = Σ-prop-path! {! !}

@@ -31,7 +31,7 @@ open import Order.Cat
 import Cat.Displayed.IsoFibration
 import Cat.Displayed.Cocartesian
 import Cat.Displayed.Reasoning as DR
-import Cat.Displayed.Morphism
+import Cat.Displayed.Morphism as DM
 import Cat.Reasoning
 
 import Order.Reasoning
@@ -52,12 +52,13 @@ private variable
 record Multicat-over (E : Displayed Δ∙ o ℓ)  : Type (lsuc (o ⊔ ℓ)) where
   open module E = DR E public
   open Cat.Displayed.Cocartesian E public
+  open DM E public
   open Cat.Displayed.IsoFibration E
   open Cocartesian-lift
 
   field
     lift-inert : ∀ {m n} → (f : ⟨ m ⟩→⟨ n ⟩) → (is-inert f) → ∀ C → Cocartesian-lift f C
-    lift-iso : Isofibration
+    --lift-iso : Isofibration
 
   module lift-inert {m n} (f : ⟨ m ⟩→⟨ n ⟩)(f-inert : is-inert f) C
     = Cocartesian-lift (lift-inert f f-inert C)
@@ -86,12 +87,27 @@ record Multicat-over (E : Displayed Δ∙ o ℓ)  : Type (lsuc (o ⊔ ℓ)) wher
     vec→ob : ∀ {n} (C[_] : (Fin n) → Ob) →
       Σ[ C ∈ Ob[ n ] ] ((k : Fin n) → Σ[ fₖ ∈ Hom[ ρ[ k ] ] C C[ k ] ] is-cocartesian ρ[ k ] fₖ)
 
+  vec→hom
+    : ∀ {m n} {A : Ob[ m ]} {B : Ob[ n ]} → {f : ⟨ m ⟩→⟨ n ⟩}
+    → ((i : Fin n) → Hom[ ρ[ i ] ∘ f ] A (B ![ i ])) → Hom[ f ] A B
+  vec→hom = equiv→inverse idx-is-eqv
+
+  vec→ob!≅vec : ∀ {n} (C[_] : (Fin n) → Ob) → ∀ i →
+    (vec→ob C[_] .fst) ![ i ] ≅↓ C[ i ]
+  vec→ob!≅vec C[_] i = cocartesian-codomain-unique
+      (lift-ρ.cocartesian _ i)
+      (vec→ob C[_] .snd i .snd)
+
+unquoteDecl Multicat-over-pathp = declare-record-path Multicat-over-pathp (quote Multicat-over)
+
 record Multicat (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
   field
     disp : Displayed Δ∙ o ℓ
     is-multi : Multicat-over disp
 
   open Multicat-over is-multi public
+
+unquoteDecl Multicat-pathp = declare-record-path Multicat-pathp (quote Multicat)
 
 --instance
 --  Underlying-Multicat : Underlying (Multicat o ℓ)

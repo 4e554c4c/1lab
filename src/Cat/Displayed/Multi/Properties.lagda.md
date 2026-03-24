@@ -17,6 +17,7 @@ open import Cat.Functor.Equivalence
 open import Cat.Functor.Univalence
 open import Cat.Functor.Naturality
 open import Cat.Instances.Discrete
+open import Cat.Displayed.Cocartesian.Identity
 open import Cat.Prelude
 open import Cat.Gaunt
 
@@ -31,12 +32,13 @@ open import Meta.Idiom
 
 open import Order.Base
 open import Order.Cat
+open import Cat.Displayed.Univalence
+open import Cat.Displayed.Univalence.Reasoning
 
 import Cat.Displayed.IsoFibration
 import Cat.Displayed.Cocartesian
 import Cat.Displayed.Reasoning as DR
 import Cat.Displayed.Morphism
-import Cat.Displayed.Univalence as DU
 import Cat.Reasoning as CR
 import Cat.Displayed.Fibre.Reasoning as FR
 
@@ -56,9 +58,11 @@ module Cat.Displayed.Multi.Properties where
 private variable
   o ℓ ℓ' : Level
 
-module _ (M : Multicat o ℓ) (is-cat : is-category (Fibre (M .Multicat.disp) 1)) where
-  open Multicat M public
-  open DU disp
+  m n k : Nat
+
+module _ (M : Multicat o ℓ) where
+  open Multicat M
+  --open DU disp
 
   open is-identity-system
 
@@ -119,6 +123,22 @@ module _ (M : Multicat o ℓ) (is-cat : is-category (Fibre (M .Multicat.disp) 1)
       lift-ρ.universal' x i Δ∙.id-comm-sym (g' M![ i ]))
       ∎[]
 
+  hom-ext
+    : {f : ⟨ m ⟩→⟨ n ⟩} → {A : Ob[ m ]} {B : Ob[ n ]}
+    {F G : Hom[ f ] A B}
+    → (∀ i → F M![ i ] ≡ G M![ i ]) → F ≡ G
+  hom-ext {f = f} {A} {B} {F} {G} ps =
+    F
+    ≡˘⟨ equiv→unit idx-is-eqv F ⟩
+    vec→hom (λ i → F M![ i ])
+    ≡⟨ (ap vec→hom $ ext λ i → ps i) ⟩
+    vec→hom (λ i → G M![ i ])
+    ≡⟨ equiv→unit idx-is-eqv G ⟩
+    G
+    ∎
+
+
+{-
   open is-precat-iso
   open _=>_
   it's-iso : ∀ {n} → is-precat-iso $ my-silly-functor {n}
@@ -136,5 +156,45 @@ module _ (M : Multicat o ℓ) (is-cat : is-category (Fibre (M .Multicat.disp) 1)
   pf : is-category-displayed
   pf = is-category-fibrewise' (Δ∙-gaunt .is-gaunt.has-category) λ n →
     {! !}
+-}
+open Multicat using (disp)
+module _ (M N : Multicat o ℓ) (m-cat : is-category-displayed (M .disp)) (n-cat : is-category-displayed (N .disp))where
+  module M = Multicat M
+  module N = Multicat N
+  --open DU disp
 
+  open is-identity-system
+
+  --module Fibre = FR disp
+  open CR Δ∙
+
+  -- basically ℰ[n]=ℰ[1]^n
+  open Equivalence
+  open Functor
+  --open Cocartesian-lift
+
+  UMulticat-path : (M .disp) ≡ (N .disp) → M ≡ N
+  UMulticat-path p = Multicat-pathp p $ is-prop-i0→pathp (λ M' N' →
+    Multicat-over-pathp
+      (ext λ _ _ _ → Cocartesian-lift-is-prop M.disp m-cat _ _ _)
+      (ext λ v → Σ-pathp
+        (vertical-iso→path (M .disp) (m-cat) record where
+            module N' = Multicat-over N'
+            module M' = Multicat-over M'
+            open M'
+            to' = N'.vec→hom λ i → hom[ Δ∙.id-comm-sym ] $ N'.vec→ob!≅vec v i .from' ∘' M'.vec→ob v .snd i .fst
+            from' = M'.vec→hom λ i → hom[ Δ∙.id-comm-sym ] $ M'.vec→ob!≅vec v i .from' ∘' N'.vec→ob v .snd i .fst
+            inverses' = record
+              { invl' = begin[]
+                (N'.vec→hom λ i → hom[ Δ∙.id-comm-sym ] $ N'.vec→ob!≅vec v i .M.from' ∘' M'.vec→ob v .snd i .fst)
+                ∘' (M'.vec→hom λ i → hom[ Δ∙.id-comm-sym ] $ M'.vec→ob!≅vec v i .M.from' ∘' N'.vec→ob v .snd i .fst)
+                ≡[ {! !} ]⟨ {! !} ⟩
+                id'
+                ∎[]
+              ; invr' = {! !}
+              }
+        )
+        {! !}
+      )
+    ) _ _
 ```

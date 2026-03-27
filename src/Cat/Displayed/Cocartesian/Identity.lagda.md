@@ -1,12 +1,12 @@
 <!--
 ```agda
-open import Cat.Displayed.Cocartesian
 open import Cat.Displayed.Cartesian.Identity
 open import Cat.Displayed.Base
 open import Cat.Prelude
 open import Cat.Displayed.Total.Op
 open import Cat.Displayed.Univalence.Op
 
+import Cat.Displayed.Cocartesian as Cocar
 import Cat.Displayed.Univalence.Reasoning
 import Cat.Displayed.Univalence
 import Cat.Displayed.Reasoning as Dr
@@ -27,11 +27,12 @@ module Cat.Displayed.Cocartesian.Identity
 private
   module B = Cr B
 
+open Cocar E
 open Cat.Displayed.Univalence.Reasoning E
 open Cat.Displayed.Univalence E
 open Dr E
 
-module _ {a b b'} (e-cat : is-category-displayed) (f : B.Hom a b) where
+module _ {a b a'} (e-cat : is-category-displayed) (f : B.Hom a b) where
 ```
 -->
 
@@ -39,7 +40,11 @@ In this module, we prove that [[CoCartesian lifts]] in a [[displayed
 univalent category]] form a [[proposition]].
 
 ```agda
-  Cocartesian-lift-is-prop : is-prop (Cocartesian-lift E f b')
-  Cocartesian-lift-is-prop = Equiv→is-hlevel 1 (cocartesian-lift≃co-cartesian-lift E) $
+  Cocartesian-lift-is-prop : is-prop (Cocartesian-lift f a')
+  Cocartesian-lift-is-prop = Equiv→is-hlevel 1 cocartesian-lift≃co-cartesian-lift $
     Cartesian-lift-is-prop (E ^total-op) (total-op-is-category E e-cat) f
+
+
+  Cartesian-morphism-is-prop : ∀ {b'} → is-prop (Cocartesian-morphism f a' b')
+  Cartesian-morphism-is-prop = ?
 ```

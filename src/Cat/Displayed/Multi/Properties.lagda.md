@@ -123,19 +123,21 @@ module _ (M : Multicat o ℓ) where
       lift-ρ.universal' x i Δ∙.id-comm-sym (g' M![ i ]))
       ∎[]
 
-  hom-ext
-    : {f : ⟨ m ⟩→⟨ n ⟩} → {A : Ob[ m ]} {B : Ob[ n ]}
-    {F G : Hom[ f ] A B}
-    → (∀ i → F M![ i ] ≡ G M![ i ]) → F ≡ G
-  hom-ext {f = f} {A} {B} {F} {G} ps =
+  hom-extp
+    : {f g : ⟨ m ⟩→⟨ n ⟩} {p : f ≡ g} →
+    {A : Ob[ m ]} {B : Ob[ n ]}
+    {F : Hom[ f ] A B}
+    {G : Hom[ g ] A B}
+    → (∀ i → F M![ i ] ≡[ refl⟩∘⟨ p ] G M![ i ]) → F ≡[ p ] G
+  hom-extp {f = f} {g} {p} {A} {B} {F} {G} ps = begin[]
     F
-    ≡˘⟨ equiv→unit idx-is-eqv F ⟩
+    ≡[]˘⟨ equiv→unit idx-is-eqv F ⟩
     vec→hom (λ i → F M![ i ])
-    ≡⟨ (ap vec→hom $ ext λ i → ps i) ⟩
+    ≡[]⟨ (apd (λ i → vec→hom {f = p i}) λ i j → ps j i) ⟩
     vec→hom (λ i → G M![ i ])
-    ≡⟨ equiv→unit idx-is-eqv G ⟩
+    ≡[]⟨ equiv→unit idx-is-eqv G ⟩
     G
-    ∎
+    ∎[]
 
 
 {-
@@ -188,13 +190,27 @@ module _ (M N : Multicat o ℓ) (m-cat : is-category-displayed (M .disp)) (n-cat
               { invl' = begin[]
                 (N'.vec→hom λ i → hom[ Δ∙.id-comm-sym ] $ N'.vec→ob!≅vec v i .M.from' ∘' M'.vec→ob v .snd i .fst)
                 ∘' (M'.vec→hom λ i → hom[ Δ∙.id-comm-sym ] $ M'.vec→ob!≅vec v i .M.from' ∘' N'.vec→ob v .snd i .fst)
-                ≡[ {! !} ]⟨ {! !} ⟩
+                ≡[]⟨ hom-extp M (λ j → begin[]
+                  ((N'.vec→hom λ i → hom[ Δ∙.id-comm-sym ] $ N'.vec→ob!≅vec v i .M.from' ∘' M'.vec→ob v .snd i .fst)
+                  ∘' (M'.vec→hom λ i → hom[ Δ∙.id-comm-sym ] $ M'.vec→ob!≅vec v i .M.from' ∘' N'.vec→ob v .snd i .fst)) M.M![ j ]
+                  ≡[]⟨ ? ⟩
+                  (N'.vec→hom λ i → hom[ Δ∙.id-comm-sym ] $ N'.vec→ob!≅vec v i .M.from' ∘' M'.vec→ob v .snd i .fst) M.M![ j ]
+                  ∘' (M'.vec→hom λ i → hom[ Δ∙.id-comm-sym ] $ M'.vec→ob!≅vec v i .M.from' ∘' N'.vec→ob v .snd i .fst)
+                  ≡[]⟨ ? ⟩
+                  {! (hom[ Δ∙.id-comm-sym ] $ N'.vec→ob!≅vec v j .M.from' ∘' M'.vec→ob v .snd j .fst)  !}
+                  ∘' (M'.vec→hom λ i → hom[ Δ∙.id-comm-sym ] $ M'.vec→ob!≅vec v i .M.from' ∘' N'.vec→ob v .snd i .fst)
+                  ≡[]⟨ ? ⟩
+                  M.lift-ρ.lifting (N'.vec→ob v .fst) j
+                  ≡[]⟨ ? ⟩
+                  id' M.M![ j ]
+                  ∎[])
+                ⟩
                 id'
                 ∎[]
               ; invr' = {! !}
               }
         )
-        {! !}
+        {! ? !}
       )
     ) _ _
 ```

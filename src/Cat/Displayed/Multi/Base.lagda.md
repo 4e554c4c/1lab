@@ -84,19 +84,22 @@ record Multicat-over (E : Displayed Δ∙ o ℓ)  : Type (lsuc (o ⊔ ℓ)) wher
     idx-is-eqv : ∀ {m n} {A : Ob[ m ]} {B : Ob[ n ]} → {f : ⟨ m ⟩→⟨ n ⟩} → is-equiv (_M![_] {m} {n} {A} {B} {f})
 
   -- finally, we can lift vecs to elements of E
-    vec→ob : ∀ {n} (C[_] : (Fin n) → Ob) →
-      Σ[ C ∈ Ob[ n ] ] ((k : Fin n) → Σ[ fₖ ∈ Hom[ ρ[ k ] ] C C[ k ] ] is-cocartesian ρ[ k ] fₖ)
+    vec→ob : ∀ {n} (C[_] : (Fin n) → Ob) → Ob[ n ]
+
+    vec-proj : ∀ {n} (C[_] : (Fin n) → Ob) → (k : Fin n) → Cocartesian-morphism ρ[ k ] (vec→ob C[_]) C[ k ]
 
   vec→hom
     : ∀ {m n} {A : Ob[ m ]} {B : Ob[ n ]} → {f : ⟨ m ⟩→⟨ n ⟩}
     → ((i : Fin n) → Hom[ ρ[ i ] ∘ f ] A (B ![ i ])) → Hom[ f ] A B
   vec→hom = equiv→inverse idx-is-eqv
+  
+  open Cocartesian-morphism
 
   vec→ob!≅vec : ∀ {n} (C[_] : (Fin n) → Ob) → ∀ i →
-    (vec→ob C[_] .fst) ![ i ] ≅↓ C[ i ]
+    vec→ob C[_] ![ i ] ≅↓ C[ i ]
   vec→ob!≅vec C[_] i = cocartesian-codomain-unique
       (lift-ρ.cocartesian _ i)
-      (vec→ob C[_] .snd i .snd)
+      (vec-proj C[_] i .cocartesian)
 
 unquoteDecl Multicat-over-pathp = declare-record-path Multicat-over-pathp (quote Multicat-over)
 

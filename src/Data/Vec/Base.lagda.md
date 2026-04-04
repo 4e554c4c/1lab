@@ -1,5 +1,6 @@
 <!--
 ```agda
+{-# OPTIONS --allow-unsolved-metas #-}
 open import 1Lab.Path
 open import 1Lab.Type
 
@@ -36,11 +37,8 @@ coordinates drawn from A.
 private variable
   ℓ : Level
   A B C : Type ℓ
-  n k : Nat
-```
--->
+  n m k : Nat
 
-```agda
 data Length {ℓ} {A : Type ℓ} : List A → Nat → Type ℓ where
   zero : Length [] zero
   suc  : ∀ {x xs n} → Length xs n → Length (x ∷ xs) (suc n)
@@ -74,6 +72,8 @@ record Vec {ℓ} (A : Type ℓ) (n : Nat) : Type ℓ where
   field
     lower   : List A
     ⦃ len ⦄ : Irr (Length lower n)
+
+open Vec using (lower) public
 
 pattern []v = vec []
 
@@ -129,12 +129,12 @@ instance
     go (suc zero) xs          = xs ∷v []v
     go (suc (suc n)) (x , xs) = x ∷v go (suc n) xs
 
-len-++ : ∀ {ℓ n m} {A : Type ℓ} {xs ys : List A} → Length xs n → Length ys m → Length (xs ++ℓ ys) (n + m)
-len-++ zero l' = l'
-len-++ (suc l) l' = Length-suc ⦃ len-++ l l' ⦄
+len-++ : ∀ {ℓ} {A : Type ℓ} {xs ys : List A} → Length xs n → Length ys m → Length (xs ++ℓ ys) (n + m)
+len-++ {n = zero} zero l' = l'
+len-++ {n = suc n} (suc l) l' = suc (len-++ l l')
 
 _++_ : ∀ {n k} → Vec A n → Vec A k → Vec A (n + k)
-(vec xs) ++ (vec ys) = vec (xs ++ℓ ys) ⦃ liftA2 len-++ auto auto ⦄
+(vec xs ⦃ lx ⦄) ++ (vec ys ⦃ ly ⦄) = vec (xs ++ℓ ys) ⦃ liftA2 len-++ lx ly ⦄
 
 Vec-elim
   : ∀ {ℓ ℓ'} {A : Type ℓ} (P : ∀ {n} → Vec A n → Type ℓ')

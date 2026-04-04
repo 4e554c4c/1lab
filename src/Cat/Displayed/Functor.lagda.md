@@ -496,6 +496,16 @@ module
       is-natural'
         : ∀ {x y f} (x' : ℰ.Ob[ x ]) (y' : ℰ.Ob[ y ]) (f' : ℰ.Hom[ f ] x' y')
         → η' y' ℱ.∘' F' .F₁' f' ℱ.≡[ α .is-natural x y f ] G' .F₁' f' ℱ.∘' η' x'
+
+  open _=[_]=>_
+  _η'ₚ_ :
+    {F : Functor A B} {G : Functor A B}
+    {α : F => G}
+    {F' G' : Displayed-functor F ℰ ℱ}
+    {G' : Displayed-functor G ℰ ℱ}
+    {a b : F' =[ α ]=> G'} → a ≡ b → ∀ {x} (x' : ℰ.Ob[ x ]) → a .η' x' ≡ b .η' x'
+  p η'ₚ x' = ap (λ e → e .η' x') p
+  infixl 45 _η'ₚ_
 ```
 
 ::: {.definition #vertical-natural-transformation}
@@ -542,6 +552,14 @@ module _
       is-natural↓ x y f =
         ap ℱ.hom[] (ℱ.from-pathp[]⁻ (is-natural' x y f))
         ∙ sym (ℱ.duplicate _ _ _)
+
+  open _=>↓_
+  _η↓ₚ_ :
+    {F' G' : Vertical-functor ℰ ℱ}
+    {a b : F' =>↓ G'} → a ≡ b → ∀ {x} (x' : ℰ.Ob[ x ]) → a .η' x' ≡ b .η' x'
+  _η↓ₚ_ {G' = G'} = _η'ₚ_ {G' = G'}
+
+  infixl 45 _η↓ₚ_
 
   private unquoteDecl eqv = declare-record-iso eqv (quote _=[_]=>_)
 

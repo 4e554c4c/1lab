@@ -1,13 +1,16 @@
 <!--
 ```agda
+{-# OPTIONS --allow-unsolved-metas #-}
 open import 1Lab.Prelude
 
 open import Data.Maybe.Properties
+open import Data.Nat.Properties
 open import Data.Maybe.Base
 open import Data.Fin.Base
-open import Data.Nat.Base using (s≤s)
+open import Data.Nat.Base renaming (_≤_ to _≤n_; _<_ to _<n_)
 open import Data.Dec
 open import Data.Sum
+
 
 open import Meta.Invariant
 
@@ -329,6 +332,24 @@ Fin-find
 Fin-find {P = P} ¬p with Fin-omniscience-neg P
 ... | inl p = absurd (¬p p)
 ... | inr p = p
+
+Fin-find-least
+  : ∀ {n ℓ} (P : Fin n → Type ℓ) ⦃ _ : ∀ {x} → Dec (P x) ⦄
+  → Σ[ x ∈ Fin n ] P x
+  → Σ[ x ∈ Fin n ] P x × ∀ y → P y → x ≤ y
+Fin-find-least P (k , p) with Fin-omniscience P
+... | inl x = x
+... | inr ¬p = absurd $ᵢ ¬p k p
+
+Fin-find-unique
+  : ∀ {n ℓ} (P : Fin n → Type ℓ) ⦃ _ : ∀ {x} → Dec (P x) ⦄
+  → ⦃ Pprop : ∀ {x} → H-Level (P x) 1 ⦄
+  → Dec (is-contr $ Σ[ x ∈ Fin n ] P x)
+Fin-find-unique P ⦃ dec ⦄ with Fin-omniscience P
+... | inr ¬p = no λ p → ¬p (p .centre .fst) (p .centre .snd)
+... | inl (j , pj , _) with Fin-omniscience (λ k → P k × j ≠ k)
+... | inr ¬p = yes $ contr (j , pj) λ { (k , pk) → Σ-prop-path! $ dec→dne λ j≠k → ¬p k (pk , j≠k) }
+... | inl (k , (pk , j≠k) , _) = no λ { (contr (j' , pj') paths) → j≠k $ ap fst $ (sym $ paths (j , pj)) ∙ (paths (k , pk)) }
 ```
 -->
 
@@ -359,6 +380,14 @@ Fin-injection→equiv {suc n} f inj .is-eqv i with f 0 ≡? i
   ... | zero  = absurd (¬p p)
   ... | suc j = Σ-prop-path! (ap (fsuc ∘ fst)
       (rec .paths (j , ap₂ (avoid (f 0)) p prop!)))
+
+Fin-injection→lt : ∀ {n m} (f : Fin n → Fin m) → injective f → n Nat.≤ m
+Fin-injection→lt {0} f _ = 0≤x
+Fin-injection→lt {suc n} {0} f _ = absurd $ᵢ Fin-absurd (f fzero)
+Fin-injection→lt {suc n} {suc m} f inj = s≤s $
+  Fin-injection→lt
+    (λ x → avoid (f 0) (f (fsuc x)) (Nat.zero≠suc ∘ ap lower ∘ inj))
+    (λ p → fsuc-inj (inj (avoid-injective (f 0) p)))
 ```
 
 Since [[every surjection between finite sets splits|finite choice]], any
@@ -374,6 +403,13 @@ Fin-surjection→equiv f surj = case finite-surjection-split f surj of λ split 
   left-inverse→equiv (snd ∘ split)
     (Fin-injection→equiv (fst ∘ split)
       (right-inverse→injective f (snd ∘ split)))
+
+Fin-surjection→gt
+  : ∀ {n m} (f : Fin n → Fin m)
+  → is-surjective f → m Nat.≤ n
+Fin-surjection→gt f surj = case finite-surjection-split f surj of λ split →
+  (Fin-injection→lt (fst ∘ split)
+    (right-inverse→injective f (snd ∘ split)))
 ```
 
 ## Vector operations
@@ -424,6 +460,15 @@ insert-delete ρ i a p j with fin-view i | fin-view j
 insert-delete {suc n} ρ _ a p _ | suc i | zero  = refl
 insert-delete {suc n} ρ _ a p _ | suc i | suc j = insert-delete (ρ ∘ fsuc) i a p j
 
+--insertvec-insert
+--  : ∀ {n} {ℓ} {A : Type ℓ}
+--  → (v : Fin n → A)
+--  → (k : Fin n)
+--  → PathP (λ i → Fin (+-zeror n i) → A)
+--    (v [ k ← (λ _ → v k) ])
+--    v
+--insertvec-insert v k a i = {! !}
+
 ℕ< : Nat → Type
 ℕ< n = Σ[ k ∈ Nat ] k Nat.< n
 
@@ -435,4 +480,13 @@ to-ℕ< (fin i ⦃ p ⦄) = i , p
 
 fsuc-is-embedding : ∀ {n} → is-embedding (fsuc {n})
 fsuc-is-embedding = injective→is-embedding! fsuc-inj
+
+fkeep-id : ∀ {n} → ∀ (i : Fin (suc n)) → fkeep (λ x → x) i ≡ i
+fkeep-id j with fin-view j
+... | zero = refl
+... | suc j = refl
+
+const→fin1 : ∀ {ℓ} {A : Fin 1 → Type ℓ} → A 0 → ∀ j → A j
+const→fin1 a fzero = a
+const→fin1 a (fin (suc j) ⦃ p ⦄) = absurd $ᵢ ¬suc≤0 $ ≤-peel p
 ```

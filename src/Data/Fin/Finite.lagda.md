@@ -144,18 +144,21 @@ $x$, we conclude that any listing generates an equivalence $A \simeq
   find : ∀ a → a ∈ₗ univ
   find a = has-member a .centre
 
+  card : Nat
+  card = length univ
+
   listing→is-equiv : is-equiv (univ !_)
   listing→is-equiv .is-eqv x = Equiv→is-hlevel 0
     (Σ-ap-snd (λ x → Equiv.inverse Id≃path) ∙e Equiv.inverse member≃lookup)
     (has-member x)
 
-  index : A → Fin (length univ)
+  index : A → Fin card
   index = equiv→inverse listing→is-equiv
 ```
 
 <!--
 ```agda
-  listing→fin-equiv : Fin (length univ) ≃ A
+  listing→fin-equiv : Fin card ≃ A
   listing→fin-equiv = record { snd = listing→is-equiv }
 
   opaque
@@ -194,6 +197,10 @@ Equiv→listing {A = A} {B = B} f li = record
   ; has-member = λ a → retract→is-contr (map-equiv-member f) (member-map-equiv f) (member-map-equiv-invl f) (li .Listing.has-member _)
   }
   where module f = Equiv f
+
+all-fin : ∀ n → List (Fin n)
+all-fin zero    = []
+all-fin (suc n) = fzero ∷ map fsuc (all-fin n)
 ```
 -->
 
@@ -241,12 +248,9 @@ universal list for $[n]$ up by 1.
 
 ```agda
   Listing-Fin : ∀ {n} → Listing (Fin n)
-  Listing-Fin {n} = record { univ = all n ; has-member = has } where
-    all : ∀ n → List (Fin n)
-    all zero    = []
-    all (suc n) = fzero ∷ map fsuc (all n)
+  Listing-Fin {n} = record { univ = all-fin n ; has-member = has } where
 
-    mem : ∀ {n} (x : Fin n) → x ∈ₗ all n
+    mem : ∀ {n} (x : Fin n) → x ∈ₗ all-fin n
     mem x with fin-view x
     ... | zero  = here reflᵢ
     ... | suc i = there (map-member fsuc (mem i))
@@ -259,20 +263,20 @@ complicated.</summary>
 
 ```agda
     abstract
-      uniq : ∀ {n} (x : Fin n) (p q : x ∈ₗ all n) → p ≡ q
+      uniq : ∀ {n} (x : Fin n) (p q : x ∈ₗ all-fin n) → p ≡ q
       uniq x p q with fin-view x
       uniq _ (here p) (here q)  | zero = ap here prop!
-      uniq _ (here p) (there q) | zero = absurd (fsuc≠fzero (Id≃path.to (member-map fsuc (all _) q .fst .snd)))
-      uniq _ (there p) _        | zero = absurd (fsuc≠fzero (Id≃path.to (member-map fsuc (all _) p .fst .snd)))
+      uniq _ (here p) (there q) | zero = absurd (fsuc≠fzero (Id≃path.to (member-map fsuc (all-fin _) q .fst .snd)))
+      uniq _ (there p) _        | zero = absurd (fsuc≠fzero (Id≃path.to (member-map fsuc (all-fin _) p .fst .snd)))
 
       uniq _ (here ()) q         | suc i
       uniq _ (there p) (here ()) | suc i
       uniq {suc n} .(fsuc i) (there p) (there q) | suc i =
         let
-          p' : i ∈ₗ all n
+          p' : i ∈ₗ all-fin n
           p' = member-map-embedding fsuc fsuc-is-embedding {i} p
 
-          q' : i ∈ₗ all n
+          q' : i ∈ₗ all-fin n
           q' = member-map-embedding fsuc fsuc-is-embedding {i} q
 
           r =
@@ -282,7 +286,7 @@ complicated.</summary>
             q                  ∎
         in ap there r
 
-    has : ∀ {n} (x : Fin n) → is-contr (x ∈ₗ all n)
+    has : ∀ {n} (x : Fin n) → is-contr (x ∈ₗ all-fin n)
     has x .centre = mem x
     has x .paths  = uniq x (mem x)
 ```
@@ -703,6 +707,10 @@ Finite→Discrete : ⦃ _ : Finite A ⦄ → Discrete A
 Finite→Discrete ⦃ f ⦄ =
   let instance _ = Finite→H-Level {n = 0} ⦃ f ⦄
    in case f of λ l → Listing→Discrete l
+
+--Finite→H-Level ⦃ f ⦄ = basic-instance 2 (case f of Listing→is-set)
+--Finite↔contr : ∀ ⦃ f : Finite A ⦄ → (cardinality ⦃ f ⦄ ≡ 1) ≃ (is-contr A)
+--Finite↔contr ⦃ f ⦄ = ? where
 
 module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} ⦃ fb : Finite B ⦄ (e : ∥ A ≃ B ∥) (f : A → B) where
   Finite-injection→equiv : injective f → is-equiv f

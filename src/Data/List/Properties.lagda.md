@@ -19,6 +19,7 @@ open import Data.Bool
 
 open import Meta.Foldable
 open import Meta.Idiom
+open import Meta.Bind
 ```
 -->
 
@@ -31,8 +32,9 @@ module Data.List.Properties where
 <!--
 ```agda
 private variable
-  ℓ ℓ' : Level
-  A B : Type ℓ
+  ℓ ℓ' ℓ'' : Level
+  A B C : Type ℓ
+  xs ys : List A
 ```
 -->
 
@@ -174,6 +176,11 @@ ap-∷ : ∀ {x y : A} {xs ys : List A}
      → x ≡ y → xs ≡ ys
      → Path (List A) (x ∷ xs) (y ∷ ys)
 ap-∷ x≡y xs≡ys i = x≡y i ∷ xs≡ys i
+
+ap-∷ᵢ : ∀ {x y : A} {xs ys : List A}
+     → x ≡ᵢ y → xs ≡ᵢ ys
+     → (x ∷ xs) ≡ᵢ (y ∷ ys)
+ap-∷ᵢ reflᵢ reflᵢ = reflᵢ
 ```
 
 <!--
@@ -193,6 +200,14 @@ map-++
 map-++ f [] ys = refl
 map-++ f (x ∷ xs) ys = ap (f x ∷_) (map-++ f xs ys)
 
+map-map
+  : ∀ {A : Type ℓ} {B : Type ℓ} {C : Type ℓ}
+  → {xs : List A}
+  → {f : A → B} {g : B → C}
+  → map (g ∘ f) xs ≡ map g (map f xs)
+map-map {xs = []} = refl
+map-map {xs = x ∷ xs} = ap-∷ refl map-map
+
 take-length : ∀ {ℓ} {A : Type ℓ} (xs : List A) → take (length xs) xs ≡ xs
 take-length [] = refl
 take-length (x ∷ xs) = ap (x ∷_) (take-length xs)
@@ -204,6 +219,10 @@ take-length-more
 take-length-more [] zero xs≤n = refl
 take-length-more [] (suc n) xs≤n = refl
 take-length-more (x ∷ xs) (suc n) xs≤n = ap (x ∷_) (take-length-more xs n (≤-peel xs≤n))
+
+length-++ : ∀ {ℓ} {A : Type ℓ} {xs ys : List A} → length (xs ++ ys) ≡ length xs + length ys
+length-++ {xs = []} = refl
+length-++ {xs = x ∷ xs} = ap suc $ length-++ {xs = xs}
 ```
 -->
 
@@ -294,6 +313,39 @@ is-empty? (x ∷ xs) = no id
 length-tabulate : ∀ {n} (f : Fin n → A) → length (tabulate f) ≡ n
 length-tabulate {n = zero}  f = refl
 length-tabulate {n = suc n} f = ap suc (length-tabulate (f ∘ fsuc))
+
+set-length : ∀ {a} {l : List A} {i : Fin (length l)} → length (l [ i ]:= a) ≡ length l
+set-length {a} {l = x ∷ xs} {i} with fin-view i
+... | zero  = refl
+... | suc i = ap suc (set-length {i = i})
+
+
+_ : ∀ { n m } → n ≡ m → Fin n ≡ Fin m
+_  = ap Fin
+
+{-
+set-index : ∀ {a} {l : List A} {i : Fin (length l)} → (l [ i ]:= a) ! i ≡ a
+set-index {l = x ∷ xs} {a} {n}  with fin-view n
+... | zero  = ?
+... | suc i = ?
+-}
+
+
+singleton-bind : ∀ {ℓ} {A : Type ℓ} (xs : List A) → (xs >>= singleton) ≡ xs
+singleton-bind [] = refl
+singleton-bind (x ∷ xs) = ap-∷ refl $ singleton-bind xs
+
+map-tabulate : ∀ {n} {A : Type ℓ} {B : Type ℓ'} (f : A → B) (t : Fin n → A) → (f <$> tabulate t) ≡ tabulate (f ∘ t)
+map-tabulate {n = zero} f _ = refl
+map-tabulate {n = suc n} f _ = ap-∷ refl (map-tabulate f _)
+
+tabulate-! : (tabulate $ xs !_) ≡ xs
+tabulate-! {xs = []} = refl
+tabulate-! {xs = x ∷ xs} = ap-∷ refl tabulate-!
+
+concat-mapp : {A : Type ℓ} {B : Type ℓ'} {xs : List $ List A} (f : A → B) → (concat $ f <<$>> xs) ≡ (f <$> concat xs)
+concat-mapp {xs = []} f = refl
+concat-mapp {xs = xs ∷ xss} f = ap (map f xs ++_) (concat-mapp {xs = xss} f) ∙ (sym $ map-++ f xs $ concat xss)
 ```
 -->
 

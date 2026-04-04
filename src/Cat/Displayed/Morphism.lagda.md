@@ -526,21 +526,32 @@ iso[]→invertible[]
 iso[]→invertible[] {i = i} i' =
   make-invertible[ (iso→invertible i) ] (i' .from') (i' .invl') (i' .invr')
 
+≅[]-pathp
+  : {a b c d : Ob}
+    {p : a ≡ c} {q : b ≡ d} {f : a ≅ b} {g : c ≅ d}
+    {A : Ob[ a ]} {B : Ob[ b ]} {C : Ob[ c ]} {D : Ob[ d ]}
+    {P : PathP (λ i → Ob[ p i ]) A C} {Q : PathP (λ i → Ob[ q i ]) B D}
+    {lp : PathP (λ i → p i ≅ q i) f g}
+    {F : A ≅[ f ] B} {G : C ≅[ g ] D}
+    → PathP (λ i → Hom[ lp i .to ] (P i) (Q i) ) (F .to') (G .to')
+    → PathP (λ i → P i ≅[ lp i ] Q i ) F G
+≅[]-pathp {P = P} {Q} {lp} {F} {G} r = it where
+  p' : PathP (λ i → is-invertible[ iso→invertible (lp i) ] (r i))
+    (record { inv' = F .from' ; inverses' = F .inverses' })
+    (record { inv' = G .from' ; inverses' = G .inverses' })
+  p' = is-prop-i0→pathp (is-invertible[]-is-prop _ $ F .to') _ _
+
+  it : PathP (λ i → P i ≅[ lp i ] Q i) F G
+  it i .to'       = r i
+  it i .from'     = p' i .is-invertible[_].inv'
+  it i .inverses' = p' i .is-invertible[_].inverses'
+
 ≅[]-path
   : {x y : Ob} {A : Ob[ x ]} {B : Ob[ y ]} {f : x ≅ y}
     {p q : A ≅[ f ] B}
   → p .to' ≡ q .to'
   → p ≡ q
-≅[]-path {f = f} {p = p} {q = q} a = it where
-  p' : PathP (λ i → is-invertible[ iso→invertible f ] (a i))
-    (record { inv' = p .from' ; inverses' = p .inverses' })
-    (record { inv' = q .from' ; inverses' = q .inverses' })
-  p' = is-prop→pathp (λ i → is-invertible[]-is-prop _ (a i)) _ _
-
-  it : p ≡ q
-  it i .to'       = a i
-  it i .from'     = p' i .is-invertible[_].inv'
-  it i .inverses' = p' i .is-invertible[_].inverses'
+≅[]-path a = ≅[]-pathp a
 
 instance
   Extensional-≅[]

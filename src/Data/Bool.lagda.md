@@ -242,6 +242,14 @@ ne→is-not {true}  {true}  p = absurd (p refl)
 ne→is-not {true}  {false} p = refl
 ne→is-not {false} {true}  p = refl
 ne→is-not {false} {false} p = absurd (p refl)
+
+is-true→so : ∀ {x} → x ≡ᵢ true → So x
+is-true→so reflᵢ = oh
+
+SoDec : ∀ {ℓ} {A : Type ℓ} → A → {d : Dec A} → So (Dec→Bool d)
+SoDec a {yes _} = oh
+SoDec a {no not} = absurd $ᵢ not a
+
 ```
 -->
 

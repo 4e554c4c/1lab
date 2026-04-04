@@ -3,11 +3,11 @@
 open import 1Lab.Path
 open import 1Lab.Type
 
+open import Data.Bool.Base
 open import Data.Nat.Order
 open import Data.Dec.Base
 open import Data.Nat.Base
 open import Data.Sum.Base
-open import Data.Bool
 ```
 -->
 
@@ -28,10 +28,8 @@ numbers]. Since they're mostly simple inductive arguments written in
 
 ```agda
 +-associative : (x y z : Nat) → x + (y + z) ≡ (x + y) + z
-+-associative zero y z = refl
-+-associative (suc x) y z =
-  suc (x + (y + z)) ≡⟨ ap suc (+-associative x y z) ⟩
-  suc ((x + y) + z) ∎
++-associative zero y z i = y + z
++-associative (suc x) y z i = suc (+-associative x y z i)
 
 +-zerol : (x : Nat) → 0 + x ≡ x
 +-zerol x = refl
@@ -45,6 +43,10 @@ numbers]. Since they're mostly simple inductive arguments written in
 +-sucr : (x y : Nat) → x + suc y ≡ suc (x + y)
 +-sucr zero y = refl
 +-sucr (suc x) y = ap suc (+-sucr x y)
+
++-oner : (x : Nat) → x + 1 ≡ suc x
++-oner zero = refl
++-oner (suc x) = ap suc (+-oner x)
 
 +-commutative : (x y : Nat) → x + y ≡ y + x
 +-commutative zero y = sym (+-zeror y)
@@ -221,6 +223,10 @@ monus-≤-suc : ∀ m n → m ≤ n → suc n - m ≡ suc (n - m)
 monus-≤-suc zero n m≤n = refl
 monus-≤-suc (suc m) (suc n) m≤n = monus-≤-suc m n (≤-peel m≤n)
 
+monus-sucnt : ∀ m n → m < n → suc (n - suc m) ≡ (n - m)
+monus-sucnt zero (suc n) m≤n =  refl
+monus-sucnt (suc m) (suc n) m≤n = monus-sucnt m n (≤-peel m≤n)
+
 monus-cancell : ∀ k m n → (k + m) - (k + n) ≡ m - n
 monus-cancell zero    = λ _ _ → refl
 monus-cancell (suc k) = monus-cancell k
@@ -292,6 +298,7 @@ monus-exchanger w x y z p z≤x =
     w + (x - z + z) ≡⟨ ap (w +_) (monus-+r-inverse x z z≤x) ⟩
     w + x           ≡⟨ p ⟩
     y + z           ∎
+
 
 monus-commute : ∀ m n k → m - n - k ≡ m - k - n
 monus-commute m n k =
@@ -365,7 +372,7 @@ monus-≤ (suc x) (suc y) = ≤-sucr (monus-≤ x y)
 +-preserves-<r x y z p = subst₂ _<_ (+-commutative z x) (+-commutative z y) (+-preserves-<l x y z p)
 
 +-preserves-< : ∀ x y x' y' → x < y → x' < y' → (x + x') < (y + y')
-+-preserves-< x y x' y' p q = <-trans _ _ _ (+-preserves-<r x y x' p) (+-preserves-<l x' y' y q)
++-preserves-< x y x' y' p q = <-trans (+-preserves-<r x y x' p) (+-preserves-<l x' y' y q)
 
 *-preserves-≤l : (x y z : Nat) → x ≤ y → (z * x) ≤ (z * y)
 *-preserves-≤l x y zero prf = 0≤x
@@ -451,6 +458,16 @@ nonzero→positive {suc x} p = s≤s 0≤x
 *-reflects-<l x {y} {z} lt with ≤-strengthen (*-reflects-≤l x {y} {z} (<-weaken lt))
 ... | inl y=z = absurd (<-irrefl (ap (x *_) y=z) lt)
 ... | inr y<z = y<z
+
+monus-≤-swapl : ∀ {x m n} → x ≤ m + n → m ≤ x → x - m ≤ n
+monus-≤-swapl {x} {m} {n} p q = +-reflects-≤l (x - m) n m $ ≤-refl'  (monus-+l-inverse m x q) ≤∙ p
+
+monus-<-swapl : ∀ {x m n} → x < m + n → m ≤ x → x - m < n
+monus-<-swapl {x} {m} {n} p q = +-reflects-≤l (suc (x - m)) n m $
+  (≤-refl' $ +-sucr m $ x - m) ≤∙ (≤-refl' $ ap Nat.suc $ monus-+l-inverse m x q) ≤∙ p
+
+--monus-<-swapl' : ∀ {x m n} → x ≤ m + n → m < x → x - m < n
+--monus-<-swapl' {x} {m} {n} p q = {!!} where
 ```
 
 ## Maximum

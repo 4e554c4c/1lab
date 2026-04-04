@@ -3,10 +3,12 @@
 open import 1Lab.Prelude
 
 open import Data.Maybe.Base
+open import Data.Bool.Base
 open import Data.List.Base using (_∷_; [])
 open import Data.Dec.Base
 open import Data.Nat.Base
 open import Data.Sum.Base
+open import Data.Id.Base
 ```
 -->
 
@@ -112,6 +114,11 @@ instance
     → H-Level (Maybe A) n
   H-Level-Maybe {n = suc (suc n)} = hlevel-instance $
     Maybe-is-hlevel n (hlevel (2 + n))
+
+  H-Level-is-just : ∀ {n} {x : Maybe A} → H-Level (is-just x) (suc n)
+  H-Level-is-just {x = just _} = prop-instance λ _ _ → refl
+  H-Level-is-just {x = nothing} = prop-instance λ ()
+
 ```
 -->
 
@@ -206,6 +213,7 @@ map-<|>
   → map f (x <|> y) ≡ (map f x <|> map f y)
 map-<|> (just x) y = refl
 map-<|> nothing y = refl
+
 ```
 
 ## Injectivity
@@ -271,5 +279,45 @@ Maybe-is-sum {A = A} = Iso→Equiv (to , iso from ir il) where
   il : is-right-inverse to from
   il nothing = refl
   il (just x) = refl
+
+Dec→Maybe : ⦃ Dec A ⦄ → Maybe A
+Dec→Maybe ⦃ yes a ⦄ = just a
+Dec→Maybe ⦃ no _ ⦄ = nothing
+
+{-
+open is-iso
+lmfaoj
+  : ∀ {ℓ ℓ'} {A : Type ℓ}
+  → (P : (B : Type ℓ) (f : A → B) (g : B → A) (h : ∀ x → f (g x) ≡ x) → Type ℓ')
+  → P A id id (λ x → refl)
+  → ∀ {B : Type ℓ} (f : A → B) (e : is-iso f)
+  → P B f (e .from) (e .rinv)
+lmfaoj {A = A} P base f e = EquivJ
+  (λ B f → (g : B → A) (h : ∀ x → f · g x ≡ x) → P B (f .fst) g h)
+  (λ g h → subst₂ (P A id) (λ i x → h x (~ i)) (λ i x j → h x (~ i ∨ j)) base)
+  (Iso→Equiv (f , e)) (e .from) (e .rinv)
+-}
+
+unmap-equiv : {A B : Type ℓ} → (m : Maybe A) (e : A ≃ B) (x : B)
+       → (e .fst <$> m) ≡ just x
+       → m ≡ just (equiv→inverse (e .snd) x)
+unmap-equiv m = EquivJ (λ B e → ∀ x →  (e .fst <$> m) ≡ just x → m ≡ just (equiv→inverse (e .snd) x)) λ x p → (sym $ map-id _) ∙ p
+
+eq-just→is-justᵢ : ∀ {y} {x : Maybe A} → x ≡ᵢ just y → is-just x
+eq-just→is-justᵢ reflᵢ = lift oh
+
+
+fmap-bind : ∀ {x : Maybe A} {f : A → B} {g : B → Maybe C} → (f <$> x >>= g) ≡ (x >>= g ∘ f)
+fmap-bind {x = nothing} = refl
+fmap-bind {x = just x} = refl
+
+--bind-fmap : ∀ {x : Maybe A} {f : B → C} {g : A → Maybe B} → (f <$> (x >>= g)) ≡ (x >>= f ∘ g)
+--bind-fmap {x = nothing} = refl
+--bind-fmap {x = just x} = refl
+
+bind-intror : ∀ {x : Maybe A} → x ≡ (x >>= pure) 
+bind-intror {x = nothing} = refl
+bind-intror {x = just x} = refl
+
 ```
 -->

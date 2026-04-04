@@ -4,6 +4,9 @@ open import Cat.Displayed.Cartesian
 open import Cat.Displayed.Total.Op
 open import Cat.Displayed.Base
 open import Cat.Prelude
+open import Cat.Morphism.Class
+
+open import 1Lab.HLevel.Closure
 
 import Cat.Displayed.Morphism.Duality
 import Cat.Displayed.Reasoning as DR
@@ -19,6 +22,8 @@ module Cat.Displayed.Cocartesian
 
 <!--
 ```agda
+private variable
+  ℓa : Level
 open Cat.Displayed.Morphism.Duality ℰ
 open Cat.Displayed.Morphism ℰ
 open Cat.Reasoning ℬ
@@ -252,6 +257,21 @@ co-cartesian≡cocartesian =
   ua (co-cartesian→cocartesian , co-cartesian→cocartesian-is-equiv)
 ```
 
+<!--
+```agda
+is-cocartesian-is-prop
+  : ∀ {x y x' y'} {f : Hom x y} {f' : Hom[ f ] x' y'}
+  → is-prop (is-cocartesian f f')
+is-cocartesian-is-prop {f' = f'} = equiv→is-hlevel 1 _ co-cartesian→cocartesian-is-equiv (is-cartesian-is-prop _)
+
+instance
+  H-Level-is-cocartesian
+    : ∀ {x y x' y'} {f : Hom x y} {f' : Hom[ f ] x' y'} {n}
+    → H-Level (is-cocartesian f f') (suc n)
+  H-Level-is-cocartesian = prop-instance is-cocartesian-is-prop
+```
+-->
+
 ## Properties of cocartesian morphisms
 
 We shall now prove the following properties of cocartesian morphisms.
@@ -422,6 +442,9 @@ particularly interesting.
 </summary>
 
 ```agda
+unquoteDecl Cocartesian-lift-path =
+  declare-record-path Cocartesian-lift-path (quote Cocartesian-lift)
+
 co-cartesian-lift→cocartesian-lift cart .Cocartesian-lift.y' =
   Cartesian-lift.x' cart
 co-cartesian-lift→cocartesian-lift cart .Cocartesian-lift.lifting =
@@ -435,6 +458,15 @@ cocartesian-lift→co-cartesian-lift cocart .Cartesian-lift.lifting =
   Cocartesian-lift.lifting cocart
 cocartesian-lift→co-cartesian-lift cocart .Cartesian-lift.cartesian =
   cocartesian→co-cartesian (Cocartesian-lift.cocartesian cocart)
+
+cocartesian-lift≃co-cartesian-lift
+  : ∀ {x y} {f : Hom x y} {x' : Ob[ x ]}
+  → Cocartesian-lift f x' ≃ Cartesian-lift (ℰ ^total-op) f x'
+cocartesian-lift≃co-cartesian-lift .fst = cocartesian-lift→co-cartesian-lift
+cocartesian-lift≃co-cartesian-lift .snd = is-iso→is-equiv record where
+  from = co-cartesian-lift→cocartesian-lift
+  rinv x = Cartesian-lift-path _ refl refl
+  linv x = Cocartesian-lift-path refl refl
 ```
 </details>
 
@@ -469,6 +501,25 @@ module Cocartesian-fibration (fib : Cocartesian-fibration) where
            → Hom[ id ] (f ^! x') (f ^! x'')
   rebase f vert =
     ι!.universalv (hom[ idr _ ] (ι! f _ ∘' vert))
+
+
+Cocartesian-lifts-of : (Arrows ℬ ℓa) → Type _
+Cocartesian-lifts-of A = ∀ {x y} (f : Hom x y) → (f ∈ A) → (x' : Ob[ x ]) → Cocartesian-lift f x'
+
+Cocartesian-morphism-pathp
+  : ∀ {x y x' x'' y' y''} {f g : Hom x y}
+  → {f' : Cocartesian-morphism f x' y'} {g' : Cocartesian-morphism g x'' y''}
+  → {p : f ≡ g}
+  → {p' : x' ≡ x''}
+  → {q' : y' ≡ y''}
+  → PathP (λ i → Hom[ p i ] (p' i) (q' i)) (Cocartesian-morphism.hom' f') (Cocartesian-morphism.hom' g')
+  → PathP (λ i → Cocartesian-morphism (p i) (p' i) (q' i)) f' g'
+Cocartesian-morphism-pathp q i .Cocartesian-morphism.hom' = q i
+Cocartesian-morphism-pathp {f' = f'} {g' = g'} {p = p} q i .Cocartesian-morphism.cocartesian =
+  is-prop→pathp (λ i → is-cocartesian-is-prop {f = p i} {f' = q i})
+    (Cocartesian-morphism.cocartesian f')
+    (Cocartesian-morphism.cocartesian g') i
+
 ```
 -->
 

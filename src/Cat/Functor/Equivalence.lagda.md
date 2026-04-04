@@ -667,6 +667,12 @@ record Equivalence
     To-equiv : is-equivalence To
 
   open is-equivalence To-equiv renaming (F⁻¹ to From; F⊣F⁻¹ to To⊣From) public
+
+  module To = Fr To
+  module From = Fr From
+
+unquoteDecl Equivalence-path = declare-record-path Equivalence-path (quote Equivalence)
+unquoteDecl Equivalence-iso = declare-record-iso Equivalence-iso (quote Equivalence)
 ```
 -->
 

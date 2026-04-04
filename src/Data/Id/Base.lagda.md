@@ -86,7 +86,9 @@ module _ where private
 
 <!--
 ```agda
-_ = _≡_
+_≠ᵢ_ : ∀ {ℓ} {A : Type ℓ} → A → A → Type ℓ
+x ≠ᵢ y = ¬ (x ≡ᵢ y)
+
 Id≃path : ∀ {ℓ} {A : Type ℓ} {x y : A} → (x ≡ᵢ y) ≃ (x ≡ y)
 Id≃path .fst p = Id-identity-system .to-path p
 Id≃path {ℓ} {A} {x} {y} .snd =
@@ -104,7 +106,11 @@ apᵢ f reflᵢ = reflᵢ
 
 substᵢ : ∀ {ℓ ℓ'} {A : Type ℓ} (P : A → Type ℓ') {x y : A}
        → x ≡ᵢ y → P x → P y
-substᵢ P p x = transportᵢ (apᵢ P p) x
+substᵢ P reflᵢ x = x
+
+subst₂ᵢ : ∀ {ℓ₁ ℓ₂ ℓ₃} {A : Type ℓ₁} {B : Type ℓ₂} (P : A → B → Type ℓ₃) {a a' : A} {b : B} {b' : B}
+       → (p : a ≡ᵢ a') (q : b ≡ᵢ b') → P a b → P a' b'
+subst₂ᵢ P reflᵢ reflᵢ x = x
 ```
 -->
 
@@ -181,6 +187,10 @@ instance
       (no ¬q) → no λ p → ¬q (Σ-inj-set (Discrete→is-set auto) p)
     (no ¬p) → no λ p → ¬p (Id≃path.from (ap fst p))
 
+  Disc→decᵢ : ∀ {ℓ} {A : Type ℓ} ⦃ _ : Discrete A ⦄ → ∀ {x y} → Dec (x ≡ᵢ y)
+  Disc→decᵢ ⦃ disc ⦄ {x = x} {y} = (x ≡ᵢ? y) ⦃ disc ⦄
+  {-# INCOHERENT Disc→decᵢ #-}
+
 abstract instance
   H-Level-Id
     : ∀ {ℓ n} {S : Type ℓ} ⦃ s : H-Level S (suc n) ⦄ {x y : S}
@@ -239,7 +249,8 @@ apᵢ-apᵢ
 apᵢ-apᵢ f g reflᵢ = reflᵢ
 
 id-Σ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} {x y : Σ A B} (p : x ≡ᵢ y) → Σ[ p ∈ x .fst ≡ᵢ y .fst ] Id-over B p (x .snd) (y .snd)
-id-Σ {B = B} {x} {y} p = apᵢ fst p , substᵢ (λ e → transportᵢ e (x .snd) ≡ᵢ (y .snd)) (symᵢ (apᵢ-apᵢ B fst p)) (apdᵢ snd p)
+id-Σ {B = B} {x} {y} reflᵢ = reflᵢ , reflᵢ
+
 
 happlyᵢ : {f g : ∀ x → P x} → f ≡ᵢ g → (x : A) → f x ≡ᵢ g x
 happlyᵢ reflᵢ x = reflᵢ

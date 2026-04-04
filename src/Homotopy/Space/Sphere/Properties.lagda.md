@@ -289,7 +289,7 @@ of the equivalence above, which we express as an annoying chain of
           Ωⁿ-map (1 + k) (Equiv∙.to∙ (n-Tr-Ω¹ _ (k + 2)) ∘∙ inc∙ ∘∙ suspend∙ _) · l
             ≃∙⟨ id≃
               , ap (λ x → Ωⁿ-map (1 + k) x · l)
-                ( sym (∘∙-assoc (Equiv∙.to∙ (n-Tr-Ω¹ _ (k + 2))) inc∙ (suspend∙ _))
+                ((∘∙-assoc (Equiv∙.to∙ (n-Tr-Ω¹ _ (k + 2))) inc∙ (suspend∙ _))
                 ∙ ap (_∘∙ suspend∙ _) (n-Tr-Ω¹-inc _ (k + 2)))
               ∙ sym (Ωⁿ-map-∘ (1 + k) _ _ ·ₚ l) ⟩
         ⌞ Ωⁿ (1 + k) (Ω¹ (n-Tr∙ (Sⁿ (2 + n)) (2 + k + 2))) ⌟ ,

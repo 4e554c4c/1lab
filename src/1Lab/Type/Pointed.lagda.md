@@ -2,6 +2,7 @@
 ```agda
 open import 1Lab.Path.IdentitySystem
 open import 1Lab.Reflection.HLevel
+open import 1Lab.Extensionality
 open import 1Lab.HLevel.Closure
 open import 1Lab.Path.Reasoning
 open import 1Lab.Path.Groupoid
@@ -143,11 +144,11 @@ module
 ∘∙-idr f = funext∙ (λ _ → refl) (∙-idl _)
 
 ∘∙-assoc : (f : C →∙ D) (g : B →∙ C) (h : A →∙ B)
-         → (f ∘∙ g) ∘∙ h ≡ f ∘∙ (g ∘∙ h)
+         → f ∘∙ (g ∘∙ h) ≡ (f ∘∙ g) ∘∙ h
 ∘∙-assoc (f , f') (g , g') (h , h') = funext∙ (λ _ → refl) $
-  ap (f ∘ g) h' ∙ ap f g' ∙ f'   ≡⟨ ∙-assoc _ _ _ ⟩
-  (ap (f ∘ g) h' ∙ ap f g') ∙ f' ≡˘⟨ ap-∙ f _ _ ⟩∙⟨refl ⟩
-  ap f (ap g h' ∙ g') ∙ f'       ∎
+  ap f (ap g h' ∙ g') ∙ f'       ≡⟨ ap-∙ f _ _ ⟩∙⟨refl ⟩
+  (ap (f ∘ g) h' ∙ ap f g') ∙ f' ≡˘⟨ ∙-assoc _ _ _ ⟩
+  ap (f ∘ g) h' ∙ ap f g' ∙ f'   ∎
 ```
 -->
 

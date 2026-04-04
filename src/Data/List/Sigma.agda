@@ -21,8 +21,7 @@ module _ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} where
       : (x : A) (xs : List (B x)) (a : A) (b : B a)
       → (a , b) ∈ₗ map (x ,_) xs
       → pair-mem x xs a b
-    pair-member x (y ∷ ys) a b (here p) = apᵢ fst p , fzero , substᵢ (λ e → transportᵢ e y ≡ᵢ b)
-      (symᵢ (apᵢ-apᵢ B fst (symᵢ p)) ∙ᵢ (apᵢ (apᵢ B) (apᵢ-symᵢ fst p))) (apdᵢ snd (symᵢ p))
+    pair-member x (y ∷ ys) a b (here reflᵢ) = reflᵢ , fzero , reflᵢ
     pair-member x (y ∷ ys) a b (there p) with pair-member x ys a b p
     ... | (p , ix , q) = p , fsuc ix , q
 

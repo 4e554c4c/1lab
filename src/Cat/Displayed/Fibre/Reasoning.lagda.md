@@ -5,6 +5,7 @@ open import Cat.Displayed.Base
 open import Cat.Prelude
 
 import Cat.Displayed.Reasoning
+import Cat.Displayed.Morphism
 import Cat.Reasoning
 ```
 -->
@@ -20,6 +21,7 @@ module Cat.Displayed.Fibre.Reasoning
 ```agda
 private
   open Cat.Displayed.Reasoning E
+  open Cat.Displayed.Morphism E
   module B = Cat.Reasoning B
   module Fib {x} = Cat.Reasoning (Fibre E x)
 
@@ -51,6 +53,15 @@ opaque
     : f' ∘' g' ≡[ p ] h' ∘' i'
     → f' Fib.∘ g' ≡ h' Fib.∘ i'
   over-fibre p' = ap hom[] (cast[] p')
+
+module _ (o : x' ≅↓ y') where
+  open module o = _≅[_]_ o
+  open Inverses
+  iso→isof : x' Fib.≅ y'
+  iso→isof .to = o.to'
+  iso→isof .from = o.from'
+  iso→isof .inverses .invl = from-pathp[] o.invl'
+  iso→isof .inverses .invr = from-pathp[] o.invr'
 
 opaque
   pullrf

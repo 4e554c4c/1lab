@@ -106,12 +106,66 @@ $\lambda$) are the **right unitor** (resp. **left unitor**).
   ρ≅ : ∀ {X} → X ≅ X ⊗ Unit
   ρ≅ = isoⁿ→iso unitor-r _
 
+  ρ≅⁻¹ : ∀ {X} → X ⊗ Unit ≅ X
+  ρ≅⁻¹ = ρ≅ Iso⁻¹
+
   α≅ : ∀ {A B C} → (A ⊗ B) ⊗ C ≅ A ⊗ (B ⊗ C)
   α≅ = isoⁿ→iso associator _
 
   module ⊗ = Fr (Uncurry -⊗-)
   module ▶ {A} = Fr (-⊗-.Right A) hiding (F₀ ; F₁)
   module ◀ {A} = Fr (-⊗-.Left A)  hiding (F₀ ; F₁)
+{-
+=======
+  λ≅⁻¹ : ∀ {X} → Unit ⊗ X ≅ X
+  λ≅⁻¹ = λ≅ Iso⁻¹
+
+  λ← : ∀ {X} → Hom (Unit ⊗ X) X
+  λ← = unitor-l .Cr._≅_.from .η _
+
+  λ→ : ∀ {X} → Hom X (Unit ⊗ X)
+  λ→ = unitor-l .Cr._≅_.to .η _
+
+  ρ≅ : ∀ {X} → X ≅ X ⊗ Unit
+  ρ≅ = isoⁿ→iso unitor-r _
+
+  ρ≅⁻¹ : ∀ {X} → X ⊗ Unit ≅ X
+  ρ≅⁻¹ = ρ≅ Iso⁻¹
+
+  ρ← : ∀ {X} → Hom (X ⊗ Unit) X
+  ρ← = unitor-r .Cr._≅_.from .η _
+
+  ρ→ : ∀ {X} → Hom X (X ⊗ Unit)
+  ρ→ = unitor-r .Cr._≅_.to .η _
+
+  α≅ : ∀ {A B C} → (A ⊗ B) ⊗ C ≅ A ⊗ (B ⊗ C)
+  α≅ = isoⁿ→iso associator _
+
+  α≅⁻¹ : ∀ {A B C} →  A ⊗ (B ⊗ C) ≅ (A ⊗ B) ⊗ C
+  α≅⁻¹ = α≅ Iso⁻¹
+
+  α→ : ∀ A B C → Hom ((A ⊗ B) ⊗ C) (A ⊗ (B ⊗ C))
+  α→ _ _ _ = associator .Cr._≅_.to .η _
+
+  α← : ∀ A B C → Hom (A ⊗ (B ⊗ C)) ((A ⊗ B) ⊗ C)
+  α← _ _ _ = associator .Cr._≅_.from .η _
+
+  module ⊗ = Fr -⊗-
+  module ▶ {A} = Fr (-⊗-.Right A)
+  module ◀ {A} = Fr (-⊗-.Left A)
+
+  infixr 27 _▶_
+  infixl 27 _◀_
+
+  -- whiskering on the right
+  _▶_ : ∀ A {B C} (g : Hom B C) → Hom (A ⊗ B) (A ⊗ C)
+  _▶_ A f = id ⊗₁ f
+
+  -- whiskering on the left
+  _◀_ : ∀ {A B} (g : Hom A B) C → Hom (A ⊗ C) (B ⊗ C)
+  _◀_ f A = f ⊗₁ id
+>>>>>>> 945878bd (multicats)
+-}
 ```
 -->
 
@@ -283,15 +337,15 @@ desired equation since $1 \otimes -$ is an equivalence.
   triangle-λ← {A} {B} = push-eqⁿ (unitor-l ni⁻¹) $
     ▶.F-∘ _ _ ∙ ap to (Iso-prism base sq1 sq2 sq3) ∙ ap ▶.₁ (▶.elimr refl)
     where
-      base : ◀.F-map-iso (α≅ Iso⁻¹) ∙Iso ◀.F-map-iso (◀.F-map-iso (ρ≅ Iso⁻¹))
-           ≡ ◀.F-map-iso (▶.F-map-iso (λ≅ Iso⁻¹))
+      base : ◀.F-map-iso (α≅ Iso⁻¹) ∙Iso ◀.F-map-iso (◀.F-map-iso (ρ≅⁻¹)) ≡
+           ◀.F-map-iso (▶.F-map-iso (λ≅ Iso⁻¹))
       base = ≅-path (◀.collapse triangle)
 
       sq1 : ◀.F-map-iso (α≅ Iso⁻¹) ∙Iso α≅ ∙Iso α≅ ≡ α≅ ∙Iso ▶.F-map-iso α≅
       sq1 = ≅-path (rswizzle (sym pentagon-α→ ∙ assoc _ _ _)
         (◀.annihilate (α≅ .invl)))
 
-      sq2 : ◀.F-map-iso (◀.F-map-iso (ρ≅ Iso⁻¹)) ∙Iso α≅
+      sq2 : ◀.F-map-iso (◀.F-map-iso (ρ≅⁻¹)) ∙Iso α≅
           ≡ (α≅ ∙Iso α≅) ∙Iso ▶.F-map-iso (λ≅ Iso⁻¹)
       sq2 = ≅-path $
         α→ _ ∘ ((ρ← _ ◀ _) ◀ _)        ≡⟨ ap₂ _∘_ refl (ap (_◀ _) (-⊗-.lmap-◆ _) ∙ -⊗-.lmap-◆ _) ⟩
@@ -307,6 +361,53 @@ desired equation since $1 \otimes -$ is an equivalence.
           ap₂ _∘_ refl (ap (_◀ _) (-⊗-.rmap-◆ _) ∙ -⊗-.lmap-◆ _)
         ∙ associator .Isoⁿ.to .is-natural _ _ _
         ∙ ap₂ _∘_ (eliml ◀.F-id) refl
+{-
+=======
+          ≡ α≅ ∙Iso ▶.F-map-iso (◀.F-map-iso (λ≅ Iso⁻¹))
+      sq3 = ≅-path (associator .Isoⁿ.to .is-natural _ _ _)
+
+  triangle-ρ← : ∀ {A B} → (A ▶ ρ←) ∘ α→ A B Unit ≡ ρ←
+  triangle-ρ← {A} {B} = push-eqⁿ (unitor-r ni⁻¹) $ ◀.F-∘ _ _ ∙ ap to base
+    --  ap to base
+    where
+
+      blah₁ = (▶.F-map-iso $ ▶.F-map-iso $ λ≅⁻¹) ∘Iso (▶.F-map-iso α≅)
+      blah₂ = ▶.F-map-iso (◀.F-map-iso ρ≅⁻¹)
+
+      top : Path (A ⊗ (B ⊗ Unit) ⊗ Unit ≅ A ⊗ B ⊗ Unit) blah₁ blah₂
+      top = ≅-path $ ▶.collapse triangle-α→
+
+      left : Path (A ⊗ (B ⊗ Unit) ⊗ Unit ≅ (A ⊗ (B ⊗ Unit)) ⊗ Unit)
+        ((◀.F-map-iso α≅ ∘Iso α≅⁻¹ ∘Iso α≅⁻¹) ∘Iso ▶.F-map-iso α≅)
+        (◀.F-map-iso α≅ ∘Iso (◀.F-map-iso α≅⁻¹ ∘Iso  α≅⁻¹))
+      left = ≅-path $
+        ((α→ A B Unit ◀ Unit) ∘  α← (A ⊗ B) Unit Unit ∘ α← A B (Unit ⊗ Unit)) ∘ (A ▶ α→ B Unit Unit)
+          ≡⟨ {! !} ⟩
+        α← A (B ⊗ Unit) Unit
+          ≡⟨ {! !} ⟩
+        (α→ A B Unit ◀ Unit) ∘ (α← A B Unit ◀ Unit) ∘ α← A (B ⊗ Unit) Unit ∎
+
+      right : Path (A ⊗ B ⊗ Unit ⊗ Unit ≅ (A ⊗ B) ⊗ Unit)
+        ({! !} ∘Iso (▶.F-map-iso $ ▶.F-map-iso $ λ≅⁻¹))
+        (◀.F-map-iso (▶.F-map-iso ρ≅⁻¹) ∘Iso {! !})
+      right = ?
+
+      front : Path (A ⊗ (B ⊗ Unit) ⊗ Unit ≅ (A ⊗ B) ⊗ Unit)
+        ({! !} ∘Iso ▶.F-map-iso (◀.F-map-iso ρ≅⁻¹))
+        (◀.F-map-iso (ρ≅⁻¹ {X = A ⊗ B}) ∘Iso {! !})
+      front = ?
+
+      base : Path (((A ⊗ B) ⊗ Unit) ⊗ Unit ≅ (A ⊗ B) ⊗ Unit)
+        (◀.F-map-iso (▶.F-map-iso ρ≅⁻¹) ∘Iso ◀.F-map-iso α≅)
+        (◀.F-map-iso (ρ≅ {X = A ⊗ B} Iso⁻¹))
+      base = Iso-prism top left right front
+      ≅-path $
+        ((A ▶ ρ← {B}) ◀ Unit) ∘ (α→ A B Unit ◀ Unit) ≡⟨ {! !} ⟩
+        ((A ⊗ B) ▶ ρ← {Unit}) ∘ α→ (A ⊗ B) Unit Unit ≡⟨ {! !} ⟩
+        ((A ⊗ B) ▶ λ← {Unit}) ∘ α→ (A ⊗ B) Unit Unit ≡⟨ triangle-α→ ⟩
+        ρ← {A ⊗ B} ◀  Unit ∎
+>>>>>>> 945878bd (multicats)
+-}
 ```
 
 As a consequence, we get that the two unitors $1 \otimes 1 \to 1$ agree:

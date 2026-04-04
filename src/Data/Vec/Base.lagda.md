@@ -27,6 +27,11 @@ open import Data.List.Length public
 -- we need reexport make-irr for []v to work
 open Data.Irr using (make-irr) public
 open Data.Irr
+
+private variable
+  ℓ : Level
+  A B C : Type ℓ
+  n k : Nat
 ```
 -->
 
@@ -36,15 +41,6 @@ The type `Vec`{.Agda} is a representation of n-ary tuples with
 coordinates drawn from A.
 
 ```agda
-private variable
-  ℓ : Level
-  A B C : Type ℓ
-  n k : Nat
-```
--->
-
-```agda
-
 record Vec {ℓ} (A : Type ℓ) (n : Nat) : Type ℓ where
   constructor vec
   field
@@ -87,9 +83,9 @@ type $A$. The halves of this equivalence are called `lookup`{.Agda} and
 
 ```agda
 lookup : Vec A n → Fin n → A
-lookup (vec xs) (fin n) = from-just! _ $ !?-just xs n p where abstract
+lookup (vec xs ⦃ l ⦄) (fin n) = from-just! _ $ !?-just xs n p where abstract
   p : n Nat.< length xs
-  p = ≤-trans auto $ subst (Nat._≤ length xs) (has-length auto) auto
+  p = ≤-trans auto $ subst (Nat._≤ length xs) (has-length l) auto
 ```
 
 ## List syntax {defines="list-syntax-for-vectors"}

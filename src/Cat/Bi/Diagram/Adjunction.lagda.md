@@ -7,7 +7,7 @@ open import Cat.Prelude
 -->
 
 ```agda
-module Cat.Bi.Diagram.Adjunction where
+module Cat.Bi.Diagram.Adjunction {o ℓ ℓ'} (B : Prebicategory o ℓ ℓ') where
 ```
 
 <!--
@@ -67,6 +67,11 @@ above into equations that are well-typed in a (weak) bicategory.
 
   infixr 15 _⊣_
 ```
+<!--
+```agda
+unquoteDecl ⊣-path = declare-record-path ⊣-path (quote _⊣_)
+```
+-->
 
 This means the triangle identities, rather
 than simply expressing a compatibility relation between $\eta$ and

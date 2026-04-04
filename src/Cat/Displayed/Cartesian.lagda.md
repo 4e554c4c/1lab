@@ -650,6 +650,9 @@ record
 ```agda
 unquoteDecl Cartesian-lift-path =
   declare-record-path Cartesian-lift-path (quote Cartesian-lift)
+
+has-cartesian-lifts : ∀ {x y} (f : Hom x y) → Type _
+has-cartesian-lifts f = ∀ y' → Cartesian-lift f y'
 ```
 -->
 
@@ -669,7 +672,7 @@ lifts]] for every right corner.
 
 ```agda
 Cartesian-fibration : Type _
-Cartesian-fibration = ∀ {x y} (f : Hom x y) (y' : Ob[ y ]) → Cartesian-lift f y'
+Cartesian-fibration = ∀ {x y} (f : Hom x y) → has-cartesian-lifts f
 
 module Cartesian-fibration (fib : Cartesian-fibration) where
 ```

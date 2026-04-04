@@ -86,6 +86,9 @@ lookup : Vec A n → Fin n → A
 lookup (vec xs) (fin n) = from-just! _ $ List.!?-just xs n p where abstract
   p : n Nat.< length xs
   p = ≤-trans auto $ subst (Nat._≤ length xs) (has-length auto) auto
+
+_!v_ : Vec A n → Fin n → A
+_!v_ = lookup
 ```
 
 ## List syntax {defines="list-syntax-for-vectors"}

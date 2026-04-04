@@ -108,4 +108,8 @@ not-≤ : ∀ x y → not x ≤ not y → y ≤ x
 not-≤ true  true  _ = _
 not-≤ true  false _ = _
 not-≤ false false _ = _
+
+true-≤ : ∀ t → t ≤ true
+true-≤ true  = _
+true-≤ false = _
 ```

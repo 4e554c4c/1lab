@@ -107,6 +107,12 @@ abstract
     → (p : x₁ ≅↓ x₂) (f' : Hom[ f ] x₁ y') (g' : Hom[ f ] x₂ y')
     → f' ∘' p .from' ≡[ α ] g'
     → PathP (λ i → Hom[ f ] (vertical-iso→path e-cat p i) y') f' g'
+
+  Hom[]-pathp-reflr-iso
+    : (e-cat : is-category-displayed) (α : B.id B.∘ f ≡ f)
+    → (p : y₁ ≅↓ y₂) (f' : Hom[ f ] x' y₁) (g' : Hom[ f ] x' y₂)
+    → p .to' ∘' f' ≡[ α ] g'
+    → PathP (λ i → Hom[ f ] x' (vertical-iso→path e-cat p i)) f' g'
 ```
 
 <details>
@@ -126,21 +132,23 @@ proofs. Therefore, they're hidden away down here.</summary>
         ∙∙ ap (λ p → subst (λ e → Hom[ e ] _ _) p f') prop!)))
       p q
 
-  Hom[]-pathp-refll-iso e-cat α p f' g' β = to-pathp $
-       from-pathp⁻ (Hom[]-transport (sym (B.idl _ ∙ α)) (vertical-iso→path e-cat p) refl f')
-    ∙∙ ap (subst (λ e → Hom[ e ] _ _) _) (
-        ap₂ (λ a b → a ∘' f' ∘' b) (transport-refl _)
-          (from-pathp (λ i → ≅↓-identity-system e-cat .to-path-over p i .from'))
-        ∙ from-pathp⁻ (idl' (f' ∘' p .from')))
-    ∙∙ ( sym (subst-∙ (λ e → Hom[ e ] _ _) _ _ _)
-      ∙∙ ap (λ α → subst (λ e → Hom[ e ] _ _) α (f' ∘' p .from')) prop!
-      ∙∙ from-pathp β)
-
   Hom[]-pathp-iso e-cat α p q f' g' β = to-pathp $
        from-pathp⁻ (Hom[]-transport (sym α) (vertical-iso→path e-cat p) (vertical-iso→path e-cat q) f')
     ∙∙ ap (subst (λ e → Hom[ e ] _ _) _) (ap₂ (λ a b → a ∘' f' ∘' b)
         (from-pathp (λ i → ≅↓-identity-system e-cat .to-path-over q i .to'))
         (from-pathp (λ i → ≅↓-identity-system e-cat .to-path-over p i .from')))
     ∙∙ from-pathp β
-```
+
+  Hom[]-pathp-reflr-iso {f = f} {x' = x'} e-cat α p f' g' β i =
+    comp (λ j → Hom[ f ] (to-path-refl {a = x'} (≅↓-identity-system e-cat) j i) (vertical-iso→path e-cat p i)) (∂ i) λ where
+      j (i = i0) → f'
+      j (i = i1) → g'
+      j (j = i0) → Hom[]-pathp-iso e-cat (B.pulll α ∙ B.idr _) id-iso↓ p f' g'  (pulll[] _ β ∙[] idr' _) i
+
+  Hom[]-pathp-refll-iso {f = f} {y' = y'} e-cat α p f' g' β i =
+    comp (λ j → Hom[ f ]  (vertical-iso→path e-cat p i) (to-path-refl {a = y'} (≅↓-identity-system e-cat) j i)) (∂ i) λ where
+      j (i = i0) → f'
+      j (i = i1) → g'
+      j (j = i0) → Hom[]-pathp-iso e-cat (B.idl _ ∙ α) p id-iso↓ f' g'  (idl' _ ∙[] β) i
+  ```
 </details>

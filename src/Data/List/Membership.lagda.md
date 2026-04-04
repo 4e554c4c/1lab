@@ -29,6 +29,7 @@ private variable
   P Q : A → Type ℓ'
   x y : A
   xs ys : List A
+  p : A → Bool
 ```
 -->
 
@@ -52,11 +53,26 @@ data _∈ₗ_ {ℓ} {A : Type ℓ} (x : A) : List A → Type ℓ where
 here≠there : ∀ {A : Type ℓ} {xs : List A} {x y : A} {p : x ≡ᵢ y} {q : x ∈ₗ xs} → here p ≠ there q
 here≠there p = subst (λ { (here _) → ⊤ ; (there _) → ⊥ }) p tt
 
+here-injectiveᵢ : ∀ {A : Type ℓ} {xs : List A} {x y : A} {p q : x ≡ᵢ y} → _≡ᵢ_ {A = (x ∈ₗ (y ∷ xs))} (here p) (here q) → p ≡ᵢ q
+here-injectiveᵢ {p = p} {q} reflᵢ = reflᵢ
+
+here-injective : ∀ {A : Type ℓ} {xs : List A} {x y : A} {p q : x ≡ᵢ y} → Path ((x ∈ₗ (y ∷ xs))) (here p) (here q) → p ≡ q
+here-injective {xs = xs} {x} {y} {p = p} {q} path = ap unhere path where
+  unhere : (x ∈ₗ (y ∷ xs)) → x ≡ᵢ y
+  unhere (here p) = p
+  unhere _ = p
+
 there-injective : ∀ {A : Type ℓ} {xs : List A} {x y : A} {p q : x ∈ₗ xs} → Path (x ∈ₗ (y ∷ xs)) (there p) (there q) → p ≡ q
 there-injective {xs = xs} {x} {y} {p} = ap unthere where
   unthere : (x ∈ₗ (y ∷ xs)) → x ∈ₗ xs
   unthere (there p) = p
   unthere _ = p
+
+--there-injectiveᵢ : ∀ {A : Type ℓ} {xs : List A} {x y : A} {p q : x ∈ₗ xs} → Path (x ∈ₗ (y ∷ xs)) (there p) (there q) → p ≡ q
+--there-injectiveᵢ {xs = xs} {x} {y} {p} = ap unthere where
+--  unthere : (x ∈ₗ (y ∷ xs)) → x ∈ₗ xs
+--  unthere (there p) = p
+--  unthere _ = p
 ```
 -->
 
@@ -359,6 +375,31 @@ module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) where
 ++-memberᵣ {xs = []}     p = p
 ++-memberᵣ {xs = x ∷ xs} p = there (++-memberᵣ p)
 
+++-memberₗ-inj
+  : ∀ {ℓ} {A : Type ℓ} {x : A} {xs ys : List A}
+  {p q : x ∈ₗ xs}
+  → Path ((x ∈ₗ (xs ++ ys))) (++-memberₗ {xs = xs} {ys} p) (++-memberₗ {xs = xs} {ys} q)
+  → p ≡ q
+++-memberₗ-inj {xs = x ∷ xs} {ys} {here p} {here q} eq = ap here $ here-injective eq
+++-memberₗ-inj {xs = x ∷ xs} {ys} {here p} {there q} path = absurd $ here≠there path
+++-memberₗ-inj {xs = x ∷ xs} {ys} {there p} {here q} path = absurd $ here≠there $ sym path
+++-memberₗ-inj {xs = x ∷ xs} {ys} {there p} {there q} eq = ap there $ ++-memberₗ-inj $ there-injective eq
+
+++-memberᵣ-inj
+  : ∀ {ℓ} {A : Type ℓ} {x : A} {xs ys : List A}
+  {p q : x ∈ₗ ys}
+  → Path (x ∈ₗ (xs ++ ys)) (++-memberᵣ {ys = ys} {xs} p) (++-memberᵣ {ys = ys} {xs} q)
+  → p ≡ q
+++-memberᵣ-inj {xs = []} path = path
+++-memberᵣ-inj {xs = x ∷ xs} {p = p} {q} path = ++-memberᵣ-inj $ there-injective path
+
+++-member-partition
+  : ∀ {ℓ} {A : Type ℓ} {x : A} {xs ys : List A} {p : x ∈ₗ xs} {q : x ∈ₗ ys}
+  → ++-memberₗ p ≠ ++-memberᵣ q
+++-member-partition {xs = x ∷ xs} {ys} {here p} {q} = here≠there
+++-member-partition {xs = x ∷ xs} {ys} {there p} {q} eq =
+  ++-member-partition $ there-injective eq
+
 Member-++-view
   : ∀ {ℓ} {A : Type ℓ} (x : A) (xs : List A) (ys : List A)
   → (p : x ∈ₗ (xs ++ ys)) → Type _
@@ -370,8 +411,61 @@ member-++-view
 member-++-view []       _ p         = inr (p , refl)
 member-++-view (x ∷ xs) _ (here p)  = inl (here p , refl)
 member-++-view (x ∷ xs) _ (there p) with member-++-view xs _ p
-... | inl (p , q) = inl (there p , ap there q)
-... | inr (p , q) = inr (p , ap there q)
+... | inl (p , q) = inl $ there p , ap there q
+... | inr (p , q) = inr $ p , ap there q
+
+concat-member
+  : ∀ {ℓ} {A : Type ℓ} (x : A) (xxs : List (List A)) → Type _
+concat-member {A = A} x xxs = Σ[ xs ∈ List A ] (xs ∈ₗ xxs) × (x ∈ₗ xs)
+
+member→concat-member
+  : ∀ {ℓ} {A : Type ℓ} (x : A) (xxs : List (List A))
+  → (x ∈ concat xxs) → concat-member x xxs
+member→concat-member x (xs ∷ xxs) p with member-++-view xs (concat xxs) p
+... | inl (mem , _) = xs , here reflᵢ , mem
+... | inr (mem , _) = rec .fst , (there $ rec .snd .fst) , rec .snd .snd where
+  rec = member→concat-member x xxs mem
+
+concat-member→member
+  : ∀ {ℓ} {A : Type ℓ} (x : A) (xxs : List (List A))
+  → concat-member x xxs → x ∈ concat xxs
+-- these refls MIGHT be evil, sorry!
+concat-member→member x xxs (l , here reflᵢ , here p) = here p
+concat-member→member x ((y ∷ xs) ∷ xxs) (l , here reflᵢ , there mem) = there $ ++-memberₗ mem
+concat-member→member x (xs ∷ xxs) (l , there loc , mem) = ++-memberᵣ $ concat-member→member x xxs $ l , loc , mem
+
+concat-member≃member
+  : ∀ {ℓ} {A : Type ℓ} (x : A) (xxs : List (List A))
+  → (x ∈ concat xxs) ≃ concat-member x xxs
+concat-member≃member x xxs = Iso→Equiv $ member→concat-member x xxs , is-an-iso x xxs where
+  open is-iso
+  is-an-iso : ∀ x xxs → is-iso $ member→concat-member x xxs
+  is-an-iso x xxs .from = concat-member→member x xxs
+  is-an-iso x (xs ∷ xxs) .rinv (l , here reflᵢ , here p) with member-++-view l (concat xxs) (here p)
+  ... | p = refl
+  is-an-iso x (xs ∷ xxs) .rinv (l , here reflᵢ , there mem) with member-++-view l (concat xxs) (there $ ++-memberₗ mem)
+  ... | inl (here pp , path) = absurd $ here≠there path
+  ... | inl (there mem'' , path) = Σ-pathp refl $ Σ-pathp refl $
+    ap there $ ++-memberₗ-inj $ there-injective path -- should be true
+  -- impossible ?
+  ... | inr (mem' , path) = absurd $ ++-member-partition $ there-injective $ sym path
+  is-an-iso x (xs ∷ xxs) .rinv (l , there loc , mem) with member-++-view xs (concat xxs) (++-memberᵣ $ concat-member→member x xxs $ l , loc , mem)
+  -- putting in ++-memberᵣ and geting an inl should be impossible, right?
+  ... | inl (mem' , path) = absurd $ ++-member-partition path
+  -- here we need to recurse? 😖
+  ... | inr (mem' , path) = ap (Σ-map₂ $ ×-map₁ there) rec'  where
+    rec : member→concat-member x xxs (concat-member→member x xxs (l , loc , mem)) ≡ (l , loc , mem)
+    rec = is-an-iso x xxs .rinv $ l , loc , mem
+    rec' : member→concat-member x xxs mem' ≡ (l , loc , mem)
+    rec' = ap (member→concat-member x xxs) (++-memberᵣ-inj path) ∙ rec
+
+  is-an-iso x (xs ∷ xxs) .linv mem with member-++-view xs (concat xxs) mem
+  ... | inl (here _ , p) = p
+  ... | inl (there _ , p) = p
+  -- rec ursion
+  ... | inr (mem' , path) = ap ++-memberᵣ rec ∙ path where
+    rec = is-an-iso x xxs .linv mem'
+
 ```
 -->
 
@@ -418,5 +512,35 @@ any-one-of f x (y ∷ xs) (here x=y) x-true =
   ap₂ or (substᵢ (λ e → f e ≡ true) x=y x-true) refl
 any-one-of f x (y ∷ xs) (there x∈xs) x-true =
   ap₂ or refl (any-one-of f x xs x∈xs x-true) ∙ or-truer _
+
+
+member-filter : x ∈ filter p xs ≃ (⌞ p x ⌟ × x ∈ xs)
+member-filter = Iso→Equiv (to , to-iso) where
+  to : x ∈ filter p xs → (⌞ p x ⌟ × x ∈ₗ xs)
+  to {x = x} {p = p} {x' ∷ xs} pf with p x' in eq
+  to {x = x} {p = p} {x' ∷ xs} (here pf)   | true = (is-true→so $ apᵢ p pf ∙ᵢ eq) , here pf
+  to {x = x} {p = p} {x' ∷ xs} (there pf)  | true = ×-map₂ there $ to {xs = xs} pf
+  to {x = x} {p = p} {x' ∷ xs} pf          | false = ×-map₂ there $ to {xs = xs} pf
+
+  open is-iso
+  to-iso : is-iso (to {x = x} {p} {xs})
+  to-iso {p = p} {y ∷ xs} .from (so , pf) with p y in eq
+  to-iso {p = p} {y ∷ xs} .from (so , here pf)  | true = here pf
+  to-iso {p = p} {y ∷ xs} .from (so , here pf)  | false = absurd $ ¬so-false $ substᵢ So (apᵢ p pf ∙ᵢ eq) so
+  to-iso {p = p} {y ∷ xs} .from (so , there pf) | true = there $ to-iso {xs = xs} .from $ so , pf
+  to-iso {p = p} {y ∷ xs} .from (so , there pf) | false = to-iso .from $ so , pf
+
+  to-iso {p = p} {y ∷ xs} .rinv (so , pf) with p y in eq
+  to-iso {p = p} {y ∷ xs} .rinv (so , here pf)  | true = Σ-pathp prop! refl
+  to-iso {p = p} {y ∷ xs} .rinv (so , here pf)  | false = absurd $ ¬so-false $ substᵢ So (apᵢ p pf ∙ᵢ eq) so
+  to-iso {p = p} {y ∷ xs} .rinv (so , there pf) | true  = Σ-pathp prop! $ ap (there ∘ snd) $ to-iso .rinv (so , pf)
+  to-iso {p = p} {y ∷ xs} .rinv (so , there pf) | false = Σ-pathp prop! $ ap (there ∘ snd) $ to-iso .rinv (so , pf)
+
+  to-iso {p = p} {y ∷ xs} .linv pf with p y in eq
+  to-iso {p = p} {y ∷ xs} .linv (here pf)  | true = refl
+  to-iso {p = p} {y ∷ xs} .linv (there pf) | true = ap there $ to-iso {p = p} {xs} .linv pf
+  to-iso {p = p} {y ∷ xs} .linv pf         | false = to-iso {xs = xs} .linv pf
+
+module member-filter {ℓ} {A : Type ℓ} {x : A} {p} {xs} = Equiv (member-filter {x = x} {p} {xs})
 ```
 -->

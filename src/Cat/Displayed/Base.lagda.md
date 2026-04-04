@@ -412,10 +412,14 @@ the base path and for inverting the path to be composed.
   ≡[]˘⟨⟩-syntax f' q' p' = f' ≡[]⟨ symP p' ⟩ q'
 
   syntax ≡[-]⟨⟩-syntax f' p q' p' = f' ≡[ p ]⟨ p' ⟩ q'
+
+  _≡[]⟨⟩_ : (f' : Hom[ f ] x y) → f' ∫≡ g' → f' ∫≡ g'
+  _ ≡[]⟨⟩ p = p
+
   syntax ≡[]⟨⟩-syntax f' q' p' = f' ≡[]⟨ p' ⟩ q'
   syntax ≡[]˘⟨⟩-syntax f' q' p' = f' ≡[]˘⟨ p' ⟩ q'
 
-  infixr 2 ≡[-]⟨⟩-syntax ≡[]⟨⟩-syntax ≡[]˘⟨⟩-syntax
+  infixr 2 ≡[-]⟨⟩-syntax ≡[]⟨⟩-syntax ≡[]˘⟨⟩-syntax _≡[]⟨⟩_
 ```
 
 Finally, for the final step, we must provide a slight variation on the

@@ -124,8 +124,15 @@ module
     → (q1 : ∀ {x y x' y'} {f : A.Hom x y} → (f' : ℰ.Hom[ f ] x' y')
             → PathP (λ i → ℱ.Hom[ p i .F₁ f ] (q0 x' i) (q0 y' i)) (F' .F₁' f') (G' .F₁' f'))
     → PathP (λ i → Displayed-functor (p i) ℰ ℱ) F' G'
-  Displayed-functor-pathp {F = F} {G = G} {F' = F'} {G' = G'} p q0 q1 =
-    injectiveP (λ _ → eqv) ((λ i x' → q0 x' i) ,ₚ (λ i f' → q1 f' i) ,ₚ prop!)
+  Displayed-functor-pathp p q0 fs i .F₀' x = q0 x i
+  Displayed-functor-pathp p q0 fs i .F₁' f = fs f i
+  -- 💀
+  Displayed-functor-pathp {F' = F'} {G'} p q0 q1 i .F-id' {x' = x'} =
+    is-prop-i0→pathp {B = λ j → PathP (λ k → ℱ.Hom[ p j .F-id k ] (q0 x' j) (q0 x' j) ) ((q1 {f = A.id} ℰ.id' j)) ℱ.id'}
+      (PathP-is-hlevel' 1 (ℱ.Hom[ B.id ]-set _ _) _ _) (F' .F-id' {_} {x'}) (G' .F-id' {_} {x'}) i
+  Displayed-functor-pathp {F = F} {F' = F'} {G'} p q0 q1 i .F-∘' {f = f} {g} {a' = a'} {b'} {c'} {f'} {g'} =
+    is-prop-i0→pathp {B = λ j → PathP (λ k → ℱ.Hom[ p j .F-∘ f g k ] (q0 a' j) (q0 c' j) ) (q1 (f' ℰ.∘' g') j) (q1 f' j ℱ.∘' q1 g' j)}
+      ((PathP-is-hlevel' 1 (ℱ.Hom[ _ ]-set _ _) _ _)) (F' .F-∘') (G' .F-∘') i
 ```
 -->
 
@@ -533,6 +540,16 @@ module
       is-natural'
         : ∀ {x y f} (x' : ℰ.Ob[ x ]) (y' : ℰ.Ob[ y ]) (f' : ℰ.Hom[ f ] x' y')
         → η' y' ℱ.∘' F' .F₁' f' ℱ.≡[ α .is-natural x y f ] G' .F₁' f' ℱ.∘' η' x'
+
+  open _=[_]=>_
+  _η'ₚ_ :
+    {F : Functor A B} {G : Functor A B}
+    {α : F => G}
+    {F' G' : Displayed-functor F ℰ ℱ}
+    {G' : Displayed-functor G ℰ ℱ}
+    {a b : F' =[ α ]=> G'} → a ≡ b → ∀ {x} (x' : ℰ.Ob[ x ]) → a .η' x' ≡ b .η' x'
+  p η'ₚ x' = ap (λ e → e .η' x') p
+  infixl 45 _η'ₚ_
 ```
 
 <details>
@@ -656,6 +673,31 @@ module _
         ∙ sym (ℱ.duplicate _ _ _)
 
   open _=>↓_
+  _η↓ₚ_ :
+    {F' G' : Vertical-functor ℰ ℱ}
+    {a b : F' =>↓ G'} → a ≡ b → ∀ {x} (x' : ℰ.Ob[ x ]) → a .η' x' ≡ b .η' x'
+  _η↓ₚ_ {G' = G'} = _η'ₚ_ {G' = G'}
+
+  --=>↓-pathp
+
+  infixl 45 _η↓ₚ_
+
+  private unquoteDecl eqv = declare-record-iso eqv (quote _=[_]=>_)
+
+  {-
+  instance
+    Extensional-=>↓
+      : ∀ {ℓr F' G'}
+      → ⦃ _ : Extensional (∀ {x} (x' : ℰ.Ob[ x ]) → ℱ.Hom[ id ] (F' .F₀' x') (G' .F₀' x')) ℓr ⦄
+      → Extensional (F' =>↓ G') ℓr
+    Extensional-=>↓ {F' = F'} {G' = G'}  ⦃ e ⦄  = injection→extensional! {f = _=>↓_.η'}
+      (λ p → Iso.injective eqv (Σ-prop-path! p)) e
+
+    H-Level-=>↓ : ∀ {F' G'} {n} → H-Level (F' =>↓ G') (2 + n)
+    H-Level-=>↓ = basic-instance 2 (Iso→is-hlevel 2 eqv (hlevel 2))
+    -}
+
+  open _=>↓_
 
   idnt↓ : ∀ {F} → F =>↓ F
   idnt↓ .η' x' = ℱ.id'
@@ -673,6 +715,16 @@ module _
     ∙∙ ap hom[] (from-pathp[]⁻ (extendl' id-comm-sym (f .is-natural' x' y' f') {q = extendl id-comm-sym}))
     ∙∙ sym (duplicate (ap (b ∘_) (idl id)) (eliml refl) _)
     ∙∙ unwhisker-r _ _)
+
+  Vertical-Nat-pathp'
+    : {F₁' F₂' G₁' G₂' : Vertical-functor ℰ ℱ}
+    → {α' : F₁' =>↓ G₁'} {β' : F₂' =>↓ G₂'}
+    → (p : F₁' ≡ F₂')
+    → (q : G₁' ≡ G₂')
+    → (∀ {x} (x' : ℰ.Ob[ x ])
+      → PathP (λ i → ℱ.Hom[ id ] (p i .F₀' x') (q i .F₀' x')) (α' .η' x') (β' .η' x'))
+    → PathP (λ i → p i =>↓ q i) α' β'
+  Vertical-Nat-pathp' = Nat'-pathp refl refl refl
 
 module _
   {ob ℓb oc ℓc od ℓd oe ℓe}
@@ -700,5 +752,19 @@ module _
           {q = extendl id-comm-sym}))
       ∙∙ sym (duplicate (ap (_ ∘_) (idl id)) _ _) ∙∙ unwhisker-r _ _)
     where open DR ℰ
+module _
+  {ob ℓb o' ℓ' o'' ℓ''}
+  {B : Precategory ob ℓb} where
+
+  open Precategory
+  Cat↓[_,_] : Displayed B o' ℓ' → Displayed B o'' ℓ'' → Precategory _ _
+  Cat↓[_,_] E F .Ob  = Vertical-functor E F
+  Cat↓[_,_] E F .Hom G H = G =>↓ H
+  Cat↓[_,_] E F .Hom-set _ _ = hlevel 2
+  Cat↓[_,_] E F .id  = idnt↓
+  Cat↓[_,_] E F ._∘_ = _∘nt↓_
+  Cat↓[_,_] E F .idr f = ext λ x → CR.idr (Fibre F _) _
+  Cat↓[_,_] E F .idl f = ext λ x → CR.idl (Fibre F _) _
+  Cat↓[_,_] E F .assoc f g h = ext λ x → CR.assoc (Fibre F _) _ _ _
 ```
 -->

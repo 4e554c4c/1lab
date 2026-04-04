@@ -4,7 +4,8 @@
 module 1Lab.Prelude where
 
 open import 1Lab.Type
-  hiding (Σ-syntax ; case_of_ ; case_return_of_)
+  hiding (Σ-syntax)
+  renaming (case_of_ to case'_of_ ; case_return_of_ to case'_return_of_)
   public
 
 open import 1Lab.Path.Groupoid public

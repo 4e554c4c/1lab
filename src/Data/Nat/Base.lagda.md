@@ -248,6 +248,9 @@ abstract
   <-weaken {zero} {y} 1+x≤y = 0≤x
   <-weaken {suc x} {suc y} 1+x≤y = s≤s (<-weaken (≤-peel 1+x≤y))
 
+1≤s : ∀ {x} → 1 ≤ suc x
+1≤s = s≤s 0≤x
+
 abstract instance
   Leq-zero : ∀ {x} → 0 ≤ x
   Leq-zero = 0≤x
@@ -267,6 +270,14 @@ abstract instance
   H-Level-≤ : ∀ {x y n} → H-Level (x ≤ y) (suc n)
   H-Level-≤ = prop-instance (λ _ _ → refl)
 
+x≤sx : ∀ {x} → x ≤ suc x
+x≤sx {x} = ≤-sucr Leq-refl
+
+
+≤-pred : ∀ {x y : Nat} → x ≤ y → pred x ≤ pred y
+≤-pred {zero} {y} p = 0≤x
+≤-pred {suc x} {suc y} p = ≤-peel p
+
 ¬suc≤0 : ∀ {x} → suc x ≤ 0 → ⊥
 ¬suc≤0 ()
 
@@ -274,6 +285,9 @@ abstract
   ≤-trans : ∀ {x y z} → x ≤ y → y ≤ z → x ≤ z
   ≤-trans {zero} {y} {z} x≤y y≤z = 0≤x
   ≤-trans {suc x} {suc y} {suc z} x≤y y≤z = s≤s (≤-trans (≤-peel x≤y) (≤-peel y≤z))
+
+_≤∙_ = ≤-trans
+infixr 30 _≤∙_
 
 factorial : Nat → Nat
 factorial zero = 1
@@ -297,7 +311,10 @@ infix 7 _<_ _≤_
 ```agda
 _>_ : Nat → Nat → Type
 x > y = y < x
-infix 7 _>_
+
+_≮_ : Nat → Nat → Type
+m ≮ n = ¬ (m < n)
+infix 7 _>_ _≮_
 ```
 -->
 

@@ -89,16 +89,23 @@ system on a [[regular category]].
 
 <!--
 ```agda
+
+    id∈L : ∀ {x} → C.id {x} ∈ L
+    id∈L = is-iso→in-L C.id C.id-invertible
+
+    id∈R : ∀ {x} → C.id {x} ∈ R
+    id∈R = is-iso→in-R C.id C.id-invertible
+
     L-subcat : Wide-subcat C ℓl
     L-subcat .Wide-subcat.P f = f ∈ L
     L-subcat .Wide-subcat.P-prop f = hlevel 1
-    L-subcat .Wide-subcat.P-id = is-iso→in-L C.id C.id-invertible
+    L-subcat .Wide-subcat.P-id = id∈L
     L-subcat .Wide-subcat.P-∘ = L-is-stable _ _
 
     R-subcat : Wide-subcat C ℓr
     R-subcat .Wide-subcat.P f = f ∈ R
     R-subcat .Wide-subcat.P-prop f = hlevel 1
-    R-subcat .Wide-subcat.P-id = is-iso→in-R C.id C.id-invertible
+    R-subcat .Wide-subcat.P-id = id∈R
     R-subcat .Wide-subcat.P-∘ = R-is-stable _ _
 ```
 -->

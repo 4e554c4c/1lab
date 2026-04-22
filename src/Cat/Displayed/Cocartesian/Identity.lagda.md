@@ -43,8 +43,4 @@ univalent category]] form a [[proposition]].
   Cocartesian-lift-is-prop : is-prop (Cocartesian-lift f a')
   Cocartesian-lift-is-prop = Equiv→is-hlevel 1 cocartesian-lift≃co-cartesian-lift $
     Cartesian-lift-is-prop (E ^total-op) (total-op-is-category E e-cat) f
-
-
-  Cartesian-morphism-is-prop : ∀ {b'} → is-prop (Cocartesian-morphism f a' b')
-  Cartesian-morphism-is-prop = ?
 ```

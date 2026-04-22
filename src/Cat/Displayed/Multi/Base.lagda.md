@@ -1,7 +1,7 @@
 <!--
 ```agda
 {-# OPTIONS --allow-unsolved-metas #-}
-open import Cat.Instances.Simplex.Pointed
+open import Cat.Instances.Dist
 open import Cat.Displayed.BeckChevalley
 open import Cat.Diagram.Limit.Finite
 open import Cat.Displayed.Functor
@@ -29,10 +29,10 @@ open import Order.Base
 open import Order.Cat
 
 import Cat.Displayed.IsoFibration
-import Cat.Displayed.Cocartesian
+import Cat.Displayed.Cocartesian as Coc
 import Cat.Displayed.Reasoning as DR
 import Cat.Displayed.Morphism as DM
-import Cat.Reasoning
+import Cat.Reasoning as Cr
 
 import Order.Reasoning
 ```
@@ -45,20 +45,16 @@ module Cat.Displayed.Multi.Base where
 # Displayed multicategories {defines=displayed-multicategory}
 
 ```agda
-open Precategory Δ∙ hiding (Ob)--using (_∘_)
 private variable
   o ℓ o' ℓ' : Level
 
-record Multicat-over (E : Displayed Δ∙ o ℓ)  : Type (lsuc (o ⊔ ℓ)) where
+record Multicat-over (E : Displayed Dist o ℓ) (lift-inert : Coc.Cocartesian-lifts-of E Inert)  : Type (lsuc (o ⊔ ℓ)) where
+  open Precategory Dist hiding (Ob)
   open module E = DR E public
-  open Cat.Displayed.Cocartesian E public
+  open Coc E public
   open DM E public
   open Cat.Displayed.IsoFibration E
   open Cocartesian-lift
-
-  field
-    lift-inert : ∀ {m n} → (f : ⟨ m ⟩→⟨ n ⟩) → (is-inert f) → ∀ C → Cocartesian-lift f C
-    --lift-iso : Isofibration
 
   module lift-inert {m n} (f : ⟨ m ⟩→⟨ n ⟩)(f-inert : is-inert f) C
     = Cocartesian-lift (lift-inert f f-inert C)
@@ -88,11 +84,14 @@ record Multicat-over (E : Displayed Δ∙ o ℓ)  : Type (lsuc (o ⊔ ℓ)) wher
 
     vec-proj : ∀ {n} (C[_] : (Fin n) → Ob) → (k : Fin n) → Cocartesian-morphism ρ[ k ] (vec→ob C[_]) C[ k ]
 
+  module vec-proj {n} (C[_] : (Fin n) → Ob) (k : Fin n)
+    = Cocartesian-morphism (vec-proj C[_] k)
+
   vec→hom
     : ∀ {m n} {A : Ob[ m ]} {B : Ob[ n ]} → {f : ⟨ m ⟩→⟨ n ⟩}
     → ((i : Fin n) → Hom[ ρ[ i ] ∘ f ] A (B ![ i ])) → Hom[ f ] A B
   vec→hom = equiv→inverse idx-is-eqv
-  
+
   open Cocartesian-morphism
 
   vec→ob!≅vec : ∀ {n} (C[_] : (Fin n) → Ob) → ∀ i →
@@ -101,12 +100,18 @@ record Multicat-over (E : Displayed Δ∙ o ℓ)  : Type (lsuc (o ⊔ ℓ)) wher
       (lift-ρ.cocartesian _ i)
       (vec-proj C[_] i .cocartesian)
 
+  _!⟨_⟩[_] : ∀ {m n} {A : Ob[ m ]} {B : Ob[ n ]} → {f : ⟨ m ⟩→⟨ n ⟩}
+    → Hom[ f ] A B → (f-inert : is-inert f) → (i : Fin n) → Hom[ id ] (A ![ inert-inv {f = f} f-inert i ]) (B ![ i ])
+  _!⟨_⟩[_] {A = A} {B = B} {f = f} h f-inert k = lift-ρ.universal' A (inert-inv {f = f} f-inert k) (Dist.idl _ ∙ {! inert-ρ f-inert !}) $ h M![ k ]
+
+
 unquoteDecl Multicat-over-pathp = declare-record-path Multicat-over-pathp (quote Multicat-over)
 
 record Multicat (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
   field
-    disp : Displayed Δ∙ o ℓ
-    is-multi : Multicat-over disp
+    disp : Displayed Dist o ℓ
+    lift-inert : Coc.Cocartesian-lifts-of disp Inert
+    is-multi : Multicat-over disp lift-inert
 
   open Multicat-over is-multi public
 
@@ -138,7 +143,7 @@ module _ (O : Multicat o ℓ) (M : Multicat o' ℓ') where
   MultiFunctor-path
     : {F G : MultiFunctor}
     → (p0 : ∀ {x} → (x' : O.Ob[ x ]) → F .F₀' x' ≡ G .F₀' x')
-    → (p1 : ∀ {x y x' y'} {f : Hom x y} (f' : O.Hom[ f ] x' y')
+    → (p1 : ∀ {x y x' y'} {f : Dist.Hom x y} (f' : O.Hom[ f ] x' y')
           → PathP (λ i → M.Hom[ f ] (p0 x' i) (p0 y' i)) (F .F₁' f') (G .F₁' f'))
     → F ≡ G
   MultiFunctor-path p0 p1 = MultiFunctor-up $ Vertical-functor-path p0 p1
@@ -164,7 +169,6 @@ module _
   (F' ∘M G') .preserves-inert i cc = F' .preserves-inert i $ G' .preserves-inert i cc
 
 
-{-
 record make-multicat (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
   field
     Ob : Type o
@@ -195,9 +199,10 @@ record make-multicat (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
       PathP (λ i → Homl (++-idr xs i) y)
         (comp-homl [ xs ] [ y ] y (const→fin1 h) (id y))
         h
+{-
 
   open Displayed
-  to-displayed : Displayed Δ∙ o ℓ
+  to-displayed : Displayed Dist o ℓ
   --to-displayed .Ob[_] 0 = Lift ⊤
   --to-displayed .Ob[_] 1 = Ob
   to-displayed .Ob[_] n = Vec Ob n
@@ -205,7 +210,8 @@ record make-multicat (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
   to-displayed .Hom[_]-set {n} {m} f v v' = Π-is-hlevel 2 λ _ → Homl-is-set _ _
   -- do we really want a transp here?
   to-displayed .id' {n} {xs} k = transport (λ j → Homl (lookup xs <$> preimage-id {j = k} (~ j)) (lookup xs k) ) $ id (lookup xs k)
-  to-displayed ._∘'_ {a} {b} {c} {xs} {ys} {zs} {f} {g} f' g' k = transport (λ i → Homl (motive₃ i) (lookup zs k)) $ foo module multi-comp where
+  to-displayed ._∘'_ {a} {b} {c} {xs} {ys} {zs} {f} {g} f' g' k = transport (λ i → Homl (motive₃ i) (lookup zs k)) $ foo
+    module multi-comp where
 
     -- n = ‖ f ⁻¹ k ‖
 
@@ -248,7 +254,7 @@ record make-multicat (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
     -- but we _need_
     -- Homl (lookup xs <$> preimage-indices (f ∘ g) k) (lookup zs k)
     --
-    motive₃ : (concat $ lookup xs <<$>> upper .lower) ≡ (lookup xs <$> preimage-indices (f ∘ g) k)
+    motive₃ : (concat $ lookup xs <<$>> upper .lower) ≡ (lookup xs <$> preimage-indices (f Dist.∘ g) k)
     motive₃ =
       (concat $ lookup xs <<$>> upper .lower)
         ≡⟨⟩
@@ -263,7 +269,7 @@ record make-multicat (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
       lookup xs <$> (concat $ preimage-indices g <$> (preimage-indices f k))
         ≡⟨ ap (λ l → Map-List .map (lookup xs) l) {! !}  -- this is actually the important theorem
          ⟩
-      lookup xs <$> preimage-indices (f ∘ g) k
+      lookup xs <$> preimage-indices (f Dist.∘ g) k
         ∎
 
   to-displayed .idr' {a} {b} {x = xs} {ys} {f} f' = {! !}

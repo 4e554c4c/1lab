@@ -1,7 +1,7 @@
 <!--
 ```agda
 {-# OPTIONS --allow-unsolved-metas #-}
-open import Cat.Instances.Simplex.Pointed
+open import Cat.Instances.Dist
 open import Cat.Displayed.BeckChevalley
 open import Cat.Diagram.Limit.Finite
 open import Cat.Displayed.Functor
@@ -18,6 +18,7 @@ open import Cat.Functor.Univalence
 open import Cat.Functor.Naturality
 open import Cat.Instances.Discrete
 open import Cat.Displayed.Cocartesian.Identity
+import Cat.Displayed.Cocartesian as Coc
 open import Cat.Prelude
 open import Cat.Gaunt
 
@@ -36,9 +37,8 @@ open import Cat.Displayed.Univalence
 open import Cat.Displayed.Univalence.Reasoning
 
 import Cat.Displayed.IsoFibration
-import Cat.Displayed.Cocartesian
 import Cat.Displayed.Reasoning as DR
-import Cat.Displayed.Morphism
+import Cat.Displayed.Morphism as DM
 import Cat.Reasoning as CR
 import Cat.Displayed.Fibre.Reasoning as FR
 
@@ -67,7 +67,7 @@ module _ (M : Multicat o ℓ) where
   open is-identity-system
 
   module Fibre = FR disp
-  open CR Δ∙
+  open CR Dist
 
   -- basically ℰ[n]=ℰ[1]^n
   open Equivalence
@@ -75,12 +75,12 @@ module _ (M : Multicat o ℓ) where
   open Cocartesian-lift
   my-silly-functor : ∀ {n} → Functor (Fibre disp n) Cat[ ( Disc' $ el! $ Fin n) , Fibre disp 1 ]
   my-silly-functor {n} .F₀ o = Disc'-adjunct λ i → o ![ i ]
-  my-silly-functor {n} .F₁ {v} {w} f = Disc-natural λ i → lift-ρ.universal' v i Δ∙.id-comm-sym $ f M![ i ]
+  my-silly-functor {n} .F₁ {v} {w} f = Disc-natural λ i → lift-ρ.universal' v i Dist.id-comm-sym $ f M![ i ]
   my-silly-functor {n} .F-id {v} = ext λ i → begin[]
-    (lift-ρ.universal' v i Δ∙.id-comm-sym $ E.id' M![ i ])
+    (lift-ρ.universal' v i Dist.id-comm-sym $ E.id' M![ i ])
       ≡[]⟨⟩
-    (lift-ρ.universal' v i Δ∙.id-comm-sym $ lift-ρ.lifting v i E.∘' E.id')
-      ≡[]˘⟨ lift-ρ.uniquep v i Δ∙.id-comm-sym refl Δ∙.id-comm-sym E.id' id-comm' ⟩
+    (lift-ρ.universal' v i Dist.id-comm-sym $ lift-ρ.lifting v i E.∘' E.id')
+      ≡[]˘⟨ lift-ρ.uniquep v i Dist.id-comm-sym refl Dist.id-comm-sym E.id' id-comm' ⟩
     E.id'
       ∎[]
   my-silly-functor .F-∘ {x} {y} {z} f' g' = ext λ i → begin[]
@@ -115,12 +115,12 @@ module _ (M : Multicat o ℓ) where
         (f' ∘' g') M![ i ]
           ∎[]
       ⟩
-    lift-ρ.universal' y i Δ∙.id-comm-sym (f' M![ i ]) ∘'
-    lift-ρ.universal' x i Δ∙.id-comm-sym (g' M![ i ])
-      ≡[]⟨ coh[ Δ∙.idr _ ] _ ⟩
-    (hom[ Δ∙.idr _ ] $
-      lift-ρ.universal' y i Δ∙.id-comm-sym (f' M![ i ]) ∘'
-      lift-ρ.universal' x i Δ∙.id-comm-sym (g' M![ i ]))
+    lift-ρ.universal' y i Dist.id-comm-sym (f' M![ i ]) ∘'
+    lift-ρ.universal' x i Dist.id-comm-sym (g' M![ i ])
+      ≡[]⟨ coh[ Dist.idr _ ] _ ⟩
+    (hom[ Dist.idr _ ] $
+      lift-ρ.universal' y i Dist.id-comm-sym (f' M![ i ]) ∘'
+      lift-ρ.universal' x i Dist.id-comm-sym (g' M![ i ]))
       ∎[]
 
   hom-extp
@@ -144,7 +144,7 @@ module _ (M : Multicat o ℓ) where
   open is-precat-iso
   open _=>_
   it's-iso : ∀ {n} → is-precat-iso $ my-silly-functor {n}
-  it's-iso {n} .has-is-ff {x} {y} .is-eqv nt .centre .fst = idx-is-eqv {n} {n} {x} {y} {Δ∙.id} .is-eqv {! nt .η !} .centre .fst
+  it's-iso {n} .has-is-ff {x} {y} .is-eqv nt .centre .fst = idx-is-eqv {n} {n} {x} {y} {Dist.id} .is-eqv {! nt .η !} .centre .fst
   it's-iso .has-is-ff .is-eqv y .centre .snd = {! !}
   it's-iso .has-is-ff .is-eqv y .paths = {! !}
   it's-iso .has-is-iso .is-eqv y .centre .fst = vec→ob (λ i → y .F₀ i) .fst
@@ -156,49 +156,61 @@ module _ (M : Multicat o ℓ) where
   it's-iso .has-is-iso .is-eqv y .paths (o[n] , path) = Σ-pathp {! !} {! !}
 
   pf : is-category-displayed
-  pf = is-category-fibrewise' (Δ∙-gaunt .is-gaunt.has-category) λ n →
+  pf = is-category-fibrewise' (Dist-gaunt .is-gaunt.has-category) λ n →
     {! !}
 -}
-open Multicat using (disp)
-module _ (M N : Multicat o ℓ) (m-cat : is-category-displayed (M .disp)) (n-cat : is-category-displayed (N .disp))where
-  module M = Multicat M
-  module N = Multicat N
-  --open DU disp
+module _ (E : Displayed Dist o ℓ) (lift-inert : Coc.Cocartesian-lifts-of E Inert) (is-cat : is-category-displayed E) (M N : Multicat-over E lift-inert) where
+  open DR E
+  private
+    module M = Multicat-over M
+    module N = Multicat-over N
+  open CR Dist hiding (Ob)
+  open DM E
+  open _≅[_]_
+  open M using (Ob ; _![_] ; _M![_])
+  Multicat-over-is-prop : M ≡ N
+  Multicat-over-is-prop = Multicat-over-pathp (ext λ v → p₁ v) $ funextP' λ {n} → funextP λ C[_] → funextP λ j → N.Cocartesian-morphism-pathp $
+    Hom[]-pathp-refll-iso E is-cat (idr _) {! !} (M.vec-proj.hom' C[_] j) (N.vec-proj.hom' C[_] j) $ begin[]
+      M.vec-proj.hom' C[_] j N.∘' M.vec→hom (λ i → N.hom[ id-comm-sym ] $ (M.vec→ob!≅vec C[_] i) .from' N.∘' N.vec-proj.hom' C[_] i)
+        ≡[]⟨ {! !} ⟩
+      N.vec-proj.hom' C[_] j
+        ∎[]
+  --Cocartesian-morphism-path {! Hom[]-pathp-refll-iso ? ? ? ? ? ? !}
+    where
+      p₁ : ∀ {n} (C[_] : (Fin n) → Ob) → M.vec→ob C[_] ≡ N.vec→ob C[_]
+      p₁ {n} C[_] = let C = M.vec→ob C[_] in let C' = M.vec→ob C[_] in
+        vertical-iso→path E is-cat record where
+            to' = N.vec→hom λ i → hom[ id-comm-sym ] $ N.vec→ob!≅vec C[_] i .from' ∘' M.vec-proj.hom' C[_] i
+            from' = M.vec→hom λ i → hom[ id-comm-sym ] $ M.vec→ob!≅vec C[_] i .from' ∘' N.vec-proj.hom' C[_] i
+            inverses' : Inverses[ _ ] to' from'
+            inverses' = record where
+              invl' = begin[]
+                to' ∘' from'
+                ≡[]⟨ {! !} ⟩
+                id'
+                ∎[]
 
-  open is-identity-system
-
-  --module Fibre = FR disp
-  open CR Δ∙
-
-  -- basically ℰ[n]=ℰ[1]^n
-  open Equivalence
-  open Functor
-  --open Cocartesian-lift
-
-  UMulticat-path : (M .disp) ≡ (N .disp) → M ≡ N
-  UMulticat-path p = Multicat-pathp p $ is-prop-i0→pathp (λ M' N' →
-    Multicat-over-pathp
-      (ext λ _ _ _ → Cocartesian-lift-is-prop M.disp m-cat _ _ _)
+  {-
       (ext λ v → Σ-pathp
         (vertical-iso→path (M .disp) (m-cat) record where
             module N' = Multicat-over N'
             module M' = Multicat-over M'
             open M'
-            to' = N'.vec→hom λ i → hom[ Δ∙.id-comm-sym ] $ N'.vec→ob!≅vec v i .from' ∘' M'.vec→ob v .snd i .fst
-            from' = M'.vec→hom λ i → hom[ Δ∙.id-comm-sym ] $ M'.vec→ob!≅vec v i .from' ∘' N'.vec→ob v .snd i .fst
+            to' = N'.vec→hom λ i → hom[ Dist.id-comm-sym ] $ N'.vec→ob!≅vec v i .from' ∘' M'.vec→ob v .snd i .fst
+            from' = M'.vec→hom λ i → hom[ Dist.id-comm-sym ] $ M'.vec→ob!≅vec v i .from' ∘' N'.vec→ob v .snd i .fst
             inverses' = record
               { invl' = begin[]
-                (N'.vec→hom λ i → hom[ Δ∙.id-comm-sym ] $ N'.vec→ob!≅vec v i .M.from' ∘' M'.vec→ob v .snd i .fst)
-                ∘' (M'.vec→hom λ i → hom[ Δ∙.id-comm-sym ] $ M'.vec→ob!≅vec v i .M.from' ∘' N'.vec→ob v .snd i .fst)
+                (N'.vec→hom λ i → hom[ Dist.id-comm-sym ] $ N'.vec→ob!≅vec v i .M.from' ∘' M'.vec→ob v .snd i .fst)
+                ∘' (M'.vec→hom λ i → hom[ Dist.id-comm-sym ] $ M'.vec→ob!≅vec v i .M.from' ∘' N'.vec→ob v .snd i .fst)
                 ≡[]⟨ hom-extp M (λ j → begin[]
-                  ((N'.vec→hom λ i → hom[ Δ∙.id-comm-sym ] $ N'.vec→ob!≅vec v i .M.from' ∘' M'.vec→ob v .snd i .fst)
-                  ∘' (M'.vec→hom λ i → hom[ Δ∙.id-comm-sym ] $ M'.vec→ob!≅vec v i .M.from' ∘' N'.vec→ob v .snd i .fst)) M.M![ j ]
+                  ((N'.vec→hom λ i → hom[ Dist.id-comm-sym ] $ N'.vec→ob!≅vec v i .M.from' ∘' M'.vec→ob v .snd i .fst)
+                  ∘' (M'.vec→hom λ i → hom[ Dist.id-comm-sym ] $ M'.vec→ob!≅vec v i .M.from' ∘' N'.vec→ob v .snd i .fst)) M.M![ j ]
                   ≡[]⟨ ? ⟩
-                  (N'.vec→hom λ i → hom[ Δ∙.id-comm-sym ] $ N'.vec→ob!≅vec v i .M.from' ∘' M'.vec→ob v .snd i .fst) M.M![ j ]
-                  ∘' (M'.vec→hom λ i → hom[ Δ∙.id-comm-sym ] $ M'.vec→ob!≅vec v i .M.from' ∘' N'.vec→ob v .snd i .fst)
+                  (N'.vec→hom λ i → hom[ Dist.id-comm-sym ] $ N'.vec→ob!≅vec v i .M.from' ∘' M'.vec→ob v .snd i .fst) M.M![ j ]
+                  ∘' (M'.vec→hom λ i → hom[ Dist.id-comm-sym ] $ M'.vec→ob!≅vec v i .M.from' ∘' N'.vec→ob v .snd i .fst)
                   ≡[]⟨ ? ⟩
-                  {! (hom[ Δ∙.id-comm-sym ] $ N'.vec→ob!≅vec v j .M.from' ∘' M'.vec→ob v .snd j .fst)  !}
-                  ∘' (M'.vec→hom λ i → hom[ Δ∙.id-comm-sym ] $ M'.vec→ob!≅vec v i .M.from' ∘' N'.vec→ob v .snd i .fst)
+                  {! (hom[ Dist.id-comm-sym ] $ N'.vec→ob!≅vec v j .M.from' ∘' M'.vec→ob v .snd j .fst)  !}
+                  ∘' (M'.vec→hom λ i → hom[ Dist.id-comm-sym ] $ M'.vec→ob!≅vec v i .M.from' ∘' N'.vec→ob v .snd i .fst)
                   ≡[]⟨ ? ⟩
                   M.lift-ρ.lifting (N'.vec→ob v .fst) j
                   ≡[]⟨ ? ⟩
@@ -210,7 +222,39 @@ module _ (M N : Multicat o ℓ) (m-cat : is-category-displayed (M .disp)) (n-cat
               ; invr' = {! !}
               }
         )
-        {! ? !}
-      )
-    ) _ _
+        -}
+
+open Multicat using (disp)
+module _ (M N : Multicat o ℓ) (m-cat : is-category-displayed (M .disp)) (n-cat : is-category-displayed (N .disp))where
+  private
+    module M = Multicat M
+    module N = Multicat N
+  --open DU disp
+
+  open is-identity-system
+
+  --module Fibre = FR disp
+  open CR Dist
+
+  -- basically ℰ[n]=ℰ[1]^n
+  open Equivalence
+  open Functor
+  --open Cocartesian-lift
+
+  --UMulticat-path : (M .disp) ≡ (N .disp) → M ≡ N
+  --UMulticat-path p = Multicat-pathp p (ext λ _ _ _ → Cocartesian-lift-is-prop E is-cat _ _ _) $ is-prop-i0→pathp (λ M' N' → {! !}) _ _
+
+
+module _ (M : Multicat o ℓ) where
+  open make-multicat
+  open module M = Multicat M hiding (Ob)
+
+  to-make-multicat : make-multicat o ℓ
+  to-make-multicat .Ob = M.Ob
+  to-make-multicat .Homl l x = Hom[ all-one ] (vec→ob λ j → l ! j) x
+  to-make-multicat .Homl-is-set _ _ = hlevel 2
+  to-make-multicat .id x = {! !}
+  to-make-multicat .comp-homl xxs ys z x x₁ = {! !}
+  to-make-multicat .idl = {! !}
+  to-make-multicat .idr = {! !}
 ```

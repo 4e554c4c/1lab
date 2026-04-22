@@ -1,9 +1,6 @@
 
 ```agda
 {-# OPTIONS --allow-unsolved-metas #-}
---open import Data.Nat
---open import Cat.Instances.FinSets.Pointed
-open import 1Lab.Type.Pointed
 
 --open import Data.Product.NAry
 open import Cat.Instances.Simplex
@@ -44,7 +41,7 @@ open Functor
 -->
 
 ```agda
-module Cat.Instances.Simplex.Pointed where
+module Cat.Instances.Dist where
 
 private variable
   n m k : Nat
@@ -114,6 +111,10 @@ comp-Δ f g .ascending x y p with g .map x | g .map y | g .ascending x y p
 Δ-id .map = just
 Δ-id .ascending _ _ = j≲j
 
+all-one : ∀ {n} → ⟨ n ⟩→⟨ 1 ⟩
+all-one .map _ = just 0
+all-one .ascending _ _ _ = j≲j 0≤x
+
 -- a function is 'inert' if it's an equivalence to its defined domain
 is-inert : ∀ {n m} → ⟨ n ⟩→⟨ m ⟩ → Type
 is-inert (sasc f _) = ∀ x → is-contr (fibre f (just x))
@@ -135,14 +136,14 @@ is-inert (sasc f _) = ∀ x → is-contr (fibre f (just x))
   pf | yes q = Id≃path.to q
   pf | no ¬q = absurd $ᵢ nothing≠just p
 
-inert-inv : ∀ {n m} → (f : ⟨ n ⟩→⟨ m ⟩) → is-inert f → (Fin m → Fin n)
-inert-inv f inert k = inert k .centre .fst
+inert-inv : ∀ {n m} → {f : ⟨ n ⟩→⟨ m ⟩} → is-inert f → (Fin m → Fin n)
+inert-inv inert k = inert k .centre .fst
 
-inert-inv-inj : ∀ {n m} → (f : ⟨ n ⟩→⟨ m ⟩) → (inert : is-inert f) → injective (inert-inv f inert)
+inert-inv-inj : ∀ {n m} → (f : ⟨ n ⟩→⟨ m ⟩) → (inert : is-inert f) → injective (inert-inv {f = f} inert)
 inert-inv-inj f inert {i} {j} p = just-inj $ sym (inert i .centre .snd) ∙ ap· f p ∙ inert j .centre .snd
 
 inert-lt : ∀ {n m} → (f : ⟨ n ⟩→⟨ m ⟩) → is-inert f → m ≤n n
-inert-lt f inert = Fin-injection→lt (inert-inv f inert) (inert-inv-inj f inert)
+inert-lt f inert = Fin-injection→lt (inert-inv {f = f} inert) (inert-inv-inj f inert)
 
 -- instead of negating the fibre here, we use a slightly more constructive, equivalent definition
 is-active : ∀ {n m} → ⟨ n ⟩→⟨ m ⟩ → Type
@@ -151,19 +152,19 @@ is-active {n} {m} f = ∀ (j : Fin n) → is-just (f · j)
 lift-active : (f : ⟨ n ⟩→⟨ m ⟩) → (is-active f) → Fin n → Fin m
 lift-active f active k = from-just! (f · k) (active k)
 
-Δ∙ : Precategory lzero lzero
-Δ∙ .Precategory.Ob = Nat
-Δ∙ .Precategory.Hom n m = ⟨ n ⟩→⟨ m ⟩
-Δ∙ .Precategory.Hom-set _ _ = hlevel 2
-Δ∙ .Precategory.id = Δ-id
-Δ∙ .Precategory._∘_ = comp-Δ
-Δ∙ .Precategory.idr f = ext λ j → refl
-Δ∙ .Precategory.idl f = ext p where
+Dist : Precategory lzero lzero
+Dist .Precategory.Ob = Nat
+Dist .Precategory.Hom n m = ⟨ n ⟩→⟨ m ⟩
+Dist .Precategory.Hom-set _ _ = hlevel 2
+Dist .Precategory.id = Δ-id
+Dist .Precategory._∘_ = comp-Δ
+Dist .Precategory.idr f = ext λ j → refl
+Dist .Precategory.idl f = ext p where
   p : (j : Fin _) → (f · j >>= just) ≡ f · j
   p j with f .map j
   ... | just x = refl
   ... | nothing = refl
-Δ∙ .Precategory.assoc f g h = ext p where
+Dist .Precategory.assoc f g h = ext p where
   p : (j : Fin _) → (h .map j >>= g .map >>= f .map) ≡ (h .map j >>= (g .map >=> f .map))
   p j with h · j
   ... | nothing = refl
@@ -171,18 +172,28 @@ lift-active f active k = from-just! (f · k) (active k)
   ...   | nothing = refl
   ...   | just y  = refl
 
-open module Δ∙ = Cat.Reasoning Δ∙
+open module Dist = Cat.Reasoning Dist
 
-Inert : Arrows Δ∙ lzero
+inert-ρ : ∀ {n m k} → {f : ⟨ n ⟩→⟨ m ⟩} → (ine : is-inert f) → ρ[ k ] ∘ f ≡ ρ[ inert-inv {f = f} ine k ]
+inert-ρ {k = k} {f = f} f-inert = ext pf
+  where
+  pf : ∀ k' → (ρ[ k ] ∘ f) · k' ≡ ρ[ inert-inv {f = f} f-inert k ] · k'
+  pf k' with k' ≡ᵢ? inert-inv {f = f} f-inert k  --| (Id≃path.to $ f-inert .centre .snd k)
+  ... | no ¬a = {! !}
+  ... | yes a with Id≃path.from $ f-inert k .centre .snd
+  ... | blah = {! !}
+
+
+Inert : Arrows Dist lzero
 Inert .arrows = is-inert
 Inert .is-tr = hlevel 1
 
-Active : Arrows Δ∙ lzero
+Active : Arrows Dist lzero
 Active .arrows = is-active
 Active .is-tr = hlevel 1
 
 open Cat.Morphism.is-invertible
-is-iso→Inert : ∀ {a b} {f : ⟨ a ⟩→⟨ b ⟩} → Δ∙.is-invertible f → f ∈ Inert
+is-iso→Inert : ∀ {a b} {f : ⟨ a ⟩→⟨ b ⟩} → Dist.is-invertible f → f ∈ Inert
 is-iso→Inert iv n .centre with iv .inv · n | iv .invl ·ₚ n
 ... | nothing | q = absurd $ᵢ nothing≠just q
 ... | just k | q = k , q
@@ -190,13 +201,13 @@ is-iso→Inert {f = f} iv n .paths p with iv .inv · n | iv .invl ·ₚ n
 ... | nothing | q = absurd $ᵢ nothing≠just q
 ... | just k | q = {! p .snd !}
 
-is-iso→Active : ∀ {a b} {f : ⟨ a ⟩→⟨ b ⟩} → Δ∙.is-invertible f → f ∈ Active
+is-iso→Active : ∀ {a b} {f : ⟨ a ⟩→⟨ b ⟩} → Dist.is-invertible f → f ∈ Active
 is-iso→Active {f = f} iv n with f · n | ap (λ f → f .map n) (iv .invr)
 ... | nothing | q = absurd $ᵢ nothing≠just q
 ... | just k | q = lift oh
 
 is-iso→prop : (f g : n ≅ m) → f ≡ g
-is-iso→prop f g = Δ∙.≅-path (ext pf) where
+is-iso→prop f g = Dist.≅-path (ext pf) where
   module f = _≅_ f
   module g = _≅_ g
 
@@ -250,15 +261,15 @@ is-iso→prop f g = Δ∙.≅-path (ext pf) where
 
 open is-gaunt
 open Cat.Morphism
-Δ∙-gaunt : is-gaunt Δ∙
-Δ∙-gaunt .has-category .to-path {n} {m} i = ≤-antisym  (p $ i Δ∙.Iso⁻¹) (p i) where
-  p : ∀ {n m} → n Δ∙.≅ m → m ≤n n
-  p q = inert-lt (q ._≅_.to) $ is-iso→Inert $ Δ∙.iso→invertible q
-Δ∙-gaunt .has-category .to-path-over p = is-prop→pathp (λ i a b → is-iso→prop a b) Δ∙.id-iso p
-Δ∙-gaunt .has-strict = hlevel 2
+Dist-gaunt : is-gaunt Dist
+Dist-gaunt .has-category .to-path {n} {m} i = ≤-antisym  (p $ i Dist.Iso⁻¹) (p i) where
+  p : ∀ {n m} → n Dist.≅ m → m ≤n n
+  p q = inert-lt (q ._≅_.to) $ is-iso→Inert $ Dist.iso→invertible q
+Dist-gaunt .has-category .to-path-over p = is-prop→pathp (λ i a b → is-iso→prop a b) Dist.id-iso p
+Dist-gaunt .has-strict = hlevel 2
 
-Δ∙-cat : is-category Δ∙
-Δ∙-cat = Δ∙-gaunt .has-category
+Dist-cat : is-category Dist
+Dist-cat = Dist-gaunt .has-category
 
 -- does it have products?
 
@@ -266,22 +277,22 @@ module _ (n m : Nat) where
   open Coproduct renaming ([_,_] to [_,_]c)
   open is-coproduct renaming ([_,_] to [_,_]c)
   module sum = Equiv (Finite-coproduct {n} {m})
-  Δ∙-coprods : Coproduct Δ∙ n m
-  Δ∙-coprods .coapex = n + m
-  Δ∙-coprods .ι₁ .map j = just $ sum.to $ inl j
-  Δ∙-coprods .ι₁ .ascending i j p = {! !}
-  Δ∙-coprods .ι₂ .map j = just $ sum.to $ inr j
-  Δ∙-coprods .ι₂ .ascending i j p = {! !}
-  Δ∙-coprods .has-is-coproduct .[_,_]c f g .map = [ f .map , g .map ] ⊙ sum.from
-  Δ∙-coprods .has-is-coproduct .[_,_]c f g .ascending = {! !}
-  Δ∙-coprods .has-is-coproduct .[]∘ι₁ {n} {f} {g} = ext λ j →
+  Dist-coprods : Coproduct Dist n m
+  Dist-coprods .coapex = n + m
+  Dist-coprods .ι₁ .map j = just $ sum.to $ inl j
+  Dist-coprods .ι₁ .ascending i j p = {! !}
+  Dist-coprods .ι₂ .map j = just $ sum.to $ inr j
+  Dist-coprods .ι₂ .ascending i j p = {! !}
+  Dist-coprods .has-is-coproduct .[_,_]c f g .map = [ f .map , g .map ] ⊙ sum.from
+  Dist-coprods .has-is-coproduct .[_,_]c f g .ascending = {! !}
+  Dist-coprods .has-is-coproduct .[]∘ι₁ {n} {f} {g} = ext λ j →
     {! !}
-  Δ∙-coprods .has-is-coproduct .[]∘ι₂ = {! !}
-  Δ∙-coprods .has-is-coproduct .unique p p' = {! !}
-  --Δ∙-products .has-is-product .⟨_,_⟩ p1 p2 = {! !}
-  --Δ∙-products .has-is-product .π₁∘⟨⟩ = {! !}
-  --Δ∙-products .has-is-product .π₂∘⟨⟩ = {! !}
-  --Δ∙-products .has-is-product .unique x x' = {! !}
+  Dist-coprods .has-is-coproduct .[]∘ι₂ = {! !}
+  Dist-coprods .has-is-coproduct .unique p p' = {! !}
+  --Dist-products .has-is-product .⟨_,_⟩ p1 p2 = {! !}
+  --Dist-products .has-is-product .π₁∘⟨⟩ = {! !}
+  --Dist-products .has-is-product .π₂∘⟨⟩ = {! !}
+  --Dist-products .has-is-product .unique x x' = {! !}
 
 module _ (f : ⟨ n ⟩→⟨ m ⟩) (j : Fin m) where
   --List⟨_⁻¹_⟩ : List (fibre (f .map) (just j))
@@ -359,14 +370,14 @@ module _ (g : ⟨ k ⟩→⟨ n ⟩) (f : ⟨ n ⟩→⟨ m ⟩) (j : Fin m) whe
   concat-strictly-sorted : is-sorted _<_ $ concat $ preimage-indices g <$> preimage-indices f j
   concat-strictly-sorted .sorted i j lt = {! !}
 
-  lem₀ : (k : Fin k) → k ∈ preimage-indices (f Δ∙.∘ g) j  → k ∈ (concat $ preimage-indices g <$> preimage-indices f j)
+  lem₀ : (k : Fin k) → k ∈ preimage-indices (f Dist.∘ g) j  → k ∈ (concat $ preimage-indices g <$> preimage-indices f j)
   lem₀ k p = {! !}
 
-  lem₁ : (k : Fin k) → k ∈ (concat $ preimage-indices g <$> preimage-indices f j) → k ∈ preimage-indices (f Δ∙.∘ g) j
+  lem₁ : (k : Fin k) → k ∈ (concat $ preimage-indices g <$> preimage-indices f j) → k ∈ preimage-indices (f Dist.∘ g) j
   lem₁ k p with member→concat-member k (preimage-indices g <$> preimage-indices f j) p
-  ... | inner , m , s = fibre→preimage-mem (f Δ∙.∘ g) j $ k , {! !}
+  ... | inner , m , s = fibre→preimage-mem (f Dist.∘ g) j $ k , {! !}
 
-  concat-preimages : preimage-indices (f Δ∙.∘ g) j ≡ (concat $ preimage-indices g <$> preimage-indices f j)
+  concat-preimages : preimage-indices (f Dist.∘ g) j ≡ (concat $ preimage-indices g <$> preimage-indices f j)
   concat-preimages = {! sorted-mem-ext !}
   {-
     filter (λ i → Dec→Bool $ (g .map i >>= f .map) ≡ᵢ? just j) (all-fin k)

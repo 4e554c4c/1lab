@@ -9,7 +9,6 @@ flags:
   --postfix-projections
   --rewriting
   --guardedness
-  --two-level
   -W noUnsupportedIndexedMatch
   -W noRewriteVariablesBoundInSingleton
   --experimental-lazy-instances

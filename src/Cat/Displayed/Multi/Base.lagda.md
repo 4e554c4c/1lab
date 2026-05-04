@@ -49,7 +49,7 @@ private variable
   o ℓ o' ℓ' : Level
 
 record Multicat-over (E : Displayed Dist o ℓ) (lift-inert : Coc.Cocartesian-lifts-of E Inert)  : Type (lsuc (o ⊔ ℓ)) where
-  open Precategory Dist hiding (Ob)
+  open Cr Dist hiding (Ob)
   open module E = DR E public
   open Coc E public
   open DM E public
@@ -65,7 +65,7 @@ record Multicat-over (E : Displayed Dist o ℓ) (lift-inert : Coc.Cocartesian-li
   Ob = Ob[ 1 ]
 
 
-  infixl 50 _![_] _M![_]
+  infixl 50 _![_] _M![_] _!![_]
   -- A : Ob[ m ] is a "vec" of colors
   _![_] : ∀ {m} → (A : Ob[ m ]) → (i : Fin m) → Ob
   L ![ k ] = lift-ρ.y' L k
@@ -100,9 +100,51 @@ record Multicat-over (E : Displayed Dist o ℓ) (lift-inert : Coc.Cocartesian-li
       (lift-ρ.cocartesian _ i)
       (vec-proj C[_] i .cocartesian)
 
+  module vec→ob!≅vec {n} C i = _≅[_]_ (vec→ob!≅vec {n} C i)
+
   _!⟨_⟩[_] : ∀ {m n} {A : Ob[ m ]} {B : Ob[ n ]} → {f : ⟨ m ⟩→⟨ n ⟩}
     → Hom[ f ] A B → (f-inert : is-inert f) → (i : Fin n) → Hom[ id ] (A ![ inert-inv {f = f} f-inert i ]) (B ![ i ])
-  _!⟨_⟩[_] {A = A} {B = B} {f = f} h f-inert k = lift-ρ.universal' A (inert-inv {f = f} f-inert k) (Dist.idl _ ∙ {! inert-ρ f-inert !}) $ h M![ k ]
+  _!⟨_⟩[_] {A = A} {B = B} {f = f} h f-inert k = lift-ρ.universal' A (inert-inv {f = f} f-inert k) (Dist.idl _ ∙ (sym $ inert-ρ f-inert)) $ h M![ k ]
+
+  _!![_] : ∀ {n} {A : Ob[ n ]} {B : Ob[ n ]}
+    → Hom[ id ] A B → (i : Fin n) → Hom[ id ] (A ![ i ]) (B ![ i ])
+  _!![_] {A = A} {B = B} h k = lift-ρ.universal' A k (idl _) $ h M![ k ]
+
+
+  vec→hom'
+    : ∀ {n} {A : Ob[ n ]} {B : Ob[ n ]}
+    → ((i : Fin n) → Hom[ id ] (A ![ i ]) (B ![ i ])) → Hom[ id ] A B
+  vec→hom' {A = A} {B} fs = vec→hom λ i → hom[ id-comm-sym ] $ fs i ∘' lift-ρ.lifting A i
+
+
+  vec-idx' : ∀ {n} {A : Ob[ n ]} {B : Ob[ n ]}
+    → (fs : (i : Fin n) → Hom[ id ] (A ![ i ]) (B ![ i ])) → ∀ k → (vec→hom' fs) !![ k ] ≡ fs k
+  vec-idx' {A = A} {B} fs k = sym $ lift-ρ.uniquep A k id-comm-sym _ _ _ $ begin[]
+    fs k ∘' lift-ρ.lifting A k
+    ≡[]⟨ coh[ id-comm-sym ] _ ⟩
+    (hom[ id-comm-sym ] $ fs k ∘' lift-ρ.lifting A k)
+    ≡[]˘⟨ equiv→counit idx-is-eqv _ · k ⟩
+    vec→hom' fs M![ k ]
+    ∎[]
+
+  idx-vec' : ∀ {n} {A : Ob[ n ]} {B : Ob[ n ]}
+    → (F : Hom[ id ] A B) → (vec→hom' λ k → F !![ k ] ) ≡ F
+  idx-vec' {A = A} {B = B} F = begin[]
+    (vec→hom' λ k → F !![ k ])
+    ≡[]⟨⟩
+    vec→hom (λ k → hom[ _ ] $ F !![ k ] ∘' lift-ρ.lifting A k)
+    ≡[]⟨ (ap vec→hom $ ext λ k → begin[]
+      (hom[ _ ] $ F !![ k ] ∘' lift-ρ.lifting A k)
+      ≡[]˘⟨ coh[ _ ] _ ⟩
+      F !![ k ] ∘' lift-ρ.lifting A k
+      ≡[]⟨ lift-ρ.commutesp A k (idl _) (F M![ k ]) ⟩
+      F M![ k ]
+      ∎[]
+    ) ⟩
+    vec→hom (λ k → F M![ k ])
+    ≡[]⟨ equiv→unit idx-is-eqv F ⟩
+    F
+    ∎[]
 
 
 unquoteDecl Multicat-over-pathp = declare-record-path Multicat-over-pathp (quote Multicat-over)

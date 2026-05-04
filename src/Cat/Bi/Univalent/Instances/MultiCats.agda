@@ -2,7 +2,7 @@
 open import Cat.Prelude
 
 open import Cat.Functor.Base
-open import Cat.Instances.Simplex.Pointed
+open import Cat.Instances.Dist
 open import Cat.Displayed.Multi.Base
 open import Cat.Functor.Naturality
 open import Cat.Functor.Compose renaming (_◆_ to _◇_)
@@ -47,7 +47,7 @@ private module _ where
       module C = Multicat (C .fst)
       module D' {x} = Cr (Fibre D.disp x)
       module C' {x} = Cr (Fibre C.disp x)
-      
+
 
       ni : make-natural-iso {D = MultiFunctors _ _} _ _
       ni .eta _ = record { η' = λ x' → D.id' ; is-natural' = λ x y f → D.to-pathp[] D.id-comm[] }

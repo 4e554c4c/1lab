@@ -29,6 +29,7 @@ open import Cat.Univalent
 import Cat.Functor.Bifunctor as Bi
 
 module Cat.Bi.Univalent.Instances.MultiCats (o ℓ : Level) where
+
 open import Cat.Bi.Instances.Multi o ℓ
 open import Cat.Bi.Univalent.Instances.Cats o ℓ
 
@@ -36,12 +37,14 @@ open Prebicategory
 module Multi = Prebicategory Multicats
 open Multicat using (disp)
 
+import Cat.Morphism as Cm
+
 private module _ where
     open MultiFunctor
     open make-natural-iso
     open Functor
     open _=>↓_
-    assoc : Associator-for {O = Σ[ M ∈ Multicat o ℓ ] is-category-displayed (M .disp)} (λ M N → MultiFunctors (M .fst) (N .fst)) ∘M-functor
+    assoc : Associator-for {O = Σ[ M ∈ Multicat o ℓ ] is-category-displayed (M .disp)} (λ M N → Multi.Hom (M .fst) (N .fst)) Multi.compose
     assoc {C = C} {D} = to-natural-iso ni where
       module D = Multicat (D .fst)
       module C = Multicat (C .fst)
@@ -72,24 +75,29 @@ Univalent-Multicat .associator = assoc
 Univalent-Multicat .triangle f g = reext! (Multi.triangle f g)
 Univalent-Multicat .pentagon f g h i = reext! (Multi.pentagon f g h i)
 
+open Dist
+
+
+
 open is-bicategory
 open MultiFunctor
 open _=>↓_
 Univalent-Multicat-is-bicategory : is-bicategory Univalent-Multicat
 Univalent-Multicat-is-bicategory .is-local (A , _) (B , univ) .to-path {a} {b} i =
   MultiFunctor-path A B (λ x' → vertical-iso→path (B.disp) univ $ isos x') λ {x' = x'} {y'} f' →
-    Hom[]-pathp-iso (B.disp) univ (Δ∙.idl _ ∙ Δ∙.idr _) (isos _) (isos _) (a .F₁' f') (b .F₁' f') $ begin[]
+    Hom[]-pathp-iso (B.disp) univ (Dist.idl _ ∙ Dist.idr _) (isos _) (isos _) (a .F₁' f') (b .F₁' f') $ begin[]
     i.to .η' y' ∘' a .F₁' f' ∘' i.from .η' x'
-    ≡[]⟨ extendl[] Δ∙.id-comm-sym $ i.to .is-natural' x' y' f' ⟩
+    ≡[]⟨ extendl[] Dist.id-comm-sym $ i.to .is-natural' x' y' f' ⟩
     b .F₁' f' ∘' i.to .η' x' ∘' i.from .η' x'
-    ≡[]⟨ elimr[] (Δ∙.idr Δ-id) $ to-pathp[] $ i.invl η↓ₚ x' ⟩
+    ≡[]⟨ elimr[] (Dist.idr Δ-id) $ to-pathp[] $ i.invl η↓ₚ x' ⟩
     b .F₁' f'
     ∎[]
-  where
+  module local where
   module M[A,B] = Cr (MultiFunctors A B)
   module i = M[A,B]._≅_ i
   open module B = Multicat B
   module A = Multicat A
+  abstract
   isos : ∀ {n} (x' : A.Ob[ n ]) → a .F₀' x' B.≅↓ b .F₀' x'
   isos x' = record where
     to' = i.to .η' x'
@@ -98,6 +106,8 @@ Univalent-Multicat-is-bicategory .is-local (A , _) (B , univ) .to-path {a} {b} i
       { invl' = B.to-pathp[] $ i.invl η↓ₚ x'
       ; invr' = B.to-pathp[] $ i.invr η↓ₚ x'
       }
-Univalent-Multicat-is-bicategory .is-local (A , _) (B , univ) .to-path-over i = {! !}
+Univalent-Multicat-is-bicategory .is-local (A , a-univ) (B , univ) .to-path-over {a} {b} i = Cm.≅-pathp _ _ _ $ Vertical-Nat-pathp' _ _ λ x →
+  {! Hom[]-pathp-reflr-iso (B.disp) {f = Dist.id} univ (Dist.idr _) (isos _) ? ? ? ? !}
+  where open local A a-univ B univ {a} {b} i
 
 Univalent-Multicat-is-bicategory .is-global .to-path {A , a-cat} {B , b-cat} eqv  = Σ-prop-path! {! !}

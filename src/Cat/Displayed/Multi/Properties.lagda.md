@@ -62,28 +62,27 @@ private variable
 
 module _ (E : Displayed Dist o ℓ) (lift-inert : Coc.Cocartesian-lifts-of E Inert) (M : Multicat-over E lift-inert) where
   open Multicat-over M
-  --open DU disp
 
   open is-identity-system
 
   module Fibre = FR E
   open CR Dist
 
-  -- basically ℰ[n]=ℰ[1]^n
+  -- basically ℰ[n]=>ℰ[1]^n, iff it's an iso we have univalence
   open Equivalence
   open Functor
   open Cocartesian-lift
-  my-silly-functor : ∀ {n} → Functor (Fibre E n) Cat[ ( Disc' $ el! $ Fin n) , Fibre E 1 ]
-  my-silly-functor {n} .F₀ o = Disc'-adjunct λ i → o ![ i ]
-  my-silly-functor {n} .F₁ {v} {w} f = Disc-natural λ i → lift-ρ.universal' v i Dist.id-comm-sym $ f M![ i ]
-  my-silly-functor {n} .F-id {v} = ext λ i → begin[]
+  fibre-func : ∀ {n} → Functor (Fibre E n) Cat[ ( Disc' $ el! $ Fin n) , Fibre E 1 ]
+  fibre-func {n} .F₀ o = Disc'-adjunct λ i → o ![ i ]
+  fibre-func {n} .F₁ {v} {w} f = Disc-natural λ i → lift-ρ.universal' v i Dist.id-comm-sym $ f M![ i ]
+  fibre-func {n} .F-id {v} = ext λ i → begin[]
     (lift-ρ.universal' v i Dist.id-comm-sym $ E.id' M![ i ])
       ≡[]⟨⟩
     (lift-ρ.universal' v i Dist.id-comm-sym $ lift-ρ.lifting v i E.∘' E.id')
       ≡[]˘⟨ lift-ρ.uniquep v i Dist.id-comm-sym refl Dist.id-comm-sym E.id' id-comm' ⟩
     E.id'
       ∎[]
-  my-silly-functor .F-∘ {x} {y} {z} f' g' = ext λ i → begin[]
+  fibre-func .F-∘ {x} {y} {z} f' g' = ext λ i → begin[]
     lift-ρ.universal' x i id-comm-sym ((hom[ idl id ] $ f' ∘' g') M![ i ])
       ≡[]⟨ lift-ρ.uniquep x i id-comm-sym refl _ _ $ begin[]
         lift-ρ.universal' x i id-comm-sym (hom[ idl id ] (f' E.∘' g') M![ i ])
@@ -199,26 +198,6 @@ module _ (E : Displayed Dist o ℓ) (lift-inert : Coc.Cocartesian-lifts-of E Ine
     id' M![ k ]
     ∎[]
 
-
-{-
-  open is-precat-iso
-  open _=>_
-  it's-iso : ∀ {n} → is-precat-iso $ my-silly-functor {n}
-  it's-iso {n} .has-is-ff {x} {y} .is-eqv nt .centre .fst = idx-is-eqv {n} {n} {x} {y} {Dist.id} .is-eqv {! nt .η !} .centre .fst
-  it's-iso .has-is-ff .is-eqv y .centre .snd = {! !}
-  it's-iso .has-is-ff .is-eqv y .paths = {! !}
-  it's-iso .has-is-iso .is-eqv y .centre .fst = vec→ob (λ i → y .F₀ i) .fst
-  it's-iso .has-is-iso .is-eqv y .centre .snd = Functor-is-category is-cat .to-path
-    $ Disc-natural-iso λ i → Fibre.iso→isof
-    $ cocartesian-codomain-unique
-      (lift-ρ.cocartesian _ i)
-      (vec→ob (λ i → y .F₀ i) .snd i .snd)
-  it's-iso .has-is-iso .is-eqv y .paths (o[n] , path) = Σ-pathp {! !} {! !}
-
-  pf : is-category-displayed
-  pf = is-category-fibrewise' (Dist-gaunt .is-gaunt.has-category) λ n →
-    {! !}
--}
 module _ (E : Displayed Dist o ℓ) (lift-inert : Coc.Cocartesian-lifts-of E Inert) (is-cat : is-category-displayed E) (M N : Multicat-over E lift-inert) where
   open DR E
   private
@@ -299,36 +278,21 @@ module _ (E : Displayed Dist o ℓ) (lift-inert : Coc.Cocartesian-lifts-of E Ine
         vertical-iso→path E is-cat $ da_iso C[_]
 
 open Multicat using (disp)
-module _ (M N : Multicat o ℓ) (m-cat : is-category-displayed (M .disp)) (n-cat : is-category-displayed (N .disp))where
+module _ (M N : Multicat o ℓ) (m-cat : is-category-displayed (M .disp)) (m-cat : is-category-displayed (M .disp))where
   private
     module M = Multicat M
     module N = Multicat N
-  --open DU disp
 
   open is-identity-system
 
-  --module Fibre = FR disp
   open CR Dist
 
-  -- basically ℰ[n]=ℰ[1]^n
   open Equivalence
   open Functor
-  --open Cocartesian-lift
 
-  --UMulticat-path : (M .disp) ≡ (N .disp) → M ≡ N
-  --UMulticat-path p = Multicat-pathp p (ext λ _ _ _ → Cocartesian-lift-is-prop E is-cat _ _ _) $ is-prop-i0→pathp (λ M' N' → {! !}) _ _
+  UMulticat-path : (M .disp) ≡ (N .disp) → M ≡ N
+  UMulticat-path p = Multicat-pathp p
+    (is-prop-i0→pathp (λ _ _ → ext λ _ _ _ → Cocartesian-lift-is-prop _ m-cat _ _ _) _ _)
+    (is-prop-i0→pathp (λ _ _ → Multicat-over-is-prop _ _ m-cat _ _) _ _)
 
-
-module _ (M : Multicat o ℓ) where
-  open make-multicat
-  open module M = Multicat M hiding (Ob)
-
-  to-make-multicat : make-multicat o ℓ
-  to-make-multicat .Ob = M.Ob
-  to-make-multicat .Homl l x = Hom[ all-one ] (vec→ob λ j → l ! j) x
-  to-make-multicat .Homl-is-set _ _ = hlevel 2
-  to-make-multicat .id x = {! !}
-  to-make-multicat .comp-homl xxs ys z x x₁ = {! !}
-  to-make-multicat .idl = {! !}
-  to-make-multicat .idr = {! !}
 ```

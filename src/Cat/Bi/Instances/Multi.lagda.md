@@ -1,6 +1,5 @@
 <!--
 ```agda
-{-# OPTIONS --allow-unsolved-metas #-}
 open import Cat.Functor.Naturality
 open import Cat.Functor.Closed
 open import Cat.Displayed.Functor
@@ -17,7 +16,7 @@ open import 1Lab.Underlying
 open import Cat.Bi.Instances.Displayed
 
 import Cat.Displayed.Reasoning as Disp
-import Cat.Reasoning as Cat
+import Cat.Reasoning as Cr
 ```
 -->
 
@@ -44,9 +43,9 @@ module _ where
   MultiFunctors E F .Hom-set _ _ = hlevel 2
   MultiFunctors E F .id  = idnt↓
   MultiFunctors E F ._∘_ = _∘nt↓_
-  MultiFunctors E F .idr f = ext λ x → Cat.idr (Fibre (F .disp) _) _
-  MultiFunctors E F .idl f = ext λ x → Cat.idl (Fibre (F .disp) _) _
-  MultiFunctors E F .assoc f g h = ext λ x → Cat.assoc (Fibre (F .disp) _) _ _ _
+  MultiFunctors E F .idr f = ext λ x → Cr.idr (Fibre (F .disp) _) _
+  MultiFunctors E F .idl f = ext λ x → Cr.idl (Fibre (F .disp) _) _
+  MultiFunctors E F .assoc f g h = ext λ x → Cr.assoc (Fibre (F .disp) _) _ _ _
 ```
 
 <!--
@@ -82,16 +81,23 @@ module _  where
 ```agda
   private
     assoc : Associator-for Mf ∘M-functor
-    assoc {D = D} = to-natural-iso ni where
+    assoc {C = C} {D} = to-natural-iso ni where
       module D = Multicat D
-      module D' {x} = Cat (Fibre D.disp x) using (_∘_ ; idl ; idr ; elimr ; pushl ; introl)
+      module C = Multicat C
+      module D' {x} = Cr (Fibre D.disp x)
+      module C' {x} = Cr (Fibre C.disp x)
 
       ni : make-natural-iso {D = Mf _ _} _ _
       ni .eta _ = record { η' = λ x' → D.id' ; is-natural' = λ x y f → D.to-pathp[] D.id-comm[] }
       ni .inv _ = record { η' = λ x' → D.id' ; is-natural' = λ x y f → D.to-pathp[] D.id-comm[] }
       ni .eta∘inv _ = ext λ _ → D'.idl _
       ni .inv∘eta _ = ext λ _ → D'.idl _
-      ni .natural x y f = {! ext λ _ → D'.idr _ ∙∙ D'.pushl (F-∘↓ $ y .fst) ∙∙ D'.introl refl !}
+      ni .natural x y f = ext λ _ →
+          D'.pullr (D'.cancelr (D'.idr _) ∙ ap (x .fst .F₁') (ap₂ C'._∘_ (C'.eliml (y .snd .fst .F-id')) (C'.elimr refl)))
+        ∙ sym (D'.eliml refl
+          ∙ D'.pullr (D'.pullr (ap₂ D'._∘_ (D'.elimr refl) (D'.elimr refl)) ∙ ap₂ D'._∘_ refl (sym $ Vertical-functor.Fibre-map (x .fst .U) _ .Functor.F-∘ _ _))
+          ∙ D'.pulll (D'.eliml (ap (y .fst .F₁') (y .snd .fst .F-id') ∙ y .fst .F-id') ∙ D'.eliml (y .fst .F-id'))
+          ∙ ap₂ D'._∘_ (D'.introl (y .fst .F-id')) refl)
 ```
 -->
 
@@ -105,7 +111,7 @@ module _  where
   Multicats .compose = ∘M-functor
   Multicats .unitor-l {B = B} = to-natural-iso ni where
     module B = Disp (B .disp)
-    module B' {x} = Cat (Fibre (B .disp) x)
+    module B' {x} = Cr (Fibre (B .disp) x)
 
     ni : make-natural-iso {D = Mf _ _} _ _
     ni .eta _ = record { η' = λ x' → B.id' ; is-natural' = λ x y f → B.to-pathp[] B.id-comm[] }
@@ -115,7 +121,7 @@ module _  where
     ni .natural x y f = ext λ _ → B'.elimr refl ∙ B'.id-comm
   Multicats .unitor-r {B = B} = to-natural-iso ni where
     module B = Disp (B .disp)
-    module B' {x} = Cat (Fibre (B .disp) x)
+    module B' {x} = Cr (Fibre (B .disp) x)
 
     ni : make-natural-iso {D = Mf _ _} _ _
     ni .eta _ = record { η' = λ x' → B.id' ; is-natural' = λ x y f → B.to-pathp[] B.id-comm[] }
@@ -124,6 +130,6 @@ module _  where
     ni .inv∘eta _ = ext λ _ → B'.idl _
     ni .natural x y f = ext λ _ → B'.elimr refl ∙ ap₂ B'._∘_ (y .F-id') refl
   Multicats .associator = assoc
-  Multicats .triangle {C = C} f g = ext λ _ → Cat.idr (Fibre (C .disp) _) _
+  Multicats .triangle {C = C} f g = ext λ _ → Cr.idr (Fibre (C .disp) _) _
   Multicats .pentagon {E = E} f g h i = Disp[] _ o ℓ .pentagon (f .U) (g .U) (h .U) (i .U)
 ```

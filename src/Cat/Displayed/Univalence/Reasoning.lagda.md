@@ -1,5 +1,6 @@
 <!--
 ```agda
+{-# OPTIONS --allow-unsolved-metas #-}
 open import Cat.Displayed.Cartesian
 open import Cat.Displayed.Base
 open import Cat.Prelude
@@ -107,6 +108,12 @@ abstract
     → (p : x₁ ≅↓ x₂) (f' : Hom[ f ] x₁ y') (g' : Hom[ f ] x₂ y')
     → f' ∘' p .from' ≡[ α ] g'
     → PathP (λ i → Hom[ f ] (vertical-iso→path e-cat p i) y') f' g'
+
+  Hom[]-pathp-reflr-iso
+    : (e-cat : is-category-displayed) (α : B.id B.∘ f ≡ f)
+    → (p : y₁ ≅↓ y₂) (f' : Hom[ f ] x' y₁) (g' : Hom[ f ] x' y₂)
+    → p .to' ∘' f' ≡[ α ] g'
+    → PathP (λ i → Hom[ f ] x' (vertical-iso→path e-cat p i)) f' g'
 ```
 
 <details>
@@ -142,5 +149,16 @@ proofs. Therefore, they're hidden away down here.</summary>
         (from-pathp (λ i → ≅↓-identity-system e-cat .to-path-over q i .to'))
         (from-pathp (λ i → ≅↓-identity-system e-cat .to-path-over p i .from')))
     ∙∙ from-pathp β
-```
+
+  Hom[]-pathp-reflr-iso {f = f} {x' = x'} e-cat α p f' g' β = {! ≅↓-identity-system e-cat .to-path-over (id-iso↓ {x' = x'}) !}
+    where
+      foo : PathP (λ i → Hom[ f ] (vertical-iso→path e-cat (id-iso↓ {x' = x'}) i) (vertical-iso→path e-cat p i)) f' g'
+      foo = Hom[]-pathp-iso e-cat (B.pulll α ∙ B.idr _) id-iso↓ p f' g' $ begin[]
+        p .to' ∘' f' ∘' id'
+        ≡[]⟨ refl⟩∘'⟨ idr' _ ⟩
+        p .to' ∘' f'
+        ≡[]⟨ β ⟩
+        g'
+        ∎[]
+  ```
 </details>

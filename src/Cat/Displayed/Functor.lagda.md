@@ -686,5 +686,19 @@ module _
           {q = extendl id-comm-sym}))
       ∙∙ sym (duplicate (ap (_ ∘_) (idl id)) _ _) ∙∙ unwhisker-r _ _)
     where open DR ℰ
+module _
+  {ob ℓb o' ℓ' o'' ℓ''}
+  {B : Precategory ob ℓb} where
+
+  open Precategory
+  Cat↓[_,_] : Displayed B o' ℓ' → Displayed B o'' ℓ'' → Precategory _ _
+  Cat↓[_,_] E F .Ob  = Vertical-functor E F
+  Cat↓[_,_] E F .Hom G H = G =>↓ H
+  Cat↓[_,_] E F .Hom-set _ _ = hlevel 2
+  Cat↓[_,_] E F .id  = idnt↓
+  Cat↓[_,_] E F ._∘_ = _∘nt↓_
+  Cat↓[_,_] E F .idr f = ext λ x → CR.idr (Fibre F _) _
+  Cat↓[_,_] E F .idl f = ext λ x → CR.idl (Fibre F _) _
+  Cat↓[_,_] E F .assoc f g h = ext λ x → CR.assoc (Fibre F _) _ _ _
 ```
 -->

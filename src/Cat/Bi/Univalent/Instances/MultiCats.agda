@@ -107,7 +107,7 @@ Univalent-Multicat-is-bicategory .is-local (A , _) (B , univ) .to-path {a} {b} i
       ; invr' = B.to-pathp[] $ i.invr η↓ₚ x'
       }
 Univalent-Multicat-is-bicategory .is-local (A , a-univ) (B , univ) .to-path-over {a} {b} i = Cm.≅-pathp _ _ _ $ Vertical-Nat-pathp' _ _ λ x →
-  {! Hom[]-pathp-reflr-iso (B.disp) {f = Dist.id} univ (Dist.idr _) (isos _) ? ? ? ? !}
+  {! Hom[]-pathp-reflr-iso (B.disp)  univ (Dist.idr _) (isos x) ? ? ? !}
   where open local A a-univ B univ {a} {b} i
 
 Univalent-Multicat-is-bicategory .is-global .to-path {A , a-cat} {B , b-cat} eqv  = Σ-prop-path! {! !}

@@ -83,7 +83,8 @@ open is-bicategory
 open MultiFunctor
 open _=>↓_
 Univalent-Multicat-is-bicategory : is-bicategory Univalent-Multicat
-Univalent-Multicat-is-bicategory .is-local (A , _) (B , univ) .to-path {a} {b} i =
+Univalent-Multicat-is-bicategory .is-local (A , _) (B , univ) .to-path {a} {b} i = ?
+{-
   MultiFunctor-path A B (λ x' → vertical-iso→path (B.disp) univ $ isos x') λ {x' = x'} {y'} f' →
     Hom[]-pathp-iso (B.disp) univ (Dist.idl _ ∙ Dist.idr _) (isos _) (isos _) (a .F₁' f') (b .F₁' f') $ begin[]
     i.to .η' y' ∘' a .F₁' f' ∘' i.from .η' x'
@@ -97,7 +98,6 @@ Univalent-Multicat-is-bicategory .is-local (A , _) (B , univ) .to-path {a} {b} i
   module i = M[A,B]._≅_ i
   open module B = Multicat B
   module A = Multicat A
-  abstract
   isos : ∀ {n} (x' : A.Ob[ n ]) → a .F₀' x' B.≅↓ b .F₀' x'
   isos x' = record where
     to' = i.to .η' x'
@@ -107,7 +107,8 @@ Univalent-Multicat-is-bicategory .is-local (A , _) (B , univ) .to-path {a} {b} i
       ; invr' = B.to-pathp[] $ i.invr η↓ₚ x'
       }
 Univalent-Multicat-is-bicategory .is-local (A , a-univ) (B , univ) .to-path-over {a} {b} i = Cm.≅-pathp _ _ _ $ Vertical-Nat-pathp' _ _ λ x →
-  {! Hom[]-pathp-reflr-iso (B.disp)  univ (Dist.idr _) (isos x) ? ? ? !}
+   Hom[]-pathp-reflr-iso (B.disp) univ (idr _) (isos x) _ _ (B.idr' _)
   where open local A a-univ B univ {a} {b} i
+  -}
 
 Univalent-Multicat-is-bicategory .is-global .to-path {A , a-cat} {B , b-cat} eqv  = Σ-prop-path! {! !}

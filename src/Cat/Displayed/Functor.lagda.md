@@ -1,5 +1,6 @@
 <!--
 ```agda
+{-# OPTIONS --allow-unsolved-metas #-}
 open import Cat.Instances.Functor
 open import Cat.Displayed.Fibre
 open import Cat.Displayed.Base
@@ -123,8 +124,15 @@ module
     → (q1 : ∀ {x y x' y'} {f : A.Hom x y} → (f' : ℰ.Hom[ f ] x' y')
             → PathP (λ i → ℱ.Hom[ p i .F₁ f ] (q0 x' i) (q0 y' i)) (F' .F₁' f') (G' .F₁' f'))
     → PathP (λ i → Displayed-functor (p i) ℰ ℱ) F' G'
-  Displayed-functor-pathp {F = F} {G = G} {F' = F'} {G' = G'} p q0 q1 =
-    injectiveP (λ _ → eqv) ((λ i x' → q0 x' i) ,ₚ (λ i f' → q1 f' i) ,ₚ prop!)
+  Displayed-functor-pathp p q0 fs i .F₀' x = q0 x i
+  Displayed-functor-pathp p q0 fs i .F₁' f = fs f i
+  -- 💀
+  Displayed-functor-pathp {F' = F'} {G'} p q0 q1 i .F-id' {x' = x'} =
+    is-prop-i0→pathp {B = λ j → PathP (λ k → ℱ.Hom[ p j .F-id k ] (q0 x' j) (q0 x' j) ) ((q1 {f = A.id} ℰ.id' j)) ℱ.id'}
+      (PathP-is-hlevel' 1 (ℱ.Hom[ B.id ]-set _ _) _ _) (F' .F-id' {_} {x'}) (G' .F-id' {_} {x'}) i
+  Displayed-functor-pathp {F = F} {F' = F'} {G'} p q0 q1 i .F-∘' {f = f} {g} {a' = a'} {b'} {c'} {f'} {g'} =
+    is-prop-i0→pathp {B = λ j → PathP (λ k → ℱ.Hom[ p j .F-∘ f g k ] (q0 a' j) (q0 c' j) ) (q1 (f' ℰ.∘' g') j) (q1 f' j ℱ.∘' q1 g' j)}
+      ((PathP-is-hlevel' 1 (ℱ.Hom[ _ ]-set _ _) _ _)) (F' .F-∘') (G' .F-∘') i
 ```
 -->
 

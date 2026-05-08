@@ -75,41 +75,7 @@ Vertical-functor-is-category .to-path {F} {G} im = Vertical-functor-path (λ x' 
       { invl' = to-pathp[] $ im.invl η↓ₚ x'
       ; invr' = to-pathp[] $ im.invr η↓ₚ x'
       }
-Vertical-functor-is-category .to-path-over {F} {G} p = [C,D].≅-pathp _ _ $ Vertical-Nat-pathp' _ _ {! foo !}
-  where
-    open to-path p
-
-    foo : ∀ {x} (x' : C.Ob[ x ]) → PathP (λ i → Hom[ id ] (F .F₀' x') (vertical-iso→path D univ (isos x') i)) id' (im.to .η' x')
-    foo x' = Hom[]-pathp-reflr-iso D univ (idr _) (isos x') _ _ (idr' _)
+Vertical-functor-is-category .to-path-over {F} {G} p = [C,D].≅-pathp _ _ $ Vertical-Nat-pathp' _ _ λ x' →
+   Hom[]-pathp-reflr-iso D univ (idr _) (isos x') _ _ (idr' _)
+  where open to-path p
 ```
-
-type of hole is
-
-PathP
-(λ i →
-   Hom[ id ] (Displayed-functor.F₀' F x')
-   (Displayed-functor.F₀'
-    (Vertical-functor-path
-     (λ x'' i₁ → vertical-iso→path D univ (isos x'') i₁)
-     (λ {x = x₁} {y} {x' = x''} {y'} f' →
-        Hom[]-pathp-iso D univ (idl (Fr.₁ Id f ∘ id) ∙ idr (Fr.₁ Id f))
-        (isos x'') (isos y') (Displayed-functor.F₁' F f')
-        (Displayed-functor.F₁' G f')
-        (begin[]
-         ≡[]⟨⟩-syntax
-         (η' im.to y' ∘' Displayed-functor.F₁' F f' ∘' η' im.from x'')
-         (≡[]⟨⟩-syntax
-          (Displayed-functor.F₁' G f' ∘' η' im.to x'' ∘' η' im.from x'')
-          (Displayed-functor.F₁' G f' ∎[])
-          (elimr[] (idl id) (to-pathp[] (im.invl η↓ₚ x''))))
-         (extendl[] id-comm-sym (is-natural' im.to x'' y' f'))))
-     i)
-    x'))
-id' (η' im.to x')
-
--> (by applying (Vertical-functor-path f₀ _ i .F₀ x) -> (f₀ x i)
-
-PathP (λ i → Hom[ id ] (F .F₀' x') (vertical-iso→path D univ (isos x') i)) id' (im.to .η' x')
-
-but it no work
-

@@ -177,6 +177,7 @@ module _ (O : Multicat o ℓ) (M : Multicat o' ℓ') where
         → M.is-cocartesian f (F₁' f')
 
   unquoteDecl MultiFunctor-up  = declare-record-path MultiFunctor-up (quote MultiFunctor)
+  unquoteDecl MultiFunctor-iso  = declare-record-iso MultiFunctor-iso (quote MultiFunctor)
 
   open MultiFunctor
   MultiFunctor-path

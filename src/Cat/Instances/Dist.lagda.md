@@ -1,20 +1,10 @@
-
 ```agda
-{-# OPTIONS --allow-unsolved-metas #-}
-
---open import Data.Product.NAry
 open import Cat.Instances.Simplex
 open import Cat.Morphism.Class
-open import Cat.Diagram.Terminal
-open import Cat.Diagram.Initial
-open import Cat.Diagram.Product
 open import Cat.Diagram.Zero
 open import Cat.Functor.Base
 open import Cat.Prelude
 open import Cat.Gaunt
-
-open import Cat.Diagram.Product
-open import Cat.Diagram.Coproduct
 
 
 open import Data.Fin.Closure
@@ -24,12 +14,8 @@ open import Data.Nat.Order
 open import Data.Bool
 open import Data.Nat using (H-Level-Nat; s≤s; 0≤x) renaming (_≤_ to _≤n_; _<_ to _<n_)
 open import Data.Dec.Base
-open import Data.Sum.Base --hiding ([_,_])
-open import Data.List
 open import Data.Fin
 open import Data.Fin.Monotone
-open import Data.List.Sorted
-open import Data.Irr
 
 import Cat.Reasoning
 import Cat.Morphism
@@ -174,16 +160,6 @@ Dist .Precategory.assoc f g h = ext p where
 
 open module Dist = Cat.Reasoning Dist
 
-inert-ρ : ∀ {n m k} → {f : ⟨ n ⟩→⟨ m ⟩} → (ine : is-inert f) → ρ[ k ] ∘ f ≡ ρ[ inert-inv {f = f} ine k ]
-inert-ρ {k = k} {f = f} f-inert = ext pf
-  where
-  pf : ∀ k' → (ρ[ k ] ∘ f) · k' ≡ ρ[ inert-inv {f = f} f-inert k ] · k'
-  pf k' with k' ≡ᵢ? inert-inv {f = f} f-inert k  --| (Id≃path.to $ f-inert .centre .snd k)
-  ... | no ¬a = {! !}
-  ... | yes a with Id≃path.from $ f-inert k .centre .snd
-  ... | blah = {! !}
-
-
 Inert : Arrows Dist lzero
 Inert .arrows = is-inert
 Inert .is-tr = hlevel 1
@@ -192,14 +168,66 @@ Active : Arrows Dist lzero
 Active .arrows = is-active
 Active .is-tr = hlevel 1
 
+inert-comp-ρ : ∀ {n m k} → {f : ⟨ n ⟩→⟨ m ⟩} → (ine : is-inert f) → ρ[ k ] ∘ f ≡ ρ[ inert-inv {f = f} ine k ]
+inert-comp-ρ {k = k} {f = f} f-inert = ext pf where
+  pf : ∀ k' → (ρ[ k ] ∘ f) · k' ≡ ρ[ inert-inv {f = f} f-inert k ] · k'
+  pf k' with k' ≡ᵢ? inert-inv {f = f} f-inert k
+  pf k' | no ¬a with f · k' in w
+  pf k' | no ¬a | nothing = refl
+  pf k' | no ¬a | just x with x ≡ᵢ? k
+  pf k' | no ¬a | just x | yes reflᵢ = absurd
+    $ᵢ ¬a $ Id≃path.from $ sym $ ap fst
+    $ f-inert x .paths $ k' , Id≃path.to w
+  pf k' | no ¬a | just x | no ¬p = refl
+  pf k' | yes a with f · k' in w
+  pf k' | yes a | nothing = absurd $ᵢ nothing≠just
+    $ sym (Id≃path.to w) ∙∙ ap· f (Id≃path.to a) ∙∙ f-inert k .centre .snd
+  pf k' | yes a | just x with x ≡ᵢ? k
+  pf k' | yes a | just x | yes b = refl
+  pf k' | yes a | just x | no ¬b = absurd $ᵢ ¬b $ Id≃path.from l2 where
+
+    l1 : f-inert x .centre .fst ≡ f-inert k .centre .fst
+    l1 = (ap fst $ f-inert x .paths $ k'  , Id≃path.to w) ∙ Id≃path.to a
+
+    l2 : x ≡ k
+    l2 = just-inj $ sym (f-inert x .centre .snd) ∙∙ ap· f l1 ∙∙ f-inert k .centre .snd
+
 open Cat.Morphism.is-invertible
+
 is-iso→Inert : ∀ {a b} {f : ⟨ a ⟩→⟨ b ⟩} → Dist.is-invertible f → f ∈ Inert
 is-iso→Inert iv n .centre with iv .inv · n | iv .invl ·ₚ n
 ... | nothing | q = absurd $ᵢ nothing≠just q
 ... | just k | q = k , q
-is-iso→Inert {f = f} iv n .paths p with iv .inv · n | iv .invl ·ₚ n
+is-iso→Inert {a} {b} {f = f} iv n .paths p with iv .inv · n | iv .invl ·ₚ n
 ... | nothing | q = absurd $ᵢ nothing≠just q
-... | just k | q = {! p .snd !}
+... | just k | q = Σ-prop-path! $ f'.injective (just-inj $ sym f≡f' ∙ q ∙ sym (p .snd) ∙ f≡f') where
+  f' : Fin a → Fin b
+  f' k with f · k | iv .invr ·ₚ k
+  f' k | nothing | p = absurd $ᵢ nothing≠just p
+  f' k | just x | p = x
+
+  f≡f' : ∀ {k} → f · k ≡ just (f' k)
+  f≡f' {k} with f · k | iv .invr ·ₚ k
+  f≡f' {k} | nothing | p = absurd $ᵢ nothing≠just p
+  f≡f' {k} | just x | _ = refl
+
+  f'-iso : is-iso f'
+  f'-iso .is-iso.from k with iv .inv · k | iv .invl ·ₚ k
+  ... | nothing | p = absurd $ᵢ nothing≠just p
+  ... | just x | p = x
+  f'-iso .is-iso.rinv k with iv .inv · k | iv .invl ·ₚ k
+  ... | nothing | p = absurd $ᵢ nothing≠just p
+  ... | just l | p with f · l | iv .invr ·ₚ l
+  ... | nothing | p = absurd $ᵢ nothing≠just p
+  ... | just m | _ = just-inj p
+  f'-iso .is-iso.linv l with f · l | iv .invr ·ₚ l
+  ... | nothing | p = absurd $ᵢ nothing≠just p
+  ... | just k | p with iv .inv · k | iv .invl ·ₚ k
+  ... | nothing | p = absurd $ᵢ nothing≠just p
+  ... | just m | _ = just-inj p
+
+  module f' = Equiv (f' , is-iso→is-equiv f'-iso)
+
 
 is-iso→Active : ∀ {a b} {f : ⟨ a ⟩→⟨ b ⟩} → Dist.is-invertible f → f ∈ Active
 is-iso→Active {f = f} iv n with f · n | ap (λ f → f .map n) (iv .invr)
@@ -270,150 +298,4 @@ Dist-gaunt .has-strict = hlevel 2
 
 Dist-cat : is-category Dist
 Dist-cat = Dist-gaunt .has-category
-
--- does it have products?
-
-module _ (n m : Nat) where
-  open Coproduct renaming ([_,_] to [_,_]c)
-  open is-coproduct renaming ([_,_] to [_,_]c)
-  module sum = Equiv (Finite-coproduct {n} {m})
-  Dist-coprods : Coproduct Dist n m
-  Dist-coprods .coapex = n + m
-  Dist-coprods .ι₁ .map j = just $ sum.to $ inl j
-  Dist-coprods .ι₁ .ascending i j p = {! !}
-  Dist-coprods .ι₂ .map j = just $ sum.to $ inr j
-  Dist-coprods .ι₂ .ascending i j p = {! !}
-  Dist-coprods .has-is-coproduct .[_,_]c f g .map = [ f .map , g .map ] ⊙ sum.from
-  Dist-coprods .has-is-coproduct .[_,_]c f g .ascending = {! !}
-  Dist-coprods .has-is-coproduct .[]∘ι₁ {n} {f} {g} = ext λ j →
-    {! !}
-  Dist-coprods .has-is-coproduct .[]∘ι₂ = {! !}
-  Dist-coprods .has-is-coproduct .unique p p' = {! !}
-  --Dist-products .has-is-product .⟨_,_⟩ p1 p2 = {! !}
-  --Dist-products .has-is-product .π₁∘⟨⟩ = {! !}
-  --Dist-products .has-is-product .π₂∘⟨⟩ = {! !}
-  --Dist-products .has-is-product .unique x x' = {! !}
-
-module _ (f : ⟨ n ⟩→⟨ m ⟩) (j : Fin m) where
-  --List⟨_⁻¹_⟩ : List (fibre (f .map) (just j))
-  --List⟨_⁻¹_⟩ = {! !}
-  --module listing = Listing List⟨_⁻¹_⟩
-
-  --postulate
-  --  listing-sorted : is-sorted vals
-
-  preimage-indices : List (Fin n)
-  preimage-indices = filter (λ i → Dec→Bool $ f · i ≡ᵢ? just j) (all-fin n)
-
-  ‖_⁻¹_‖ : Nat
-  ‖_⁻¹_‖ = length preimage-indices
-
-  preimage-finmap : Fin ‖_⁻¹_‖ → Fin n
-  preimage-finmap j = preimage-indices ! j
-
-
-  premimage-indices-ordered : ∀ (j k : Fin ‖_⁻¹_‖) → (j < k) → (preimage-indices ! j) < (preimage-indices ! k)
-  premimage-indices-ordered = filter-sorted {R = _<_} (all-fin n) _ all-fin-sorted .is-sorted.sorted
-    where
-      open is-sorted
-      all-fin-index : ∀ {n} j → (all-fin n ! j) .lower ≡ᵢ j .lower
-      all-fin-index {suc n} i with fin-view i
-      ... | suc i = {! !}
-      ... | zero with fin-view j
-      ...   | zero = reflᵢ
-      ...   | suc j = reflᵢ
-
-      all-fin-sorted : ∀ {n} → is-sorted _<_ (all-fin n)
-      all-fin-sorted .sorted i j lt = subst₂ᵢ _<n_ (symᵢ $ all-fin-index i) (symᵢ $ all-fin-index j) lt
-
-  fibre→preimage-mem : (p : fibreᵢ (f .map) (just j)) → (fst p ∈ preimage-indices)
-  fibre→preimage-mem (k , pf) = member-filter.from $ SoDec pf , Listing-Fin .Listing.has-member k .centre
-
-  --preimage-mem→fibre : ∀ {k} → (k ∈ₗ preimage-indices) → (fibreᵢ (f .map) (just j))
-  --preimage-mem→fibre mem = ?
-
-sorted-mem-ext
-  : ∀ {n} {xs ys : List $ Fin n} → (xs-sorted : is-sorted _<_ xs) (ys-sorted : is-sorted _<_ ys) →
-  ((x : Fin n) → x ∈ xs → x ∈ ys) → ((y : Fin n) → y ∈ ys → y ∈ xs) → xs ≡ᵢ ys
-sorted-mem-ext {n} {xs = []}     {[]}     _ _ x→y y→x = reflᵢ
-sorted-mem-ext {n} {xs = x ∷ xs} {[]}     _ _ x→y y→x with () ← x→y x (here reflᵢ)
-sorted-mem-ext {n} {xs = []}     {y ∷ ys} _ _ x→y y→x with () ← y→x y (here reflᵢ)
-sorted-mem-ext {n} {xs = x ∷ xs} {y ∷ ys} xs-sorted ys-sorted x→y y→x with (x→y x $ here reflᵢ) | (y→x y $ here reflᵢ)
-... | here p | _ = ap-∷ᵢ p $ sorted-mem-ext (tail-sorted xs-sorted) (tail-sorted ys-sorted) x→y' y→x' where
-  x→y' : (x : Fin n) → x ∈ₗ xs → x ∈ ys
-  x→y' x mem with x→y x (there mem)
-  ... | here p' = absurd $ᵢ <-not-equal (mem→rel xs-sorted mem) $ Id≃path.to $ apᵢ lower $ p ∙ᵢ (symᵢ p')
-  ... | there p = p
-
-  y→x' : (y : Fin n) → y ∈ₗ ys → y ∈ xs
-  y→x' y mem with y→x y (there mem)
-  ... | here p' = absurd $ᵢ <-not-equal (mem→rel ys-sorted mem) $ Id≃path.to $ apᵢ lower $ symᵢ $ p' ∙ᵢ p
-  ... | there p = p
-
-... | there _ | here p = ap-∷ᵢ (symᵢ p) $ sorted-mem-ext (tail-sorted xs-sorted) (tail-sorted ys-sorted) x→y' y→x' where
-  x→y' : (x : Fin n) → x ∈ₗ xs → x ∈ ys
-  x→y' x mem with x→y x (there mem)
-  ... | here p' = absurd $ᵢ <-not-equal (mem→rel xs-sorted mem) $ Id≃path.to $ apᵢ lower $ symᵢ $ p' ∙ᵢ p
-  ... | there p = p
-
-  y→x' : (y : Fin n) → y ∈ₗ ys → y ∈ xs
-  y→x' y mem with y→x y (there mem)
-  ... | here p' = absurd $ᵢ <-not-equal (mem→rel ys-sorted mem) $ Id≃path.to $ apᵢ lower $ p ∙ᵢ (symᵢ p')
-  ... | there p = p
-
-... | there pf1 | there pf2 = absurd $ᵢ <-asym (mem→rel ys-sorted pf1) (mem→rel xs-sorted pf2)
-
-
-module _ (g : ⟨ k ⟩→⟨ n ⟩) (f : ⟨ n ⟩→⟨ m ⟩) (j : Fin m) where
-
-  open is-sorted
-  concat-strictly-sorted : is-sorted _<_ $ concat $ preimage-indices g <$> preimage-indices f j
-  concat-strictly-sorted .sorted i j lt = {! !}
-
-  lem₀ : (k : Fin k) → k ∈ preimage-indices (f Dist.∘ g) j  → k ∈ (concat $ preimage-indices g <$> preimage-indices f j)
-  lem₀ k p = {! !}
-
-  lem₁ : (k : Fin k) → k ∈ (concat $ preimage-indices g <$> preimage-indices f j) → k ∈ preimage-indices (f Dist.∘ g) j
-  lem₁ k p with member→concat-member k (preimage-indices g <$> preimage-indices f j) p
-  ... | inner , m , s = fibre→preimage-mem (f Dist.∘ g) j $ k , {! !}
-
-  concat-preimages : preimage-indices (f Dist.∘ g) j ≡ (concat $ preimage-indices g <$> preimage-indices f j)
-  concat-preimages = {! sorted-mem-ext !}
-  {-
-    filter (λ i → Dec→Bool $ (g .map i >>= f .map) ≡ᵢ? just j) (all-fin k)
-    ≡⟨ {! !} ⟩
-    (concat $
-    (λ j' → filter (λ i → Dec→Bool $ (map g i ≡ᵢ? just j')) (all-fin k))
-    <$> filter (λ i → Dec→Bool (map f i ≡ᵢ? just j)) (all-fin n))
-    ≡⟨ {! !} ⟩
-    (concat $
-    (λ j' → filter (λ i → Dec→Bool $ (map g i ≡ᵢ? just j')) (all-fin k))
-    <$> filter (λ i → Dec→Bool (map f i ≡ᵢ? just j)) (all-fin n))
-    ≡⟨⟩
-    (concat $ preimage-indices g <$> preimage-indices f j) ∎
--}
-
-{-
-
-
-  index_image : Fin ‖_⁻¹_‖ → Fin n
-  index_image k = fst $ listing.univ ! k
--}
-
-preimage-id : ∀ {n} → {j : Fin n} → preimage-indices Δ-id j ≡  j ∷ []
--- for this we need to prove that [ j , pf ] is a listing, and that listings are
--- unique but unique listings are really a poor choice for this whole situation
--- we should be using Finite A and proving that if a total order exists on A, then
--- there is a canonical map Finite A -> Listing A given by sort!
--- then if we prove that [ j , pf ] is a sorted (obviously) listing, then it is
--- canonical.
-preimage-id {suc n} {j} with fin-view j
-... | zero = ap-∷ refl {! !}
-... | suc j = want
-  where
-    rec : preimage-indices Δ-id j ≡ j ∷ []
-    rec = preimage-id {n} {j}
-    want : (filter _ (fsuc <$> all-fin n)) ≡ (fsuc j) ∷ []
-    want = {! !}
-
 ```

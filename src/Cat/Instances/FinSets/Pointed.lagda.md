@@ -46,8 +46,6 @@ instance
     ... | suc k = p k
   Extensional∙ .idsᵉ .to-path-over {f} {g} p = is-prop→pathp (λ i → hlevel 1) _ _
 
-
-
 private module _ where
   lemm : ∀ {n} → Fin∙ n ≃∙ (Maybe (Fin n), nothing)
   lemm .fst .fst k with fin-view k

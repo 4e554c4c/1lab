@@ -50,14 +50,12 @@ Univalent-Cat .triangle f g = reext! (Cat.triangle f g)
 Univalent-Cat .pentagon f g h i = reext! (Cat.pentagon f g h i)
 
 module _ {C' D' : Univalent-Cat .Ob} where
-  --open adjoint-equivalence
   open Σ C' renaming (fst to C)
   open Σ D' renaming (fst to D)
   private
     module C = Cr C
     module D = Cr D
   open Functor
-  --open FunEquiv.Equivalence
 
   bi-eqv≃cat-eqv : (adjoint-equivalence Univalent-Cat C' D') ≃ FunEquiv.Equivalence C D
   bi-eqv≃cat-eqv .fst adj = record { To = adj.To ; To-equiv = record

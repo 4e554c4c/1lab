@@ -25,8 +25,6 @@ private variable
 # Univalent bicategories
 
 ```agda
-
-
 is-local-bicategory : (B : Prebicategory o ℓ ℓ') → Type (o ⊔ ℓ ⊔ ℓ')
 is-local-bicategory B = ∀ a b → is-category $ B .Hom a b
 

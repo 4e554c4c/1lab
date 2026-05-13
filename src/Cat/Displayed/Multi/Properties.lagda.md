@@ -1,6 +1,5 @@
 <!--
 ```agda
-{-# OPTIONS --allow-unsolved-metas #-}
 open import Cat.Instances.Dist
 open import Cat.Displayed.BeckChevalley
 open import Cat.Diagram.Limit.Finite

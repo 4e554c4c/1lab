@@ -106,32 +106,6 @@ record Operad (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
 list-fibre : ∀ {n m} (f : ⟨ n ⟩→⟨ m ⟩) → (k : Fin m) → Listing (fibre f (just k))
 list-fibre f k = auto
 
-{-
-record total-operad (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
-  field
-    Ob : Type o
-    Homl : Type ℓ
-    t : Homl → List Ob
-    b : Homl → Ob
-
-    c : (fs : List Homl) (g : Homl) → (b <$> fs) ≡ t g → Homl
-
-    id : Ob → Homl
-    id-b : ∀ {x} → b (id x) ≡ x
-    id-t : ∀ {x} → t (id x) ≡ [ x ]
-
-    c-id : ∀ {g} → c (id <$> t g) g {! map-map !} ≡ g
--}
-
-
-{-
-silly : ∀ {ℓ A} {T : Type ℓ} → ⦃ H-Level T 0 ⦄ → (T → A) ≃ A
-silly .fst m = m hlevel!
-silly .snd .is-eqv a .centre .fst = λ _ → a
-silly .snd .is-eqv a .centre .snd = refl
-silly .snd .is-eqv a .paths (f , s) = Σ-path (funext λ x → sym s ∙ ap f {! hlevel 1 hlevel! x !}) {! !}
--}
-
 record make-operad (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
   field
     Ob : Type o
@@ -148,34 +122,3 @@ record make-operad (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
       → (∀ j → Homl (lookup xxs j) (lookup ys j))
       → Homl (lower ys) z
       → Homl (concat $ lower xxs) z
-
-{-
-    idl
-      : ∀ {xs y} {h : Homl xs y} →
-      PathP (λ i → Homl {! !} y) (comp-homl (λ { j → {! !} }) {! !} y {! !} {! !}) h
-
-    idr
-      : ∀ {xs y} {h : Homl xs y} →
-      PathP (λ i → Homl {! !} y) (comp-homl (vec {! vec [ xs ! j ] !}) (vec xs) y (λ j → id (xs ! j)) h) h
--}
-
-    --_∘ℓ_ : (
-
-  --open Operad
-  --open Operad-over
-  open Displayed
-  to-displayed : Displayed Fin∙Sets o ℓ
-  --to-displayed .Ob[_] 0 = Lift ⊤
-  --to-displayed .Ob[_] 1 = Ob
-  to-displayed .Ob[_] n = Vec Ob n
-  to-displayed .Hom[_] {n} {m} f v v' = ∀ (k : Fin m) → Homl (lookup v <$> preimage_indices f k) (lookup v' k)
-  to-displayed .Hom[_]-set {n} {m} f v v' = Π-is-hlevel 2 λ _ → Homl-is-set _ _
-  to-displayed .id' {n} {xs} k = {! id (lookup xs k) !}
-  to-displayed ._∘'_ f' g' k = {! !}
-  to-displayed .idr' f' = {! !}
-  to-displayed .idl' f' = {! !}
-  to-displayed .assoc' f' g' h' = {! !}
-  to-displayed .hom[_] p f' = {! !}
-  to-displayed .coh[_] p f' = {! !}
-  --to-operad : Operad
-

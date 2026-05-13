@@ -64,12 +64,6 @@ module lifts→ofs-over (ofs : is-ofs ℬ L R) (lifts-R : ∀ {x y} (f : Hom x y
     clift = lifts-R fact.right fact.right∈R y'
     open module clift = Cartesian-lift clift using () renaming (x' to mid')
 
-    -- now f' : Hom[ f ] x' y'
-    -- but f = right ∘ left, so ff = transp _ f : Hom[ right ∘ left ] x' y'
-    -- and thus we can lift it to (lift ff) : Hom [ left ] x' m'
-
-    --f'' : Hom[ fact.right ∘ fact.left ] x' y'
-    --f'' = hom[ fact.factors ] f'
 
     open Factorisation
     factor' : Factorisation (∫ ℰ) L' R' f^
@@ -86,15 +80,15 @@ module lifts→ofs-over (ofs : is-ofs ℬ L R) (lifts-R : ∀ {x y} (f : Hom x y
   open Factorisation
   open Cartesian-lift
   open is-cartesian
-  main-theoremm : is-ofs (∫ ℰ) L' R'
-  main-theoremm .factor f = factor' f
-  main-theoremm .is-iso→in-L (∫hom f _) x = ofs.is-iso→in-L f (total-invertible→invertible ℰ x)
-  main-theoremm .L-is-stable f g p q = ofs.L-is-stable _ _ p q
-  main-theoremm .is-iso→in-R f x .fst = ofs.is-iso→in-R _ (total-invertible→invertible ℰ x)
-  main-theoremm .is-iso→in-R f x .snd = invertible→cartesian _ (total-invertible→invertible[] ℰ x)
-  main-theoremm .R-is-stable f g (p , c) (q , c') .fst = ofs.R-is-stable _ _ p q
-  main-theoremm .R-is-stable f g (p , c) (q , c') .snd = cartesian-∘ c c'
-  main-theoremm .L⊥R f^@(∫hom f f') p g^@(∫hom g g') (q , c) u^@(∫hom u u') v^@(∫hom v v') comm
+  is-ofs→is-ofs-total : is-ofs (∫ ℰ) L' R'
+  is-ofs→is-ofs-total .factor f = factor' f
+  is-ofs→is-ofs-total .is-iso→in-L (∫hom f _) x = ofs.is-iso→in-L f (total-invertible→invertible ℰ x)
+  is-ofs→is-ofs-total .L-is-stable f g p q = ofs.L-is-stable _ _ p q
+  is-ofs→is-ofs-total .is-iso→in-R f x .fst = ofs.is-iso→in-R _ (total-invertible→invertible ℰ x)
+  is-ofs→is-ofs-total .is-iso→in-R f x .snd = invertible→cartesian _ (total-invertible→invertible[] ℰ x)
+  is-ofs→is-ofs-total .R-is-stable f g (p , c) (q , c') .fst = ofs.R-is-stable _ _ p q
+  is-ofs→is-ofs-total .R-is-stable f g (p , c) (q , c') .snd = cartesian-∘ c c'
+  is-ofs→is-ofs-total .L⊥R f^@(∫hom f f') p g^@(∫hom g g') (q , c) u^@(∫hom u u') v^@(∫hom v v') comm
     using (contr (l , pt , pb) ps) ← (ofs.L⊥R f p g q u v (ap ∫Hom.fst comm)) = goal
     where
       open ∫Hom
@@ -105,10 +99,10 @@ module lifts→ofs-over (ofs : is-ofs ℬ L R) (lifts-R : ∀ {x y} (f : Hom x y
       goal : is-contr (Lifting (∫ ℰ) f^ g^ u^ v^)
       goal .centre .fst = ∫hom l l'
       goal .centre .snd .snd = ∫Hom-path _ pb $ c.commutesp pb v'
-      goal .centre .snd .fst = ∫Hom-path _ pt $ cartesian→weak-monic c _ _ pt $ cast[] $
+      goal .centre .snd .fst = ∫Hom-path _ pt $ cartesian→weak-monic c _ _ pt $ begin[]
         g' ∘' l' ∘' f' ≡[]⟨ pulll[] pb $ c.commutesp pb v' ⟩
         v' ∘' f'       ≡[]⟨ ap snd comm ⟩
-        g' ∘' u'       ∎
+        g' ∘' u'       ∎[]
       goal .paths (∫hom m m' , (pt' , pb')) = Σ-prop-path!
         $ ∫Hom-path _ (ap fst $ ps $ m , ap fst pt' , ap fst pb')
         $ symP $ c.uniquep (ap fst pb') _ _ m' $ ap snd pb'

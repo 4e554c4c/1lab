@@ -230,13 +230,14 @@ instance
   H-Level-Fin : ∀ {n k} → H-Level (Fin n) (2 + k)
   H-Level-Fin = basic-instance 2 Fin-is-set
 
-  H-Level-Fin1 : ∀ {k} → H-Level (Fin 1) (k)
+  H-Level-Fin1 : H-Level (Fin 1) 0
   H-Level-Fin1 = basic-instance 0 fin1-is-contr
-  {-# INCOHERENT H-Level-Fin1 #-}
 
-  H-Level-Fin0 : ∀ {k} → H-Level (Fin 0) (1 + k)
+  H-Level-Fin1' : H-Level (Fin 1) 1
+  H-Level-Fin1' = basic-instance 1 $ is-hlevel-suc _ fin1-is-contr
+
+  H-Level-Fin0 : H-Level (Fin 0) 1
   H-Level-Fin0 = basic-instance 1 fin0-is-prop
-  {-# INCOHERENT H-Level-Fin0 #-}
 ```
 
 However, we can also mimic parts of the proof that `Nat`{.Agda} itself

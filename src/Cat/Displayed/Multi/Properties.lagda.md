@@ -121,21 +121,14 @@ module _ (E : Displayed Dist o ℓ) (lift-inert : Coc.Cocartesian-lifts-of E Ine
       lift-ρ.universal' x i Dist.id-comm-sym (g' M![ i ]))
       ∎[]
 
-  hom-extp
-    : {f g : ⟨ m ⟩→⟨ n ⟩} {p : f ≡ g} →
-    {A : Ob[ m ]} {B : Ob[ n ]}
-    {F : Hom[ f ] A B}
-    {G : Hom[ g ] A B}
+  hom-extp : {f g : ⟨ m ⟩→⟨ n ⟩} {p : f ≡ g} →
+    {A : Ob[ m ]} {B : Ob[ n ]} {F : Hom[ f ] A B} {G : Hom[ g ] A B}
     → (∀ i → F M![ i ] ≡[ refl⟩∘⟨ p ] G M![ i ]) → F ≡[ p ] G
   hom-extp {f = f} {g} {p} {A} {B} {F} {G} ps = begin[]
-    F
-    ≡[]˘⟨ equiv→unit idx-is-eqv F ⟩
-    vec→hom (λ i → F M![ i ])
-    ≡[]⟨ (apd (λ i → vec→hom {f = p i}) λ i j → ps j i) ⟩
-    vec→hom (λ i → G M![ i ])
-    ≡[]⟨ equiv→unit idx-is-eqv G ⟩
-    G
-    ∎[]
+    F                         ≡[]˘⟨ equiv→unit idx-is-eqv F ⟩
+    vec→hom (λ i → F M![ i ]) ≡[]⟨ (apd (λ i → vec→hom {f = p i}) λ i j → ps j i) ⟩
+    vec→hom (λ i → G M![ i ]) ≡[]⟨ equiv→unit idx-is-eqv G ⟩
+    G                         ∎[]
 
   hom-idextp :
     {A : Ob[ n ]} {B : Ob[ n ]}

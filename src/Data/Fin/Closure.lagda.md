@@ -9,10 +9,11 @@ open import Data.Nat.Properties
 open import Data.Nat.DivMod
 open import Data.Nat.Order
 open import Data.Fin.Base
-open import Data.Nat.Base as Nat
 open import Data.Dec
 open import Data.Irr
 open import Data.Sum
+
+open import Data.Nat.Base as Nat renaming (_≤_ to _≤n_)
 
 open import Meta.Invariant
 ```
@@ -135,6 +136,17 @@ Finite-coproduct {m} {n} = Iso→Equiv (to , iso from ir il) where
   il (inr (fin i ⦃ b ⦄)) with holds? ((m + i) Nat.< m)
   ... | yes p = absurd (¬sucx≤x m (+-reflects-≤l (suc m) m i (≤-trans (≤-refl' (+-sucr i m ∙ ap suc (+-commutative i m))) (≤-trans p (+-≤r i m)))))
   ... | no ¬p = ap inr (fin-ap (+l-monus-inverse i m))
+
+module F+-monotonic where
+  private
+    module sum {n} {m} = Equiv (Finite-coproduct {n} {m})
+  to-inr : ∀ {n m} j k → (j ≤ k) → sum.to {n} {m} (inr j) ≤ sum.to (inr k)
+  to-inr {n} {m} j k lt = +-preserves-≤l _ _ _ lt
+
+  to-inl : ∀ {n m} j k → (j ≤ k) → sum.to {n} {m} (inl j) ≤ sum.to (inl k)
+  to-inl {n} {m} j k lt = lt
+
+  --from
 ```
 -->
 

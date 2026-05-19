@@ -1,34 +1,66 @@
 ```agda
 open import Cat.Prelude
 open import Cat.Instances.Dist
+open import Cat.Diagram.Coproduct
+open import Cat.Diagram.Product
+
+open import Data.Set.Coequaliser
+open import Data.Dec.Base
+open import Data.Maybe.Base
+open import Data.Maybe.Properties
+open import Data.Fin.Closure
+open import Data.Sum
+open import Data.Fin.Base renaming (_≤_ to _≤f_; _<_ to _<f_)
+open import Data.Nat.Base
+open import Data.Nat.Order
+open import Data.Nat.Properties
 ```
 -->
 
 ```agda
 module Cat.Instances.Dist.Properties where
 
-{-
+open ⟨_⟩→⟨_⟩
 
 module _ (n m : Nat) where
+{-
   open Coproduct renaming ([_,_] to [_,_]c)
   open is-coproduct renaming ([_,_] to [_,_]c)
   module sum = Equiv (Finite-coproduct {n} {m})
+  {-# TERMINATING #-}
   Dist-coprods : Coproduct Dist n m
   Dist-coprods .coapex = n + m
   Dist-coprods .ι₁ .map j = just $ sum.to $ inl j
-  Dist-coprods .ι₁ .ascending i j p = {! !}
+  Dist-coprods .ι₁ .ascending i j lt = j≲j $ F+-monotonic.to-inl {n} {m} i j lt
   Dist-coprods .ι₂ .map j = just $ sum.to $ inr j
-  Dist-coprods .ι₂ .ascending i j p = {! !}
+  Dist-coprods .ι₂ .ascending i j lt = j≲j $ F+-monotonic.to-inr {n} {m} i j lt
   Dist-coprods .has-is-coproduct .[_,_]c f g .map = [ f .map , g .map ] ⊙ sum.from
-  Dist-coprods .has-is-coproduct .[_,_]c f g .ascending = {! !}
-  Dist-coprods .has-is-coproduct .[]∘ι₁ {n} {f} {g} = ext λ j →
-    {! !}
-  Dist-coprods .has-is-coproduct .[]∘ι₂ = {! !}
-  Dist-coprods .has-is-coproduct .unique p p' = {! !}
+  Dist-coprods .has-is-coproduct .[_,_]c f g .ascending x y p = {! !}
+  Dist-coprods .has-is-coproduct .[]∘ι₁ {n} {f} {g} = ext λ j → ap [ f .map , g .map ] (sum.η (inl j))
+  Dist-coprods .has-is-coproduct .[]∘ι₂ {_} {f} {g} = ext λ j → ap [ f .map , g .map ] (sum.η (inr j))
+  Dist-coprods .has-is-coproduct .unique {k} {in0} {in1} {other} p p' = ext λ j → pf j where
+    pf : ∀ j → map other j ≡ ([ in0 .map , in1 .map ] ⊙ sum.from) j
+    pf j with sum.from j in w
+    ... | inl x = ap· other (sym $ sum.adjunctr $ sym $ Id≃path.to w) ∙ p ·ₚ x
+    ... | inr x = ap· other (sym $ sum.adjunctr $ sym $ Id≃path.to w) ∙ p' ·ₚ x
   --Dist-products .has-is-product .⟨_,_⟩ p1 p2 = {! !}
   --Dist-products .has-is-product .π₁∘⟨⟩ = {! !}
   --Dist-products .has-is-product .π₂∘⟨⟩ = {! !}
   --Dist-products .has-is-product .unique x x' = {! !}
+
+  open Product
+  open is-product
+  Dist-prods : Product Dist n m
+  Dist-prods .apex = n + m
+  Dist-prods .π₁ .map (fin j ⦃ p ⦄) with holds? (j < n)
+  ... | yes a = just $ fin j ⦃ a ⦄
+  ... | no ¬a = nothing
+  Dist-prods .π₁ .ascending i j lt = {! !}
+  Dist-prods .π₂ .map (fin j ⦃ p ⦄) with holds? (j < n)
+  ... | yes a = nothing
+  ... | no ¬a = just $ fin (j - n) ⦃ {! !} ⦄
+  Dist-prods .π₂ .ascending i j lt = {! !}
+  Dist-prods .has-is-product .⟨_,_⟩ p1 p2 = {! !}
 
 module _ (f : ⟨ n ⟩→⟨ m ⟩) (j : Fin m) where
   --List⟨_⁻¹_⟩ : List (fibre (f .map) (just j))

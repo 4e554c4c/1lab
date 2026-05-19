@@ -1,5 +1,8 @@
 ```agda
 open import Cat.Instances.Simplex
+open import Cat.Diagram.Zero
+open import Cat.Diagram.Terminal
+open import Cat.Diagram.Initial
 open import Cat.Morphism.Class
 open import Cat.Diagram.Zero
 open import Cat.Functor.Base
@@ -298,4 +301,19 @@ Dist-gaunt .has-strict = hlevel 2
 
 Dist-cat : is-category Dist
 Dist-cat = Dist-gaunt .has-category
+
+zero-is-initial : is-initial Dist 0
+zero-is-initial _ .centre .map ()
+zero-is-initial _ .centre .ascending ()
+zero-is-initial _ .paths _ = ext λ ()
+
+zero-is-terminal : is-terminal Dist 0
+zero-is-terminal n .centre .map _ = nothing
+zero-is-terminal n .centre .ascending _ _ _ = n≲n
+zero-is-terminal n .paths x = ext λ y → sym $ refute-just (λ ()) (x · y)
+
+open is-zero
+zero-is-zero : is-zero Dist 0
+zero-is-zero .has-is-initial = zero-is-initial
+zero-is-zero .has-is-terminal = zero-is-terminal
 ```

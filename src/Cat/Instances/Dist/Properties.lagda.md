@@ -9,20 +9,96 @@ open import Data.Dec.Base
 open import Data.Maybe.Base
 open import Data.Maybe.Properties
 open import Data.Fin.Closure
+open import Cat.Functor.Naturality
+open import Data.Fin.Properties
 open import Data.Sum
 open import Data.Fin.Base renaming (_≤_ to _≤f_; _<_ to _<f_)
 open import Data.Nat.Base
 open import Data.Nat.Order
 open import Data.Nat.Properties
+open import Cat.Monoidal.Base
+open import Cat.Functor.Bifunctor
 ```
 -->
 
 ```agda
 module Cat.Instances.Dist.Properties where
 
-open ⟨_⟩→⟨_⟩
+open Monoidal-category
 
-module _ (n m : Nat) where
+module sum {n} {m} = Equiv (Finite-coproduct {n} {m})
+
+open Dist
+open make-natural-iso
+
+
+module _ where
+  open Make-bifunctor
+  open ⟨_⟩→⟨_⟩
+  bb : Make-bifunctor {C = Dist} {D = Dist} {E = Dist}
+  bb .F₀ n m = n + m
+  bb .lmap {n} {m} {l} f .map k = [ sum.to ⊙ inl <∙> f .map , pure ⊙ sum.to ⊙ inr ] $ sum.from k
+  bb .lmap {n} {x} {m} f .ascending j k lt = {! p j k  !} where
+    p : ∀ j k → j ≤f k → [ sum.to ⊙ inl <∙> f .map , just ⊙ sum.to ⊙ inr ] (sum.from {n} {m} j) ≲ [ sum.to ⊙ inl <∙> f .map , just ⊙ sum.to ⊙ inr ] (sum.from {n} {m} k)
+    p j k lt with sum.from {n} {m} j in w | sum.from {n} {m} k in w'
+    ... | inl x | inl y = {! !}
+    ... | inl x | inr y = {! !}
+    ... | inr x | inl y = {! !} -- impossible ?
+    ... | inr x | inr y = {! !}
+  bb .rmap {n} {m} {l} g .map y =  [ pure ⊙ sum.to ⊙ inl , sum.to ⊙ inr <∙> g .map ] $ sum.from y
+  bb .rmap {n} {m} {l} g .map y =  [ pure ⊙ sum.to ⊙ inl , sum.to ⊙ inr <∙> g .map ] $ sum.from y
+  bb .rmap g .ascending j k lt = {! !}
+  bb .lmap-id {n} {m} = ext λ k → p k where
+   p : ∀ k → [ sum.to ⊙ inl <∙> id .map , just ⊙ sum.to ⊙ inr ] (sum.from {n} {m} k) ≡ just k
+   p k with sum.from {n} {m} k in w
+   ... | inl x = ap just $ sum.adjunctr $ sym $ Id≃path.to w
+   ... | inr x = ap just $ sum.adjunctr $ sym $ Id≃path.to w
+
+  bb .rmap-id {n} {m} = ext λ k → p k where
+   p : ∀ k → [ pure ⊙ sum.to ⊙ inl , sum.to ⊙ inr <∙> id .map ] (sum.from {m} {n} k) ≡ just k
+   p k with sum.from {m} {n} k in w
+   ... | inl x = ap just $ sum.adjunctr $ sym $ Id≃path.to w
+   ... | inr x = ap just $ sum.adjunctr $ sym $ Id≃path.to w
+
+  bb .lmap-∘ {a} {b} {c} {x} f g = ext λ k → {! !} where
+    p : ∀ k → bb .lmap {x = x} (f ∘ g) · k ≡ (bb .lmap f ∘ lmap bb g) · k
+    p k with sum.from {a} {x} k in w
+    ... | inl x = {! !}
+    ... | inr x = {! !}
+  bb .rmap-∘ f g = ext λ k → {! !}
+  bb .lrmap  f g = ext λ k → {! !}
+
+blah : Monoidal-category Dist
+blah .-⊗- = make-bifunctor bb
+
+  --lem : ∀ {P : ∀ {n m ℓ} (k : Fin (n + m)) → (Fin n ⊎ Fin m) → Type ℓ}
+  --    → (∀ j → P (inl j))
+  --    → (∀ j → P (inl k))
+  --    → ∀ x → P x
+
+blah .Unit = 0
+blah .unitor-l = to-natural-iso record where
+      eta n = id
+      inv n = id
+      eta∘inv n = trivial!
+      inv∘eta n = trivial!
+      natural n m f = ext λ k → {! !}
+blah .unitor-r = to-natural-iso record where
+      eta n = cast-id $ sym $ +-zeror n
+      inv n = cast-id $ +-zeror n
+      eta∘inv n = trivial!
+      inv∘eta n = trivial!
+      natural n m f = {! !}
+blah .associator = to-natural-iso record where
+      eta (j , k , l) = cast-id $ sym $ +-associative j k l
+      inv (j , k , l) = cast-id $ +-associative j k l
+      eta∘inv n = trivial!
+      inv∘eta n = trivial!
+      natural (n , m , l) (n' , m' , l') (f , g , h) = ext λ { k → {! !} }
+--iso→isoⁿ (λ (j , k , l) → path→iso $ sym $ +-associative j k l) {! !}
+blah .triangle = ext λ k → {! !}
+blah .pentagon = ext λ k → {! !}
+
 {-
   open Coproduct renaming ([_,_] to [_,_]c)
   open is-coproduct renaming ([_,_] to [_,_]c)
@@ -140,6 +216,64 @@ module _ (g : ⟨ k ⟩→⟨ n ⟩) (f : ⟨ n ⟩→⟨ m ⟩) (j : Fin m) whe
   lem₀ k p = {! !}
 
   lem₁ : (k : Fin k) → k ∈ (concat $ preimage-indices g <$> preimage-indices f j) → k ∈ preimage-indices (f Dist.∘ g) j
+  lem₁ k p with member→concat-member k (preimage-indices g <$> preimage-indices f j) p
+  ... | inner , m , s = fibre→preimage-mem (f Dist.∘ g) j $ k , {! !}
+
+  concat-preimages : preimage-indices (f Dist.∘ g) j ≡ (concat $ preimage-indices g <$> preimage-indices f j)
+  concat-preimages = {! sorted-mem-ext !}
+  {-
+    filter (λ i → Dec→Bool $ (g .map i >>= f .map) ≡ᵢ? just j) (all-fin k)
+    ≡⟨ {! !} ⟩
+    (concat $
+    (λ j' → filter (λ i → Dec→Bool $ (map g i ≡ᵢ? just j')) (all-fin k))
+    <$> filter (λ i → Dec→Bool (map f i ≡ᵢ? just j)) (all-fin n))
+    ≡⟨ {! !} ⟩
+    (concat $
+    (λ j' → filter (λ i → Dec→Bool $ (map g i ≡ᵢ? just j')) (all-fin k))
+    <$> filter (λ i → Dec→Bool (map f i ≡ᵢ? just j)) (all-fin n))
+    ≡⟨⟩
+    (concat $ preimage-indices g <$> preimage-indices f j) ∎
+-}
+
+{-
+
+
+  index_image : Fin ‖_⁻¹_‖ → Fin n
+  index_image k = fst $ listing.univ ! k
+-}
+
+preimage-id : ∀ {n} → {j : Fin n} → preimage-indices Δ-id j ≡  j ∷ []
+-- for this we need to prove that [ j , pf ] is a listing, and that listings are
+-- unique but unique listings are really a poor choice for this whole situation
+  lem₁ k p with member→concat-member k (preimage-indices g <$> preimage-indices f j) p
+  ... | inner , m , s = fibre→preimage-mem (f Dist.∘ g) j $ k , {! !}
+
+  concat-preimages : preimage-indices (f Dist.∘ g) j ≡ (concat $ preimage-indices g <$> preimage-indices f j)
+  concat-preimages = {! sorted-mem-ext !}
+  {-
+    filter (λ i → Dec→Bool $ (g .map i >>= f .map) ≡ᵢ? just j) (all-fin k)
+    ≡⟨ {! !} ⟩
+    (concat $
+    (λ j' → filter (λ i → Dec→Bool $ (map g i ≡ᵢ? just j')) (all-fin k))
+    <$> filter (λ i → Dec→Bool (map f i ≡ᵢ? just j)) (all-fin n))
+    ≡⟨ {! !} ⟩
+    (concat $
+    (λ j' → filter (λ i → Dec→Bool $ (map g i ≡ᵢ? just j')) (all-fin k))
+    <$> filter (λ i → Dec→Bool (map f i ≡ᵢ? just j)) (all-fin n))
+    ≡⟨⟩
+    (concat $ preimage-indices g <$> preimage-indices f j) ∎
+-}
+
+{-
+
+
+  index_image : Fin ‖_⁻¹_‖ → Fin n
+  index_image k = fst $ listing.univ ! k
+-}
+
+preimage-id : ∀ {n} → {j : Fin n} → preimage-indices Δ-id j ≡  j ∷ []
+-- for this we need to prove that [ j , pf ] is a listing, and that listings are
+-- unique but unique listings are really a poor choice for this whole situation
   lem₁ k p with member→concat-member k (preimage-indices g <$> preimage-indices f j) p
   ... | inner , m , s = fibre→preimage-mem (f Dist.∘ g) j $ k , {! !}
 

@@ -469,6 +469,11 @@ insert-delete {suc n} ρ _ a p _ | suc i | suc j = insert-delete (ρ ∘ fsuc) i
 --    v
 --insertvec-insert v k a i = {! !}
 
+
+fnoshift : ∀ {m} (n : Nat) → Fin m → Fin (m + n)
+fnoshift n (fin i ⦃ p ⦄) .lower = i
+fnoshift n (fin i ⦃ p ⦄) .Fin.bounded = ≤-trans p $ +-≤l _ _
+
 ℕ< : Nat → Type
 ℕ< n = Σ[ k ∈ Nat ] k Nat.< n
 

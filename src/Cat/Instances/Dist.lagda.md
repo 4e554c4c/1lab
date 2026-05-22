@@ -8,6 +8,8 @@ open import Cat.Diagram.Zero
 open import Cat.Functor.Base
 open import Cat.Prelude
 open import Cat.Gaunt
+open import Data.Nat.Order
+open import Data.Nat.Properties
 
 
 open import Data.Fin.Closure
@@ -15,7 +17,7 @@ open import Data.Maybe.Base
 open import Data.Maybe.Properties
 open import Data.Nat.Order
 open import Data.Bool
-open import Data.Nat using (H-Level-Nat; s≤s; 0≤x) renaming (_≤_ to _≤n_; _<_ to _<n_)
+open import Data.Nat using (H-Level-Nat; s≤s; 0≤x ; ≤-trans) renaming (_≤_ to _≤n_; _<_ to _<n_)
 open import Data.Dec.Base
 open import Data.Fin
 open import Data.Fin.Monotone
@@ -316,4 +318,8 @@ open is-zero
 zero-is-zero : is-zero Dist 0
 zero-is-zero .has-is-initial = zero-is-initial
 zero-is-zero .has-is-terminal = zero-is-terminal
+
+cast-id : ∀ {n m} → n ≡ m → ⟨ n ⟩→⟨ m ⟩
+cast-id p .map (fin k ⦃ q ⦄) = just $ fin k ⦃ ≤-trans q (≤-refl' p) ⦄
+cast-id p .ascending j k lt = j≲j lt
 ```

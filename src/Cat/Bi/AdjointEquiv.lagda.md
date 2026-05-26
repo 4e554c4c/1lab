@@ -38,6 +38,12 @@ record is-equivalence {a b} (To : a ↦ b) : Type (o ⊔ ℓ ⊔ ℓ') where
     unit-iso   : Cr.is-invertible (Hom a a) η
     counit-iso : Cr.is-invertible (Hom b b) ε
 
+
+  module unit-iso = is-invertible unit-iso
+  module counit-iso = is-invertible counit-iso
+  η⁻¹ = unit-iso.inv
+  ε⁻¹ = counit-iso.inv
+
 unquoteDecl is-equivalence-path = declare-record-path is-equivalence-path (quote is-equivalence)
 
 record adjoint-equivalence (a b : Ob) : Type (o ⊔ ℓ ⊔ ℓ') where

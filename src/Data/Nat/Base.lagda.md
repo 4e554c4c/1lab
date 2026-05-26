@@ -281,6 +281,9 @@ abstract
   ≤-trans {zero} {y} {z} x≤y y≤z = 0≤x
   ≤-trans {suc x} {suc y} {suc z} x≤y y≤z = s≤s (≤-trans (≤-peel x≤y) (≤-peel y≤z))
 
+_≤∙_ = ≤-trans
+infixr 30 _≤∙_
+
 factorial : Nat → Nat
 factorial zero = 1
 factorial (suc n) = suc n * factorial n

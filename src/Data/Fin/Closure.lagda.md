@@ -13,7 +13,7 @@ open import Data.Dec
 open import Data.Irr
 open import Data.Sum
 
-open import Data.Nat.Base as Nat renaming (_≤_ to _≤n_)
+open import Data.Nat.Base as Nat renaming (_≤_ to _≤n_; _<_ to _<n_)
 
 open import Meta.Invariant
 ```
@@ -140,11 +140,53 @@ Finite-coproduct {m} {n} = Iso→Equiv (to , iso from ir il) where
 module F+-monotonic where
   private
     module sum {n} {m} = Equiv (Finite-coproduct {n} {m})
+
   to-inr : ∀ {n m} j k → (j ≤ k) → sum.to {n} {m} (inr j) ≤ sum.to (inr k)
   to-inr {n} {m} j k lt = +-preserves-≤l _ _ _ lt
 
+  inr-reflects : ∀ {n m} j k → sum.to {n} {m} (inr j) ≤ sum.to (inr k) → (j ≤ k)
+  inr-reflects {n} {m} (fin j) (fin k) lt = +-reflects-≤l j k n lt
+
   to-inl : ∀ {n m} j k → (j ≤ k) → sum.to {n} {m} (inl j) ≤ sum.to (inl k)
   to-inl {n} {m} j k lt = lt
+
+  inl-to : ∀ {n m} j k → sum.to {n} {m} (inl j) ≤ sum.to (inl k) → (j ≤ k)
+  inl-to {n} {m} j k lt = lt
+
+  inl≤inr : ∀ {n m} j k → sum.to {n} {m} (inl j) < sum.to {n} {m} (inr k)
+  inl≤inr {n} j k = ≤-trans (to-ℕ< j .snd) (+-≤l n (k .lower))
+
+
+  data From-lt-cases {n m} (j k : Fin (n + m)) : Type where
+    ll  : (j' k' : Fin n) → (sum.from j ≡ᵢ inl j') → (sum.from k ≡ᵢ inl k') → j' ≤ k' → From-lt-cases j k
+    lr  : (j' : Fin n) (k' : Fin m) → (sum.from j ≡ᵢ inl j') → (sum.from k ≡ᵢ inr k') → From-lt-cases j k
+    rr  : (j' k' : Fin m) → (sum.from j ≡ᵢ inr j') → (sum.from k ≡ᵢ inr k') → j' ≤ k' → From-lt-cases j k
+
+
+  from-lt-cases : ∀ {n m} (j k : Fin (n + m)) → j ≤ k → From-lt-cases {n} {m} j k
+  from-lt-cases {n} {m} j k lt with sum.from {n} {m} j in w | sum.from {n} {m} k in w'
+  ... | inl x | inl y = ll x y w w' $
+    (≤-refl' $ᵢ ap lower $ sum.adjunctr $ sym $ Id≃path.to w) ≤∙
+    lt ≤∙
+    (≤-refl' $ᵢ sym $ ap lower $ sum.adjunctr $ sym $ Id≃path.to w')
+  ... | inl x | inr y = lr x y w w'
+  ... | inr x | inl y = absurd $ᵢ <-≤-asym (inl≤inr y x) $
+    (≤-refl' $ᵢ ap lower $ sum.adjunctr $ sym $ Id≃path.to w) ≤∙
+    lt ≤∙
+    (≤-refl' $ᵢ sym $ ap lower $ sum.adjunctr $ sym $ Id≃path.to w')
+  ... | inr x | inr y = rr x y w w' $ inr-reflects x y $
+    (≤-refl' $ᵢ ap lower $ sum.adjunctr $ sym $ Id≃path.to w) ≤∙
+    lt ≤∙
+    (≤-refl' $ᵢ sym $ ap lower $ sum.adjunctr $ sym $ Id≃path.to w')
+  {-
+  from-lt-cases {n} {m} (fin j ⦃ p ⦄) (fin k ⦃ p' ⦄) lt with holds? (j <n n) | holds? (k <n n)
+  ... | yes a | yes b = ll (fin j ⦃ a ⦄) (fin k ⦃ b ⦄) {! !} {! !} {! !}
+  ... | yes a | no ¬b = {! !}
+  ... | no ¬a | yes b = {! !}
+  ... | no ¬a | no ¬b = {! !}
+  -}
+
+
 
   --from
 ```

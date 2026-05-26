@@ -4,7 +4,9 @@
 open import Cat.Prelude
 open import Cat.Displayed.Base
 open import Cat.Displayed.Multi.Base
+open import Cat.Displayed.Multi.Properties
 open import Cat.Instances.Dist
+open import Cat.Instances.Dist.Properties
 
 open import Data.Product.NAry
 open import Data.Vec.Base
@@ -56,16 +58,17 @@ record make-multicat (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
       PathP (λ i → Homl (++-idr xs i) y)
         (comp-homl [ xs ] [ y ] y (const→fin1 h) (id y))
         h
-{-
-
   open Displayed
   to-displayed : Displayed Dist o ℓ
   --to-displayed .Ob[_] 0 = Lift ⊤
   --to-displayed .Ob[_] 1 = Ob
   to-displayed .Ob[_] n = Vec Ob n
-  to-displayed .Hom[_] {n} {m} f v v' = ∀ (k : Fin m) → Homl (lookup v <$> preimage-indices f k) (lookup v' k)
+  to-displayed .Hom[_] {n} {m} f v v' = ∀ (k : Fin m) → Homl (lookup v <$> {! reimage-indices f k !}) (lookup v' k)
+  to-displayed .hom[_] {x = xs} {ys} p f k = {!  !}
+{-
   to-displayed .Hom[_]-set {n} {m} f v v' = Π-is-hlevel 2 λ _ → Homl-is-set _ _
   -- do we really want a transp here?
+
   to-displayed .id' {n} {xs} k = transport (λ j → Homl (lookup xs <$> preimage-id {j = k} (~ j)) (lookup xs k) ) $ id (lookup xs k)
   to-displayed ._∘'_ {a} {b} {c} {xs} {ys} {zs} {f} {g} f' g' k = transport (λ i → Homl (motive₃ i) (lookup zs k)) $ foo
     module multi-comp where

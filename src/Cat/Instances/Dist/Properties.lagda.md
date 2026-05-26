@@ -1,4 +1,5 @@
 ```agda
+{-# OPTIONS --allow-unsolved-metas #-}
 open import Cat.Prelude
 open import Cat.Instances.Dist
 open import Cat.Diagram.Coproduct
@@ -10,6 +11,7 @@ open import Data.Maybe.Base
 open import Data.Maybe.Properties
 open import Data.Fin.Closure
 open import Cat.Functor.Naturality
+open import Cat.Monoidal.Braided
 open import Data.Fin.Properties
 open import Data.Sum
 open import Data.Fin.Base renaming (_≤_ to _≤f_; _<_ to _<f_)
@@ -24,7 +26,6 @@ open import Cat.Functor.Bifunctor
 ```agda
 module Cat.Instances.Dist.Properties where
 
-open Monoidal-category
 
 module sum {n} {m} = Equiv (Finite-coproduct {n} {m})
 
@@ -33,19 +34,20 @@ open make-natural-iso
 
 
 module _ where
+  open Monoidal-category
   open Make-bifunctor
   open ⟨_⟩→⟨_⟩
   bb : Make-bifunctor {C = Dist} {D = Dist} {E = Dist}
   bb .F₀ n m = n + m
   bb .lmap {n} {m} {l} f .map k = [ sum.to ⊙ inl <∙> f .map , pure ⊙ sum.to ⊙ inr ] $ sum.from k
-  bb .lmap {n} {x} {m} f .ascending j k lt = {! p j k  !} where
-    p : ∀ j k → j ≤f k → [ sum.to ⊙ inl <∙> f .map , just ⊙ sum.to ⊙ inr ] (sum.from {n} {m} j) ≲ [ sum.to ⊙ inl <∙> f .map , just ⊙ sum.to ⊙ inr ] (sum.from {n} {m} k)
-    p j k lt with sum.from {n} {m} j in w | sum.from {n} {m} k in w'
-    ... | inl x | inl y = {! !}
-    ... | inl x | inr y = {! !}
-    ... | inr x | inl y = {! !} -- impossible ?
-    ... | inr x | inr y = {! !}
-  bb .rmap {n} {m} {l} g .map y =  [ pure ⊙ sum.to ⊙ inl , sum.to ⊙ inr <∙> g .map ] $ sum.from y
+  bb .lmap {n} {m} {l} f .ascending j k lt = p j k lt where
+    open F+-monotonic
+    open From-lt-cases
+    p : ∀ j k → j ≤f k → bb .lmap {n} {m} {l} f .map j ≲ bb .lmap {n} {m} {l} f .map k
+    p j k lt with from-lt-cases {n} {l} j k lt
+    p j k lt | ll j' k' w w' lt' = {!  !}
+    p j k lt | lr j' k' w w'     = {! !}
+    p j k lt | rr j' k' w w' lt' = {! !}
   bb .rmap {n} {m} {l} g .map y =  [ pure ⊙ sum.to ⊙ inl , sum.to ⊙ inr <∙> g .map ] $ sum.from y
   bb .rmap g .ascending j k lt = {! !}
   bb .lmap-id {n} {m} = ext λ k → p k where
@@ -68,37 +70,56 @@ module _ where
   bb .rmap-∘ f g = ext λ k → {! !}
   bb .lrmap  f g = ext λ k → {! !}
 
-blah : Monoidal-category Dist
-blah .-⊗- = make-bifunctor bb
+  Dist-monoidal : Monoidal-category Dist
+  Dist-monoidal .-⊗- = make-bifunctor bb
 
-  --lem : ∀ {P : ∀ {n m ℓ} (k : Fin (n + m)) → (Fin n ⊎ Fin m) → Type ℓ}
-  --    → (∀ j → P (inl j))
-  --    → (∀ j → P (inl k))
-  --    → ∀ x → P x
+    --lem : ∀ {P : ∀ {n m ℓ} (k : Fin (n + m)) → (Fin n ⊎ Fin m) → Type ℓ}
+    --    → (∀ j → P (inl j))
+    --    → (∀ j → P (inl k))
+    --    → ∀ x → P x
 
-blah .Unit = 0
-blah .unitor-l = to-natural-iso record where
-      eta n = id
-      inv n = id
-      eta∘inv n = trivial!
-      inv∘eta n = trivial!
-      natural n m f = ext λ k → {! !}
-blah .unitor-r = to-natural-iso record where
-      eta n = cast-id $ sym $ +-zeror n
-      inv n = cast-id $ +-zeror n
-      eta∘inv n = trivial!
-      inv∘eta n = trivial!
-      natural n m f = {! !}
-blah .associator = to-natural-iso record where
-      eta (j , k , l) = cast-id $ sym $ +-associative j k l
-      inv (j , k , l) = cast-id $ +-associative j k l
-      eta∘inv n = trivial!
-      inv∘eta n = trivial!
-      natural (n , m , l) (n' , m' , l') (f , g , h) = ext λ { k → {! !} }
---iso→isoⁿ (λ (j , k , l) → path→iso $ sym $ +-associative j k l) {! !}
-blah .triangle = ext λ k → {! !}
-blah .pentagon = ext λ k → {! !}
+  Dist-monoidal .Unit = 0
+  Dist-monoidal .unitor-l = to-natural-iso record where
+        eta n = id
+        inv n = id
+        eta∘inv n = trivial!
+        inv∘eta n = trivial!
+        natural n m f = ext λ k → {! !}
+  Dist-monoidal .unitor-r = to-natural-iso record where
+        eta n = cast-id $ sym $ +-zeror n
+        inv n = cast-id $ +-zeror n
+        eta∘inv n = trivial!
+        inv∘eta n = trivial!
+        natural n m f = {! !}
+  Dist-monoidal .associator = to-natural-iso record where
+        eta (j , k , l) = cast-id $ sym $ +-associative j k l
+        inv (j , k , l) = cast-id $ +-associative j k l
+        eta∘inv n = trivial!
+        inv∘eta n = trivial!
+        natural (n , m , l) (n' , m' , l') (f , g , h) = ext λ { k → {! !} }
+  --iso→isoⁿ (λ (j , k , l) → path→iso $ sym $ +-associative j k l) {! !}
+  Dist-monoidal .triangle = ext λ k → {! !}
+  Dist-monoidal .pentagon = ext λ k → {! !}
 
+open Monoidal-category Dist-monoidal
+
+open Braided-monoidal
+is-braided : Braided-monoidal Dist-monoidal
+is-braided .braiding = biiso→isoⁿ +-is (λ f → ext λ k → right f k) {! !} where
+  open _≅_
+  open Inverses
+  +-is : ∀ x y → (x + y) ≅ (y + x)
+  +-is x y .to = cast-id $ +-commutative x y
+  +-is x y .from = cast-id $ +-commutative y x
+  +-is x y .inverses .invl = trivial!
+  +-is x y .inverses .invr = trivial!
+  right : ∀ {x y z} (f : ⟨ x ⟩→⟨ y ⟩) → (k : Fin (x + z))  →
+    ((z ▶ f) ∘ +-is x z .to) · k ≡ (+-is y z .to ∘ (f ◀ z)) · k
+  right {x} {y} {z} f k with holds? (k .lower < x) | holds? (k .lower < z)
+  ... | yes a | yes b = {! !}
+  ... | yes a | no ¬b = {! !}
+  ... | no ¬a | yes b = ap just $ {! refl !}
+  ... | no ¬a | no ¬b = {! !}
 {-
   open Coproduct renaming ([_,_] to [_,_]c)
   open is-coproduct renaming ([_,_] to [_,_]c)

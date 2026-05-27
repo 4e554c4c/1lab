@@ -1,9 +1,12 @@
 ```agda
 open import Cat.Instances.Simplex
 open import Cat.Diagram.Zero
+open import Cat.Morphism.Lifts
 open import Cat.Diagram.Terminal
 open import Cat.Diagram.Initial
 open import Cat.Morphism.Class
+open import Cat.Morphism.Factorisation
+open import Cat.Morphism.Factorisation.Orthogonal
 open import Cat.Diagram.Zero
 open import Cat.Functor.Base
 open import Cat.Prelude
@@ -121,7 +124,7 @@ is-inert (sasc f _) = ∀ x → is-contr (fibre f (just x))
 ρ-inert {n} {k} d .centre .fst = k
 ρ-inert {n} {k} d .centre .snd with fin-view d
 ... | zero = refl
-ρ-inert {n} {k} d .paths (k' , p) = Σ-prop-path (λ j → hlevel 1) (sym pf) where
+ρ-inert {n} {k} d .paths (k' , p) = Σ-prop-path! (sym pf) where
   pf : k' ≡ k
   pf with (k' ≡ᵢ? k)
   pf | yes q = Id≃path.to q
@@ -233,6 +236,16 @@ is-iso→Inert {a} {b} {f = f} iv n .paths p with iv .inv · n | iv .invl ·ₚ 
 
   module f' = Equiv (f' , is-iso→is-equiv f'-iso)
 
+is-inert-∘ : ∀ {a b c} {f : ⟨ b ⟩→⟨ c ⟩} {g : ⟨ a ⟩→⟨ b ⟩}
+  → is-inert f → is-inert g → is-inert (f ∘ g)
+is-inert-∘ {f = f} {g} if ig j .centre .fst = ig (if j .centre .fst) .centre .fst
+is-inert-∘ {f = f} {g} if ig j .centre .snd = ap (_>>= f .map) (ig (if j .centre .fst) .centre .snd) ∙ if j .centre .snd
+is-inert-∘ {f = f} {g} if ig j .paths (k , p) = Σ-prop-path! pf where
+  pf : ig (if j .centre .fst) .centre .fst ≡ k
+  pf with g · k in w
+  ... | nothing with () ← nothing≠just p
+  ... | just x = ap fst $ ig (if j .centre .fst) .paths $ k ,_ $ sym $
+    (ap just $ ap fst $ if j .paths $ x , p) ∙ (sym $ Id≃path.to w)
 
 is-iso→Active : ∀ {a b} {f : ⟨ a ⟩→⟨ b ⟩} → Dist.is-invertible f → f ∈ Active
 is-iso→Active {f = f} iv n with f · n | ap (λ f → f .map n) (iv .invr)
@@ -314,12 +327,82 @@ zero-is-terminal n .centre .map _ = nothing
 zero-is-terminal n .centre .ascending _ _ _ = n≲n
 zero-is-terminal n .paths x = ext λ y → sym $ refute-just (λ ()) (x · y)
 
-open is-zero
 zero-is-zero : is-zero Dist 0
-zero-is-zero .has-is-initial = zero-is-initial
-zero-is-zero .has-is-terminal = zero-is-terminal
+zero-is-zero .is-zero.has-is-initial = zero-is-initial
+zero-is-zero .is-zero.has-is-terminal = zero-is-terminal
+
+zero-dist : Zero Dist
+zero-dist = record { ∅ = 0 ; has-is-zero = zero-is-zero }
+open Zero zero-dist
 
 cast-id : ∀ {n m} → n ≡ m → ⟨ n ⟩→⟨ m ⟩
 cast-id p .map (fin k ⦃ q ⦄) = just $ fin k ⦃ ≤-trans q (≤-refl' p) ⦄
 cast-id p .ascending j k lt = j≲j lt
+
+dist-peel : ⟨ suc n ⟩→⟨ m ⟩ → ⟨ n ⟩→⟨ m ⟩
+dist-peel f .map = f .map ⊙ fsuc
+dist-peel f .ascending j k = f .ascending (fsuc j) (fsuc k) ⊙ s≤s
+
+count-defined : (f : ⟨ n ⟩→⟨ m ⟩) → Nat
+count-defined {n = zero} _ = 0
+count-defined {n = suc n} {m} f =
+  ifᵈ holds? (is-just $ f · 0) then
+    suc rec
+  else
+    rec
+  where rec = count-defined $ dist-peel f
+
+inj-defined : (f : ⟨ n ⟩→⟨ m ⟩) → ⟨ n ⟩→⟨ count-defined f ⟩
+inj-defined {zero} {m} f = ¡
+inj-defined {suc n} {m} f with f · 0
+... | nothing = {! !}
+... | just x = {! !}
+
+module factor {n m} (f : ⟨ n ⟩→⟨ m ⟩) where
+
+  CoKer : Type lzero
+  CoKer = Σ[ l ∈ Fin n ] is-just (f · l)
+
+  σ : Fin n → Maybe CoKer
+  σ l = (l ,_) <$> Dec→Maybe
+
+  -- likewise we can map through f to `Fin m`. This bit must be active
+  π : CoKer → Maybe (Fin m)
+  π = f .map ⊙ fst
+
+  σ-then-π-is-f : ∀ n → (σ n >>= π) ≡ᵢ f · n
+  σ-then-π-is-f j = {! !}
+
+  -- not sure why Listing-prop isn't a class otherwise this is auto
+  listing : Listing CoKer
+  listing = Listing-Σ ⦃ auto ⦄ ⦃ Listing-prop ⦄
+  module listing = Listing listing
+
+
+  mid : Nat
+  mid = listing.card
+
+  left : ⟨ n ⟩→⟨ mid ⟩
+  left = {! !}
+
+  right : ⟨ mid ⟩→⟨ m ⟩
+  right = {! !}
+
+
+  left∈L : left ∈ Inert
+
+  left∈R : right ∈ Active
+
+open is-ofs
+inert-active-is-ofs : is-ofs Dist Inert Active
+inert-active-is-ofs .factor f = record {factor f }
+inert-active-is-ofs .is-iso→in-L f = is-iso→Inert
+inert-active-is-ofs .L-is-stable f g if ig = is-inert-∘ {f = f} {g} if ig
+inert-active-is-ofs .is-iso→in-R f = is-iso→Active
+inert-active-is-ofs .R-is-stable f g af ag j with g · j | ag j
+inert-active-is-ofs .R-is-stable f g af ag j | just k | _ = af k
+inert-active-is-ofs .L⊥R f fi g ga u v sq = goal where
+  goal : is-contr (Lifting Dist f g u v)
+  goal .centre .fst = {! !}
+  goal .centre .snd = {! !}
 ```

@@ -20,9 +20,9 @@ open import Data.Maybe.Base
 open import Data.Maybe.Properties
 open import Data.Nat.Order
 open import Data.Bool
-open import Data.Nat using (H-Level-Nat; s≤s; 0≤x ; ≤-trans) renaming (_≤_ to _≤n_; _<_ to _<n_)
+open import Data.Nat -- using (H-Level-Nat; s≤s; 0≤x ; ≤-trans)
 open import Data.Dec.Base
-open import Data.Fin
+open import Data.Fin renaming (_≤_ to _≤f_; _<_ to _<f_)
 open import Data.Fin.Monotone
 
 import Cat.Reasoning
@@ -45,7 +45,7 @@ module _ {n : Nat} where
     n≲n : nothing ≲ nothing
     n≲j : ∀ {x} → nothing ≲ just x
     j≲n : ∀ {x} → just x ≲ nothing
-    j≲j : ∀ {x y} → x ≤ y → just x ≲ just y
+    j≲j : ∀ {x y} → x ≤f y → just x ≲ just y
 
   ≲-is-prop : ∀ {x y} → is-prop (x ≲ y)
   ≲-is-prop n≲n     n≲n     = refl
@@ -65,11 +65,15 @@ module _ {n : Nat} where
   x≲n {nothing} = n≲n
   x≲n {just x} = j≲n
 
+0≲x : ∀ {x : Maybe $ Fin $ suc n} → (just fzero) ≲ x
+0≲x {_} {nothing} = j≲n
+0≲x {_} {just x} = j≲j 0≤x
+
 record ⟨_⟩→⟨_⟩ (n m : Nat) : Type where
   constructor sasc
   field
     map       : Fin n → Maybe (Fin m)
-    ascending : (x y : Fin n) → x ≤ y → map x ≲ map y
+    ascending : (x y : Fin n) → x ≤f y → map x ≲ map y
 
 unquoteDecl H-Level-⟨⟩→⟨⟩ = declare-record-hlevel 2 H-Level-⟨⟩→⟨⟩ (quote ⟨_⟩→⟨_⟩)
 
@@ -136,7 +140,7 @@ inert-inv inert k = inert k .centre .fst
 inert-inv-inj : ∀ {n m} → (f : ⟨ n ⟩→⟨ m ⟩) → (inert : is-inert f) → injective (inert-inv {f = f} inert)
 inert-inv-inj f inert {i} {j} p = just-inj $ sym (inert i .centre .snd) ∙ ap· f p ∙ inert j .centre .snd
 
-inert-lt : ∀ {n m} → (f : ⟨ n ⟩→⟨ m ⟩) → is-inert f → m ≤n n
+inert-lt : ∀ {n m} → (f : ⟨ n ⟩→⟨ m ⟩) → is-inert f → m ≤ n
 inert-lt f inert = Fin-injection→lt (inert-inv {f = f} inert) (inert-inv-inj f inert)
 
 -- instead of negating the fibre here, we use a slightly more constructive, equivalent definition
@@ -309,7 +313,7 @@ open is-gaunt
 open Cat.Morphism
 Dist-gaunt : is-gaunt Dist
 Dist-gaunt .has-category .to-path {n} {m} i = ≤-antisym  (p $ i Dist.Iso⁻¹) (p i) where
-  p : ∀ {n m} → n Dist.≅ m → m ≤n n
+  p : ∀ {n m} → n Dist.≅ m → m ≤ n
   p q = inert-lt (q ._≅_.to) $ is-iso→Inert $ Dist.iso→invertible q
 Dist-gaunt .has-category .to-path-over p = is-prop→pathp (λ i a b → is-iso→prop a b) Dist.id-iso p
 Dist-gaunt .has-strict = hlevel 2
@@ -343,6 +347,25 @@ dist-peel : ⟨ suc n ⟩→⟨ m ⟩ → ⟨ n ⟩→⟨ m ⟩
 dist-peel f .map = f .map ⊙ fsuc
 dist-peel f .ascending j k = f .ascending (fsuc j) (fsuc k) ⊙ s≤s
 
+cons-nothing : ⟨ n ⟩→⟨ m ⟩ → ⟨ suc n ⟩→⟨ m ⟩
+cons-nothing f .map j with fin-view j
+... | zero = nothing
+... | suc i = f · i
+cons-nothing f .ascending j k lt with fin-view j | fin-view k
+... | zero | x = n≲x
+... | suc j | suc k = f .ascending j k $ ≤-peel lt
+
+cons-id : ⟨ n ⟩→⟨ m ⟩ → ⟨ suc n ⟩→⟨ suc m ⟩
+cons-id f .map j with fin-view j
+... | zero = just fzero
+... | suc i = fsuc <$> f · i
+cons-id f .ascending j k lt with fin-view j | fin-view k
+... | zero | x = 0≲x
+... | suc j | suc k with f · j | f · k | f .ascending j k (≤-peel lt)
+... | nothing | x      | _      = n≲x
+... | just j | nothing | _      = x≲n
+... | just j | just k  | j≲j lt = j≲j $ s≤s lt
+
 count-defined : (f : ⟨ n ⟩→⟨ m ⟩) → Nat
 count-defined {n = zero} _ = 0
 count-defined {n = suc n} {m} f =
@@ -355,8 +378,50 @@ count-defined {n = suc n} {m} f =
 inj-defined : (f : ⟨ n ⟩→⟨ m ⟩) → ⟨ n ⟩→⟨ count-defined f ⟩
 inj-defined {zero} {m} f = ¡
 inj-defined {suc n} {m} f with f · 0
-... | nothing = {! !}
-... | just x = {! !}
+... | nothing = cons-nothing $ inj-defined $ dist-peel f
+... | just x = cons-id $ inj-defined $ dist-peel f
+
+cons-nothing-inert : (f : ⟨ n ⟩→⟨ m ⟩) → is-inert f → is-inert $ cons-nothing f
+cons-nothing-inert {n} f f-inert j .centre .fst = fsuc $ f-inert j .centre .fst
+cons-nothing-inert {n} f f-inert j .centre .snd = f-inert j .centre .snd
+cons-nothing-inert {n} f f-inert j .paths (x , p) = Σ-prop-path! pp where
+  pp : (fsuc $ f-inert j .centre .fst) ≡ x
+  pp with fin-view x
+  ... | zero = absurd $ᵢ nothing≠just p
+  ... | suc i = ap (fsuc ⊙ fst) $ f-inert j .paths $ i , p
+
+peel-fsuc-maybe : (f : Fin n → (Maybe $ Fin m)) → ∀ j k → (fsuc <$> f j) ≡ just (fsuc k) → f j ≡ just k
+peel-fsuc-maybe f j k p with f · j
+... | nothing = absurd $ᵢ nothing≠just p
+... | just x  = ap just $ fsuc-inj $ just-inj p
+
+cons-id-inert : (f : ⟨ n ⟩→⟨ m ⟩) → is-inert f → is-inert $ cons-id f
+cons-id-inert f f-inert j .centre .fst with fin-view j
+... | zero = fzero
+... | suc j = fsuc $ f-inert j .centre .fst
+cons-id-inert f f-inert j .centre .snd with fin-view j
+... | zero = refl
+... | suc j = ap (fsuc <$>_) $ f-inert j .centre .snd
+cons-id-inert f f-inert j .paths (x , p) = Σ-prop-path! pp where
+  pp : (cons-id-inert f f-inert j .centre .fst) ≡ x
+  pp with fin-view j | fin-view x
+  pp | zero | zero = refl
+  pp | zero | suc k with f · k
+  pp | zero | suc k | nothing = absurd $ᵢ nothing≠just p
+  pp | zero | suc k | just x = absurd $ᵢ fzero≠fsuc $ sym $ just-inj p
+  pp | suc j | zero = absurd $ᵢ fzero≠fsuc $ just-inj p
+  pp | suc j | suc k = ap (fsuc ⊙ fst) $ f-inert j .paths $ k , peel-fsuc-maybe (f .map) k j p
+
+inj-inert : (f : ⟨ n ⟩→⟨ m ⟩) → is-inert $ inj-defined f
+inj-inert {suc n} {m} f with f · 0
+... | nothing = cons-nothing-inert (inj-defined $ dist-peel f) $ inj-inert $ dist-peel f
+... | just x = cons-id-inert (inj-defined $ dist-peel f) $ inj-inert $ dist-peel f
+
+inj-inv : (f : ⟨ n ⟩→⟨ m ⟩) → Fin (count-defined f) → Fin n
+inj-inv f = inert-inv {f =  inj-defined f} $  inj-inert f
+
+proj-defined : (f : ⟨ n ⟩→⟨ m ⟩) → ⟨ count-defined f ⟩→⟨ m ⟩
+proj-defined = {! inj-inv  !}
 
 module factor {n m} (f : ⟨ n ⟩→⟨ m ⟩) where
 

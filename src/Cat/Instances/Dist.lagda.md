@@ -20,6 +20,7 @@ open import Data.Maybe.Base
 open import Data.Maybe.Properties
 open import Data.Nat.Order
 open import Data.Bool
+open import Data.Sum.Base
 open import Data.Nat -- using (H-Level-Nat; s≤s; 0≤x ; ≤-trans)
 open import Data.Dec.Base
 open import Data.Fin renaming (_≤_ to _≤f_; _<_ to _<f_)
@@ -38,7 +39,7 @@ open Functor
 module Cat.Instances.Dist where
 
 private variable
-  n m k : Nat
+  n m l n' m' : Nat
 
 module _ {n : Nat} where
   data _≲_ : Maybe (Fin n) → Maybe (Fin n) → Type where
@@ -137,8 +138,34 @@ is-inert (sasc f _) = ∀ x → is-contr (fibre f (just x))
 inert-inv : ∀ {n m} → {f : ⟨ n ⟩→⟨ m ⟩} → is-inert f → (Fin m → Fin n)
 inert-inv inert k = inert k .centre .fst
 
-inert-inv-inj : ∀ {n m} → (f : ⟨ n ⟩→⟨ m ⟩) → (inert : is-inert f) → injective (inert-inv {f = f} inert)
-inert-inv-inj f inert {i} {j} p = just-inj $ sym (inert i .centre .snd) ∙ ap· f p ∙ inert j .centre .snd
+module _ (f : ⟨ n ⟩→⟨ m ⟩) (inert : is-inert f) where
+  private
+    inver = inert-inv {f = f} inert
+
+  inert-inv-inj : injective inver
+  inert-inv-inj {i} {j} p = just-inj $ sym (inert i .centre .snd) ∙ ap· f p ∙ inert j .centre .snd
+
+
+  inert-mon-lem : ∀ j k → f · (inver j) ≲ f · (inver k) → j ≤f k
+  inert-mon-lem j k lt with f · (inver j) | f · (inver k) | inert j .centre .snd | inert k .centre .snd
+  inert-mon-lem j k lt       | nothing | x      | p | q = absurd $ᵢ nothing≠just p
+  inert-mon-lem j k lt       | just x  | nothing | p | q = absurd $ᵢ nothing≠just q
+  inert-mon-lem j k (j≲j lt) | just x  | just y  | p | q = ≤-refl' (sym $ ap lower $ just-inj p) ≤∙ lt ≤∙ ≤-refl' (ap lower $ just-inj q)
+
+  inert-inv-mon : ∀ j k → j ≤f k → inver j ≤f inver k
+  inert-inv-mon fj@(fin j ⦃ b1 ⦄) fk@(fin k ⦃ b2 ⦄) le = dec→dne λ ¬le →
+    let lt' : inver fk <f inver fj
+        lt' = <-from-not-≤ _ _ ¬le
+        le' : inver fk ≤f inver fj
+        le' = <-weaken lt'
+        le'' : fk ≤f fj
+        le'' = inert-mon-lem _ _ $ f .ascending _ _ le'
+        ne' : inver fk ≠ inver fj
+        ne' = <-not-equal lt' ⊙ ap lower
+        ne : fj ≠ fk
+        ne pf = ne' $ sym $ ap inver pf
+        in
+    [ ne ⊙ sym ⊙ fin-ap , ≤-<-asym le ] (≤-strengthen le'')
 
 inert-lt : ∀ {n m} → (f : ⟨ n ⟩→⟨ m ⟩) → is-inert f → m ≤ n
 inert-lt f inert = Fin-injection→lt (inert-inv {f = f} inert) (inert-inv-inj f inert)
@@ -250,6 +277,12 @@ is-inert-∘ {f = f} {g} if ig j .paths (k , p) = Σ-prop-path! pf where
   ... | nothing with () ← nothing≠just p
   ... | just x = ap fst $ ig (if j .centre .fst) .paths $ k ,_ $ sym $
     (ap just $ ap fst $ if j .paths $ x , p) ∙ (sym $ Id≃path.to w)
+
+inert-precompose : (f : ⟨ n ⟩→⟨ m ⟩) → is-inert f → ⟨ n ⟩→⟨ l ⟩ → ⟨ m ⟩→⟨ l ⟩
+inert-precompose f f-inert g .map = g .map ⊙ (inert-inv {f = f} f-inert)
+inert-precompose f f-inert g .ascending _ _ lt = g .ascending _ _ $
+  inert-inv-mon f f-inert _ _ lt
+
 
 is-iso→Active : ∀ {a b} {f : ⟨ a ⟩→⟨ b ⟩} → Dist.is-invertible f → f ∈ Active
 is-iso→Active {f = f} iv n with f · n | ap (λ f → f .map n) (iv .invr)
@@ -421,42 +454,68 @@ inj-inv : (f : ⟨ n ⟩→⟨ m ⟩) → Fin (count-defined f) → Fin n
 inj-inv f = inert-inv {f =  inj-defined f} $  inj-inert f
 
 proj-defined : (f : ⟨ n ⟩→⟨ m ⟩) → ⟨ count-defined f ⟩→⟨ m ⟩
-proj-defined = {! inj-inv  !}
+proj-defined f = inert-precompose (inj-defined f) (inj-inert f) f
+
+proj-active : (f : ⟨ n ⟩→⟨ m ⟩) → is-active $ proj-defined f
+proj-active {suc n} f j with f · 0 in w
+proj-active {suc n} f j | nothing = proj-active (dist-peel f) j
+proj-active {suc n} f fzero | just x = eq-just→is-justᵢ w
+proj-active {suc n} f (fin (suc j) ⦃ b ⦄) | just x = proj-active (dist-peel f) $ fin j ⦃ ≤-peel b ⦄
+
+private
+  factors' : (f : ⟨ n ⟩→⟨ m ⟩) → ∀ k → f · k ≡ (inj-defined f · k >>= proj-defined f .map)
+  factors' {suc n} {m} f k with fin-view k | f · 0 in w
+  ... | zero | nothing = Id≃path.to w
+  ... | zero | just x = refl
+  ... | suc k | nothing = factors' (dist-peel f) k
+  ... | suc k | just x = factors' (dist-peel f) k ∙ (sym $ fmap-bind {x = inj-defined (dist-peel f) .map k} {f = fsuc})
 
 module factor {n m} (f : ⟨ n ⟩→⟨ m ⟩) where
-
-  CoKer : Type lzero
-  CoKer = Σ[ l ∈ Fin n ] is-just (f · l)
-
-  σ : Fin n → Maybe CoKer
-  σ l = (l ,_) <$> Dec→Maybe
-
-  -- likewise we can map through f to `Fin m`. This bit must be active
-  π : CoKer → Maybe (Fin m)
-  π = f .map ⊙ fst
-
-  σ-then-π-is-f : ∀ n → (σ n >>= π) ≡ᵢ f · n
-  σ-then-π-is-f j = {! !}
-
-  -- not sure why Listing-prop isn't a class otherwise this is auto
-  listing : Listing CoKer
-  listing = Listing-Σ ⦃ auto ⦄ ⦃ Listing-prop ⦄
-  module listing = Listing listing
-
-
   mid : Nat
-  mid = listing.card
+  mid = count-defined f
 
   left : ⟨ n ⟩→⟨ mid ⟩
-  left = {! !}
+  left = inj-defined f
 
   right : ⟨ mid ⟩→⟨ m ⟩
-  right = {! !}
-
+  right = proj-defined f
 
   left∈L : left ∈ Inert
+  left∈L = inj-inert f
 
-  left∈R : right ∈ Active
+  right∈R : right ∈ Active
+  right∈R = proj-active f
+
+  factors : f ≡ comp-Δ right left
+  factors = ext (factors' f)
+
+module my-⊥
+    (f : ⟨ n ⟩→⟨ m ⟩)
+    (fi : is-inert f)
+    (u : ⟨ n ⟩→⟨ n' ⟩)
+    (v : ⟨ m ⟩→⟨ m' ⟩)
+    (g : ⟨ n' ⟩→⟨ m' ⟩)
+    (ga : is-active g)
+    (sq : comp-Δ v f ≡ comp-Δ g u) where
+
+  private
+    a-lem : ∀ k → is-just (u · k) → is-just (f · k)
+    a-lem k pp with  u · k | f · k | sq ·ₚ k
+    ... | just x | nothing | p = absurd $ᵢ is-just-not-nothing (ga x) $ sym p
+    ... | just x | just x₁ | p = lift oh
+
+  a-lift : Lifting Dist f g u v
+  a-lift .fst = inert-precompose f fi u
+  a-lift .snd .fst = ext pp where
+    pp : ∀ k → (f · k >>= inert-precompose f fi u .map) ≡ u · k
+    pp k with u · k in w | f · k in w'
+    ... | nothing | nothing = refl
+    ... | nothing | just y = (ap· u $ ap fst $ fi y .paths $ k , Id≃path.to w') ∙ Id≃path.to w
+    ... | just x | nothing = absurd $ᵢ is-just-not-nothing (a-lem k $ eq-just→is-justᵢ w) $ Id≃path.to w'
+    ... | just x | just y  = (ap· u $ ap fst $ fi y .paths $ k , Id≃path.to w')∙ Id≃path.to w
+  a-lift .snd .snd = ext pp where
+      pp : ∀ k → (u · (fi k .centre .fst) >>= g .map) ≡ v · k
+      pp k = {! !}
 
 open is-ofs
 inert-active-is-ofs : is-ofs Dist Inert Active
@@ -468,6 +527,8 @@ inert-active-is-ofs .R-is-stable f g af ag j with g · j | ag j
 inert-active-is-ofs .R-is-stable f g af ag j | just k | _ = af k
 inert-active-is-ofs .L⊥R f fi g ga u v sq = goal where
   goal : is-contr (Lifting Dist f g u v)
-  goal .centre .fst = {! !}
-  goal .centre .snd = {! !}
+  goal .centre .fst = inert-precompose f fi u
+  goal .centre .snd .fst = ext λ k → {! !}
+  goal .centre .snd .snd = ext λ k → {! !}
+  goal .paths (m , p , q) = Σ-prop-path! $ ext λ k → {! !}
 ```

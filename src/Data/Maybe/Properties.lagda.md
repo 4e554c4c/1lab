@@ -3,10 +3,12 @@
 open import 1Lab.Prelude
 
 open import Data.Maybe.Base
+open import Data.Bool.Base
 open import Data.List.Base using (_∷_; [])
 open import Data.Dec.Base
 open import Data.Nat.Base
 open import Data.Sum.Base
+open import Data.Id.Base
 ```
 -->
 
@@ -300,5 +302,14 @@ unmap-equiv : {A B : Type ℓ} → (m : Maybe A) (e : A ≃ B) (x : B)
        → (e .fst <$> m) ≡ just x
        → m ≡ just (equiv→inverse (e .snd) x)
 unmap-equiv m = EquivJ (λ B e → ∀ x →  (e .fst <$> m) ≡ just x → m ≡ just (equiv→inverse (e .snd) x)) λ x p → (sym $ map-id _) ∙ p
+
+eq-just→is-justᵢ : ∀ {y} {x : Maybe A} → x ≡ᵢ just y → is-just x
+eq-just→is-justᵢ reflᵢ = lift oh
+
+
+fmap-bind : ∀ {x : Maybe A} {f : A → B} {g : B → Maybe C} → (f <$> x >>= g) ≡ (x >>= g ∘ f)
+fmap-bind {x = nothing} = refl
+fmap-bind {x = just x} = refl
+
 ```
 -->

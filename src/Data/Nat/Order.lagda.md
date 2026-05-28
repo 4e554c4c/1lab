@@ -78,6 +78,9 @@ to-prim-< {suc x} {suc y} o = to-prim-< (≤-peel o)
 <-≤-asym : ∀ {x y} → x < y → ¬ (y ≤ x)
 <-≤-asym {suc x} {suc y} x<y y≤x = <-≤-asym (≤-peel x<y) (≤-peel y≤x)
 
+≤-<-asym : ∀ {x y} → x ≤ y → ¬ (y < x)
+≤-<-asym {suc x} {suc y} x≤y y<x = ≤-<-asym (≤-peel x≤y) (≤-peel y<x)
+
 <-asym : ∀ {x y} → x < y → ¬ (y < x)
 <-asym {suc x} {suc y} x<y y<x = <-≤-asym x<y (<-weaken y<x)
 

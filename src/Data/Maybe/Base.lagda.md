@@ -97,6 +97,13 @@ record is-just (m : Maybe A) : Type where
 from-just! : ∀ x → is-just x → A
 from-just! (just x) _ = x
 
+eq-just→is-just : ∀ {y} {x : Maybe A} → x ≡ just y → is-just x
+eq-just→is-just eq = subst (is-just) (sym eq) $ lift oh
+
+eq-from-just : {x : Maybe A} → (ij : is-just x) → x ≡ just (from-just! x ij)
+eq-from-just {x = just x} ij = refl
+
+
 just≠nothing : {x : A} → ¬ (just x ≡ nothing)
 just≠nothing p = subst is-just' p tt  where
   is-just' : Maybe A → Type
@@ -105,6 +112,9 @@ just≠nothing p = subst is-just' p tt  where
 
 nothing≠just : {x : A} → ¬ (nothing ≡ just x)
 nothing≠just p = just≠nothing (sym p)
+
+is-just-not-nothing : {x : Maybe A} → (ij : is-just x) → x ≠ nothing
+is-just-not-nothing {x = just x} ij = just≠nothing
 
 just-inj : ∀ {x y : A} → just x ≡ just y → x ≡ y
 just-inj {x = x} = ap (from-just x)

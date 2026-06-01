@@ -490,12 +490,10 @@ module factor {n m} (f : ⟨ n ⟩→⟨ m ⟩) where
   factors = ext (factors' f)
 
 module my-⊥
-    (f : ⟨ n ⟩→⟨ m ⟩)
-    (fi : is-inert f)
+    (f : ⟨ n ⟩→⟨ m ⟩) (fi : is-inert f)
     (u : ⟨ n ⟩→⟨ n' ⟩)
     (v : ⟨ m ⟩→⟨ m' ⟩)
-    (g : ⟨ n' ⟩→⟨ m' ⟩)
-    (ga : is-active g)
+    (g : ⟨ n' ⟩→⟨ m' ⟩) (ga : is-active g)
     (sq : comp-Δ v f ≡ comp-Δ g u) where
 
   private
@@ -513,9 +511,10 @@ module my-⊥
     ... | nothing | just y = (ap· u $ ap fst $ fi y .paths $ k , Id≃path.to w') ∙ Id≃path.to w
     ... | just x | nothing = absurd $ᵢ is-just-not-nothing (a-lem k $ eq-just→is-justᵢ w) $ Id≃path.to w'
     ... | just x | just y  = (ap· u $ ap fst $ fi y .paths $ k , Id≃path.to w')∙ Id≃path.to w
-  a-lift .snd .snd = ext pp where
-      pp : ∀ k → (u · (fi k .centre .fst) >>= g .map) ≡ v · k
-      pp k = {! !}
+  a-lift .snd .snd = ext λ k → (sym $ sq ·ₚ (fi k .centre .fst)) ∙ (ap (_>>= v .map) $ fi k .centre .snd)
+
+  a-lift-unique : (l' : Lifting Dist f g u v) → ∀ k → a-lift .fst · k ≡ (l' .fst) · k
+  a-lift-unique (l' , p , q) k = (sym $ p ·ₚ (fi k .centre .fst)) ∙ (ap (_>>= l' .map) $ fi k .centre .snd)
 
 open is-ofs
 inert-active-is-ofs : is-ofs Dist Inert Active
@@ -527,8 +526,6 @@ inert-active-is-ofs .R-is-stable f g af ag j with g · j | ag j
 inert-active-is-ofs .R-is-stable f g af ag j | just k | _ = af k
 inert-active-is-ofs .L⊥R f fi g ga u v sq = goal where
   goal : is-contr (Lifting Dist f g u v)
-  goal .centre .fst = inert-precompose f fi u
-  goal .centre .snd .fst = ext λ k → {! !}
-  goal .centre .snd .snd = ext λ k → {! !}
-  goal .paths (m , p , q) = Σ-prop-path! $ ext λ k → {! !}
+  goal .centre = my-⊥.a-lift f fi u v g ga sq
+  goal .paths (m , p , q) = Σ-prop-path! $ ext λ k → my-⊥.a-lift-unique f fi u v g ga sq (m , p , q) k
 ```

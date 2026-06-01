@@ -103,6 +103,7 @@ module _ where
 
 open Monoidal-category Dist-monoidal
 
+{-
 open Braided-monoidal
 is-braided : Braided-monoidal Dist-monoidal
 is-braided .braiding = biiso→isoⁿ +-is (λ f → ext λ k → right f k) {! !} where
@@ -120,7 +121,6 @@ is-braided .braiding = biiso→isoⁿ +-is (λ f → ext λ k → right f k) {! 
   ... | yes a | no ¬b = {! !}
   ... | no ¬a | yes b = ap just $ {! refl !}
   ... | no ¬a | no ¬b = {! !}
-{-
   open Coproduct renaming ([_,_] to [_,_]c)
   open is-coproduct renaming ([_,_] to [_,_]c)
   module sum = Equiv (Finite-coproduct {n} {m})

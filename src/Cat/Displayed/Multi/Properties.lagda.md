@@ -201,28 +201,28 @@ module _ (E : Displayed Dist o ℓ) (lift-inert : Coc.Cocartesian-lifts-of E Ine
   open M using (Ob ; _![_] ; _M![_] ; _!![_]; module lift-ρ)
   Multicat-over-is-prop : M ≡ N
   Multicat-over-is-prop = Multicat-over-pathp (ext λ v → p₁ v) $ funextP' λ {n} → funextP λ C[_] → funextP λ j → N.Cocartesian-morphism-pathp $
-    Hom[]-pathp-refll-iso E is-cat (idr _) (da_iso C[_]) (M.vec-proj.hom' C[_] j) (N.vec-proj.hom' C[_] j) $ begin[]
-      M.vec-proj.hom' C[_] j ∘' N.vec→hom' (λ k → M.vec→ob!≅vec.from' C[_] k ∘' N.vec→ob!≅vec.to' C[_] k)
-      ≡[]˘⟨ pulll[] _ $ lift-ρ.commutesp (M.vec→ob C[_]) j (idl _) $ M.vec-proj.hom' C[_] j ⟩
-      M.vec→ob!≅vec.to' C[_] j ∘' lift-ρ.lifting (M.vec→ob C[_]) j ∘' N.vec→hom' (λ k → M.vec→ob!≅vec.from' C[_] k ∘' N.vec→ob!≅vec.to' C[_] k)
+    Hom[]-pathp-refll-iso E is-cat (idr _) (da_iso C[_]) (M.cocart-proj.hom' C[_] j) (N.cocart-proj.hom' C[_] j) $ begin[]
+      M.cocart-proj.hom' C[_] j ∘' N.vec→hom' (λ k → M.↑!≅vec.from' C[_] k ∘' N.↑!≅vec.to' C[_] k)
+      ≡[]˘⟨ pulll[] _ $ lift-ρ.commutesp (M.↑ C[_]) j (idl _) $ M.cocart-proj.hom' C[_] j ⟩
+      M.↑!≅vec.to' C[_] j ∘' lift-ρ.lifting (M.↑ C[_]) j ∘' N.vec→hom' (λ k → M.↑!≅vec.from' C[_] k ∘' N.↑!≅vec.to' C[_] k)
       ≡[]⟨⟩
-      M.vec→ob!≅vec.to' C[_] j ∘' (N.vec→hom' (λ k → M.vec→ob!≅vec.from' C[_] k ∘' N.vec→ob!≅vec.to' C[_] k) M![ j ])
+      M.↑!≅vec.to' C[_] j ∘' (N.vec→hom' (λ k → M.↑!≅vec.from' C[_] k ∘' N.↑!≅vec.to' C[_] k) M![ j ])
       ≡[]⟨ refl⟩∘'⟨ equiv→counit N.idx-is-eqv _ · j ⟩
-      M.vec→ob!≅vec.to' C[_] j ∘' (hom[ id-comm-sym ] $ (M.vec→ob!≅vec.from' C[_] j ∘' N.vec→ob!≅vec.to' C[_] j) ∘' lift-ρ.lifting (N.vec→ob C[_]) j)
+      M.↑!≅vec.to' C[_] j ∘' (hom[ id-comm-sym ] $ (M.↑!≅vec.from' C[_] j ∘' N.↑!≅vec.to' C[_] j) ∘' lift-ρ.lifting (N.↑ C[_]) j)
       ≡[]˘⟨ refl⟩∘'⟨ coh[ id-comm-sym ] _ ⟩
-      M.vec→ob!≅vec.to' C[_] j ∘' ((M.vec→ob!≅vec.from' C[_] j ∘' N.vec→ob!≅vec.to' C[_] j) ∘' lift-ρ.lifting (N.vec→ob C[_]) j)
+      M.↑!≅vec.to' C[_] j ∘' ((M.↑!≅vec.from' C[_] j ∘' N.↑!≅vec.to' C[_] j) ∘' lift-ρ.lifting (N.↑ C[_]) j)
       ≡[]˘⟨ refl⟩∘'⟨ assoc' _ _ _ ⟩
-      M.vec→ob!≅vec.to' C[_] j ∘' M.vec→ob!≅vec.from' C[_] j ∘' N.vec→ob!≅vec.to' C[_] j ∘' lift-ρ.lifting (N.vec→ob C[_]) j
-      ≡[]⟨ cancell[] _ $ M.vec→ob!≅vec.invl' C[_] j ⟩
-      N.vec→ob!≅vec.to' C[_] j ∘' lift-ρ.lifting (N.vec→ob C[_]) j
-      ≡[]⟨ lift-ρ.commutesp (N.vec→ob C[_]) j (idl _) $ N.vec-proj.hom' C[_] j ⟩
-      N.vec-proj.hom' C[_] j
+      M.↑!≅vec.to' C[_] j ∘' M.↑!≅vec.from' C[_] j ∘' N.↑!≅vec.to' C[_] j ∘' lift-ρ.lifting (N.↑ C[_]) j
+      ≡[]⟨ cancell[] _ $ M.↑!≅vec.invl' C[_] j ⟩
+      N.↑!≅vec.to' C[_] j ∘' lift-ρ.lifting (N.↑ C[_]) j
+      ≡[]⟨ lift-ρ.commutesp (N.↑ C[_]) j (idl _) $ N.cocart-proj.hom' C[_] j ⟩
+      N.cocart-proj.hom' C[_] j
       ∎[]
     where
-      da_iso : ∀ {n} (C[_] : (Fin n) → Ob) → M.vec→ob C[_] ≅↓ N.vec→ob C[_]
-      da_iso {n} C[_] = let C = M.vec→ob C[_] in let C' = N.vec→ob C[_] in record where
-            to' = N.vec→hom' λ k → N.vec→ob!≅vec.from' C[_] k ∘' M.vec→ob!≅vec.to' C[_] k
-            from' = N.vec→hom' λ k → M.vec→ob!≅vec.from' C[_] k ∘' N.vec→ob!≅vec.to' C[_] k
+      da_iso : ∀ {n} (C[_] : (Fin n) → Ob) → M.↑ C[_] ≅↓ N.↑ C[_]
+      da_iso {n} C[_] = let C = M.↑ C[_] in let C' = N.↑ C[_] in record where
+            to' = N.vec→hom' λ k → N.↑!≅vec.from' C[_] k ∘' M.↑!≅vec.to' C[_] k
+            from' = N.vec→hom' λ k → M.↑!≅vec.from' C[_] k ∘' N.↑!≅vec.to' C[_] k
             inverses' : Inverses[ _ ] to' from'
             inverses' = record where
               invl' = begin[]
@@ -233,11 +233,11 @@ module _ (E : Displayed Dist o ℓ) (lift-inert : Coc.Cocartesian-lifts-of E Ine
                   ≡[]˘⟨ idextp-comp E lift-inert N {p = refl} k ⟩
                   to' !![ k ] ∘' from' !![ k ]
                   ≡[]⟨ N.vec-idx' _ k ⟩∘'⟨ N.vec-idx' _ k ⟩
-                  (N.vec→ob!≅vec.from' C[_] k ∘' M.vec→ob!≅vec.to' C[_] k)
-                  ∘' (M.vec→ob!≅vec.from'  C[_] k ∘' N.vec→ob!≅vec.to' C[_] k)
-                  ≡[]⟨ cancel-inner[] _ (M.vec→ob!≅vec.invl' C[_] k) ⟩
-                  N.vec→ob!≅vec.from' C[_] k ∘' N.vec→ob!≅vec.to' C[_] k
-                  ≡[]⟨ N.vec→ob!≅vec.invr' C[_] k ⟩
+                  (N.↑!≅vec.from' C[_] k ∘' M.↑!≅vec.to' C[_] k)
+                  ∘' (M.↑!≅vec.from'  C[_] k ∘' N.↑!≅vec.to' C[_] k)
+                  ≡[]⟨ cancel-inner[] _ (M.↑!≅vec.invl' C[_] k) ⟩
+                  N.↑!≅vec.from' C[_] k ∘' N.↑!≅vec.to' C[_] k
+                  ≡[]⟨ N.↑!≅vec.invr' C[_] k ⟩
                   id'
                   ≡[]˘⟨ idextp-id E lift-inert N ⟩
                   id' !![ k ]
@@ -253,11 +253,11 @@ module _ (E : Displayed Dist o ℓ) (lift-inert : Coc.Cocartesian-lifts-of E Ine
                   ≡[]˘⟨ idextp-comp E lift-inert N {p = refl} k ⟩
                   from' !![ k ] ∘' to' !![ k ]
                   ≡[]⟨ N.vec-idx' _ k ⟩∘'⟨ N.vec-idx' _ k ⟩
-                  (M.vec→ob!≅vec.from'  C[_] k ∘' N.vec→ob!≅vec.to' C[_] k)
-                  ∘' (N.vec→ob!≅vec.from' C[_] k ∘' M.vec→ob!≅vec.to' C[_] k)
-                  ≡[]⟨ cancel-inner[] _ (N.vec→ob!≅vec.invl' C[_] k) ⟩
-                  M.vec→ob!≅vec.from' C[_] k ∘' M.vec→ob!≅vec.to' C[_] k
-                  ≡[]⟨ M.vec→ob!≅vec.invr' C[_] k ⟩
+                  (M.↑!≅vec.from'  C[_] k ∘' N.↑!≅vec.to' C[_] k)
+                  ∘' (N.↑!≅vec.from' C[_] k ∘' M.↑!≅vec.to' C[_] k)
+                  ≡[]⟨ cancel-inner[] _ (N.↑!≅vec.invl' C[_] k) ⟩
+                  M.↑!≅vec.from' C[_] k ∘' M.↑!≅vec.to' C[_] k
+                  ≡[]⟨ M.↑!≅vec.invr' C[_] k ⟩
                   id'
                   ≡[]˘⟨ idextp-id E lift-inert N ⟩
                   id' !![ k ]
@@ -265,8 +265,8 @@ module _ (E : Displayed Dist o ℓ) (lift-inert : Coc.Cocartesian-lifts-of E Ine
                 )⟩
                 id'
                 ∎[]
-      p₁ : ∀ {n} (C[_] : (Fin n) → Ob) → M.vec→ob C[_] ≡ N.vec→ob C[_]
-      p₁ {n} C[_] = let C = M.vec→ob C[_] in let C' = N.vec→ob C[_] in
+      p₁ : ∀ {n} (C[_] : (Fin n) → Ob) → M.↑ C[_] ≡ N.↑ C[_]
+      p₁ {n} C[_] = let C = M.↑ C[_] in let C' = N.↑ C[_] in
         vertical-iso→path E is-cat $ da_iso C[_]
 
 open Multicat using (disp)

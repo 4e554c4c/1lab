@@ -1,6 +1,5 @@
 <!--
 ```agda
-{-# OPTIONS --allow-unsolved-metas #-}
 open import Cat.Instances.Functor
 open import Cat.Displayed.Fibre
 open import Cat.Displayed.Base

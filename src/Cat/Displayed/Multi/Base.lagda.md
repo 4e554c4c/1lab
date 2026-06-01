@@ -79,12 +79,12 @@ record Multicat-over (E : Displayed Dist o ℓ) (lift-inert : Coc.Cocartesian-li
     idx-is-eqv : ∀ {m n} {A : Ob[ m ]} {B : Ob[ n ]} → {f : ⟨ m ⟩→⟨ n ⟩} → is-equiv (_M![_] {m} {n} {A} {B} {f})
 
   -- finally, we can lift vecs to elements of E
-    vec→ob : ∀ {n} (C[_] : (Fin n) → Ob) → Ob[ n ]
+    ↑ : ∀ {n} (C[_] : (Fin n) → Ob) → Ob[ n ]
 
-    vec-proj : ∀ {n} (C[_] : (Fin n) → Ob) → (k : Fin n) → Cocartesian-morphism ρ[ k ] (vec→ob C[_]) C[ k ]
+    cocart-proj : ∀ {n} (C[_] : (Fin n) → Ob) → (k : Fin n) → Cocartesian-morphism ρ[ k ] (↑ C[_]) C[ k ]
 
-  module vec-proj {n} (C[_] : (Fin n) → Ob) (k : Fin n)
-    = Cocartesian-morphism (vec-proj C[_] k)
+  module cocart-proj {n} (C[_] : (Fin n) → Ob) (k : Fin n)
+    = Cocartesian-morphism (cocart-proj C[_] k)
 
   vec→hom
     : ∀ {m n} {A : Ob[ m ]} {B : Ob[ n ]} → {f : ⟨ m ⟩→⟨ n ⟩}
@@ -93,19 +93,13 @@ record Multicat-over (E : Displayed Dist o ℓ) (lift-inert : Coc.Cocartesian-li
 
   open Cocartesian-morphism
 
-  vec→ob!≅vec : ∀ {n} (C[_] : (Fin n) → Ob) → ∀ i →
-    vec→ob C[_] ![ i ] ≅↓ C[ i ]
-  vec→ob!≅vec C[_] i = cocartesian-codomain-unique
+  ↑!≅vec : ∀ {n} (C[_] : (Fin n) → Ob) → ∀ i →
+    ↑ C[_] ![ i ] ≅↓ C[ i ]
+  ↑!≅vec C[_] i = cocartesian-codomain-unique
       (lift-ρ.cocartesian _ i)
-      (vec-proj C[_] i .cocartesian)
+      (cocart-proj C[_] i .cocartesian)
 
-  module vec→ob!≅vec {n} C i = _≅[_]_ (vec→ob!≅vec {n} C i)
-
-  {- fairly useless?
-  _!⟨_⟩[_] : ∀ {m n} {A : Ob[ m ]} {B : Ob[ n ]} → {f : ⟨ m ⟩→⟨ n ⟩}
-    → Hom[ f ] A B → (f-inert : is-inert f) → (i : Fin n) → Hom[ id ] (A ![ inert-inv {f = f} f-inert i ]) (B ![ i ])
-  _!⟨_⟩[_] {A = A} {B = B} {f = f} h f-inert k = lift-ρ.universal' A (inert-inv {f = f} f-inert k) (Dist.idl _ ∙ (sym $ inert-ρ f-inert)) $ h M![ k ]
-  -}
+  module ↑!≅vec {n} C i = _≅[_]_ (↑!≅vec {n} C i)
 
   _!![_] : ∀ {n} {A : Ob[ n ]} {B : Ob[ n ]}
     → Hom[ id ] A B → (i : Fin n) → Hom[ id ] (A ![ i ]) (B ![ i ])

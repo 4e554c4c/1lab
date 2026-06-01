@@ -65,6 +65,13 @@ record make-multicat (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
   to-displayed .Ob[_] n = Vec Ob n
   to-displayed .Hom[_] {n} {m} f v v' = ∀ (k : Fin m) → Homl (lookup v <$> {! reimage-indices f k !}) (lookup v' k)
   to-displayed .hom[_] {x = xs} {ys} p f k = {!  !}
+  to-displayed . Hom[_]-set f x y x₁ y₁ x₂ y₂ = ?
+  to-displayed .id' k = ?
+  to-displayed ._∘'_ x x₁ k = ?
+  to-displayed .idr' f' = ?
+  to-displayed .idl' f' = ?
+  to-displayed .assoc' f' g' h' = ?
+  to-displayed. coh[_] p f' = ?
 {-
   to-displayed .Hom[_]-set {n} {m} f v v' = Π-is-hlevel 2 λ _ → Homl-is-set _ _
   -- do we really want a transp here?
@@ -182,7 +189,7 @@ module _ (M : Multicat o ℓ) where
 
   to-make-multicat : make-multicat o ℓ
   to-make-multicat .Ob = M.Ob
-  to-make-multicat .Homl l x = Hom[ all-one ] (vec→ob λ j → l ! j) x
+  to-make-multicat .Homl l x = Hom[ all-one ] (↑ λ j → l ! j) x
   to-make-multicat .Homl-is-set _ _ = hlevel 2
   to-make-multicat .id x = {! !}
   to-make-multicat .comp-homl xxs ys z x x₁ = {! !}

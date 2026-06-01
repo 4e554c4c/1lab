@@ -1,4 +1,4 @@
-
+{-# OPTIONS  --allow-unsolved-metas #-}
 open import Cat.Prelude
 
 open import Cat.Functor.Base

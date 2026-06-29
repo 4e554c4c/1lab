@@ -38,7 +38,7 @@ operations on lists. Properties of these operations are in the module
 ```agda
 private variable
   ℓ : Level
-  A B : Type ℓ
+  A B C : Type ℓ
 
 infixr 20 _∷_
 ```
@@ -254,8 +254,11 @@ intercalate x (y ∷ z ∷ xs) = y ∷ x ∷ intercalate x (z ∷ xs)
 
 zip : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → List A → List B → List (A × B)
 zip [] _ = []
-zip _ [] = []
+zip (_ ∷ _) [] = []
 zip (a ∷ as) (b ∷ bs) = (a , b) ∷ zip as bs
+
+zip-with : (A → B → C) → List A → List B → List C
+zip-with f xs ys = uncurry f <$> zip xs ys
 
 unzip : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → List (A × B) → List A × List B
 unzip [] = [] , []
@@ -346,7 +349,7 @@ _!?_ : List A → Nat → Maybe A
 (x ∷ xs) !? zero = just x
 (x ∷ xs) !? suc n = xs !? n
 
-!?-just : ∀ (xs : List A) (n : Nat) → (n Nat.< length xs) → is-just (xs !? n)
+!?-just : ∀ (xs : List A) (n : Nat) → n Nat.< length xs → is-just (xs !? n)
 !?-just {A = a} (x ∷ xs) zero n<xs = lift oh
 !?-just {A = a} (x ∷ xs) (suc n) n<xs = !?-just xs n (Nat.≤-peel n<xs)
 

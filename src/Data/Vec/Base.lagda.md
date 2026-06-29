@@ -5,7 +5,7 @@ open import 1Lab.Type
 
 open import Data.Product.NAry
 open import Data.Maybe.Base
-open import Data.List.Base hiding (head ; tail ; lookup) renaming (tabulate to tabulateL ; _++_ to _++L_)
+open import Data.List.Base hiding (head ; tail ; lookup) renaming (tabulate to tabulateL ; _++_ to _++L_ ; zip to zipL ; zip-with to zip-withL)
 open import Data.Dec.Base
 open import Data.Fin.Base
 open import Data.Nat.Base as Nat
@@ -138,10 +138,11 @@ instance
   Map-Vec : ∀ {n} → Map (eff (λ A → Vec A n ) )
   Map-Vec .Map.map f (vec l) = vec (f <$> l) ⦃ len-map f l <$> auto ⦄
 
+zip :  Vec A n → Vec B n → Vec (A × B) n
+zip (vec u) (vec v) = vec (zipL u v) ⦃ liftA2 (len-zip _ _) auto auto ⦄
+
 zip-with : (A → B → C) → Vec A n → Vec B n → Vec C n
-zip-with f u v with vec-view u | vec-view v
-... |  []       | []       = []v
-... |  (x ∷ xs) | (y ∷ ys) = f x y ∷v zip-with f xs ys
+zip-with f (vec u) (vec v) = vec (zip-withL f u v) ⦃  liftA2 (len-zip-with _ _ _) auto auto   ⦄
 
 replicate : (n : Nat) → A → Vec A n
 replicate zero a = []v

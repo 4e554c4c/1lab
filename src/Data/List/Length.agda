@@ -64,4 +64,12 @@ len-tab {n = suc n} v = suc (len-tab {n = n} (v ∘ fsuc))
 
 len-map : ∀ {ℓ ℓ' n} {A : Type ℓ} {B : Type ℓ'} (f : A → B) (xs : List A) → Length xs n → Length (f <$> xs) n
 len-map {n = zero} f [] x = zero
-len-map {n = suc n} f (x ∷ xs) (suc l) = suc (len-map f xs l)
+len-map {n = suc n} f (x ∷ xs) (suc l) = suc $ len-map f xs l
+
+len-zip : (xs : List A) (ys : List B) → Length xs n → Length ys n → Length (zip xs ys) n
+len-zip [] ys zero _ = zero
+len-zip (_ ∷ _) [] _ zero =  zero 
+len-zip (x ∷ xs) (x₁ ∷ ys) (suc l) (suc l') = suc $ len-zip _ _ l l'
+
+len-zip-with : (f : A → B → C) (xs : List A) (ys : List B) → Length xs n → Length ys n → Length (zip-with f  xs ys) n
+len-zip-with f xs ys l l' = len-map _ _ $ len-zip _ _ l l'

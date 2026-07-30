@@ -359,7 +359,6 @@ _!?_ : List A → Nat → Maybe A
 _!_ : (l : List A) → Fin (length l) → A
 xs ! (fin n ⦃ pf ⦄) = from-just! _ $ !?-just xs n pf
 
-
 infixr 30 _[_]:=_
 _[_]:=_ : (l : List A) → Fin (length l) → A → List A
 (x ∷ xs) [ n ]:= a with fin-view n

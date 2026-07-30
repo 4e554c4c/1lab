@@ -7,6 +7,9 @@ open import Cat.Displayed.Multi.Base
 open import Cat.Displayed.Multi.Properties
 open import Cat.Instances.Dist
 open import Cat.Instances.Dist.Properties
+open import 1Lab.Reflection.HLevel
+open import 1Lab.HLevel.Closure
+open import 1Lab.Reflection
 
 open import Data.Product.NAry
 open import Data.Vec.Base
@@ -24,10 +27,13 @@ module Cat.Multi (o ℓ : Level) where
 
 <!--
 ```agda
+open Vec using (lower)
 ```
 -->
 
 ```agda
+
+--_![ ] = lookup
 record make-multicat (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
   field
     Ob : Type o
@@ -36,7 +42,7 @@ record make-multicat (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
 
     id : ∀ (x : Ob) → Homl [ x ] x
 
-  ΣHoml = Σ[ xs ∈ List Ob ] Σ[ y ∈ Ob ] Homl xs y
+  -- ΣHoml = Σ[ xs ∈ List Ob ] Σ[ y ∈ Ob ] Homl xs y
 
   field
     comp-homl
@@ -44,6 +50,7 @@ record make-multicat (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
       → (∀ j → Homl (lookup xxs j) (lookup ys j))
       → Homl (lower ys) z
       → Homl (concat $ lower xxs) z
+
 
     idl
       : ∀ {xs y} {h : Homl xs y} →
@@ -58,20 +65,61 @@ record make-multicat (o ℓ : Level) : Type (lsuc (o ⊔ ℓ)) where
       PathP (λ i → Homl (++-idr xs i) y)
         (comp-homl [ xs ] [ y ] y (const→fin1 h) (id y))
         h
+
+private
+  homl-set : ∀ {o ℓ} (M : make-multicat o ℓ) {x y} → is-set (M .make-multicat.Homl x y)
+  homl-set C = C .make-multicat.Homl-is-set _ _
+
+{-# INLINE make-multicat.constructor #-}
+open hlevel-projection
+instance
+  hlevel-proj-homl : hlevel-projection (quote make-multicat.Homl)
+  hlevel-proj-homl .has-level = quote homl-set
+  hlevel-proj-homl .get-level _ = pure (lit (nat 2))
+  hlevel-proj-homl .get-argument = first-visible
+
+
+
+
+module Make-multicat {o ℓ} (m : make-multicat o ℓ) where
+  open make-multicat m
+  record MultiHom {n m} (xs : Vec Ob n) (ys : Vec Ob m) (t : ⟨ n ⟩→⟨ m ⟩) : Type (o ⊔ ℓ) where
+    field
+      idxs : Vec (List $ Fin n) m
+      homs : ∀ (k : Fin m) → Homl (lookup xs <$> idxs !v k) (ys !v k)
+      -- so now instead of having to deal with paths of objects we only have paths of index lists
+      typd : ∀ (k : Fin m) → invs t k ≡ᵢ idxs !v k
+
+      -- but what is the action of t on vecs?
+      -- act : (t : ⟨ n ⟩→⟨ m ⟩) -> (v : Vec Ob n) -> Fin m -> List Ob ?
+      -- and concat (act vs) ⋖ vs ? (it is le sublist relation)
+
+      -- but given  (doms : Vec (List Ob) m) and t, can you verify that  doms !_ ≡ act t v ? 
+
+      -- probably not an a non-evil way since keeping around Path (List Ob) will have terrible consequences
+  open MultiHom
+
+  unquoteDecl H-Level-MultiHom = declare-record-hlevel 2 H-Level-MultiHom (quote MultiHom)
+
+  castHom : ∀ {n m} → {xs : Vec Ob n} {ys : Vec Ob m} (t s : ⟨ n ⟩→⟨ m ⟩) → t ≡ s → MultiHom xs ys t → MultiHom xs ys s
+  castHom t s p h .idxs = h .idxs
+  castHom t s p h .homs = h .homs
+  castHom t s p h .typd k = (Id≃path.from $ sym $ ap invs p ·ₚ k) ∙ᵢ h .typd k 
+
   open Displayed
-  to-displayed : Displayed Dist o ℓ
+  to-displayed : Displayed Dist o (o ⊔ ℓ)
   --to-displayed .Ob[_] 0 = Lift ⊤
   --to-displayed .Ob[_] 1 = Ob
   to-displayed .Ob[_] n = Vec Ob n
-  to-displayed .Hom[_] {n} {m} f v v' = ∀ (k : Fin m) → Homl (lookup v <$> {! reimage-indices f k !}) (lookup v' k)
-  to-displayed .hom[_] {x = xs} {ys} p f k = {!  !}
-  to-displayed . Hom[_]-set f x y x₁ y₁ x₂ y₂ = ?
-  to-displayed .id' k = ?
-  to-displayed ._∘'_ x x₁ k = ?
-  to-displayed .idr' f' = ?
-  to-displayed .idl' f' = ?
-  to-displayed .assoc' f' g' h' = ?
-  to-displayed. coh[_] p f' = ?
+  to-displayed .Hom[_] {n} {m} t xs ys = MultiHom xs ys t
+  to-displayed .hom[_] = castHom _ _
+  to-displayed . Hom[_]-set f x y = hlevel 2
+  to-displayed .id' = {!!}
+  to-displayed ._∘'_ x x₁ = {!!}
+  to-displayed .idr' f' = {!!}
+  to-displayed .idl' f' = {!!}
+  to-displayed .assoc' f' g' h' = {!!}
+  to-displayed. coh[_] p f' = {!!}
 {-
   to-displayed .Hom[_]-set {n} {m} f v v' = Π-is-hlevel 2 λ _ → Homl-is-set _ _
   -- do we really want a transp here?

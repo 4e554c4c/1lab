@@ -353,6 +353,17 @@ monus-≤ x zero = ≤-refl
 monus-≤ zero (suc y) = 0≤x
 monus-≤ (suc x) (suc y) = ≤-sucr (monus-≤ x y)
 
+monus-preserves-≤l : ∀ {x y} → (z : Nat) → x ≤ y → (x - z) ≤ (y - z)
+monus-preserves-≤l zero x≤y = x≤y
+monus-preserves-≤l {zero} (suc z) x≤y = lift oh
+monus-preserves-≤l {suc x} {suc y} (suc z) x≤y = monus-preserves-≤l z $ ≤-peel x≤y
+
+monus-reverses-≤l : ∀ {x y} → (z : Nat) → x ≤ y → (z - y) ≤ (z - x)
+monus-reverses-≤l {x} {y} zero x≤y =  ≤-refl' $ monus-zero y ∙ sym (monus-zero x) 
+monus-reverses-≤l {zero}  {zero}  (suc z) x≤y = ≤-refl
+monus-reverses-≤l {zero}  {suc y} (suc z) x≤y = monus-≤  z y ≤∙ auto 
+monus-reverses-≤l {suc x} {suc y} (suc z) x≤y = monus-reverses-≤l z $ ≤-peel x≤y
+
 +-preserves-≤l : (x y z : Nat) → x ≤ y → (z + x) ≤ (z + y)
 +-preserves-≤l x y zero x≤y = x≤y
 +-preserves-≤l x y (suc z) x≤y = s≤s (+-preserves-≤l x y z x≤y)

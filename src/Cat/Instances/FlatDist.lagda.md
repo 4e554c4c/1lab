@@ -183,7 +183,7 @@ module _ where
   ... | yes x | yes y =  f .ascending _ _ (λ ¬a →  a $ fin-apᵢ $ apᵢ lower ¬a) (λ ¬b →  b $ fin-apᵢ $ apᵢ lower ¬b)  lt
   ... | yes x | no ¬y = {!!}
   ... | no ¬x | yes y = {!!}
-  ... | no ¬x | no ¬y = {!!}
+  ... | no ¬x | no ¬y =  +-preserves-≤l _ _ m  $ monus-preserves-≤l (suc n) lt  
   bb .rmap {n} {m} {l} g .map (fin k ⦃ lt ⦄) with holds? (k < suc l)
   ... | yes a =  fin k ⦃ a ≤∙ ( s≤s $ +-≤l _ _) ⦄
   ... | no ¬a =   fin l ⦃ Leq-refl ⦄  f+  fpred' (g .map (fin (k - (suc l)) ⦃ {! monus-≤-swapl !} ⦄)) {! g .:qa!}  

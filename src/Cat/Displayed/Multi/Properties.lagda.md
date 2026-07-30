@@ -71,8 +71,8 @@ module _ (E : Displayed Dist o ℓ) (lift-inert : Coc.Cocartesian-lifts-of E Ine
   open Equivalence
   open Functor
   open Cocartesian-lift
-  fibre-func : ∀ {n} → Functor (Fibre E n) Cat[ ( Disc' $ el! $ Fin n) , Fibre E 1 ]
-  fibre-func {n} .F₀ o = Disc'-adjunct λ i → o ![ i ]
+  fibre-func : ∀ {n} → Functor (Fibre E n) Cat[  Disc! (Fin n) , Fibre E 1 ]
+  fibre-func {n} .F₀ o = Disc-diagram λ i → o ![ i ]
   fibre-func {n} .F₁ {v} {w} f = Disc-natural λ i → lift-ρ.universal' v i Dist.id-comm-sym $ f M![ i ]
   fibre-func {n} .F-id {v} = ext λ i → begin[]
     (lift-ρ.universal' v i Dist.id-comm-sym $ E.id' M![ i ])

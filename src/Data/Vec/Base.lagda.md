@@ -5,7 +5,7 @@ open import 1Lab.Type
 
 open import Data.Product.NAry
 open import Data.Maybe.Base
-open import Data.List.Base hiding (head ; tail ; lookup) renaming (tabulate to tabulateL ; _++_ to _++L_ ; zip to zipL ; zip-with to zip-withL)
+open import Data.List.Base hiding (head ; tail ; lookup; _!_) renaming (tabulate to tabulateL ; _++_ to _++L_ ; zip to zipL ; zip-with to zip-withL)
 open import Data.Dec.Base
 open import Data.Fin.Base
 open import Data.Nat.Base as Nat
@@ -86,6 +86,9 @@ lookup : Vec A n → Fin n → A
 lookup (vec xs ⦃ l ⦄) (fin n) = from-just! _ $ !?-just xs n p where abstract
   p : n Nat.< length xs
   p = ≤-trans auto $ subst (Nat._≤ length xs) (has-length l) auto
+
+_!v_ : Vec A n → Fin n → A
+_!v_ = lookup
 ```
 
 ## List syntax {defines="list-syntax-for-vectors"}

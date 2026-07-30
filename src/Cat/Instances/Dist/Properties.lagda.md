@@ -11,6 +11,7 @@ open import Data.Maybe.Base
 open import Data.Bool.Base
 open import Data.Maybe.Properties
 open import Data.Fin.Closure
+open import Data.Fin.Finite
 open import Cat.Functor.Naturality
 open import Cat.Monoidal.Braided
 open import Data.Fin.Properties
@@ -19,6 +20,8 @@ open import Data.Fin.Base renaming (_≤_ to _≤f_; _<_ to _<f_)
 open import Data.Nat.Base
 open import Data.Nat.Order
 open import Data.Nat.Properties
+open import Data.Vec.Base
+open import Data.List.Base
 open import Cat.Monoidal.Base
 open import Cat.Functor.Bifunctor
 ```
@@ -35,7 +38,17 @@ open make-natural-iso
 
 private variable
   n m l n' m' : Nat
+  ℓ : Level
+  A : Type ℓ
 
+--act : (t : ⟨ n ⟩→⟨ m ⟩) → (v : Vec A n) → (Fin m) → List A
+--act t v k = {!!}
+
+invs : (t : ⟨ n ⟩→⟨ m ⟩) → (Fin m) → List (Fin n)
+invs {n = n} t k = filter (λ j →  Dec→Bool $ t · j ≡ᵢ? just k) (all-fin n)
+
+
+{-
 module _ where
   open Make-bifunctor
   open ⟨_⟩→⟨_⟩
@@ -165,7 +178,7 @@ module _ where
         ... | nothing = refl
         ... | just x  = ap just $ fin-ap refl
         p {n = n} {m} {l} {n'} {m'} {l'} f g h k | no ¬a with (holds? $ k .lower < n + m)
-        ... | yes b = {!!}
+        ... |  b = {!!}
         --  rewrite (decide-yes (holds? $ k .lower - n < m) $ {!!})
         --  rewrite (decide-yes (holds? $ k .lower - n < m) $ {!!})
         --  rewrite (decide-yes (holds? $ k .lower < n + m) $ b)
@@ -173,7 +186,7 @@ module _ where
         --  with (g · (fin (k .lower - n) ⦃ nlt→lt (fin (k .lower) ⦃ b ⦄)  ¬a ⦄)) in w
         --... | nothing = {! w!}
         --... | just  x = {!!}
-        p {n = n} {m} {l} {n'} {m'} {l'} f g h k | no ¬a | no ¬b = {!!} 
+        --p {n = n} {m} {l} {n'} {m'} {l'} f g h k | no ¬a | no ¬b = {!!} 
         --... | yes a rewrite (decide-yes (holds? $ k .lower < n) a) rewrite (decide-yes (holds? $ k .lower < n + m) $ ≤-trans a $ +-≤l n m) = {!!}
         --... | yes a = {!!}
         -- ... with (holds? $ k < (n + m))
@@ -204,3 +217,5 @@ module _ where
             ∎
 
 open Monoidal-category Dist-monoidal
+
+-}

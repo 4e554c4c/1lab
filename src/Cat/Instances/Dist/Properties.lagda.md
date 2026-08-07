@@ -21,9 +21,10 @@ open import Data.Nat.Base
 open import Data.Nat.Order
 open import Data.Nat.Properties
 open import Data.Vec.Base
-open import Data.List.Base
 open import Cat.Monoidal.Base
 open import Cat.Functor.Bifunctor
+
+open import Data.List.Base as L hiding (tabulate)
 ```
 -->
 
@@ -48,6 +49,13 @@ invs : (t : ⟨ n ⟩→⟨ m ⟩) → (Fin m) → List (Fin n)
 invs {n = n} t k = filter (λ j →  Dec→Bool $ t · j ≡ᵢ? just k) (all-fin n)
 
 
+v : Vec Nat 8
+v = tabulate λ k →  cardinality {A =  ⟨ k .lower ⟩→⟨ 4 ⟩ }
+
+_ = {! v!}
+
+ --3 , 8 , 20 , 48 , 112 , 256 , 576 , 1280 , 2816 , 
+-- 1 , 4 , 13 , 38 , 104 , 272 , 688 , 1696
 {-
 module _ where
   open Make-bifunctor

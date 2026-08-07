@@ -16,6 +16,8 @@ open import Data.Vec.Base
 open import Data.Vec.Properties
 open import Data.List hiding (lookup-tabulate) renaming (lookup to lookupℓ; tabulate to tabulateℓ)
 open import Data.Fin
+
+import Cat.Reasoning as Cr
 ```
 -->
 
@@ -81,14 +83,19 @@ instance
 
 
 
-module Make-multicat {o ℓ} (m : make-multicat o ℓ) where
-  open make-multicat m
-  record MultiHom {n m} (xs : Vec Ob n) (ys : Vec Ob m) (t : ⟨ n ⟩→⟨ m ⟩) : Type (o ⊔ ℓ) where
+module Make-multicat {o ℓ} (M : make-multicat o ℓ) where
+
+  open Cr Dist hiding (Ob) renaming (id to idD)
+  open make-multicat M
+  private variable
+    n m l : Nat
+    xs ys zs : Vec Ob n
+  record MultiHom (xs : Vec Ob n) (ys : Vec Ob m) (t : ⟨ n ⟩→⟨ m ⟩) : Type (o ⊔ ℓ) where
     field
-      idxs : Vec (List $ Fin n) m
-      homs : ∀ (k : Fin m) → Homl (lookup xs <$> idxs !v k) (ys !v k)
+      idxs : ∀ (k : Fin m) → List $ Fin n
+      homs : ∀ (k : Fin m) → Homl (lookup xs <$> idxs k) (ys !v k)
       -- so now instead of having to deal with paths of objects we only have paths of index lists
-      typd : ∀ (k : Fin m) → invs t k ≡ᵢ idxs !v k
+      typd : ∀ (k : Fin m) → invs t k ≡ᵢ idxs k
 
       -- but what is the action of t on vecs?
       -- act : (t : ⟨ n ⟩→⟨ m ⟩) -> (v : Vec Ob n) -> Fin m -> List Ob ?
@@ -100,11 +107,27 @@ module Make-multicat {o ℓ} (m : make-multicat o ℓ) where
   open MultiHom
 
   unquoteDecl H-Level-MultiHom = declare-record-hlevel 2 H-Level-MultiHom (quote MultiHom)
+  unquoteDecl MultiHom-path = declare-record-path MultiHom-path (quote MultiHom)
 
   castHom : ∀ {n m} → {xs : Vec Ob n} {ys : Vec Ob m} (t s : ⟨ n ⟩→⟨ m ⟩) → t ≡ s → MultiHom xs ys t → MultiHom xs ys s
   castHom t s p h .idxs = h .idxs
   castHom t s p h .homs = h .homs
   castHom t s p h .typd k = (Id≃path.from $ sym $ ap invs p ·ₚ k) ∙ᵢ h .typd k 
+
+  idMH : MultiHom xs xs Dist.id
+  idMH {xs = xs} .idxs k = [ k ]
+  idMH {xs = xs} .homs k =  id $ xs !v k 
+  idMH {xs = xs} .typd k = {!!}
+
+  _∘mh_ : {t : ⟨ m ⟩→⟨ l ⟩} {s : ⟨ n ⟩→⟨ m ⟩} → MultiHom ys zs t → MultiHom xs ys s → MultiHom xs zs (t ∘ s)
+  _∘mh_ {t = t} {s} f g .idxs k = {!!}
+  --                                                   ↓ we can't exactly use comp-homl here, since it produces a term of
+  --                                                     concat $ blah, but we need lookup xs <$> blah
+  --                                                     technically these are equal, but we still need to transport across it
+  _∘mh_ {ys = ys} {zs} {xs} {t = t} {s} f g .homs k =  {!!} where
+                                                      -- ↓ and then we need another transport here to get the right parameter 😓 
+    thing = comp-homl {!!} {! !} (zs !v k) (λ j → {!!}) (f .homs k)
+  _∘mh_ {t = t} {s} f g .typd k = {!!}
 
   open Displayed
   to-displayed : Displayed Dist o (o ⊔ ℓ)
@@ -113,8 +136,8 @@ module Make-multicat {o ℓ} (m : make-multicat o ℓ) where
   to-displayed .Ob[_] n = Vec Ob n
   to-displayed .Hom[_] {n} {m} t xs ys = MultiHom xs ys t
   to-displayed .hom[_] = castHom _ _
-  to-displayed . Hom[_]-set f x y = hlevel 2
-  to-displayed .id' = {!!}
+  to-displayed .Hom[_]-set f x y = hlevel 2
+  to-displayed .id' = idMH
   to-displayed ._∘'_ x x₁ = {!!}
   to-displayed .idr' f' = {!!}
   to-displayed .idl' f' = {!!}
@@ -231,16 +254,16 @@ module Make-multicat {o ℓ} (m : make-multicat o ℓ) where
     lift-inert .cocartesian .unique m' x = {! !}
 -}
 
-module _ (M : Multicat o ℓ) where
-  open make-multicat
-  open module M = Multicat M hiding (Ob)
-
-  to-make-multicat : make-multicat o ℓ
-  to-make-multicat .Ob = M.Ob
-  to-make-multicat .Homl l x = Hom[ all-one ] (↑ λ j → l ! j) x
-  to-make-multicat .Homl-is-set _ _ = hlevel 2
-  to-make-multicat .id x = {! !}
-  to-make-multicat .comp-homl xxs ys z x x₁ = {! !}
-  to-make-multicat .idl = {! !}
-  to-make-multicat .idr = {! !}
+--module _ (M : Multicat o ℓ) where
+--  open make-multicat
+--  open module M = Multicat M hiding (Ob)
+--
+--  to-make-multicat : make-multicat o ℓ
+--  to-make-multicat .Ob = M.Ob
+--  to-make-multicat .Homl l x = Hom[ all-one ] (↑ λ j → l ! j) x
+--  to-make-multicat .Homl-is-set _ _ = hlevel 2
+--  to-make-multicat .id x = {! !}
+--  to-make-multicat .comp-homl xxs ys z x x₁ = {! !}
+--  to-make-multicat .idl = {! !}
+--  to-make-multicat .idr = {! !}
 ```

@@ -16,6 +16,7 @@ open import Data.Nat.Properties
 
 
 open import Data.Fin.Closure
+open import Data.Fin.Finite
 open import Data.Maybe.Base
 open import Data.Maybe.Properties
 open import Data.Nat.Order
@@ -26,10 +27,12 @@ open import Data.Dec.Base
 open import Data.Fin renaming (_≤_ to _≤f_; _<_ to _<f_)
 open import Data.Fin.Monotone
 
+
 import Cat.Reasoning
 import Cat.Morphism
 
 open import Meta.Idiom
+open import Meta.Invariant
 
 open Functor
 ```
@@ -54,10 +57,6 @@ module _ {n : Nat} where
   ≲-is-prop j≲n     j≲n     = refl
   ≲-is-prop (j≲j p) (j≲j q) = ap j≲j (hlevel 1 p q)
 
-  instance
-    H-Level-≲ : ∀ {m x y} → H-Level (x ≲ y) (suc m)
-    H-Level-≲ = prop-instance ≲-is-prop
-
   n≲x : ∀ {x} → nothing ≲ x
   n≲x {nothing} = n≲n
   n≲x {just x} = n≲j
@@ -65,6 +64,20 @@ module _ {n : Nat} where
   x≲n : ∀ {x} → x ≲ nothing
   x≲n {nothing} = n≲n
   x≲n {just x} = j≲n
+
+  instance
+    H-Level-≲ : ∀ {m x y} → H-Level (x ≲ y) (suc m)
+    H-Level-≲ = prop-instance ≲-is-prop
+
+    Dec-≲ : ∀ {a b} → Dec (a ≲ b)
+    Dec-≲ {nothing} {b} = yes n≲x
+    Dec-≲ {just x} {nothing} = yes j≲n
+    Dec-≲ {just x} {just y} with holds? $ x ≤f y
+    ... | yes a =  yes $ j≲j a
+    ... | no ¬a =  no $ λ { (j≲j a) → ¬a a }
+
+    Listing-≲ : ∀ {a b} → Listing (a ≲ b)
+    Listing-≲ = Listing-prop
 
 0≲x : ∀ {x : Maybe $ Fin $ suc n} → (just fzero) ≲ x
 0≲x {_} {nothing} = j≲n
@@ -77,6 +90,7 @@ record ⟨_⟩→⟨_⟩ (n m : Nat) : Type where
     ascending : (x y : Fin n) → x ≤f y → map x ≲ map y
 
 unquoteDecl H-Level-⟨⟩→⟨⟩ = declare-record-hlevel 2 H-Level-⟨⟩→⟨⟩ (quote ⟨_⟩→⟨_⟩)
+unquoteDecl Equiv-⟨⟩→⟨⟩ = declare-record-iso Equiv-⟨⟩→⟨⟩ (quote ⟨_⟩→⟨_⟩)
 
 open ⟨_⟩→⟨_⟩
 
@@ -98,6 +112,12 @@ instance
   Extensional-⟨⟩→⟨⟩ .reflᵉ _ j = refl
   Extensional-⟨⟩→⟨⟩ .idsᵉ .to-path = ⟨⟩→⟨⟩-path
   Extensional-⟨⟩→⟨⟩ .idsᵉ .to-path-over p = is-prop→pathp (λ i → hlevel 1) (λ j → refl) p
+
+  Listing-⟨⟩→⟨⟩ : Listing ⟨ n ⟩→⟨ m ⟩
+  Listing-⟨⟩→⟨⟩ = Equiv→listing (Iso→Equiv Equiv-⟨⟩→⟨⟩ e⁻¹) auto 
+
+  Finite-⟨⟩→⟨⟩ : Finite ⟨ n ⟩→⟨ m ⟩
+  Finite-⟨⟩→⟨⟩ = inc auto
 
 Map-≲
   : ∀ {j k} {f : Fin n → Fin m} → (∀ {x y} → x ≤f y →  f x ≤f f y) → (j ≲ k)

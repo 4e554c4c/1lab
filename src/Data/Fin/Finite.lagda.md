@@ -13,7 +13,8 @@ open import Data.Fin.Product
 open import Data.List.Sigma
 open import Data.Bool.Base
 open import Data.List.Base
-open import Data.Fin.Base
+open import Data.Fin.Base renaming (_≤_ to _≤f_)
+open import Data.Nat.Order
 open import Data.Nat.Base
 open import Data.List.Pi
 open import Data.Maybe
@@ -684,6 +685,12 @@ instance
 
   Finite-So : ∀ {b} → Finite (So b)
   Finite-So = inc auto
+
+  Listing-≤ : ∀ {n m} → Listing (n ≤ m)
+  Listing-≤ = Listing-prop
+
+  Finite-≤ : ∀ {n m} → Finite (n ≤ m)
+  Finite-≤ = inc auto
 
 instance
   Discrete-listing-Π : ⦃ _ : Listing A ⦄ ⦃ _ : ∀ {x} → Discrete (P x) ⦄ → Discrete ((x : A) → P x)

@@ -80,9 +80,6 @@ instance
   hlevel-proj-homl .get-level _ = pure (lit (nat 2))
   hlevel-proj-homl .get-argument = first-visible
 
-
-
-
 module Make-multicat {o ℓ} (M : make-multicat o ℓ) where
 
   open Cr Dist hiding (Ob) renaming (id to idD)
@@ -90,6 +87,23 @@ module Make-multicat {o ℓ} (M : make-multicat o ℓ) where
   private variable
     n m l : Nat
     xs ys zs : Vec Ob n
+
+  MultiHom : Vec Ob n → Vec Ob m → ⟨ n ⟩→⟨ m ⟩ → Type ℓ 
+  MultiHom {m = m} xs ys t = ∀ (k : Fin m) → Homl (lookup xs <$> invs t k) (ys !v k)
+
+  castHOb
+    : {xs xs' : Vec Ob n} {ys ys' : Vec Ob m} {t : ⟨ n ⟩→⟨ m ⟩}
+    → xs ≡ xs' → ys ≡ ys' → MultiHom xs ys t → MultiHom xs' ys' t
+  castHOb {xs = xs} {xs'} {ys} {ys'} {t} p q h k =
+    transport (λ i → Homl (lookup (p i) <$> invs t k) (q i !v k)) (h k) 
+
+  castHom : ∀ {n m} → {xs : Vec Ob n} {ys : Vec Ob m} (t s : ⟨ n ⟩→⟨ m ⟩) → t ≡ s → MultiHom xs ys t → MultiHom xs ys s
+  castHom {xs = xs} {ys} t s p h k =  transport (λ i → Homl (lookup xs <$> invs (p i) k) (ys !v k)) (h k) 
+
+  idMH : MultiHom xs xs Dist.id
+  idMH {xs = xs} k =  {! id $ xs !v k  !}
+
+    {-
   record MultiHom (xs : Vec Ob n) (ys : Vec Ob m) (t : ⟨ n ⟩→⟨ m ⟩) : Type (o ⊔ ℓ) where
     field
       idxs : ∀ (k : Fin m) → List $ Fin n
@@ -143,7 +157,6 @@ module Make-multicat {o ℓ} (M : make-multicat o ℓ) where
   to-displayed .idl' f' = {!!}
   to-displayed .assoc' f' g' h' = {!!}
   to-displayed. coh[_] p f' = {!!}
-{-
   to-displayed .Hom[_]-set {n} {m} f v v' = Π-is-hlevel 2 λ _ → Homl-is-set _ _
   -- do we really want a transp here?
 

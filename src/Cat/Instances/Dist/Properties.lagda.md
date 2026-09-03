@@ -4,6 +4,8 @@ open import Cat.Prelude
 open import Cat.Instances.Dist
 open import Cat.Diagram.Coproduct
 open import Cat.Diagram.Product
+open import Data.Product.NAry
+open import Cat.Diagram.Zero
 
 open import Data.Set.Coequaliser
 open import Data.Dec.Base
@@ -39,6 +41,7 @@ open make-natural-iso
 
 private variable
   n m l n' m' : Nat
+  t : ⟨ n ⟩→⟨ m ⟩
   ℓ : Level
   A : Type ℓ
 
@@ -49,10 +52,52 @@ invs : (t : ⟨ n ⟩→⟨ m ⟩) → (Fin m) → List (Fin n)
 invs {n = n} t k = filter (λ j →  Dec→Bool $ t · j ≡ᵢ? just k) (all-fin n)
 
 
-v : Vec Nat 8
-v = tabulate λ k →  cardinality {A =  ⟨ k .lower ⟩→⟨ 4 ⟩ }
+invs-id : ∀ (k : Fin m) → invs id k ≡ [ k ]
+invs-id {m = suc m} k with fin-view k
+... | zero = {! !}
+... | suc i = {! invs-id i!}
 
-_ = {! v!}
+--  from : Fin (m + n) → Fin m ⊎ Fin n
+--  from j@(fin i ⦃ b ⦄) with holds? (i Nat.< m)
+--  ... | yes p = inl (fin i ⦃ p ⦄)
+--  ... | no ¬p = inr $ fin (i - m) ⦃ nlt→lt j ¬p ⦄
+open ⟨_⟩→⟨_⟩
+
+
+add-n : ⟨ n ⟩→⟨ l ⟩ → ⟨ m + n ⟩→⟨ suc l ⟩
+add-n {n = n} {l} {m} t .map fk@(fin k ⦃ b ⦄) with holds? (k < m)
+... | yes a = just fzero
+... | no ¬a = fsuc <$>  t · fin (k - m) ⦃ nlt→lt fk ¬a ⦄ 
+add-n {n = n} {l} {m} t .ascending j k le with holds? (j .lower < m) | holds? (k .lower < m)
+... | yes a | yes b = j≲j (lift oh)
+... | yes a | no ¬b = {!!}
+... | no ¬a | yes b = {!!}
+... | no ¬a | no ¬b = {!!}
+
+data Dist-view : (n : Nat) → (m : Nat) → (t : ⟨ n ⟩→⟨ m ⟩) → Type lzero where
+  dzero  : Dist-view 0 0 Dist.id
+  dskip1 : ∀ {n m t}    → (Dist-view n m t) → Dist-view (suc n)  (m)     (cons-nothing t)
+  dconsn : ∀ {n m t n'} → (Dist-view n m t) → Dist-view (n' + n) (suc m) (add-n t)
+
+open Zero zero-dist
+
+dist-view : (t : ⟨ n ⟩→⟨ l ⟩) → Dist-view n l t
+dist-view {zero}  {zero}  t =  subst (Dist-view 0 0) (!-unique₂ _ _) dzero
+dist-view {zero}  {suc l} t = {!!}
+dist-view {suc n} {l}     t with t · fzero
+... | nothing = {!dskip1!}
+... | just fzero = {!!}
+... | just (fin (suc k)) = {!!}
+
+data ListList : Nat → Nat → Type lzero where 
+  nil     : ListList 0 0
+  skipper : ListList n m -> ListList (suc n) m
+  conser  : ∀ k -> ListList n m -> ListList (k + n) (suc m)
+
+--v : Vec Nat 8
+--v = tabulate λ k →  cardinality {A =  ⟨ k .lower ⟩→⟨ 4 ⟩ }
+
+--_ = {! v!}
 
  --3 , 8 , 20 , 48 , 112 , 256 , 576 , 1280 , 2816 , 
 -- 1 , 4 , 13 , 38 , 104 , 272 , 688 , 1696

@@ -1,4 +1,5 @@
 ```agda
+{-# OPTIONS --allow-unsolved-metas #-}
 open import Cat.Instances.Simplex
 open import Cat.Diagram.Zero
 open import Cat.Morphism.Lifts
@@ -414,6 +415,24 @@ cons-nothing f .map j with fin-view j
 cons-nothing f .ascending j k lt with fin-view j | fin-view k
 ... | zero | x = n≲x
 ... | suc j | suc k = f .ascending j k $ ≤-peel lt
+
+cons-zero : ⟨ n ⟩→⟨ suc m ⟩ → ⟨ suc n ⟩→⟨ suc m ⟩
+cons-zero f .map j with fin-view j
+... | zero = just fzero
+... | suc i = f · i
+cons-zero f .ascending j k lt with fin-view j | fin-view k
+... | zero | x = 0≲x
+... | suc j | suc k = f .ascending j k $ ≤-peel lt
+
+peel→cons-zero
+  : (t : ⟨ suc n ⟩→⟨ suc m ⟩) → t · fzero ≡ᵢ just fzero
+  → cons-zero (dist-peel t) ≡ t
+peel→cons-zero t = {!!}
+
+peel→cons-nothing
+  : (t : ⟨ suc n ⟩→⟨ suc m ⟩) → t · fzero ≡ᵢ nothing
+  → cons-nothing (dist-peel t) ≡ t
+peel→cons-nothing t = {!!}
 
 cons-id : ⟨ n ⟩→⟨ m ⟩ → ⟨ suc n ⟩→⟨ suc m ⟩
 cons-id f .map j with fin-view j

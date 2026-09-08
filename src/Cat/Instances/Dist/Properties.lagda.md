@@ -22,6 +22,7 @@ open import Data.Fin.Base renaming (_≤_ to _≤f_; _<_ to _<f_)
 open import Data.Nat.Base
 open import Data.Nat.Order
 open import Data.Nat.Properties
+open import Data.List.Sublist
 open import Data.Vec.Base
 open import Cat.Monoidal.Base
 open import Cat.Functor.Bifunctor
@@ -44,18 +45,60 @@ private variable
   t : ⟨ n ⟩→⟨ m ⟩
   ℓ : Level
   A : Type ℓ
+  xs : List A
+  x : A
 
---act : (t : ⟨ n ⟩→⟨ m ⟩) → (v : Vec A n) → (Fin m) → List A
---act t v k = {!!}
+open Vec
 
-invs : (t : ⟨ n ⟩→⟨ m ⟩) → (Fin m) → List (Fin n)
-invs {n = n} t k = filter (λ j →  Dec→Bool $ t · j ≡ᵢ? just k) (all-fin n)
+--invS : (t : ⟨ n ⟩→⟨ m ⟩) → (v : Vec A n) → (Fin m) → Sublist (v .lower)
+--invS {n = n} t v k with vec-view v
+--invS {n = zero} t v k | [] = []S
+--invS {n = suc n} t v k | a ∷ vs with t · fzero
+--... | nothing = skipS a {!!}
+--... | just x = {!!}
+
+open Zero zero-dist
+
+d1→sublist : (v : Vec A n) → (t : ⟨ n ⟩→⟨ 1 ⟩) → Sublist (v .lower)
+d1→sublist {n = n} v t with vec-view v
+d1→sublist {n = zero} v t | [] = []S
+d1→sublist {n = suc n} v t | a ∷ vs with t · fzero
+... | nothing = skipS a $ d1→sublist vs $ dist-peel t
+... | just x =  chooseS a $ d1→sublist vs $ dist-peel t
+
+sublist→d1 : (v : Vec A n) → Sublist (v .lower) → ⟨ n ⟩→⟨ 1 ⟩
+sublist→d1 v s with vec-view v
+sublist→d1 v s | [] = ¡
+sublist→d1 v (chooseS x s) | a ∷ vs = cons-zero $ sublist→d1 vs s 
+sublist→d1 v (skipS x s) | a ∷ vs = cons-nothing $ sublist→d1 vs s
+
+private module _ where
+  open is-iso
+  d1→sublist-is-iso : ∀ {n} {v : Vec A n} → is-iso (d1→sublist v)
+  d1→sublist-is-iso {v = v} .from = sublist→d1 v 
+  d1→sublist-is-iso {v = v} .rinv s with vec-view v
+  d1→sublist-is-iso {v = v} .rinv []S | [] = refl
+  d1→sublist-is-iso {v = v} .rinv (chooseS x s) | a ∷ vs =
+     ap (chooseS a) $ d1→sublist-is-iso {v = vs} .rinv s
+  d1→sublist-is-iso {v = v} .rinv (skipS x s) | a ∷ vs =
+     ap (skipS a) $ d1→sublist-is-iso {v = vs} .rinv s
+  d1→sublist-is-iso {v = v} .linv t with vec-view v
+  d1→sublist-is-iso {v = v} .linv t | [] = ¡-unique _
+  d1→sublist-is-iso {v = v} .linv t | a ∷ vs with t · fzero in w
+  d1→sublist-is-iso {v = v} .linv t | a ∷ vs | just x =
+    ap cons-zero (d1→sublist-is-iso {v = vs} .linv _) ∙
+    peel→cons-zero t (w ∙ᵢ  (apᵢ just $ Id≃path.from $ is-contr→is-prop fin1-is-contr _  _) )
+  d1→sublist-is-iso {v = v} .linv t | a ∷ vs | nothing = 
+    ap cons-nothing (d1→sublist-is-iso {v = vs} .linv _) ∙ peel→cons-nothing t w
+
+d1≃sublist : {v : Vec A n} → is-equiv (d1→sublist v)
+d1≃sublist = is-iso→is-equiv d1→sublist-is-iso
 
 
-invs-id : ∀ (k : Fin m) → invs id k ≡ [ k ]
-invs-id {m = suc m} k with fin-view k
-... | zero = {! !}
-... | suc i = {! invs-id i!}
+--invs-id : ∀ (k : Fin m) → invs id k ≡ [ k ]
+--invs-id {m = suc m} k with fin-view k
+--... | zero = {! !}
+--... | suc i = {! invs-id i!}
 
 --  from : Fin (m + n) → Fin m ⊎ Fin n
 --  from j@(fin i ⦃ b ⦄) with holds? (i Nat.< m)
@@ -81,13 +124,13 @@ data Dist-view : (n : Nat) → (m : Nat) → (t : ⟨ n ⟩→⟨ m ⟩) → Typ
 
 open Zero zero-dist
 
-dist-view : (t : ⟨ n ⟩→⟨ l ⟩) → Dist-view n l t
-dist-view {zero}  {zero}  t =  subst (Dist-view 0 0) (!-unique₂ _ _) dzero
-dist-view {zero}  {suc l} t = {!!}
-dist-view {suc n} {l}     t with t · fzero
-... | nothing = {!dskip1!}
-... | just fzero = {!!}
-... | just (fin (suc k)) = {!!}
+--dist-view : (t : ⟨ n ⟩→⟨ l ⟩) → Dist-view n l t
+--dist-view {zero}  {zero}  t =  subst (Dist-view 0 0) (!-unique₂ _ _) dzero
+--dist-view {zero}  {suc l} t = {!!}
+--dist-view {suc n} {l}     t with t · fzero
+--... | nothing = {!dskip1!}
+--... | just fzero = {!!}
+--... | just (fin (suc k)) = {!!}
 
 data ListList : Nat → Nat → Type lzero where 
   nil     : ListList 0 0

@@ -42,7 +42,6 @@ data _≤SL_ : Sublist xs → Sublist xs → Type ℓ where
   slsS : {s s' : Sublist xs} → s ≤SL s' → skipS x s ≤SL skipS x s'
   slcS : {s s' : Sublist xs} → s ≤SL s' → skipS x s ≤SL chooseS x s'
 
-
 ≤SL-is-prop : {s s' : Sublist xs} → is-prop $ s ≤SL s'
 ≤SL-is-prop zleS zleS = refl
 ≤SL-is-prop (clcS p) (clcS q) = ap clcS $ ≤SL-is-prop p q
@@ -80,6 +79,12 @@ Sublist-poset xs = record where
     ≤-trans   = ≤SL-trans
     ≤-antisym = ≤SL-antisym
 
+module Sublist-poset {xs} = Poset (Sublist-poset xs)
+
+instance
+  H-Level-Sublist : ∀ {n} → H-Level (Sublist xs) (2 + n)
+  H-Level-Sublist = basic-instance 2 Sublist-poset.Ob-is-set
+
 every : Sublist xs
 every {[]} = []S
 every {x ∷ xs}  = chooseS x every
@@ -87,11 +92,9 @@ every {x ∷ xs}  = chooseS x every
 
 empty : Sublist xs
 empty {[]} = []S
-empty {x ∷ xs} = skipS x $ empty
+empty {x ∷ xs} = skipS x empty
 
-module Sublist-lattice where
-  --open Poset (Sublist-poset xs)
-
+private module Sublist-lattice where
   _∩_     : Sublist xs → Sublist xs → Sublist xs
   []S ∩ []S               = []S
   chooseS x p ∩ chooseS x q = chooseS x (p ∩ q)
@@ -163,11 +166,19 @@ module Sublist-lattice where
   has-bottom .hb (chooseS x s) = slcS $ has-bottom .hb _
   has-bottom .hb (skipS x s) = slsS $ has-bottom .hb _
 
+Sublist-lattice : is-lattice (Sublist-poset xs)
+Sublist-lattice = record { Sublist-lattice }
 
 
-subList : (xs : List A) → Sublist xs → List A
-subList xs []S = []
-subList (x ∷ xs) (chooseS x s) = x ∷ xs
-subList (x ∷ xs) (skipS x s) = xs
+sublist : (xs : List A) → Sublist xs → List A
+sublist xs []S = []
+sublist (x ∷ xs) (chooseS x s) = x ∷ sublist xs s
+sublist (x ∷ xs) (skipS x s) = sublist xs s
 
+
+subSublist : (s : Sublist xs) → Sublist (sublist xs s) → Sublist xs
+subSublist []S []S = []S
+subSublist (chooseS x s) (chooseS x s') = chooseS x $ subSublist s s'
+subSublist (chooseS x s) (skipS x s') = skipS x $ subSublist s s'
+subSublist (skipS x s) s' = skipS x $ subSublist s s'
 ```

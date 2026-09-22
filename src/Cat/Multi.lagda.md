@@ -15,6 +15,7 @@ open import Data.Product.NAry
 open import Data.Vec.Base
 open import Data.Vec.Properties
 open import Data.List hiding (lookup-tabulate) renaming (lookup to lookupℓ; tabulate to tabulateℓ)
+open import Data.List.Sublist
 open import Data.Fin
 
 import Cat.Reasoning as Cr
@@ -88,6 +89,7 @@ module Make-multicat {o ℓ} (M : make-multicat o ℓ) where
     n m l : Nat
     xs ys zs : Vec Ob n
 
+{-
   MultiHom : Vec Ob n → Vec Ob m → ⟨ n ⟩→⟨ m ⟩ → Type ℓ 
   MultiHom {m = m} xs ys t = ∀ (k : Fin m) → Homl (lookup xs <$> invs t k) (ys !v k)
 
@@ -224,7 +226,6 @@ module Make-multicat {o ℓ} (M : make-multicat o ℓ) where
         ∎
 
   to-displayed .idr' {a} {b} {x = xs} {ys} {f} f' = {! !}
-{-
   to-displayed .idr' {a} {b} {x = xs} {ys} {f} f' i k = comp (λ j →
       Homl (multi-comp.motive₃ {a} {a} {b} {xs} {xs} {ys} {f} {Δ-id}
         f' (λ k' → transport (λ j' → Homl (lookup xs <$> preimage-id {a} {k'} (~ j')) (lookup xs k')) (id (lookup {o} xs k'))) k (j)) (lookup ys k)

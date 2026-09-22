@@ -427,12 +427,16 @@ cons-zero f .ascending j k lt with fin-view j | fin-view k
 peel→cons-zero
   : (t : ⟨ suc n ⟩→⟨ suc m ⟩) → t · fzero ≡ᵢ just fzero
   → cons-zero (dist-peel t) ≡ t
-peel→cons-zero t = {!!}
+peel→cons-zero t i = ext λ j → caseω fin-view j of λ where
+   zero → Id≃path.to $ symᵢ i  
+   (suc j) → refl
 
 peel→cons-nothing
   : (t : ⟨ suc n ⟩→⟨ suc m ⟩) → t · fzero ≡ᵢ nothing
   → cons-nothing (dist-peel t) ≡ t
-peel→cons-nothing t = {!!}
+peel→cons-nothing t i = ext λ j → caseω fin-view j of λ where
+   zero → Id≃path.to $ symᵢ i  
+   (suc j) → refl
 
 cons-id : ⟨ n ⟩→⟨ m ⟩ → ⟨ suc n ⟩→⟨ suc m ⟩
 cons-id f .map j with fin-view j

@@ -4,7 +4,6 @@ open import Cat.Prelude
 open import Cat.Instances.Dist
 open import Cat.Diagram.Coproduct
 open import Cat.Diagram.Product
-open import Data.Product.NAry
 open import Cat.Diagram.Zero
 
 open import Data.Set.Coequaliser
@@ -94,56 +93,25 @@ private module _ where
 d1≃sublist : {v : Vec A n} → is-equiv (d1→sublist v)
 d1≃sublist = is-iso→is-equiv d1→sublist-is-iso
 
-
---invs-id : ∀ (k : Fin m) → invs id k ≡ [ k ]
---invs-id {m = suc m} k with fin-view k
---... | zero = {! !}
---... | suc i = {! invs-id i!}
-
---  from : Fin (m + n) → Fin m ⊎ Fin n
---  from j@(fin i ⦃ b ⦄) with holds? (i Nat.< m)
---  ... | yes p = inl (fin i ⦃ p ⦄)
---  ... | no ¬p = inr $ fin (i - m) ⦃ nlt→lt j ¬p ⦄
 open ⟨_⟩→⟨_⟩
 
+_d+_ : ⟨ n ⟩→⟨ 1 ⟩ → ⟨ n' ⟩→⟨ m ⟩ → ⟨ n + n' ⟩→⟨ suc m ⟩
+(f d+ g) .map k =  [  inject _ <∙> f .map , fsuc <∙> g .map ] $ sum.from k
+_d+_ {n} f g .ascending j k le with holds? (j .lower < n) | holds? (k .lower < n)
+... | no ¬p | yes q = absurd $ ¬p $ s≤s le ≤∙ q
+... | no ¬p | no ¬q = Map-≲ s≤s $ g .ascending _ _ $ monus-preserves-≤l n le
+... | yes p | yes q = Map-≲ (λ x → x) $ f .ascending _ _ le
+... | yes p | no ¬q = Map-≲₂  λ {x} {y} → ≤-peel (to-ℕ< x .snd) ≤∙ _
 
-add-n : ⟨ n ⟩→⟨ l ⟩ → ⟨ m + n ⟩→⟨ suc l ⟩
-add-n {n = n} {l} {m} t .map fk@(fin k ⦃ b ⦄) with holds? (k < m)
-... | yes a = just fzero
-... | no ¬a = fsuc <$>  t · fin (k - m) ⦃ nlt→lt fk ¬a ⦄ 
-add-n {n = n} {l} {m} t .ascending j k le with holds? (j .lower < m) | holds? (k .lower < m)
-... | yes a | yes b = j≲j (lift oh)
-... | yes a | no ¬b = {!!}
-... | no ¬a | yes b = {!!}
-... | no ¬a | no ¬b = {!!}
+_d+'_ : ⟨ n ⟩→⟨ m ⟩ → ⟨ n' ⟩→⟨ m' ⟩ → ⟨ n + n' ⟩→⟨ m + m' ⟩
+(f d+' g) .map k =  [  sum.to ⊙ inl <∙> f .map , sum.to ⊙ inr <∙> g .map ] $ sum.from k
+_d+'_ {n} f g .ascending j k le with holds? (j .lower < n) | holds? (k .lower < n)
+... | no ¬p | yes q = absurd $ ¬p $ s≤s le ≤∙ q
+... | no ¬p | no ¬q = Map-≲ (+-preserves-≤l _ _ _) $ g .ascending _ _ $ monus-preserves-≤l n le
+... | yes p | yes q = Map-≲ (λ x → x) $ f .ascending _ _ le
+... | yes p | no ¬q = Map-≲₂ λ {x} {y} → <-weaken (to-ℕ< x .snd) ≤∙ +-≤l _ _  
 
-data Dist-view : (n : Nat) → (m : Nat) → (t : ⟨ n ⟩→⟨ m ⟩) → Type lzero where
-  dzero  : Dist-view 0 0 Dist.id
-  dskip1 : ∀ {n m t}    → (Dist-view n m t) → Dist-view (suc n)  (m)     (cons-nothing t)
-  dconsn : ∀ {n m t n'} → (Dist-view n m t) → Dist-view (n' + n) (suc m) (add-n t)
-
-open Zero zero-dist
-
---dist-view : (t : ⟨ n ⟩→⟨ l ⟩) → Dist-view n l t
---dist-view {zero}  {zero}  t =  subst (Dist-view 0 0) (!-unique₂ _ _) dzero
---dist-view {zero}  {suc l} t = {!!}
---dist-view {suc n} {l}     t with t · fzero
---... | nothing = {!dskip1!}
---... | just fzero = {!!}
---... | just (fin (suc k)) = {!!}
-
-data ListList : Nat → Nat → Type lzero where 
-  nil     : ListList 0 0
-  skipper : ListList n m -> ListList (suc n) m
-  conser  : ∀ k -> ListList n m -> ListList (k + n) (suc m)
-
---v : Vec Nat 8
---v = tabulate λ k →  cardinality {A =  ⟨ k .lower ⟩→⟨ 4 ⟩ }
-
---_ = {! v!}
-
- --3 , 8 , 20 , 48 , 112 , 256 , 576 , 1280 , 2816 , 
--- 1 , 4 , 13 , 38 , 104 , 272 , 688 , 1696
+-- terrible
 {-
 module _ where
   open Make-bifunctor

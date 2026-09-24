@@ -127,6 +127,13 @@ Map-≲ {j = nothing}          mon lt = n≲x
 Map-≲ {j = just x} {nothing} mon lt = j≲n 
 Map-≲ {j = just x} {just x₁} mon (j≲j lt) =  j≲j $ mon lt 
 
+Map-≲₂
+  : ∀ {j k} {f : Fin n → Fin m} {g : Fin n' → Fin m} → (∀ {x y} → f x ≤f g y)
+  → (f <$> j) ≲ (g <$> k)
+Map-≲₂ {j = nothing}          _ = n≲x
+Map-≲₂ {j = just x} {nothing} _ = j≲n 
+Map-≲₂ {j = just x} {just x₁} w = j≲j $ w 
+
 comp-Δ  : ∀{n m k} (f : ⟨ m ⟩→⟨ k ⟩) (g : ⟨ n ⟩→⟨ m ⟩) → ⟨ n ⟩→⟨ k ⟩
 comp-Δ f g .map = f .map <=< g .map
 comp-Δ f g .ascending x y p with g .map x | g .map y | g .ascending x y p

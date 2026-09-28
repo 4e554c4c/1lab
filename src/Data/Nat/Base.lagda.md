@@ -311,7 +311,10 @@ infix 7 _<_ _≤_
 ```agda
 _>_ : Nat → Nat → Type
 x > y = y < x
-infix 7 _>_
+
+_≮_ : Nat → Nat → Type
+m ≮ n = ¬ (m < n)
+infix 7 _>_ _≮_
 ```
 -->
 

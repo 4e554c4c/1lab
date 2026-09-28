@@ -41,7 +41,7 @@ open import Cat.Functor.Bifunctor
 import Cat.Reasoning
 import Cat.Morphism
 
-open import Meta.Idiom
+open import Meta.Idiom renaming (map to fmap)
 
 open Functor
 ```
@@ -57,8 +57,11 @@ record ⟨_⟩→⟨_⟩ (n m : Nat) : Type where
   constructor sasc
   field
     map       : (Fin $ suc n) → (Fin $ suc m)
-    point     : map 0 ≡ᵢ 0
-    ascending : (x y : Fin $ suc n) → (map x ≠ᵢ 0) → (map y ≠ᵢ 0) → x ≤f y → map x ≤f map y
+    point     : map 0 .lower ≡ᵢ 0
+    ascending : (x y : Fin $ suc n) → (map x .lower ≠ᵢ 0) → (map y .lower ≠ᵢ 0) → x ≤f y → map x ≤f map y
+
+  point' : map fzero ≡ᵢ fzero
+  point' = fin-apᵢ point
 
 unquoteDecl H-Level-⟨⟩→⟨⟩ = declare-record-hlevel 2 H-Level-⟨⟩→⟨⟩ (quote ⟨_⟩→⟨_⟩)
 
@@ -70,18 +73,18 @@ open ⟨_⟩→⟨_⟩
   → f ≡ g
 ⟨⟩→⟨⟩-path p i .map x = p x i
 ⟨⟩→⟨⟩-path {m = m} {f = f} {g} p i .point =
-  is-prop→pathp (λ j → hlevel {T = p 0 j ≡ᵢ 0} 1) (f .point) (g .point) i  
+  is-prop→pathp (λ j → hlevel {T = p 0 j .lower ≡ᵢ 0} 1) (f .point) (g .point) i  
 ⟨⟩→⟨⟩-path {f = f} {g} p i .ascending x y a b w =
   is-prop→pathp (λ j → ≤-is-prop {p x j .lower} {p y j .lower})
-    (f .ascending x y fx fy w) (g .ascending x y gx gy w) i where
-   --fx : f .map x ≠ᵢ fin 0
-   --fy : f .map y ≠ᵢ fin 0
-   --gx : g .map x ≠ᵢ fin 0
-   --gy : g .map y ≠ᵢ fin 0
-   fx =  subst (_≠ᵢ _) (λ j →  p x (i ∧ ~ j)) a
-   fy =  subst (_≠ᵢ _) (λ j →  p y (i ∧ ~ j)) b
-   gx =  subst (_≠ᵢ _) (λ j →  p x (i ∨ j)) a
-   gy =  subst (_≠ᵢ _) (λ j →  p y (i ∨ j)) b
+    (f .ascending x y  fx fy w) (g .ascending x y  gx  gy w) i where
+   fx : f .map x .lower ≠ᵢ 0
+   fy : f .map y .lower ≠ᵢ 0
+   gx : g .map x .lower ≠ᵢ 0
+   gy : g .map y .lower ≠ᵢ 0
+   fx =  subst (_≠ᵢ _) ( (λ j →  p x (i ∧ ~ j) .lower) ) a
+   fy =  subst (_≠ᵢ _) (λ j →  p y (i ∧ ~ j) .lower) b
+   gx =  subst (_≠ᵢ _) (λ j →  p x (i ∨ j) .lower) a
+   gy =  subst (_≠ᵢ _) (λ j →  p y (i ∨ j) .lower) b
 
 instance
   Funlike-⟨⟩→⟨⟩ : ∀ {n m} → Funlike ⟨ n ⟩→⟨ m ⟩ (Fin $ suc n) λ _ → (Fin $ suc m)
@@ -95,9 +98,9 @@ instance
 
 dist-∘ : ∀{n m k} (f : ⟨ m ⟩→⟨ k ⟩) (g : ⟨ n ⟩→⟨ m ⟩) → ⟨ n ⟩→⟨ k ⟩
 dist-∘ f g .map = f .map ⊙ g .map
-dist-∘ f g .point = apᵢ (f .map) (g .point)  ∙ᵢ f .point
+dist-∘ f g .point = apᵢ (lower ⊙ f .map) $ point' g ∙ᵢ f .point
 dist-∘ f g .ascending x y a b p =  f .ascending _ _ a b $  g .ascending _ _
-  (λ n → a $ apᵢ (f .map) n ∙ᵢ f .point ) (λ n → b $ apᵢ (f .map) n ∙ᵢ f .point) p 
+  (λ n → a $ {! apᵢ (lower ⊙ f .map) (fin-apᵢ n)  ∙ᵢ f .point    !} ) (λ n → b $  apᵢ (lower ⊙ f .map) (fin-apᵢ n)  ∙ᵢ f .point) p 
 
 dist-id : ∀ {n} → ⟨ n ⟩→⟨ n ⟩
 dist-id .map x = x
@@ -168,6 +171,37 @@ open make-natural-iso
 _f+_ : Fin n → Fin m → Fin (n + m)
 fin j ⦃ lt ⦄ f+ fin k ⦃ lt' ⦄ = fin (j + k) ⦃ +-preserves-< _ _ _ _ lt lt' ⦄
 
+_d+_ : ⟨ n ⟩→⟨ m ⟩ → ⟨ n' ⟩→⟨ m' ⟩ → ⟨ n + n' ⟩→⟨ m + m' ⟩
+_d+_ {n = n} {m} {n' = n'} {m'} f g .map k =
+  [ sum.to ⊙ inl ⊙ f .map
+  , subst Fin (+-sucr _ _) ⊙ sum.to {n = m} {suc m'}  ⊙ inr ⊙ g .map ⊙ fsuc
+  ] $ sum.from {n = suc n} {n'} k 
+_d+_ {n = n} {m} {n' = n'} {m'} f g .point = fin-apᵢ $ apᵢ lower $ f .point
+_d+_ {n = n} {m} {n' = n'} {m'} f g .ascending j k p q le with holds? (j .lower < suc n) | holds? (k .lower < suc n)
+... | yes a | yes b =  f .ascending _ _ p q le
+... | yes a | no ¬b =  ≤-peel (f .map (fin (j .lower) ⦃ a ⦄) .Fin.bounded) ≤∙ +-≤l _ _  
+... | no ¬a | yes b =  absurd $ ¬a $ s≤s $ le ≤∙ ≤-peel b
+... | no ¬a | no ¬b =  (+-preserves-≤l _ _ m) $  g .ascending _ _ {!p !} {! q!} $ s≤s $ monus-preserves-≤l (suc n) le  
+
+
+-- facts
+
+d+-apl : (f : ⟨ n ⟩→⟨ m ⟩) → (g : ⟨ n' ⟩→⟨ m' ⟩) → ∀ k → (lt : k .lower < (suc n)) → (f .map (fin (k .lower) ⦃ lt ⦄)) .lower ≡ᵢ ((f d+ g) .map k) .lower
+d+-apl f g k lt rewrite (decide-yes (holds? (k .lower < suc _)) lt) = reflᵢ
+
+--d+-apr : (f : ⟨ n ⟩→⟨ m ⟩) → (g : ⟨ n' ⟩→⟨ m' ⟩) → ∀ k →  (f .map (fin (k .lower) ⦃ lt ⦄)) .lower ≡ᵢ ((f d+ g) .map k) .lower
+--d+-apr f g k lt rewrite (decide-no (holds? (k .lower < suc _)) lt) = reflᵢ
+
+{-
+_d+_ {n} f g .ascending j k le with holds? (j .lower < n) | holds? (k .lower < n)
+... | no ¬p | yes q = absurd $ ¬p $ s≤s le ≤∙ q
+... | no ¬p | no ¬q = Map-≲ (+-preserves-≤l _ _ _) $ g .ascending _ _ $ monus-preserves-≤l n le
+... | yes p | yes q = Map-≲ (λ x → x) $ f .ascending _ _ le
+... | yes p | no ¬q = Map-≲₂ λ {x} {y} → <-weaken (to-ℕ< x .snd) ≤∙ +-≤l _ _  
+-}
+
+{-
+
 module _ where
   open Make-bifunctor
   open ⟨_⟩→⟨_⟩
@@ -199,4 +233,5 @@ module _ where
   -- p k with sum.from {n} {m} k in w
   -- ... | inl x = ap just $ sum.adjunctr $ sym $ Id≃path.to w
   -- ... | inr x = ap just $ sum.adjunctr $ sym $ Id≃path.to w
+  -}
 ```

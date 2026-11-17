@@ -169,6 +169,10 @@ cons-nothing f .ascending j k lt with fin-view j | fin-view k
 ... | zero | x = n≲x
 ... | suc j | suc k = f .ascending j k $ ≤-peel lt
 
+cons-nothingⁿ : ∀ n' → ⟨ n ⟩→⟨ m ⟩ → ⟨ n' + n ⟩→⟨ m ⟩
+cons-nothingⁿ zero f = f
+cons-nothingⁿ (suc n) f = cons-nothing $ cons-nothingⁿ n f
+
 cons-zero : ⟨ n ⟩→⟨ suc m ⟩ → ⟨ suc n ⟩→⟨ suc m ⟩
 cons-zero f .map j with fin-view j
 ... | zero = just fzero

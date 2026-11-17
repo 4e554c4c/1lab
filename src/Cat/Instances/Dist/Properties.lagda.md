@@ -111,6 +111,45 @@ _d+'_ {n} f g .ascending j k le with holds? (j .lower < n) | holds? (k .lower < 
 ... | yes p | yes q = Map-≲ (λ x → x) $ f .ascending _ _ le
 ... | yes p | no ¬q = Map-≲₂ λ {x} {y} → <-weaken (to-ℕ< x .snd) ≤∙ +-≤l _ _  
 
+{-
+
+record Dsplit (f : ⟨ n ⟩→⟨ suc m ⟩) : Type lzero where
+  constructor ds
+  field
+    left : Nat
+    right : Nat
+    leftright : left + right ≡ᵢ n
+    dfront : ⟨ left ⟩→⟨ 1 ⟩
+    dback : ⟨ right ⟩→⟨ m ⟩
+
+open Dsplit
+
+dsplit : (f : ⟨ n ⟩→⟨ suc m ⟩) → Dsplit f
+dsplit f = {!!}
+
+dprefix : ⟨ n ⟩→⟨ suc m ⟩ → Nat
+dprefix = left ⊙ dsplit
+
+dsuffix : ⟨ n ⟩→⟨ suc m ⟩ → Nat
+dsuffix = right ⊙ dsplit
+
+sufpref : (f : ⟨ n ⟩→⟨ suc m ⟩) → (dprefix f + dsuffix x) ≡ᵢ n
+sufpref =  leftright ⊙ dsplit 
+
+dhead : (f : ⟨ n ⟩→⟨ suc m ⟩) → ⟨ dprefix f ⟩→⟨ 1 ⟩ 
+dhead = {!!}
+
+dtail : (f : ⟨ n ⟩→⟨ suc m ⟩) → ⟨ dsuffix f ⟩→⟨ m ⟩ 
+dtail = {!!}
+
+dsplit-lemma : _d+_ 
+
+_d+''_ : ⟨ n ⟩→⟨ m ⟩ → ⟨ n' ⟩→⟨ m' ⟩ → ⟨ n + n' ⟩→⟨ m + m' ⟩
+_d+''_ {n} {zero} f g = cons-nothingⁿ n g 
+_d+''_ {n} {suc zero} f g = {! !}
+_d+''_ {n} {suc (suc m)} f g .map x = {!!}
+-}
+
 -- terrible
 {-
 module _ where

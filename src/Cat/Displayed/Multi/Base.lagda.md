@@ -28,7 +28,7 @@ open import Meta.Idiom
 open import Order.Base
 open import Order.Cat
 
-import Cat.Displayed.IsoFibration
+import Cat.Displayed.Isofibration
 import Cat.Displayed.Cocartesian as Coc
 import Cat.Displayed.Reasoning as DR
 import Cat.Displayed.Morphism as DM
@@ -53,7 +53,7 @@ record Multicat-over (E : Displayed Dist o ℓ) (lift-inert : Coc.Cocartesian-li
   open module E = DR E public
   open Coc E public
   open DM E public
-  open Cat.Displayed.IsoFibration E
+  --open Cat.Displayed.Isofibration E
   open Cocartesian-lift
 
   module lift-inert {m n} (f : ⟨ m ⟩→⟨ n ⟩)(f-inert : is-inert f) C
@@ -114,7 +114,7 @@ record Multicat-over (E : Displayed Dist o ℓ) (lift-inert : Coc.Cocartesian-li
 
   vec-idx' : ∀ {n} {A : Ob[ n ]} {B : Ob[ n ]}
     → (fs : (i : Fin n) → Hom[ id ] (A ![ i ]) (B ![ i ])) → ∀ k → (vec→hom' fs) !![ k ] ≡ fs k
-  vec-idx' {A = A} {B} fs k = sym $ lift-ρ.uniquep A k id-comm-sym _ _ _ $ begin[]
+  vec-idx' {A = A} {B} fs k =  lift-ρ.uniquep A k id-comm-sym _ _ _ $ begin[] 
     fs k ∘' lift-ρ.lifting A k
     ≡[]⟨ coh[ id-comm-sym ] _ ⟩
     (hom[ id-comm-sym ] $ fs k ∘' lift-ρ.lifting A k)

@@ -25,13 +25,18 @@ variable
   a b c d : Ob
   --a' b' c' d' : Ob[ a ]
 
-record Make-ofs-displayed : Type (o ⊔ ℓ ⊔ ℓl ⊔ ℓr ⊔ lsuc o' ⊔ lsuc ℓ') where
+record Make-ofs-displayed-cocart : Type (o ⊔ ℓ ⊔ ℓl ⊔ ℓr ⊔ lsuc o' ⊔ lsuc ℓ') where
   field
       Ob[_] : Ob → Type o'
       L[_,_] : (f : Hom a b) → f ∈ L → Ob[ a ] → Ob[ b ] → Type ℓ'
       L[_,_]-set
         : (f : Hom a b) → (inl : f ∈ L) → (a' : Ob[ a ]) → (b' : Ob[ b ])
         → is-set (L[ f , inl ] a' b') 
+
+      L-lift : (f : Hom a b) → f ∈ L → Ob[ a ] → Ob[ b ]
+      L-lifting
+        : (f : Hom a b) → (f-l : f ∈ L) → (a' : Ob[ a ]) →
+        L[ f , f-l ] a' (L-lift f f-l a')
       R[_,_] : (f : Hom a b) → f ∈ R → Ob[ a ] → Ob[ b ] → Type ℓ'
       R[_,_]-set
         : (f : Hom a b) → (inr : f ∈ R) → (a' : Ob[ a ]) → (b' : Ob[ b ])
@@ -51,17 +56,11 @@ record Make-ofs-displayed : Type (o ⊔ ℓ ⊔ ℓl ⊔ ℓr ⊔ lsuc o' ⊔ ls
   make-displayed-ofs : Displayed B o' _
   make-displayed-ofs .O[_]  = Ob[_]
   make-displayed-ofs .Hom[_] f a' b' =
-    Σ[ m' ∈ Ob[ f.mid ] ] L[ f.left , f.left∈L ] a'  m' × R[ f.right , f.right∈R ] m'  b'
-    where module f = Factorisation (f .factor)
-  make-displayed-ofs .id' {x} {x'} = transport (λ i → Ob[  f1≡f2 i .mid ])  x'
-    , transport (λ i → L[ f1≡f2 i .left , f1≡f2 i .left∈L ]
-                         x'
-                         ((transp (λ j → Ob[ f1≡f2 (j ∧ i) .mid ]) (~ i) x')))
-                idL
-    , transport (λ i → R[ f1≡f2 i .right , f1≡f2 i .right∈R ]
-                         ((transp (λ j → Ob[ f1≡f2 (j ∧ i) .mid ]) (~ i) x'))
-                         x')
-                idR
+    L[ f.left , f.left∈L ] a'  m' × R[ f.right , f.right∈R ] m'  b'
+    where
+      module f = Factorisation (f .factor)
+      m' = L-lift f.left f.left∈L a'
+  make-displayed-ofs .id' {x} {x'} = {!!}
     where
       id-fact = id {x} .factor
       module id-fact = Factorisation id-fact
@@ -75,7 +74,7 @@ record Make-ofs-displayed : Type (o ⊔ ℓ ⊔ ℓl ⊔ ℓr ⊔ lsuc o' ⊔ ls
 
       f1≡f2 : id-fact' ≡ id-fact 
       f1≡f2 =  factorisation-unique B L R ofs id b-cat _ _ 
-  make-displayed-ofs ._∘'_ {a} {b} {c} {a'} {b'} {c'} {f} {g} f' g' = {!!} , {!!} , {!!}
+  make-displayed-ofs ._∘'_ {a} {b} {c} {a'} {b'} {c'} {f} {g} f' g' = {!!} , {!!}
       where
       module f = Factorisation (f .factor)
       module g = Factorisation (g .factor)

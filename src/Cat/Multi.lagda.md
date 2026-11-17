@@ -12,7 +12,7 @@ open import 1Lab.HLevel.Closure
 open import 1Lab.Reflection
 
 open import Data.Product.NAry
-open import Data.Vec.Base
+open import Data.Vec.Base hiding (_++_)
 open import Data.Vec.Properties
 open import Data.List hiding (lookup-tabulate) renaming (lookup to lookupℓ; tabulate to tabulateℓ)
 open import Data.List.Sublist
@@ -88,6 +88,15 @@ module Make-multicat {o ℓ} (M : make-multicat o ℓ) where
   private variable
     n m l : Nat
     xs ys zs : Vec Ob n
+
+  
+  data MultiHom  : List (List Ob) → List Ob → Type (o ⊔ ℓ) where
+    emptyM : MultiHom [] []
+    consM
+      : (𝔞 : List Ob) (b : Ob) (𝔞' : List (List Ob)) (𝔟 : List Ob) (h : Homl 𝔞 b)
+      → MultiHom 𝔞' 𝔟 → MultiHom (𝔞 ∷ 𝔞') (b ∷ 𝔟)
+
+  data MultiSublist : List Ob → List (List Ob) → Type o where
 
 {-
   MultiHom : Vec Ob n → Vec Ob m → ⟨ n ⟩→⟨ m ⟩ → Type ℓ 

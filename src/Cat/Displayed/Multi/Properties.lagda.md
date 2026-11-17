@@ -78,12 +78,12 @@ module _ (E : Displayed Dist o ℓ) (lift-inert : Coc.Cocartesian-lifts-of E Ine
     (lift-ρ.universal' v i Dist.id-comm-sym $ E.id' M![ i ])
       ≡[]⟨⟩
     (lift-ρ.universal' v i Dist.id-comm-sym $ lift-ρ.lifting v i E.∘' E.id')
-      ≡[]˘⟨ lift-ρ.uniquep v i Dist.id-comm-sym refl Dist.id-comm-sym E.id' id-comm' ⟩
+      ≡[]⟨ lift-ρ.uniquep v i Dist.id-comm-sym refl Dist.id-comm-sym E.id' id-comm' ⟩
     E.id'
       ∎[]
   fibre-func .F-∘ {x} {y} {z} f' g' = ext λ i → begin[]
     lift-ρ.universal' x i id-comm-sym ((hom[ idl id ] $ f' ∘' g') M![ i ])
-      ≡[]⟨ lift-ρ.uniquep x i id-comm-sym refl _ _ $ begin[]
+      ≡[]˘⟨ lift-ρ.uniquep x i id-comm-sym refl _ _ $ begin[]
         lift-ρ.universal' x i id-comm-sym (hom[ idl id ] (f' E.∘' g') M![ i ])
         ∘' lift-ρ.lifting x i
           ≡[]⟨ lift-ρ.commutesp x i id-comm-sym (hom[ idl id ] (f' E.∘' g') M![ i ]) ⟩
@@ -93,7 +93,7 @@ module _ (E : Displayed Dist o ℓ) (lift-inert : Coc.Cocartesian-lifts-of E Ine
           ∎[]
       ⟩
     lift-ρ.universal' x i (idl _ ∙ intror (idl id)) ((f' ∘' g') M![ i ])
-      ≡[]˘⟨ lift-ρ.uniquep x i (eliml (idl id) ∙ intror (idl id)) (idl id) (idl _ ∙ intror (idl id)) _ $ begin[]
+      ≡[]⟨ lift-ρ.uniquep x i (eliml (idl id) ∙ intror (idl id)) (idl id) (idl _ ∙ intror (idl id)) _ $ begin[]
         (lift-ρ.universal' y i id-comm-sym (f' M![ i ]) ∘'
         lift-ρ.universal' x i id-comm-sym (g' M![ i ])) ∘'
         lift-ρ.lifting x i
@@ -160,7 +160,7 @@ module _ (E : Displayed Dist o ℓ) (lift-inert : Coc.Cocartesian-lifts-of E Ine
     ≡[]⟨⟩
     (lift-ρ.universal' B k (idl _) $ F M![ k ])
     ∘' (lift-ρ.universal' A k (idl _) $ G M![ k ])
-    ≡[]⟨ lift-ρ.uniquep A k (idl _) (idl _) _ _ $ begin[]
+    ≡[]˘⟨ lift-ρ.uniquep A k (idl _) (idl _) _ _ $ begin[]
         ((lift-ρ.universal' B k (idl _) $ F M![ k ])
         ∘' (lift-ρ.universal' A k (idl _) $ G M![ k ]))
         ∘' lift-ρ.lifting A k
@@ -182,7 +182,7 @@ module _ (E : Displayed Dist o ℓ) (lift-inert : Coc.Cocartesian-lifts-of E Ine
   idextp-id :
     {A : Ob[ n ]}
     → ∀ {k} → id' {n} {A} !![ k ] ≡ id'
-  idextp-id {A = A} {k} = sym $ lift-ρ.uniquep A k (idl _) _ _ _ $ begin[]
+  idextp-id {A = A} {k} = lift-ρ.uniquep A k (idl _) _ _ _ $ begin[]
     id' ∘' lift-ρ.lifting A k
     ≡[]⟨ idl' _ ⟩
     lift-ρ.lifting A k

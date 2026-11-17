@@ -2,6 +2,9 @@
 ```agda
 open import Cat.Functor.Properties
 open import Cat.Prelude
+open import 1Lab.Reflection.HLevel
+open import 1Lab.HLevel.Closure
+open import 1Lab.Reflection
 
 import Cat.Reasoning
 ```
@@ -13,6 +16,9 @@ module Cat.Functor.WideSubcategory where
 
 <!--
 ```agda
+private variable
+  o ℓ ℓ' : Level
+  C : Precategory o ℓ
 module _ {o ℓ} (C : Precategory o ℓ) where
   private module C = Cat.Reasoning C
 ```
@@ -49,16 +55,27 @@ $P$ holds.
 
 <!--
 ```agda
+{-# INLINE Wide-subcat.constructor #-}
+
+private
+  subcat-prop : ∀ (w : Wide-subcat C ℓ') {x y f} → is-prop (w .Wide-subcat.P {x} {y} f)
+  subcat-prop C = C .Wide-subcat.P-prop _
+open hlevel-projection
+
 instance
   Membership-wide-subcat
     : ∀ {o ℓ ℓ'} {C : Precategory o ℓ} {x y}
     → Membership (C .Precategory.Hom x y) (Wide-subcat C ℓ') ℓ'
   Membership-wide-subcat = record { _∈_ = λ f W → Wide-subcat.P W f }
 
-module _ {o h} {C : Precategory o h} where
+  hlevel-proj-P : hlevel-projection (quote Wide-subcat.P)
+  hlevel-proj-P .has-level = quote subcat-prop
+  hlevel-proj-P .get-level _ = pure (lit (nat 1))
+  hlevel-proj-P .get-argument = first-visible
+
+module _ {C : Precategory o ℓ} where
   private
     module C = Cat.Reasoning C
-    variable ℓ : Level
 
   open Precategory
   open Wide-subcat
@@ -66,7 +83,7 @@ module _ {o h} {C : Precategory o h} where
 -->
 
 ```agda
-  record Wide-hom {ℓ'} (sub : Wide-subcat C ℓ') (x y : C.Ob) : Type (h ⊔ ℓ') where
+  record Wide-hom (sub : Wide-subcat C ℓ') (x y : C.Ob) : Type (ℓ ⊔ ℓ') where
     no-eta-equality
     constructor wide
     field
@@ -79,7 +96,7 @@ module _ {o h} {C : Precategory o h} where
   open Wide-hom public
 
   Wide-hom-path
-    : {sub : Wide-subcat C ℓ}
+    : {sub : Wide-subcat C ℓ'}
     → {x y : C.Ob}
     → {f g : Wide-hom sub x y}
     → f .hom ≡ g .hom
@@ -92,13 +109,13 @@ module _ {o h} {C : Precategory o h} where
 
   instance
     Extensional-wide-hom
-      : ∀ {ℓ ℓr} {sub : Wide-subcat C ℓ} {x y : C.Ob}
+      : ∀ {ℓ' ℓr} {sub : Wide-subcat C ℓ'} {x y : C.Ob}
       → ⦃ sa : Extensional (C.Hom x y) ℓr ⦄
       → Extensional (Wide-hom sub x y) ℓr
     Extensional-wide-hom ⦃ sa ⦄ = injection→extensional! Wide-hom-path sa
 
     H-Level-Wide-hom
-      : ∀ {sub : Wide-subcat C ℓ} {x y : C.Ob} {n}
+      : ∀ {sub : Wide-subcat C ℓ'} {x y : C.Ob} {n}
       → H-Level (Wide-hom sub x y) (2 + n)
     H-Level-Wide-hom {sub = sub} = basic-instance 2 $ Iso→is-hlevel 2 Wide-hom-iso-Σ $
       Σ-is-hlevel 2 (C.Hom-set _ _) λ f → is-hlevel-suc 1 (sub .P-prop f)
@@ -115,7 +132,7 @@ module _ {o h} {C : Precategory o h} where
 We can then use this data to construct a category.
 
 ```agda
-  Wide : Wide-subcat C ℓ → Precategory o (h ⊔ ℓ)
+  Wide : Wide-subcat C ℓ' → Precategory o (ℓ ⊔ ℓ')
   Wide sub .Ob = C.Ob
   Wide sub .Hom         = Wide-hom sub
   Wide sub .Hom-set _ _ = hlevel 2
@@ -166,7 +183,7 @@ this is indeed a proposition.
 ```agda
     Split-eso-inclusion→Wide-subcat : Precategory _ _
     Split-eso-inclusion→Wide-subcat = Wide sub where
-      sub : Wide-subcat C (h ⊔ h')
+      sub : Wide-subcat C (ℓ ⊔ h')
       sub .P {x = x} {y = y} f =
         Σ[ g ∈ D.Hom (eso x .fst) (eso y .fst) ]
         (eso.to y C.∘ F₁ g C.∘ eso.from x ≡ f)
